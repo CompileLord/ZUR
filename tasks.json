@@ -309,7 +309,7 @@
       "id": "S1",
       "name": "Phase A — prove safe practice",
       "phase": "A",
-      "status": "not_started",
+      "status": "in_progress",
       "gate": "Isolated Run/Submit, hidden-output protection, idempotency, reconnect, malicious-code tests, and code recovery pass.",
       "modules": [
         {
@@ -335,47 +335,93 @@
             {
               "id": "T013",
               "title": "Implement sign-up and email verification",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Build verified-email account creation, resend/cooldown, expired-link recovery, restricted-pilot eligibility, safe invitation context, and P05–P06 states; enrollment and authoring require verification."
+              "description": "Build verified-email account creation, resend/cooldown, expired-link recovery, restricted-pilot eligibility, safe invitation context, and P05–P06 states; enrollment and authoring require verification.",
+              "evidence": [
+                "packages/server/src/services/identity-service.ts",
+                "packages/server/src/services/password-service.ts",
+                "packages/web/src/pages/account/SignUpPage.ts",
+                "packages/web/src/pages/account/VerifyEmailPage.ts",
+                "packages/server/tests/auth-core.test.ts",
+                "packages/web/tests/auth-pages.test.ts"
+              ]
             },
             {
               "id": "T014",
               "title": "Implement sign-in, sessions, and sign-out",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Build P04 sign-in, session expiry, safe return destinations, sign-out/all-device revocation, account suspension enforcement, authentication rate limits, and stronger admin authentication."
+              "description": "Build P04 sign-in, session expiry, safe return destinations, sign-out/all-device revocation, account suspension enforcement, authentication rate limits, and stronger admin authentication.",
+              "evidence": [
+                "packages/server/src/services/identity-service.ts",
+                "packages/server/src/server.ts",
+                "packages/web/src/services/auth-client.ts",
+                "packages/web/src/pages/account/SignInPage.ts",
+                "packages/server/tests/auth-core.test.ts",
+                "packages/web/tests/auth-pages.test.ts"
+              ]
             },
             {
               "id": "T015",
               "title": "Implement password recovery and security settings",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Build generic recovery responses, expiring reset flow, password/provider controls, reauthentication, admin stronger-auth state, and P07/P19 error and confirmation states without account enumeration."
+              "description": "Build generic recovery responses, expiring reset flow, password/provider controls, reauthentication, admin stronger-auth state, and P07/P19 error and confirmation states without account enumeration.",
+              "evidence": [
+                "packages/server/src/services/identity-service.ts",
+                "packages/web/src/pages/account/PasswordRecoveryPages.ts",
+                "packages/web/src/pages/settings/SecuritySettingsPage.ts",
+                "packages/server/tests/auth-core.test.ts",
+                "packages/web/tests/auth-pages.test.ts"
+              ]
             },
             {
               "id": "T016",
               "title": "Implement profile and appearance settings",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Build P17 display-name save and verified-email view plus P18 theme, editor font size, and indentation preference persistence with truthful failure handling."
+              "description": "Build P17 display-name save and verified-email view plus P18 theme, editor font size, and indentation preference persistence with truthful failure handling.",
+              "evidence": [
+                "packages/server/src/db/migrations/002_identity_and_privacy.sql",
+                "packages/server/src/services/identity-service.ts",
+                "packages/web/src/pages/settings/ProfileSettingsPage.ts",
+                "packages/web/src/pages/settings/AppearanceSettingsPage.ts",
+                "packages/server/tests/auth-core.test.ts",
+                "packages/web/tests/auth-pages.test.ts"
+              ]
             },
             {
               "id": "T017",
               "title": "Implement privacy request intake",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Build P20 export/deletion request submission, status, consequence dialog, and sole-owner blocker; route requests to an audited manual support process until completion automation exists."
+              "description": "Build P20 export/deletion request submission, status, consequence dialog, and sole-owner blocker; route requests to an audited manual support process until completion automation exists.",
+              "evidence": [
+                "packages/server/src/db/migrations/002_identity_and_privacy.sql",
+                "packages/server/src/services/identity-service.ts",
+                "packages/web/src/pages/settings/PrivacySettingsPage.ts",
+                "packages/server/tests/auth-core.test.ts",
+                "packages/web/tests/auth-pages.test.ts"
+              ]
             },
             {
               "id": "T018",
               "title": "Enforce safe access states",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Provide P42 unknown, signed-out, revoked, suspended, offline, execution-disabled, and outage presentations; deny guessed private IDs and protected media across APIs and pages."
+              "description": "Provide P42 unknown, signed-out, revoked, suspended, offline, execution-disabled, and outage presentations; deny guessed private IDs and protected media across APIs and pages.",
+              "evidence": [
+                "packages/server/src/services/auth-service.ts",
+                "packages/server/src/services/identity-service.ts",
+                "packages/web/src/pages/status/SafeDenialPage.ts",
+                "packages/web/src/components/states/UniversalStates.ts",
+                "packages/server/tests/auth-core.test.ts",
+                "packages/web/tests/auth-pages.test.ts"
+              ]
             }
           ],
-          "status": "not_started"
+          "status": "done"
         },
         {
           "id": "S1-M02",

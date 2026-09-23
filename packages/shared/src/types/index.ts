@@ -393,3 +393,32 @@ export interface PaginatedResult<T> {
   hasMore: boolean;
   nextCursor?: string;
 }
+
+export interface UserPreferences {
+  userId: string;
+  theme: 'dark' | 'light' | 'system';
+  editorFontSize: number;
+  indentationSpaces: number;
+  updatedAt: string;
+}
+
+export type PrivacyRequestType = 'export' | 'deletion';
+export type PrivacyRequestStatus = 'submitted' | 'pending' | 'completed' | 'failed';
+
+export interface PrivacyRequest {
+  id: string;
+  userId: string;
+  requestType: PrivacyRequestType;
+  status: PrivacyRequestStatus;
+  consequenceAcknowledged: boolean;
+  blockerReason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthSession {
+  sessionId: string;
+  token: string;
+  expiresAt: string;
+  user: User;
+}

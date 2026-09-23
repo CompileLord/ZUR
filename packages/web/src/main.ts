@@ -4,10 +4,10 @@ import './styles/layout.css';
 import './styles/components.css';
 import './styles/shells.css';
 
-import { matchRoute } from './router/routes.ts';
+import { matchRoute, getSafeReturnDestination } from './router/routes.ts';
+import { AuthClient } from './services/auth-client.ts';
 import {
   renderPublicShell,
-  renderAccountShell,
   renderAppShell,
   renderLearningWorkspaceShell,
   renderAuthorWorkspaceShell,
@@ -21,43 +21,78 @@ import {
   renderContentTree,
   renderProgressLine,
 } from './components/common/index.ts';
-import { renderNotFoundState } from './components/states/UniversalStates.ts';
+import { renderSignInPage } from './pages/account/SignInPage.ts';
+import { renderSignUpPage } from './pages/account/SignUpPage.ts';
+import { renderVerifyEmailPage } from './pages/account/VerifyEmailPage.ts';
+import { renderForgotPasswordPage, renderResetPasswordPage } from './pages/account/PasswordRecoveryPages.ts';
+import { renderProfileSettingsPage } from './pages/settings/ProfileSettingsPage.ts';
+import { renderAppearanceSettingsPage } from './pages/settings/AppearanceSettingsPage.ts';
+import { renderSecuritySettingsPage } from './pages/settings/SecuritySettingsPage.ts';
+import { renderPrivacySettingsPage } from './pages/settings/PrivacySettingsPage.ts';
+import { renderSafeDenialPage } from './pages/status/SafeDenialPage.ts';
 
 const appEl = document.getElementById('app')!;
+const authClient = AuthClient.getInstance();
+
+export function applyTheme(theme: 'dark' | 'light' | 'system'): void {
+  localStorage.setItem('zur_theme_preference', theme);
+  let resolved: 'dark' | 'light' = theme === 'system'
+    ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+    : theme;
+
+  document.documentElement.setAttribute('data-theme', resolved);
+  document.documentElement.style.colorScheme = resolved;
+}
 
 function initTheme(): void {
+  const savedTheme = (localStorage.getItem('zur_theme_preference') as 'dark' | 'light' | 'system') || 'system';
+  applyTheme(savedTheme);
+
   const themeSelect = document.getElementById('theme-select') as HTMLSelectElement | null;
   if (themeSelect) {
-    const currentTheme = localStorage.getItem('zur_theme_preference') || 'system';
-    themeSelect.value = currentTheme;
+    themeSelect.value = savedTheme;
     themeSelect.addEventListener('change', (e) => {
-      const selected = (e.target as HTMLSelectElement).value;
-      localStorage.setItem('zur_theme_preference', selected);
-      let resolved = selected;
-      if (selected === 'system') {
-        resolved = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-      }
-      document.documentElement.setAttribute('data-theme', resolved);
-      document.documentElement.style.colorScheme = resolved;
+      const selected = (e.target as HTMLSelectElement).value as 'dark' | 'light' | 'system';
+      applyTheme(selected);
     });
   }
+}
+
+export function navigateTo(path: string): void {
+  window.history.pushState({}, '', path);
+  renderApp(path);
 }
 
 export function renderApp(path: string = window.location.pathname): void {
   const match = matchRoute(path);
 
   if (!match) {
-    appEl.innerHTML = renderPublicShell({
-      content: renderNotFoundState(),
-    });
+    appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
     initTheme();
     return;
   }
 
   const { route, params } = match;
+  const searchParams = new URLSearchParams(window.location.search);
+  const currentUser = authClient.getUser();
+
+  // Authentication guards for S3 (settings/learning), S4, S5, S6
+  if (route.requiredCapability && !currentUser) {
+    const returnTo = getSafeReturnDestination(path);
+    navigateTo(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+    return;
+  }
 
   switch (route.shell) {
     case 'S1': {
+      if (route.pageId === 'P42') {
+        const isAccessDenied = path === '/access-denied';
+        appEl.innerHTML = renderSafeDenialPage({
+          type: isAccessDenied ? 'access-denied' : 'not-found',
+        });
+        break;
+      }
+
       let content = '';
       if (route.pageId === 'P01') {
         content = `
@@ -71,7 +106,6 @@ export function renderApp(path: string = window.location.pathname): void {
               <a href="#teaching" class="btn btn-secondary">See how teaching works</a>
             </div>
 
-            <!-- Representative Workspace Fragment (design §10 P01) -->
             <div class="workspace-fragment code-block p-6 mb-12">
               <div class="flex justify-between items-center mb-3">
                 <span class="text-sm font-semibold text-secondary">Example workspace</span>
@@ -133,67 +167,118 @@ print("Result:", doubled)</code></pre>
     }
 
     case 'S2': {
-      let formContent = '';
+      // Account Pages (P04, P05, P06, P07)
       if (route.pageId === 'P04') {
-        formContent = `
-          <form action="/api/auth/sign-in" method="POST">
-            ${renderTextInput({ id: 'email', name: 'email', label: 'Email', type: 'email', required: true })}
-            ${renderTextInput({ id: 'password', name: 'password', label: 'Password', type: 'password', required: true })}
-            <div class="flex justify-between items-center mb-4">
-              <a href="/forgot-password" class="text-sm text-secondary">Forgot password?</a>
-            </div>
-            ${renderButton({ label: 'Sign in', variant: 'primary', type: 'submit', className: 'w-full' })}
-            <p class="text-sm text-muted text-center mt-4">
-              Don't have an account? <a href="/sign-up" class="text-primary underline">Create an account</a>
-            </p>
-          </form>
-        `;
+        const returnTo = searchParams.get('returnTo') || '';
+        appEl.innerHTML = renderSignInPage({ returnTo });
+        attachSignInListeners();
       } else if (route.pageId === 'P05') {
-        formContent = `
-          <form action="/api/auth/sign-up" method="POST">
-            ${renderTextInput({ id: 'displayName', name: 'displayName', label: 'Display name', required: true })}
-            ${renderTextInput({ id: 'email', name: 'email', label: 'Email', type: 'email', required: true })}
-            ${renderTextInput({ id: 'password', name: 'password', label: 'Password', type: 'password', required: true, hint: 'At least 8 characters' })}
-            ${renderButton({ label: 'Create account', variant: 'primary', type: 'submit', className: 'w-full' })}
-          </form>
-        `;
-      } else {
-        formContent = `<p>${route.title}</p>`;
+        const returnTo = searchParams.get('returnTo') || '';
+        appEl.innerHTML = renderSignUpPage({ returnTo });
+        attachSignUpListeners();
+      } else if (route.pageId === 'P06') {
+        const token = searchParams.get('token');
+        const email = currentUser?.email || searchParams.get('email') || '';
+        appEl.innerHTML = renderVerifyEmailPage({ email });
+        attachVerifyEmailListeners(token);
+      } else if (route.pageId === 'P07') {
+        const isReset = path === '/reset-password';
+        if (isReset) {
+          const token = searchParams.get('token') || '';
+          appEl.innerHTML = renderResetPasswordPage({ token });
+          attachResetPasswordListeners();
+        } else {
+          appEl.innerHTML = renderForgotPasswordPage();
+          attachForgotPasswordListeners();
+        }
       }
-
-      appEl.innerHTML = renderAccountShell({
-        title: route.title,
-        formContent,
-      });
       break;
     }
 
     case 'S3': {
-      const mockUser = {
-        displayName: 'Ada Lovelace',
-        email: 'ada@zur.internal',
-        capabilities: ['student' as const, 'author' as const],
+      // Authenticated Application & Settings Pages (P09-P11, P17-P20)
+      const user = currentUser || {
+        id: 'user-guest',
+        displayName: 'Guest Learner',
+        email: 'guest@zur.internal',
+        emailVerified: false,
+        capabilities: ['student' as const],
+        accountStatus: 'active' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
-      const content = `
-        <div class="dashboard-resume-panel card p-6 mb-8 border border-subtle bg-surface rounded-lg">
-          <span class="text-xs uppercase text-muted font-semibold tracking-wide">Continue learning</span>
-          <h2 class="text-xl font-semibold mt-1 mb-2">Python foundations</h2>
-          <p class="text-sm text-secondary mb-4">Lesson 1: Naming and Values · Step 4: Echoing Numbers</p>
-          <div class="mb-4">
-            ${renderProgressLine({ satisfiedRequiredCount: 3, totalRequiredCount: 4 })}
-          </div>
-          <a href="/learn/enr-ada/steps/step-4-python-echo/code" class="btn btn-primary">Resume step</a>
-        </div>
-      `;
+      let content = '';
 
-      appEl.innerHTML = renderAppShell({
-        activePath: path,
-        user: mockUser,
-        currentMode: path.startsWith('/teach') ? 'teach' : 'learn',
-        headerTitle: route.title,
-        content,
-      });
+      if (route.pageId === 'P17') {
+        // Profile Settings
+        appEl.innerHTML = renderAppShell({
+          activePath: path,
+          user,
+          headerTitle: 'Profile settings',
+          content: renderProfileSettingsPage({ user }),
+        });
+        attachProfileListeners();
+      } else if (route.pageId === 'P18') {
+        // Appearance Settings
+        const savedTheme = (localStorage.getItem('zur_theme_preference') as 'dark' | 'light' | 'system') || 'system';
+        const resolvedSystem = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        appEl.innerHTML = renderAppShell({
+          activePath: path,
+          user,
+          headerTitle: 'Appearance settings',
+          content: renderAppearanceSettingsPage({
+            preferences: {
+              userId: user.id,
+              theme: savedTheme,
+              editorFontSize: 14,
+              indentationSpaces: 4,
+              updatedAt: new Date().toISOString(),
+            },
+            resolvedSystemTheme: resolvedSystem,
+          }),
+        });
+        attachAppearanceListeners();
+      } else if (route.pageId === 'P19') {
+        // Security Settings
+        appEl.innerHTML = renderAppShell({
+          activePath: path,
+          user,
+          headerTitle: 'Security settings',
+          content: renderSecuritySettingsPage({ user }),
+        });
+        attachSecurityListeners();
+      } else if (route.pageId === 'P20') {
+        // Privacy Settings
+        appEl.innerHTML = renderAppShell({
+          activePath: path,
+          user,
+          headerTitle: 'Privacy and account requests',
+          content: renderPrivacySettingsPage({}),
+        });
+        attachPrivacyListeners();
+      } else {
+        // Default Student Dashboard (P09)
+        content = `
+          <div class="dashboard-resume-panel card p-6 mb-8 border border-subtle bg-surface rounded-lg">
+            <span class="text-xs uppercase text-muted font-semibold tracking-wide">Continue learning</span>
+            <h2 class="text-xl font-semibold mt-1 mb-2">Python foundations</h2>
+            <p class="text-sm text-secondary mb-4">Lesson 1: Naming and Values · Step 4: Echoing Numbers</p>
+            <div class="mb-4">
+              ${renderProgressLine({ satisfiedRequiredCount: 3, totalRequiredCount: 4 })}
+            </div>
+            <a href="/learn/enr-ada/steps/step-4-python-echo/code" class="btn btn-primary">Resume step</a>
+          </div>
+        `;
+
+        appEl.innerHTML = renderAppShell({
+          activePath: path,
+          user,
+          currentMode: path.startsWith('/teach') ? 'teach' : 'learn',
+          headerTitle: route.title,
+          content,
+        });
+      }
       break;
     }
 
@@ -318,6 +403,535 @@ print(val * 2)
 
   initTheme();
 }
+
+// --- DOM Event Listeners & Interaction Wiring ---
+
+function attachSignInListeners(): void {
+  const form = document.getElementById('sign-in-form') as HTMLFormElement | null;
+  const togglePass = document.getElementById('toggle-password');
+  const passInput = document.getElementById('password') as HTMLInputElement | null;
+  const errorEl = document.getElementById('sign-in-error');
+
+  if (togglePass && passInput) {
+    togglePass.addEventListener('click', () => {
+      const isPass = passInput.type === 'password';
+      passInput.type = isPass ? 'text' : 'password';
+      togglePass.textContent = isPass ? 'Hide password' : 'Show password';
+      togglePass.setAttribute('aria-label', isPass ? 'Hide password' : 'Show password');
+    });
+  }
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+      const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+      const returnTo = (form.elements.namedItem('returnTo') as HTMLInputElement).value;
+      const submitBtn = document.getElementById('submit-sign-in') as HTMLButtonElement | null;
+
+      if (!email || !password) {
+        if (errorEl) {
+          errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
+          errorEl.innerHTML = '<span aria-hidden="true">⚠</span> <span>Email and password are required.</span>';
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing in…';
+      }
+
+      try {
+        await authClient.signIn(email, password);
+        const destination = getSafeReturnDestination(returnTo);
+        navigateTo(destination);
+      } catch (err: any) {
+        if (errorEl) {
+          errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Invalid email or password.'}</span>`;
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign in';
+        }
+      }
+    });
+  }
+}
+
+function attachSignUpListeners(): void {
+  const form = document.getElementById('sign-up-form') as HTMLFormElement | null;
+  const togglePass = document.getElementById('toggle-password');
+  const passInput = document.getElementById('password') as HTMLInputElement | null;
+  const errorEl = document.getElementById('sign-up-error');
+
+  if (togglePass && passInput) {
+    togglePass.addEventListener('click', () => {
+      const isPass = passInput.type === 'password';
+      passInput.type = isPass ? 'text' : 'password';
+      togglePass.textContent = isPass ? 'Hide password' : 'Show password';
+      togglePass.setAttribute('aria-label', isPass ? 'Hide password' : 'Show password');
+    });
+  }
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const displayName = (form.elements.namedItem('displayName') as HTMLInputElement).value;
+      const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+      const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+      const submitBtn = document.getElementById('submit-sign-up') as HTMLButtonElement | null;
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating account…';
+      }
+
+      try {
+        await authClient.signUp(displayName, email, password);
+        navigateTo(`/verify-email?email=${encodeURIComponent(email)}`);
+      } catch (err: any) {
+        if (errorEl) {
+          errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Could not create account.'}</span>`;
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create account';
+        }
+      }
+    });
+  }
+}
+
+function attachVerifyEmailListeners(token?: string | null): void {
+  if (token) {
+    authClient.verifyEmail(token)
+      .then(() => {
+        appEl.innerHTML = renderVerifyEmailPage({ isVerified: true });
+      })
+      .catch((err) => {
+        appEl.innerHTML = renderVerifyEmailPage({ error: err.message || 'Verification link expired or invalid.' });
+      });
+    return;
+  }
+
+  const resendForm = document.getElementById('resend-verification-form');
+  if (resendForm) {
+    resendForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (resendForm.querySelector('input[name="email"]') as HTMLInputElement)?.value;
+      const resendBtn = document.getElementById('btn-resend-verification') as HTMLButtonElement | null;
+
+      if (resendBtn) {
+        resendBtn.disabled = true;
+        resendBtn.textContent = 'Sending…';
+      }
+
+      try {
+        await authClient.resendVerification(email);
+        appEl.innerHTML = renderVerifyEmailPage({
+          email,
+          infoMessage: 'A new verification link has been sent to your email.',
+          cooldownRemaining: 60,
+        });
+        startCooldownTimer(60, email);
+      } catch (err: any) {
+        appEl.innerHTML = renderVerifyEmailPage({
+          email,
+          error: err.message || 'Failed to resend verification email.',
+        });
+      }
+    });
+  }
+
+  const diffAccountLink = document.getElementById('use-different-account');
+  if (diffAccountLink) {
+    diffAccountLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await authClient.signOut();
+      navigateTo('/sign-in');
+    });
+  }
+}
+
+function startCooldownTimer(seconds: number, email: string): void {
+  let remaining = seconds;
+  const timer = setInterval(() => {
+    remaining -= 1;
+    const btn = document.getElementById('btn-resend-verification') as HTMLButtonElement | null;
+    if (btn) {
+      if (remaining > 0) {
+        btn.textContent = `Resend email (${remaining}s)`;
+        btn.disabled = true;
+      } else {
+        btn.textContent = 'Resend email';
+        btn.disabled = false;
+        clearInterval(timer);
+      }
+    } else {
+      clearInterval(timer);
+    }
+  }, 1000);
+}
+
+function attachForgotPasswordListeners(): void {
+  const form = document.getElementById('forgot-password-form') as HTMLFormElement | null;
+  const errorEl = document.getElementById('forgot-error');
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+      const submitBtn = document.getElementById('submit-forgot-password') as HTMLButtonElement | null;
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending reset link…';
+      }
+
+      try {
+        await authClient.forgotPassword(email);
+        appEl.innerHTML = renderForgotPasswordPage({ isSubmitted: true });
+      } catch (err: any) {
+        if (errorEl) {
+          errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Unable to process request.'}</span>`;
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send reset link';
+        }
+      }
+    });
+  }
+}
+
+function attachResetPasswordListeners(): void {
+  const form = document.getElementById('reset-password-form') as HTMLFormElement | null;
+  const errorEl = document.getElementById('reset-error');
+  const toggleBtn = document.getElementById('toggle-reset-passwords');
+  const pass1 = document.getElementById('password') as HTMLInputElement | null;
+  const pass2 = document.getElementById('confirmPassword') as HTMLInputElement | null;
+
+  if (toggleBtn && pass1 && pass2) {
+    toggleBtn.addEventListener('click', () => {
+      const isPass = pass1.type === 'password';
+      pass1.type = isPass ? 'text' : 'password';
+      pass2.type = isPass ? 'text' : 'password';
+      toggleBtn.textContent = isPass ? 'Hide passwords' : 'Show passwords';
+    });
+  }
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = (form.elements.namedItem('token') as HTMLInputElement).value;
+      const password = (form.elements.namedItem('newPassword') as HTMLInputElement)?.value || (form.elements.namedItem('password') as HTMLInputElement)?.value;
+      const confirmPassword = (form.elements.namedItem('confirmNewPassword') as HTMLInputElement)?.value || (form.elements.namedItem('confirmPassword') as HTMLInputElement)?.value;
+      const submitBtn = document.getElementById('submit-reset-password') as HTMLButtonElement | null;
+
+      if (password !== confirmPassword) {
+        if (errorEl) {
+          errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
+          errorEl.innerHTML = '<span aria-hidden="true">⚠</span> <span>Passwords do not match.</span>';
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Updating password…';
+      }
+
+      try {
+        await authClient.resetPassword(token, password);
+        appEl.innerHTML = renderResetPasswordPage({ isSuccess: true });
+      } catch (err: any) {
+        if (errorEl) {
+          errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Reset link expired or invalid.'}</span>`;
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Update password';
+        }
+      }
+    });
+  }
+}
+
+function attachProfileListeners(): void {
+  const form = document.getElementById('profile-settings-form') as HTMLFormElement | null;
+  const saveBtn = document.getElementById('btn-save-profile') as HTMLButtonElement | null;
+  const errorEl = document.getElementById('profile-error');
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const displayName = (form.elements.namedItem('displayName') as HTMLInputElement).value;
+
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving…';
+      }
+
+      try {
+        const updated = await authClient.updateProfile(displayName);
+        appEl.innerHTML = renderAppShell({
+          activePath: '/settings/profile',
+          user: updated,
+          headerTitle: 'Profile settings',
+          content: renderProfileSettingsPage({
+            user: updated,
+            successMessage: 'Profile display name updated successfully.',
+          }),
+        });
+        attachProfileListeners();
+      } catch (err: any) {
+        if (errorEl) {
+          errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Failed to update profile.'}</span>`;
+        }
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save changes';
+        }
+      }
+    });
+  }
+}
+
+function attachAppearanceListeners(): void {
+  const form = document.getElementById('appearance-settings-form') as HTMLFormElement | null;
+  const radioInputs = document.querySelectorAll<HTMLInputElement>('input[name="theme"]');
+
+  radioInputs.forEach((radio) => {
+    radio.addEventListener('change', () => {
+      const selected = radio.value as 'dark' | 'light' | 'system';
+      applyTheme(selected);
+    });
+  });
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const themeRadio = form.querySelector<HTMLInputElement>('input[name="theme"]:checked');
+      const theme = (themeRadio?.value || 'system') as 'dark' | 'light' | 'system';
+      const fontSize = Number((form.elements.namedItem('editorFontSize') as HTMLSelectElement).value);
+      const indent = Number((form.elements.namedItem('indentationSpaces') as HTMLSelectElement).value);
+      const saveBtn = document.getElementById('btn-save-appearance') as HTMLButtonElement | null;
+
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving…';
+      }
+
+      try {
+        const updated = await authClient.saveAppearance({
+          theme,
+          editorFontSize: fontSize,
+          indentationSpaces: indent,
+        });
+
+        const user = authClient.getUser()!;
+        const resolvedSystem = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+
+        appEl.innerHTML = renderAppShell({
+          activePath: '/settings/appearance',
+          user,
+          headerTitle: 'Appearance settings',
+          content: renderAppearanceSettingsPage({
+            preferences: updated,
+            resolvedSystemTheme: resolvedSystem,
+            successMessage: 'Appearance preferences saved.',
+          }),
+        });
+        attachAppearanceListeners();
+      } catch (err: any) {
+        const errorEl = document.getElementById('appearance-error');
+        if (errorEl) {
+          errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Failed to save appearance settings.'}</span>`;
+        }
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save preferences';
+        }
+      }
+    });
+  }
+}
+
+function attachSecurityListeners(): void {
+  const form = document.getElementById('change-password-form') as HTMLFormElement | null;
+  const errorEl = document.getElementById('security-error');
+  const btnSignoutAll = document.getElementById('btn-sign-out-all');
+  const modal = document.getElementById('sign-out-all-modal');
+  const btnCancelSignout = document.getElementById('btn-cancel-signout-all');
+  const btnConfirmSignout = document.getElementById('btn-confirm-signout-all');
+
+  if (btnSignoutAll && modal) {
+    btnSignoutAll.addEventListener('click', () => {
+      modal.style.display = 'flex';
+    });
+  }
+
+  if (btnCancelSignout && modal) {
+    btnCancelSignout.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+  }
+
+  if (btnConfirmSignout) {
+    btnConfirmSignout.addEventListener('click', async () => {
+      await authClient.signOutAll();
+      navigateTo('/sign-in');
+    });
+  }
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const currentPassword = (form.elements.namedItem('currentPassword') as HTMLInputElement).value;
+      const newPassword = (form.elements.namedItem('newPassword') as HTMLInputElement).value;
+      const confirmNewPassword = (form.elements.namedItem('confirmNewPassword') as HTMLInputElement).value;
+      const submitBtn = document.getElementById('btn-change-password') as HTMLButtonElement | null;
+
+      if (newPassword !== confirmNewPassword) {
+        if (errorEl) {
+          errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
+          errorEl.innerHTML = '<span aria-hidden="true">⚠</span> <span>New passwords do not match.</span>';
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Updating…';
+      }
+
+      try {
+        await authClient.changePassword(currentPassword, newPassword);
+        const user = authClient.getUser()!;
+        appEl.innerHTML = renderAppShell({
+          activePath: '/settings/security',
+          user,
+          headerTitle: 'Security settings',
+          content: renderSecuritySettingsPage({
+            user,
+            successMessage: 'Password updated successfully.',
+          }),
+        });
+        attachSecurityListeners();
+      } catch (err: any) {
+        if (errorEl) {
+          errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Failed to update password.'}</span>`;
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Update password';
+        }
+      }
+    });
+  }
+}
+
+function attachPrivacyListeners(): void {
+  const exportForm = document.getElementById('export-data-form');
+  const btnOpenDeleteModal = document.getElementById('btn-open-delete-modal');
+  const deleteModal = document.getElementById('delete-account-modal');
+  const btnCancelDelete = document.getElementById('btn-cancel-deletion');
+  const btnConfirmDelete = document.getElementById('btn-confirm-deletion') as HTMLButtonElement | null;
+  const ackCheckbox = document.getElementById('acknowledge-deletion-consequences') as HTMLInputElement | null;
+
+  if (ackCheckbox && btnConfirmDelete) {
+    ackCheckbox.addEventListener('change', () => {
+      btnConfirmDelete.disabled = !ackCheckbox.checked;
+    });
+  }
+
+  if (btnOpenDeleteModal && deleteModal) {
+    btnOpenDeleteModal.addEventListener('click', () => {
+      deleteModal.style.display = 'flex';
+    });
+  }
+
+  if (btnCancelDelete && deleteModal) {
+    btnCancelDelete.addEventListener('click', () => {
+      deleteModal.style.display = 'none';
+    });
+  }
+
+  if (btnConfirmDelete) {
+    btnConfirmDelete.addEventListener('click', async () => {
+      btnConfirmDelete.disabled = true;
+      btnConfirmDelete.textContent = 'Deleting account…';
+
+      try {
+        await authClient.requestAccountDeletion(true);
+        navigateTo('/sign-in');
+      } catch (err: any) {
+        const errorEl = document.getElementById('privacy-error');
+        if (deleteModal) deleteModal.style.display = 'none';
+        if (errorEl) {
+          errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Deletion request blocked.'}</span>`;
+        }
+      }
+    });
+  }
+
+  if (exportForm) {
+    exportForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const exportBtn = document.getElementById('btn-export-data') as HTMLButtonElement | null;
+      if (exportBtn) {
+        exportBtn.disabled = true;
+        exportBtn.textContent = 'Packaging data…';
+      }
+
+      try {
+        const result = await authClient.requestDataExport();
+        const user = authClient.getUser()!;
+        appEl.innerHTML = renderAppShell({
+          activePath: '/settings/privacy',
+          user,
+          headerTitle: 'Privacy and account requests',
+          content: renderPrivacySettingsPage({
+            exportData: result.exportPayload,
+            successMessage: 'Data export package generated.',
+          }),
+        });
+        attachPrivacyListeners();
+      } catch (err: any) {
+        const errorEl = document.getElementById('privacy-error');
+        if (errorEl) {
+          errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Export failed.'}</span>`;
+        }
+        if (exportBtn) {
+          exportBtn.disabled = false;
+          exportBtn.textContent = 'Export my data';
+        }
+      }
+    });
+  }
+}
+
+// Global click handler for internal SPA navigation
+document.addEventListener('click', (e) => {
+  const target = (e.target as HTMLElement).closest('a');
+  if (target && target.href && !target.hasAttribute('download') && target.origin === window.location.origin) {
+    const pathname = target.pathname;
+    if (pathname.startsWith('/api/')) return; // Allow direct API endpoints
+
+    e.preventDefault();
+    navigateTo(pathname + target.search);
+  }
+});
 
 window.addEventListener('popstate', () => {
   renderApp();
