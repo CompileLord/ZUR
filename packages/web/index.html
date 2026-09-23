@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="ZUR — Interactive coding-first Python learning and authoring platform.">
+  <title>ZUR — Understand it. Then write it.</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+  <!-- Inter & IBM Plex Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/src/styles/tokens.css">
+  <link rel="stylesheet" href="/src/styles/typography.css">
+  <link rel="stylesheet" href="/src/styles/layout.css">
+  <link rel="stylesheet" href="/src/styles/components.css">
+  <link rel="stylesheet" href="/src/styles/shells.css">
+
+  <!-- Dark-first first-paint script (design.md §3.1) -->
+  <script>
+    (function() {
+      try {
+        var preference = localStorage.getItem('zur_theme_preference') || 'system';
+        var resolvedTheme = 'dark'; // Dark is default for first visits
+
+        if (preference === 'light') {
+          resolvedTheme = 'light';
+        } else if (preference === 'dark') {
+          resolvedTheme = 'dark';
+        } else if (preference === 'system') {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            resolvedTheme = 'light';
+          } else {
+            resolvedTheme = 'dark';
+          }
+        }
+
+        document.documentElement.setAttribute('data-theme', resolvedTheme);
+        document.documentElement.style.colorScheme = resolvedTheme;
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <a href="#main-content" class="skip-to-content">Skip to content</a>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

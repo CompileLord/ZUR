@@ -1,0 +1,17 @@
+{
+  "name": "zur-web",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "zur-shared": "*"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}

@@ -1,0 +1,287 @@
+/* ZUR Layout, Spacing, Geometry & Motion (design.md §4.2, §5, §7) */
+
+:root {
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* Page Gutters */
+  --page-gutter: 40px;
+
+  /* Container Widths */
+  --max-width-content: 1120px;
+  --max-width-landing: 1200px;
+  --max-width-settings: 640px;
+  --max-width-auth: 400px;
+  --max-width-reading: 720px;
+
+  /* Radii */
+  --radius-sm: 6px;   /* Small controls, badges */
+  --radius-md: 8px;   /* Inputs, buttons */
+  --radius-lg: 12px;  /* Panels, cards */
+  --radius-xl: 16px;  /* Dialogs */
+
+  /* Control Heights */
+  --control-height: 40px;
+  --control-height-compact: 32px;
+  --control-height-touch: 44px;
+
+  /* Navigation & Workspace Dimensions */
+  --sidebar-width: 224px;
+  --sidebar-collapsed-width: 64px;
+  --tree-width: 256px;
+  --inspector-width: 288px;
+  --header-height: 56px;
+  --toolbar-height: 44px;
+
+  /* Overlay Dimensions */
+  --dialog-width-confirm: 440px;
+  --dialog-width-form: 560px;
+  --dialog-width-conflict: 800px;
+  --drawer-width-standard: 440px;
+  --drawer-width-detail: 560px;
+
+  /* Z-Index Tiers (design §4.2) */
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-shell: 20;
+  --z-popover: 30;
+  --z-backdrop: 40;
+  --z-modal: 50;
+  --z-modal-menu: 55;
+  --z-toast: 60;
+
+  /* Motion Timing & Curves (design §7) */
+  --transition-fast: 120ms cubic-bezier(0.2, 0, 0, 1);
+  --transition-menu: 140ms cubic-bezier(0.2, 0, 0, 1);
+  --transition-modal: 180ms cubic-bezier(0.2, 0, 0, 1);
+  --transition-step: 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (max-width: 1199px) {
+  :root {
+    --page-gutter: 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --page-gutter: 16px;
+  }
+}
+
+/* Reduced Motion Override (design §7, WCAG 2.2 AA) */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Layout Utilities */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Focus Ring (WCAG 2.2 AA: 2px with 2px offset) */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Skip link for keyboard users */
+.skip-to-content {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 100;
+  background-color: var(--accent);
+  color: var(--on-accent);
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: top 120ms ease;
+  text-decoration: none;
+}
+
+.skip-to-content:focus {
+  top: 16px;
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: var(--max-width-content);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
+}
+
+.container-landing {
+  width: 100%;
+  max-width: var(--max-width-landing);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
+}
+
+/* Flexbox utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.items-start {
+  align-items: flex-start;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+/* Spacing gaps */
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+.gap-10 { gap: var(--space-10); }
+
+/* Padding utilities */
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.py-8 { padding-top: var(--space-8); padding-bottom: var(--space-8); }
+.py-12 { padding-top: var(--space-12); padding-bottom: var(--space-12); }
+.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+.px-6 { padding-left: var(--space-6); padding-right: var(--space-6); }
+
+/* Margin utilities */
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mb-1 { margin-bottom: var(--space-1); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-6 { margin-bottom: var(--space-6); }
+.mb-8 { margin-bottom: var(--space-8); }
+.mb-10 { margin-bottom: var(--space-10); }
+.mb-12 { margin-bottom: var(--space-12); }
+
+/* Grid utilities */
+.grid {
+  display: grid;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 768px) {
+  .grid-cols-2,
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Borders, Radii, and Surfaces */
+.border {
+  border: 1px solid var(--border-subtle);
+}
+
+.border-t {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.border-r {
+  border-right: 1px solid var(--border-subtle);
+}
+
+.border-b {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.border-subtle {
+  border-color: var(--border-subtle);
+}
+
+.rounded {
+  border-radius: var(--radius-sm);
+}
+
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+
+.bg-canvas {
+  background-color: var(--bg-canvas);
+}
+
+.bg-surface {
+  background-color: var(--bg-surface);
+}
+
+.bg-raised {
+  background-color: var(--bg-raised);
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
+}
+

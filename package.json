@@ -1,0 +1,22 @@
+{
+  "name": "zur-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ZUR coding-first interactive Python learning platform",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "node --experimental-strip-types --test packages/shared/tests/*.test.ts packages/server/tests/*.test.ts packages/worker/tests/*.test.ts packages/web/tests/*.test.ts",
+    "db:migrate": "node --experimental-strip-types packages/server/src/db/migrate.ts",
+    "db:seed": "node --experimental-strip-types packages/server/src/db/seed.ts",
+    "db:reapply-deletions": "node --experimental-strip-types packages/server/src/db/reapply-deletions.ts",
+    "dev:server": "node --experimental-strip-types packages/server/src/index.ts",
+    "dev:web": "npm run dev --workspace=packages/web"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}

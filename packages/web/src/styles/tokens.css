@@ -1,0 +1,114 @@
+/* ZUR Canonical Design Tokens (design.md §3.2, §3.3) */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces & Backgrounds */
+  --bg-canvas: #141613;
+  --bg-navigation: #11130f;
+  --bg-surface: #1b1e19;
+  --bg-raised: #242822;
+  --bg-hover: #2c3129;
+  --bg-selected: #303922;
+
+  /* Typography Colors */
+  --text-primary: #f1f3ea;
+  --text-secondary: #bdc3b5;
+  --text-muted: #a0a898;
+
+  /* Borders */
+  --border-subtle: #343a30;
+  --border-control: #78816f;
+
+  /* Accent (Citron) */
+  --accent: #d4e88b;
+  --accent-hover: #e0eda9;
+  --accent-pressed: #bdd36d;
+  --on-accent: #1a210d;
+  --focus-ring: #d4e88b;
+  --link: #d4e88b;
+
+  /* Semantic Feedback */
+  --success: #94d5ad;
+  --success-bg: #1a2d23;
+  --warning: #e7c17e;
+  --warning-bg: #30291c;
+  --danger: #f2a49a;
+  --danger-bg: #342320;
+  --info: #a9c8eb;
+  --info-bg: #202b35;
+
+  /* Editor & Code */
+  --code-bg: #171a15;
+  --code-active-line: #242a20;
+  --code-selection: #2d3b22;
+
+  /* Syntax Tokens (At most six colors, design §3.3) */
+  --syntax-default: #e2e7d9;
+  --syntax-keyword: #d4e88b;
+  --syntax-string: #b7d5ab;
+  --syntax-number: #e7c17e;
+  --syntax-function: #a9c8eb;
+  --syntax-comment: #a0a898;
+
+  /* Overlay */
+  --overlay: rgb(0 0 0 / 60%);
+  --shadow-dialog: 0 12px 32px rgb(0 0 0 / 24%);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Surfaces & Backgrounds */
+  --bg-canvas: #f5f6f0;
+  --bg-navigation: #ecefe5;
+  --bg-surface: #ffffff;
+  --bg-raised: #ecefe5;
+  --bg-hover: #e2e7d9;
+  --bg-selected: #e0e9cc;
+
+  /* Typography Colors */
+  --text-primary: #20251c;
+  --text-secondary: #4e5847;
+  --text-muted: #5c6754;
+
+  /* Borders */
+  --border-subtle: #d5dbcb;
+  --border-control: #78816f;
+
+  /* Accent (Citron) */
+  --accent: #485d18;
+  --accent-hover: #3d5013;
+  --accent-pressed: #32420f;
+  --on-accent: #ffffff;
+  --focus-ring: #485d18;
+  --link: #485d18;
+
+  /* Semantic Feedback */
+  --success: #28633f;
+  --success-bg: #e5f0e7;
+  --warning: #79520e;
+  --warning-bg: #f6edd8;
+  --danger: #a1362b;
+  --danger-bg: #f8e8e3;
+  --info: #315d8a;
+  --info-bg: #e7eef6;
+
+  /* Editor & Code */
+  --code-bg: #fbfcf7;
+  --code-active-line: #edf1e4;
+  --code-selection: #dde8c7;
+
+  /* Syntax Tokens */
+  --syntax-default: #273021;
+  --syntax-keyword: #485d18;
+  --syntax-string: #365e2e;
+  --syntax-number: #79520e;
+  --syntax-function: #315d8a;
+  --syntax-comment: #5c6754;
+
+  /* Overlay */
+  --overlay: rgb(20 22 19 / 35%);
+  --shadow-dialog: 0 12px 32px rgb(20 22 19 / 12%);
+}

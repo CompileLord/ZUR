@@ -1,0 +1,205 @@
+/* ZUR Typography Tokens & Scale (design.md §4.1) */
+
+:root {
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Typography scale in rem (16px root baseline) */
+  --type-display-size: 3.5rem; /* 56px */
+  --type-display-line: 3.75rem; /* 60px */
+  --type-display-weight: 500;
+  --type-display-tracking: -0.025em;
+
+  --type-page-title-size: 2rem; /* 32px */
+  --type-page-title-line: 2.5rem; /* 40px */
+  --type-page-title-weight: 500;
+  --type-page-title-tracking: -0.015em;
+
+  --type-section-title-size: 1.375rem; /* 22px */
+  --type-section-title-line: 1.875rem; /* 30px */
+  --type-section-title-weight: 600;
+
+  --type-subheading-size: 1.125rem; /* 18px */
+  --type-subheading-line: 1.625rem; /* 26px */
+  --type-subheading-weight: 600;
+
+  --type-reading-size: 1.0625rem; /* 17px */
+  --type-reading-line: 1.8125rem; /* 29px */
+  --type-reading-weight: 400;
+  --type-reading-max-ch: 68ch;
+
+  --type-body-size: 0.9375rem; /* 15px */
+  --type-body-line: 1.5rem; /* 24px */
+  --type-body-weight: 400;
+
+  --type-control-size: 0.875rem; /* 14px */
+  --type-control-line: 1.25rem; /* 20px */
+  --type-control-weight: 500;
+
+  --type-metadata-size: 0.8125rem; /* 13px */
+  --type-metadata-line: 1.25rem; /* 20px */
+  --type-metadata-weight: 400;
+
+  --type-micro-size: 0.75rem; /* 12px */
+  --type-micro-line: 1rem; /* 16px */
+  --type-micro-weight: 500;
+
+  --type-code-size: 0.9375rem; /* 15px */
+  --type-code-line: 1.5rem; /* 24px */
+  --type-code-weight: 400;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --type-display-size: 2.25rem; /* 36px */
+    --type-display-line: 2.5rem; /* 40px */
+    --type-page-title-size: 1.75rem; /* 28px */
+    --type-page-title-line: 2.25rem; /* 36px */
+    --type-reading-size: 1rem; /* 16px */
+    --type-reading-line: 1.6875rem; /* 27px */
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-body-weight);
+  color: var(--text-primary);
+  background-color: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tabular numerals for counts and dates */
+.tabular-nums,
+[data-tabular="true"],
+.table-num,
+.rail-ordinal {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Headings */
+h1, .h1 {
+  font-size: var(--type-page-title-size);
+  line-height: var(--type-page-title-line);
+  font-weight: var(--type-page-title-weight);
+  letter-spacing: var(--type-page-title-tracking);
+}
+
+h2, .h2 {
+  font-size: var(--type-section-title-size);
+  line-height: var(--type-section-title-line);
+  font-weight: var(--type-section-title-weight);
+}
+
+h3, .h3 {
+  font-size: var(--type-subheading-size);
+  line-height: var(--type-subheading-line);
+  font-weight: var(--type-subheading-weight);
+}
+
+.display-title {
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-line);
+  font-weight: var(--type-display-weight);
+  letter-spacing: var(--type-display-tracking);
+}
+
+/* Reading prose container: max 68ch */
+.prose {
+  max-width: var(--type-reading-max-ch);
+  font-size: var(--type-reading-size);
+  line-height: var(--type-reading-line);
+}
+
+.prose a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+code, pre, kbd, samp {
+  font-family: var(--font-mono);
+}
+
+/* Default link styles */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Typography & text color helpers (design tokens) */
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-xs {
+  font-size: var(--type-micro-size);
+  line-height: var(--type-micro-line);
+}
+
+.text-sm {
+  font-size: var(--type-metadata-size);
+  line-height: var(--type-metadata-line);
+}
+
+.text-base {
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.text-lg {
+  font-size: var(--type-subheading-size);
+  line-height: var(--type-subheading-line);
+}
+
+.text-xl {
+  font-size: var(--type-section-title-size);
+  line-height: var(--type-section-title-line);
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.tracking-wide {
+  letter-spacing: 0.05em;
+}
+
+.underline {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Form inputs on mobile are at least 16px to prevent iOS auto-zoom */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+

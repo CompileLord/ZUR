@@ -1,0 +1,1207 @@
+{
+  "product": "ZUR",
+  "version": "1.0",
+  "created_from": [
+    "PRD_V2.md (v2.1)",
+    "design.md (v1.1)"
+  ],
+  "status_values": {
+    "not_started": "No implementation work has been verified in this repository.",
+    "in_progress": "Work has started but the stated result is not yet verified.",
+    "blocked": "A named external decision or dependency prevents progress.",
+    "done": "Implementation and relevant acceptance checks have passed.",
+    "deferred": "Outside P0; schedule only after pilot evidence and a separate scope decision."
+  },
+  "status_note": "The repository contains specifications and a mockup, but no verified product implementation. All P0 implementation tasks start as not_started; later-scope tasks start as deferred. Update statuses from evidence, not from the existence of a design or mockup.",
+  "priority_note": "P0 is the initial release. P1/P2 items are explicitly outside its release gate.",
+  "acceptance_coverage": {
+    "AC-01": [
+      "T029"
+    ],
+    "AC-02": [
+      "T038"
+    ],
+    "AC-03": [
+      "T040"
+    ],
+    "AC-04": [
+      "T041",
+      "T042"
+    ],
+    "AC-05": [
+      "T007",
+      "T018"
+    ],
+    "AC-06": [
+      "T046"
+    ],
+    "AC-07": [
+      "T045"
+    ],
+    "AC-08": [
+      "T022"
+    ],
+    "AC-09": [
+      "T023"
+    ],
+    "AC-10": [
+      "T023",
+      "T028"
+    ],
+    "AC-11": [
+      "T025"
+    ],
+    "AC-12": [
+      "T047"
+    ],
+    "AC-13": [
+      "T021",
+      "T028"
+    ],
+    "AC-14": [
+      "T020",
+      "T028"
+    ],
+    "AC-15": [
+      "T047"
+    ],
+    "AC-16": [
+      "T043"
+    ],
+    "AC-17": [
+      "T086"
+    ],
+    "AC-18": [
+      "T039"
+    ],
+    "AC-19": [
+      "T079"
+    ],
+    "AC-20": [
+      "T004",
+      "T085"
+    ],
+    "MCP-01": [
+      "T053",
+      "T054",
+      "T057",
+      "T058"
+    ],
+    "MCP-02": [
+      "T059"
+    ],
+    "MCP-03": [
+      "T032",
+      "T060"
+    ],
+    "MCP-04": [
+      "T053",
+      "T064"
+    ],
+    "MCP-05": [
+      "T054",
+      "T064"
+    ],
+    "MCP-06": [
+      "T054",
+      "T064"
+    ],
+    "MCP-07": [
+      "T061"
+    ],
+    "MCP-08": [
+      "T063"
+    ],
+    "MCP-09": [
+      "T032",
+      "T060",
+      "T064"
+    ],
+    "MCP-10": [
+      "T066"
+    ],
+    "MCP-11": [
+      "T061"
+    ],
+    "MCP-12": [
+      "T056"
+    ]
+  },
+  "stages": [
+    {
+      "id": "S0",
+      "name": "Product decisions and technical foundation",
+      "phase": "Before and across phases A–C",
+      "status": "done",
+      "modules": [
+        {
+          "id": "S0-M01",
+          "name": "Scope, decisions, and architecture",
+          "source": [
+            "PRD 4, 17, 20, 22–23",
+            "design 1, 17"
+          ],
+          "tasks": [
+            {
+              "id": "T001",
+              "title": "Record P0 scope and acceptance map",
+              "status": "done",
+              "priority": "P0",
+              "description": "Create a requirements trace linking each PRD section, AC-01–AC-20, MCP-01–MCP-12, and design P01–P45 to implementation and verification. Keep excluded features out of P0.",
+              "evidence": [
+                "REQUIREMENTS_TRACE.md",
+                "tasks.json acceptance_coverage and module coverage"
+              ]
+            },
+            {
+              "id": "T002",
+              "title": "Resolve audience and privacy decisions",
+              "status": "done",
+              "priority": "P0",
+              "description": "Assign decision owners and record pilot countries, learner age range, minor/guardian process or adult-only restriction, author onboarding, support operator, and incident escalation before recruitment or launch.",
+              "evidence": [
+                "docs/decisions/ADR-001-audience-and-privacy.md"
+              ]
+            },
+            {
+              "id": "T003",
+              "title": "Select providers and deployment budget",
+              "status": "done",
+              "priority": "P0",
+              "description": "Record architecture decisions for authentication, transactional email, approved video providers, relational database, object storage, durable queue, deployment, Python runtime, isolation technology, pilot capacity, and infrastructure cost.",
+              "evidence": [
+                "docs/decisions/ADR-002-providers-and-budget.md"
+              ]
+            },
+            {
+              "id": "T004",
+              "title": "Define retention and ownership policy",
+              "status": "done",
+              "priority": "P0",
+              "description": "Approve retention, export, deletion, backup expiry, and sole-owner transfer/archive procedure for accounts, drafts, attempts, media, tokens, invitations, logs, and local caches; define restore re-deletion handling.",
+              "evidence": [
+                "docs/decisions/POLICY-retention-and-ownership.md",
+                "packages/server/src/db/reapply-deletions.ts"
+              ]
+            },
+            {
+              "id": "T005",
+              "title": "Set up modular application and environments",
+              "status": "done",
+              "priority": "P0",
+              "description": "Create reproducible local, test, staging, and production configuration; separate web/API from execution workers; document secrets, migrations, deployment, rollback, and deterministic nonproduction fixtures.",
+              "evidence": [
+                "package.json",
+                ".env.example",
+                "packages/shared",
+                "packages/server",
+                "packages/web",
+                "packages/server/src/db/seed.ts"
+              ]
+            },
+            {
+              "id": "T006",
+              "title": "Implement shared data model and migrations",
+              "status": "done",
+              "priority": "P0",
+              "description": "Model users/capabilities, courses/drafts/immutable versions, versioned nodes and assessments, enrollments, invitations, code drafts, jobs, attempts, progress/waivers, media/uploads, reports, audit, author tokens, agent receipts, and recovery revisions with constraints and indexes.",
+              "evidence": [
+                "packages/server/src/db/migrations/001_initial_schema.sql",
+                "packages/server/src/db/database.ts",
+                "packages/server/src/db/migrate.ts",
+                "packages/server/tests/schema.test.ts"
+              ]
+            },
+            {
+              "id": "T007",
+              "title": "Build common authorization and pagination",
+              "status": "done",
+              "priority": "P0",
+              "description": "Centralize server-side ownership, capability, enrollment, version, and media checks; use safe unknown-resource responses and server pagination for courses, rosters, attempts, audit, and activity.",
+              "evidence": [
+                "packages/server/src/services/auth-service.ts",
+                "packages/server/src/services/pagination.ts",
+                "packages/server/src/services/redaction-service.ts",
+                "packages/server/tests/auth-and-pagination.test.ts"
+              ]
+            }
+          ],
+          "status": "done"
+        },
+        {
+          "id": "S0-M02",
+          "name": "Shared interface system",
+          "source": [
+            "design 2–9, 14–18"
+          ],
+          "coverage": [
+            "S1–S6",
+            "shared overlays",
+            "universal states"
+          ],
+          "tasks": [
+            {
+              "id": "T008",
+              "title": "Build tokens, themes, and typography",
+              "status": "done",
+              "priority": "P0",
+              "description": "Implement canonical dark/light semantic color and syntax tokens, dark-first first paint, Dark/Light/System preference, type scale, spacing, geometry, wordmark, icons, and motion/reduced-motion rules; check rendered contrast.",
+              "evidence": [
+                "packages/web/src/styles/tokens.css",
+                "packages/web/src/styles/typography.css",
+                "packages/web/src/styles/layout.css",
+                "packages/web/tests/contrast.test.ts"
+              ]
+            },
+            {
+              "id": "T009",
+              "title": "Build reusable shells and responsive navigation",
+              "status": "done",
+              "priority": "P0",
+              "description": "Implement public, account, app, learning, author, and admin shells with the specified menus, mode switch, outline/tree behavior, breakpoints, workspace minimum widths, and safe mobile guidance.",
+              "evidence": [
+                "packages/web/src/components/shells/index.ts",
+                "packages/web/src/styles/shells.css",
+                "packages/web/tests/shells.test.ts"
+              ]
+            },
+            {
+              "id": "T010",
+              "title": "Build accessible shared components",
+              "status": "done",
+              "priority": "P0",
+              "description": "Implement buttons, forms, tabs, lesson rail, content tree, course rows, progress, tables, status/save indicators, drawers, dialogs, toasts, error panels, code blocks, and report form with keyboard and focus behavior.",
+              "evidence": [
+                "packages/web/src/components/common/index.ts",
+                "packages/web/src/styles/components.css",
+                "packages/web/tests/components.test.ts"
+              ]
+            },
+            {
+              "id": "T011",
+              "title": "Implement universal state contract",
+              "status": "done",
+              "priority": "P0",
+              "description": "Provide loading, refresh, empty, no-match, validation, denied, not-found, offline, save failure, stale revision, rate limit, queued/running, service error, success, archived, suspended, and revoked states without painting protected content early or clearing recoverable input.",
+              "evidence": [
+                "packages/web/src/components/states/UniversalStates.ts",
+                "packages/web/tests/states.test.ts"
+              ]
+            },
+            {
+              "id": "T012",
+              "title": "Implement safe routes and overlay transitions",
+              "status": "done",
+              "priority": "P0",
+              "description": "Define P01–P45 route contracts and reusable routing/overlay behavior for safe URL filters, Back navigation, focus-managed confirmations, conflict comparison, and account-scoped return destinations; keep secrets and code out of URLs and analytics.",
+              "evidence": [
+                "packages/web/src/router/routes.ts",
+                "packages/web/src/main.ts",
+                "packages/web/tests/router.test.ts"
+              ]
+            }
+          ],
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "id": "S1",
+      "name": "Phase A — prove safe practice",
+      "phase": "A",
+      "status": "not_started",
+      "gate": "Isolated Run/Submit, hidden-output protection, idempotency, reconnect, malicious-code tests, and code recovery pass.",
+      "modules": [
+        {
+          "id": "S1-M01",
+          "name": "Identity, account, and access",
+          "source": [
+            "PRD 6–7, 15",
+            "design P04–P08, P17–P20, P42"
+          ],
+          "coverage": [
+            "P04",
+            "P05",
+            "P06",
+            "P07",
+            "P08",
+            "P17",
+            "P18",
+            "P19",
+            "P20",
+            "P42"
+          ],
+          "tasks": [
+            {
+              "id": "T013",
+              "title": "Implement sign-up and email verification",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Build verified-email account creation, resend/cooldown, expired-link recovery, restricted-pilot eligibility, safe invitation context, and P05–P06 states; enrollment and authoring require verification."
+            },
+            {
+              "id": "T014",
+              "title": "Implement sign-in, sessions, and sign-out",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Build P04 sign-in, session expiry, safe return destinations, sign-out/all-device revocation, account suspension enforcement, authentication rate limits, and stronger admin authentication."
+            },
+            {
+              "id": "T015",
+              "title": "Implement password recovery and security settings",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Build generic recovery responses, expiring reset flow, password/provider controls, reauthentication, admin stronger-auth state, and P07/P19 error and confirmation states without account enumeration."
+            },
+            {
+              "id": "T016",
+              "title": "Implement profile and appearance settings",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Build P17 display-name save and verified-email view plus P18 theme, editor font size, and indentation preference persistence with truthful failure handling."
+            },
+            {
+              "id": "T017",
+              "title": "Implement privacy request intake",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Build P20 export/deletion request submission, status, consequence dialog, and sole-owner blocker; route requests to an audited manual support process until completion automation exists."
+            },
+            {
+              "id": "T018",
+              "title": "Enforce safe access states",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Provide P42 unknown, signed-out, revoked, suspended, offline, execution-disabled, and outage presentations; deny guessed private IDs and protected media across APIs and pages."
+            }
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "S1-M02",
+          "name": "Python assessment and execution boundary",
+          "source": [
+            "PRD 11–13, 17–18",
+            "design P15–P16, P25, P38"
+          ],
+          "coverage": [
+            "P15",
+            "P16",
+            "P25",
+            "P38"
+          ],
+          "tasks": [
+            {
+              "id": "T019",
+              "title": "Define Python exercise and comparator",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement single-file pinned Python 3 stdin/stdout assessment revisions, public/hidden tests, private reference solution, limits, UTF-8 validation, fixed line-ending/trailing-whitespace comparator, and immutable grading snapshots."
+            },
+            {
+              "id": "T020",
+              "title": "Build isolated execution workers",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Run each test in a fresh sandbox outside the API with no secrets, network, host filesystem, child processes, or cross-job state; enforce CPU, wall, memory, disk, output, source, and test-size limits; destroy sandboxes after every outcome."
+            },
+            {
+              "id": "T021",
+              "title": "Build durable jobs and result lifecycle",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Queue accepted work, lease/recover jobs, authenticate worker results, persist QUEUED/RUNNING/one terminal verdict, handle crash/retry and total timeout, reject duplicates/late results, expose polling/reconnect and stable execution IDs."
+            },
+            {
+              "id": "T022",
+              "title": "Implement Run samples and custom input",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Run public tests or one custom stdin with short-lived records and bounded safe output. Keep sample/custom success separate from assessed pass and never update completion."
+            },
+            {
+              "id": "T023",
+              "title": "Implement Submit and protected grading",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Accept exact editor-code snapshots with idempotency keys; grade public then hidden tests in order; persist attempts and authoritative progress atomically or repair idempotently; redact all hidden inputs, expected/actual output, stderr, identifiers, and timing from student paths."
+            },
+            {
+              "id": "T024",
+              "title": "Apply quotas and overload controls",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Enforce per-account Run/Submit rates, two active jobs per user, fair bounded queue, provider-independent admission, retry guidance, author-wide validation quotas, and operator kill switch that leaves reading/saving available."
+            },
+            {
+              "id": "T025",
+              "title": "Build code draft persistence and recovery",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Autosave code after 1–2 seconds by student/enrollment/version/step; acknowledge revision, preserve account-scoped local edits offline, resolve cross-tab conflicts, clear local cache on sign-out, and restore acknowledged code across devices."
+            },
+            {
+              "id": "T026",
+              "title": "Build desktop Python workspace",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P15 paired problem/editor/results layout, resizable keyboard-operable panels, syntax/indent/brackets/line numbers/undo/search/shortcuts/theme/font controls, Run mode, Submit, hints, status reconnect, public/hidden/infrastructure feedback, and desktop guidance on compact devices."
+            },
+            {
+              "id": "T027",
+              "title": "Build attempt history and restore",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement paginated P16 attempt list/detail with immutable code, timestamp, verdict, runtime, infrastructure flag, protected diagnostics, read-only teacher variant, and confirmed Restore to editor without modifying history."
+            },
+            {
+              "id": "T028",
+              "title": "Validate runner isolation and reliability",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Run adversarial networking/file/process/output tests, hidden-input echo leakage checks, Unicode/comparator cases, worker crash and timeout recovery, idempotency/reconnect checks, and document an isolation review before Phase A exit."
+            }
+          ],
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "name": "Phase B — author-to-student delivery",
+      "phase": "B",
+      "status": "not_started",
+      "gate": "An author creates, validates, previews, and publishes a mixed lesson; an invited learner enrolls, completes it, and resumes without staff database changes.",
+      "modules": [
+        {
+          "id": "S2-M01",
+          "name": "Course structure, authoring, and media",
+          "source": [
+            "PRD 5, 8, 11–12",
+            "design P21–P26, P31"
+          ],
+          "coverage": [
+            "P21",
+            "P22",
+            "P23",
+            "P24",
+            "P25",
+            "P26",
+            "P31"
+          ],
+          "tasks": [
+            {
+              "id": "T029",
+              "title": "Create and list owned course drafts",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Build P21 owned-course filters and title-only creation of a private draft; enforce one owner, additive author capability, owner-only drafts, and accurate unpublished-change/student-count states."
+            },
+            {
+              "id": "T030",
+              "title": "Implement course metadata and delivery settings",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Build P31 basics, existing primary category, up to five normalized tags, difficulty, language, outcomes, prerequisites, approximate duration, and separate draft metadata from explicitly applied live visibility/enrollment controls."
+            },
+            {
+              "id": "T031",
+              "title": "Build builder tree and structure operations",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Build P22 course/module/lesson/step selection, add/rename/duplicate/delete/collapse/reorder/move, drag and keyboard controls, 1–20 published steps per lesson, stable IDs, child-scope confirmation, and replacement instead of published step type mutation."
+            },
+            {
+              "id": "T032",
+              "title": "Implement canonical rich content and Markdown",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Support required rich blocks and the documented safe Markdown subset through one canonical representation; sanitize paste/import, reject unsafe HTML/URIs, preserve Unicode, tables, code fences, image refs and alt/captions on editor/MCP round trips, and warn on unsupported export blocks."
+            },
+            {
+              "id": "T033",
+              "title": "Build image upload and asset processing",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Support upload/paste/preview/replace, PNG/JPEG/WebP checks, size/dimension/decompression limits, processing/quarantine states, alt/decorative/caption metadata, object storage, authorized delivery, stable references, and version-aware retention."
+            },
+            {
+              "id": "T034",
+              "title": "Build Theory author editor",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P23 title, formatting/insert controls, image metadata/processing placeholders, required flag and estimated duration, safe content validation, autosave, and student-equivalent preview."
+            },
+            {
+              "id": "T035",
+              "title": "Build Video author editor",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P23 approved-provider URL validation, title, embed preview, verified captions or transcript, duration, failure recovery, and provider privacy guidance; do not add native upload."
+            },
+            {
+              "id": "T036",
+              "title": "Build Quiz author editor and server assessment",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P24 rich prompt, 2–8 options, single/multiple choice answer-key constraints, safe type conversion, post-pass explanation, server-side exact-set grading, unlimited abuse-bounded attempts, and no pre-pass answer-key payload."
+            },
+            {
+              "id": "T037",
+              "title": "Build Python exercise author editor",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P25 Problem/Code/Tests/Validation tabs for input/output format, constraints, starter, private reference, public/hidden tests, 0–3 hints, post-pass explanation, runtime and limit bounds, and protected author diagnostics."
+            },
+            {
+              "id": "T038",
+              "title": "Implement author autosave and conflict recovery",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Save after about one idle second; show acknowledged revision and Saving/Saved/Not saved states, recover local changes, warn on unsynchronized navigation, detect cross-tab/server revision conflicts, and never silently overwrite newer content."
+            },
+            {
+              "id": "T039",
+              "title": "Build true student preview",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Render draft Theory, Video, Quiz, and Python through P26 student components with persistent preview banner and return to selected step; exclude hidden tests/reference code and all enrollment/progress/product-analytics writes."
+            }
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "S2-M02",
+          "name": "Validation, immutable publication, and lifecycle",
+          "source": [
+            "PRD 7–9, 19",
+            "design P27, P31"
+          ],
+          "coverage": [
+            "P27",
+            "P31"
+          ],
+          "tasks": [
+            {
+              "id": "T040",
+              "title": "Validate exact draft and reference solutions",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Check metadata, hierarchy, required steps, media accessibility/readiness, quiz keys, and Python public+hidden tests; run private reference against every test and invalidate validation when grading inputs change; return linked errors and warnings."
+            },
+            {
+              "id": "T041",
+              "title": "Build review and publication transaction",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Build P27 blocking/warning review, save/revision state, impact statement, exact-revision publish action, atomic immutable version creation and latest-pointer swap, duplicate-click idempotency, stale-revision revalidation, and release receipt."
+            },
+            {
+              "id": "T042",
+              "title": "Pin enrollments and preserve old releases",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Assign latest version only to new enrollments; keep existing students' nodes, tests, assets, progress denominator, and attempts pinned; expose version labels in roster/analytics; forbid in-place published type/grading changes."
+            },
+            {
+              "id": "T043",
+              "title": "Implement archive, restore, delete-draft, and suspension",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Separate owner archive from admin suspension; block new joins on archive while active learners continue, block learning/execution on suspension, restore last release correctly, and delete only never-published drafts with confirmation."
+            },
+            {
+              "id": "T044",
+              "title": "Implement visibility and enrollment policy",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Enforce public/unlisted/private discovery and open/invitation-only joining independently; make private invitation-only, exclude unlisted from search/indexing, protect course bodies until enrollment, and preserve existing access when policies change."
+            }
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "S2-M03",
+          "name": "Enrollment, learning, and completion",
+          "source": [
+            "PRD 7, 10–12",
+            "design P08–P16"
+          ],
+          "coverage": [
+            "P08",
+            "P09",
+            "P10",
+            "P11",
+            "P12",
+            "P13",
+            "P14",
+            "P15",
+            "P16"
+          ],
+          "tasks": [
+            {
+              "id": "T045",
+              "title": "Implement enrollment lifecycle",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Make eligible joins idempotent; support Active/Left/Revoked, retained progress, policy-based rejoin, explicit owner reinstatement, and atomic state checks so revoked users cannot rejoin via open links."
+            },
+            {
+              "id": "T046",
+              "title": "Implement email and link invitations",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Build P08/P28 single-use email invites bound to verified address with seven-day expiry, shareable links with expiry/use limit, cryptographic tokens/digests, atomic consumption, resend/regenerate/revoke, delivery failure path, and safe invalid/mismatch states."
+            },
+            {
+              "id": "T047",
+              "title": "Build learning progress service",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Record explicit Theory/Video completion, correct Quiz pass, Python server pass, optional-step state, last visited step, timestamps, and course completion; count only satisfied required steps, floor incomplete percentages, preserve earlier passes after failures, and handle waivers separately."
+            },
+            {
+              "id": "T048",
+              "title": "Build Continue and My courses pages",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P09 dominant resume and P10 in-progress/completed/previous enrollment lists, accurate next-step fallback, archive/suspension states, leave confirmation, and responsive rows."
+            },
+            {
+              "id": "T049",
+              "title": "Build enrolled overview and lesson navigation",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P11 pinned-version syllabus, lesson rail, required/optional/waived status, course completion summary, free step navigation, version label, progress count, and resume/review action."
+            },
+            {
+              "id": "T050",
+              "title": "Build Theory and Video steps",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P12/P13 reading content, authorized image delivery, accessible code blocks, transcript/captions, failed-embed recovery, outline and previous/next navigation, Report issue, and explicit Mark complete action."
+            },
+            {
+              "id": "T051",
+              "title": "Build Quiz step",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P14 single/multiple selection, server Check answer, no pre-pass key leakage, retry feedback, post-pass answer/explanation, durable attempts, and continued practice without reversing completion."
+            },
+            {
+              "id": "T052",
+              "title": "Verify mixed-lesson vertical slice",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Exercise title-only course creation through theory/video/quiz/Python authoring, reference validation, preview, publish, invitation, enrollment, completion, resume, version update, and no staff database intervention."
+            }
+          ],
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "S3",
+      "name": "P0 extension — external AI authoring through MCP",
+      "phase": "B–C",
+      "status": "not_started",
+      "gate": "A real SDK client creates and edits a course with Markdown, an uploaded image, quiz, and validated Python exercise, resolves a builder conflict, and publishes using an explicitly granted token; MCP-01–MCP-12 pass.",
+      "modules": [
+        {
+          "id": "S3-M01",
+          "name": "Credentials, grants, and connection experience",
+          "source": [
+            "PRD 23.1–23.3, 23.8",
+            "design 19, P43–P44"
+          ],
+          "coverage": [
+            "P43",
+            "P44"
+          ],
+          "tasks": [
+            {
+              "id": "T053",
+              "title": "Implement scoped author token lifecycle",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Issue tokens only to reauthenticated active verified authors; use at least 256-bit secrets stored as digest plus lookup ID, one-time reveal, 1–90-day expiry, immediate revocation, last use, and access loss on suspension/capability/ownership change."
+            },
+            {
+              "id": "T054",
+              "title": "Enforce course restrictions and operation scopes",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement Read only, Draft authoring, Full course control, and custom scope grants; selected-course/all-owned restrictions, separate courses:create, created-course allowlisting, no self-expansion, and permission recheck before commit."
+            },
+            {
+              "id": "T055",
+              "title": "Build AI connections settings",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P43 list/filter/detail, creation grant summary, reauthentication, masked one-time secret/copy, replacement with same-or-narrower grant, revocation confirmation, expired/revoked history, and safe token-free instrumentation."
+            },
+            {
+              "id": "T056",
+              "title": "Build client setup and verification",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P44 real endpoint/transport instructions, tested compatibility matrix, generic bearer guide, optional environment-token adapter, honest OAuth-only limitation, safe placeholder examples, and last observed authenticated context check rather than false connected status."
+            }
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "S3-M02",
+          "name": "MCP protocol and authoring tools",
+          "source": [
+            "PRD 23.2, 23.4–23.7"
+          ],
+          "tasks": [
+            {
+              "id": "T057",
+              "title": "Implement authenticated Streamable HTTP MCP",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Expose /mcp via the official SDK, test supported protocol revisions and real clients, require HTTPS outside loopback, validate Host/Origin/content type/request size, and publish read-only schema/Markdown/connection resources."
+            },
+            {
+              "id": "T058",
+              "title": "Implement author context and course reads",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Provide get_author_context, list_courses, and get_course with scoped ownership, pagination and metadata/outline/full projections, size budgets, protected assessment-data policy, and no cross-author search."
+            },
+            {
+              "id": "T059",
+              "title": "Implement course and structure mutations",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Provide create/update course, module, lesson, and step plus move_content, duplicate_content, and delete_content using the same domain services and validation as the UI; enforce hierarchy, stable IDs, expected revisions, child-deletion intent, and protected published history."
+            },
+            {
+              "id": "T060",
+              "title": "Implement MCP image workflow",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Provide bounded create/complete upload, get/update image, attach/detach tools; validate actual bytes/checksum/MIME/dimensions, never forward author bearer tokens to storage, resolve stable zur-asset references, and enforce course ownership/readiness."
+            },
+            {
+              "id": "T061",
+              "title": "Implement assessment validation and publication tools",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Provide validate_exercise/get_validation, validate_course, and exact-revision publish_course through the existing isolated runner and publication transaction; honor exercises:validate/courses:publish and block invalid reference solutions."
+            },
+            {
+              "id": "T062",
+              "title": "Implement access and lifecycle tools",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Provide set_course_access, archive_course, restore_course, and delete_draft_course as separate scoped operations with effect summaries and existing-enrollment/version protections; never hide live actions in draft batches."
+            },
+            {
+              "id": "T063",
+              "title": "Implement idempotent batch authoring",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Require idempotency keys and expected_revision; return stable receipts for same retries and reject different payload reuse; implement prepare/apply atomic batches with temp IDs, 100-operation/1-MiB limits, digest-bound short-lived plans, and conflict recheck."
+            },
+            {
+              "id": "T064",
+              "title": "Enforce MCP security and quotas",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Check token, author, scope, ownership, parents, assets, and restrictions per request/commit; redact secrets and rich payloads from logs; apply per-token calls, author concurrency/storage/runner limits and safe domain/protocol errors; expose no arbitrary shell, fetch, or filesystem tool."
+            }
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "S3-M03",
+          "name": "Agent activity, concurrency, and recovery",
+          "source": [
+            "PRD 23.6, 23.8–23.9",
+            "design P45, 19.2–19.4"
+          ],
+          "coverage": [
+            "P45",
+            "P22",
+            "P23",
+            "P27"
+          ],
+          "tasks": [
+            {
+              "id": "T065",
+              "title": "Record safe agent mutation activity",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Store token ID, author, label, tool, affected IDs, prior/new revision, outcome, time, and correlation ID; provide list_agent_activity/get_change with scoped, paginated, secret-free summaries and protected content diffs."
+            },
+            {
+              "id": "T066",
+              "title": "Implement draft revision recovery",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Keep recoverable draft revisions at least 30 days under approved policy; implement restore_draft_revision with expected revision and actual-effect scope checks, creating a new draft without rolling back published versions, access, or learner records."
+            },
+            {
+              "id": "T067",
+              "title": "Build agent activity and builder update UI",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P45 filters, receipt/diff drawer, recovery review and conflict states; show remote update attribution in builder without overriding local save status, preserve unsynced edits, and handle deleted selected nodes safely."
+            },
+            {
+              "id": "T068",
+              "title": "Verify MCP end to end and adversarial cases",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Run MCP-01–MCP-12 with a real SDK client, including cross-author IDs, restricted scopes, pending-write revocation, stale/repeated batches, unsafe Markdown/images, UI/MCP round trips, recovery, invalid reference, and unsupported OAuth-only client messaging."
+            }
+          ],
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "S4",
+      "name": "Phase C — discovery, teaching, and operations",
+      "phase": "C",
+      "status": "not_started",
+      "gate": "All P0 acceptance criteria, accessible core journeys, privacy decisions, load targets, monitoring, and backup/rollback exercises pass in a controlled pilot.",
+      "modules": [
+        {
+          "id": "S4-M01",
+          "name": "Public discovery and help",
+          "source": [
+            "PRD 3–4, 7, 15–16",
+            "design P01–P03, P40–P42"
+          ],
+          "coverage": [
+            "P01",
+            "P02",
+            "P03",
+            "P40",
+            "P41",
+            "P42"
+          ],
+          "tasks": [
+            {
+              "id": "T069",
+              "title": "Build landing page",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P01 public shell, accurate example workspace, Explore/authoring links, Read–Try–Check explanation, responsive layout, and signed-in Continue action without fabricated metrics or unsupported claims."
+            },
+            {
+              "id": "T070",
+              "title": "Build catalog, search, and filters",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P02 paginated public-only search over title/description/tags/author, category/level/language filters, safe URL query state, mobile filter sheet, consistent ordering/relevance, and no-result/retry states."
+            },
+            {
+              "id": "T071",
+              "title": "Build public and unlisted course overview",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P03 metadata, outcomes, prerequisites, informational syllabus, and state-specific enroll/sign-in/verify/invite/continue actions without leaking step bodies or private course existence."
+            },
+            {
+              "id": "T072",
+              "title": "Build help, reporting entry, and policies",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P40 accessible help and external support contact, contextual report entry, and P41 approved Privacy/Terms pages with effective dates; block launch on placeholder legal content."
+            }
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "S4-M02",
+          "name": "Teacher roster and analytics",
+          "source": [
+            "PRD 14",
+            "design P28–P30"
+          ],
+          "coverage": [
+            "P28",
+            "P29",
+            "P30"
+          ],
+          "tasks": [
+            {
+              "id": "T073",
+              "title": "Build owner roster and invitations view",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P28 paginated course-only search/status/version filters, enrollment state and last activity, invite tabs, email/link management, revoke/reinstate confirmations, and no unnecessary email exposure."
+            },
+            {
+              "id": "T074",
+              "title": "Build student detail for course owner",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P29 pinned-version step progress, completion/waivers, last activity, and submitted assessment/code history with owner authorization; omit unsent drafts, IPs, other courses, and unrelated profile data."
+            },
+            {
+              "id": "T075",
+              "title": "Compute and display exact course metrics",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P30 active and learning-active counts, completion, average required progress, distinct-student exercise pass rate, median attempts to first pass, last activity, window/version filters, denominators, waiver/infrastructure exclusions, and sparse-data states."
+            },
+            {
+              "id": "T076",
+              "title": "Implement privacy-safe product analytics",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Record creation, publication, accepted enrollment, completion, run, submission result, hint reveal, and course completion with pseudonymous IDs and version metadata; exclude code, tests, tokens, email, free text, staff, previews, and automated checks from product KPIs."
+            }
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "S4-M03",
+          "name": "Administration and private support",
+          "source": [
+            "PRD 9, 15, 17",
+            "design P32–P39"
+          ],
+          "coverage": [
+            "P32",
+            "P33",
+            "P34",
+            "P35",
+            "P36",
+            "P37",
+            "P38",
+            "P39"
+          ],
+          "tasks": [
+            {
+              "id": "T077",
+              "title": "Build operations overview",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P32 real execution, queue, runner, report, and email health with timestamps and incident links; render unavailable telemetry honestly and avoid fake healthy states."
+            },
+            {
+              "id": "T078",
+              "title": "Build user administration and audited support access",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P33 search/filter/detail, author grant/revoke, account suspend/restore, privacy-request status, stronger admin auth, reason-gated learner-record access, visible support banner, and audit events."
+            },
+            {
+              "id": "T079",
+              "title": "Build course administration and completion waiver",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P34 course lookup, suspension/restore and reports; add reasoned exact-version/step/affected-enrollment waiver with reviewed count, learner notice, distinct progress provenance, and no passing-attempt credit."
+            },
+            {
+              "id": "T080",
+              "title": "Build category administration",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P35 create/edit and normalized duplicate checks, usage counts, rename effects, and prevention of in-use category removal without reassignment."
+            },
+            {
+              "id": "T081",
+              "title": "Implement private report workflow",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Accept broken-exercise/inappropriate-content reports with automatic course/version/step context, optional consented code, Open/Investigating/Resolved status, private admin P36 triage and resolution outcome, and support reference."
+            },
+            {
+              "id": "T082",
+              "title": "Build media operations",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P37 asset processing/quarantine list, authorized safe preview, owner/reference counts, review reason and impact, and retained-version deletion protection."
+            },
+            {
+              "id": "T083",
+              "title": "Build execution operations and kill switch",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement P38 queue/worker/job health, time filters, paginated payload-safe records, explicit disable/reactivate new execution, audited confirmation, and confirmed backend state."
+            },
+            {
+              "id": "T084",
+              "title": "Build audit search and sensitive-action trail",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Record and expose P39 paginated actor/action/target/time/reason/correlation search for admin, support, access, waiver, and agent mutations; redact credentials, code, hidden tests, signed URLs, and secret payloads."
+            },
+            {
+              "id": "T085",
+              "title": "Fulfill export and deletion requests",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Implement audited manual support execution for account export/deletion, ownership blocker resolution, active-data purge within the approved policy, backup re-deletion marker, and user-visible request status."
+            }
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "S4-M04",
+          "name": "Accessibility, quality, and operations",
+          "source": [
+            "PRD 16, 18–20",
+            "design 15–18"
+          ],
+          "tasks": [
+            {
+              "id": "T086",
+              "title": "Verify accessibility across core journeys",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Test WCAG 2.2 AA contrast, keyboard/screen reader flow, focus, dialogs, tree/splitters/editor escape, live regions, text alternatives, reduced motion, forced colors, 200% zoom, and 320px reflow for enrollment, learning, coding, authoring, admin, and MCP settings."
+            },
+            {
+              "id": "T087",
+              "title": "Verify responsive design and adverse states",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Capture and inspect design checkpoints at 1440×900, 1024×768, 768×1024, 390×844, 320px and 200% zoom; cover both themes, long content, offline/unsaved, errors, queue, blocked publish, expired invites, suspension, sparse metrics, and token/recovery states."
+            },
+            {
+              "id": "T088",
+              "title": "Implement monitoring, alerts, and operational recovery",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Monitor queue age/stuck jobs, runner limits/failures, autosave, auth, email, and authorization denials with safe correlation IDs; set alerts, backup/restore, deployment rollback, runner shutdown, and documented incident playbooks."
+            },
+            {
+              "id": "T089",
+              "title": "Validate pilot load and reliability targets",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Measure 100 concurrent learners and 20 execution requests/second for five minutes against reference exercises; record hardware/distribution/failures and evaluate p95 page/API/save/queue/grading targets, 99.5% availability plan, RPO/RTO, fair overload, and preservation of acknowledged writes."
+            }
+          ],
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "S5",
+      "name": "Controlled pilot and release gate",
+      "phase": "C exit",
+      "status": "not_started",
+      "modules": [
+        {
+          "id": "S5-M01",
+          "name": "Acceptance, evidence, and launch readiness",
+          "source": [
+            "PRD 3, 18–20, 22–23",
+            "design 17–18"
+          ],
+          "tasks": [
+            {
+              "id": "T090",
+              "title": "Execute PRD acceptance matrix",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Verify AC-01–AC-20 and MCP-01–MCP-12 with reproducible evidence covering private access, autosave, publication, invitations, Run/Submit, hidden data, code recovery, version pinning, progress, runner safety, accessibility, waivers, deletion, and agent authoring."
+            },
+            {
+              "id": "T091",
+              "title": "Audit page and state completeness",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Verify design P01–P45 and S1–S6 are implemented or explicitly recorded as incomplete; inspect shared overlays, all universal states, dark/light themes, no dead controls, and no excluded promotional placeholders."
+            },
+            {
+              "id": "T092",
+              "title": "Run author and student pilot",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Have invited authors publish prepared mixed lessons and learners practice/return; measure author activation, first-lesson time, student activation, week-two retention, grading reliability, and acknowledged-work loss with sample sizes/windows and staff/test exclusions."
+            },
+            {
+              "id": "T093",
+              "title": "Review security, privacy, and launch approvals",
+              "status": "not_started",
+              "priority": "P0",
+              "description": "Review authorization, isolated execution, MCP grants, media, age/country eligibility, approved policies, retention/deletion, support ownership, backup/rollback, incident response, and pilot evidence; record unresolved blockers before public launch."
+            }
+          ],
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "S6",
+      "name": "Post-pilot candidates — outside initial release",
+      "phase": "D and later",
+      "status": "deferred",
+      "modules": [
+        {
+          "id": "S6-M01",
+          "name": "P1 candidates requiring evidence and acceptance design",
+          "source": [
+            "PRD 4, 20, 23.2, 23.4"
+          ],
+          "tasks": [
+            {
+              "id": "T094",
+              "title": "Design enrollment version migration",
+              "status": "deferred",
+              "priority": "P1",
+              "description": "After pilot evidence, define explicit learner-safe mapping of old to new steps, assessment/progress effects, teacher controls, consent/notification, and acceptance before implementation."
+            },
+            {
+              "id": "T095",
+              "title": "Evaluate expanded assessment and editor features",
+              "status": "deferred",
+              "priority": "P1",
+              "description": "Prioritize function-style exercises, short answers, partial credit/custom checkers, formula rendering, browser-local execution, advanced language services, and improved diagnostic guidance only against observed need and defined grading rules."
+            },
+            {
+              "id": "T096",
+              "title": "Evaluate richer author and roster tools",
+              "status": "deferred",
+              "priority": "P1",
+              "description": "Assess co-authors, reusable question bank, whole-course duplication, roster bulk import/CSV export, intervention workflows, cohorts, scheduling, deadlines, and prerequisite locks with measurable pilot problems."
+            },
+            {
+              "id": "T097",
+              "title": "Evaluate broader identity and MCP compatibility",
+              "status": "deferred",
+              "priority": "P1",
+              "description": "Assess social sign-in, institutional SSO, and standards-compliant MCP OAuth discovery/authorization for clients that cannot configure bearer tokens; do not represent the P0 token flow as OAuth."
+            },
+            {
+              "id": "T098",
+              "title": "Evaluate expanded media and learning surfaces",
+              "status": "deferred",
+              "priority": "P1",
+              "description": "Assess native video upload/transcoding, arbitrary attachments, and mobile coding only if demand and processing/accessibility/security costs justify a separate scoped design."
+            }
+          ],
+          "status": "deferred"
+        },
+        {
+          "id": "S6-M02",
+          "name": "Excluded exploratory scope",
+          "source": [
+            "PRD 4"
+          ],
+          "tasks": [
+            {
+              "id": "T099",
+              "title": "Reassess excluded product areas only by new PRD",
+              "status": "deferred",
+              "priority": "P2",
+              "description": "Payments, certificates, revenue sharing, native apps, live classes, messaging/forums, gamification, plagiarism detection, multiple languages, AI grading/tutors/autocomplete, SCORM/LTI, and organization permissions require a new product decision and specification; none are P0 tasks."
+            }
+          ],
+          "status": "deferred"
+        }
+      ]
+    }
+  ]
+}

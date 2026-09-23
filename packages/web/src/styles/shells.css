@@ -1,0 +1,604 @@
+/* ZUR Shells S1–S6 Layout Styles (design.md §5) */
+
+/* Wordmark Asset (design §4.3) */
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+}
+
+.wordmark-citron {
+  width: 4px;
+  height: 18px;
+  background-color: var(--accent);
+  border-radius: 2px;
+}
+
+/* S1: Public Shell */
+.shell-public {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.public-header {
+  height: var(--header-height);
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.public-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--type-control-size);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--text-primary);
+}
+
+.public-main {
+  flex: 1;
+}
+
+.public-footer {
+  border-top: 1px solid var(--border-subtle);
+  padding: var(--space-8) 0;
+  background-color: var(--bg-navigation);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.footer-links {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.footer-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--type-control-size);
+}
+
+.footer-links a:hover {
+  color: var(--text-primary);
+}
+
+/* S2: Account Shell */
+.shell-account {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--page-gutter);
+}
+
+.account-container {
+  width: 100%;
+  max-width: var(--max-width-auth);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.account-card {
+  width: 100%;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.account-title {
+  font-size: var(--type-section-title-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.account-subtitle {
+  font-size: var(--type-body-size);
+  color: var(--text-secondary);
+}
+
+.account-footer {
+  font-size: var(--type-metadata-size);
+  color: var(--text-muted);
+}
+
+.account-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.account-link:hover {
+  color: var(--link);
+  text-decoration: underline;
+}
+
+/* S3: Application Shell */
+.shell-app {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--bg-navigation);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  height: var(--header-height);
+  padding: 0 var(--space-5);
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.mode-switch-container {
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.mode-switch-label {
+  font-size: var(--type-micro-size);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: var(--space-1);
+  display: block;
+}
+
+.mode-switch {
+  display: flex;
+  background-color: var(--bg-canvas);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  border: 1px solid var(--border-subtle);
+}
+
+.mode-btn {
+  flex: 1;
+  text-align: center;
+  padding: 4px 0;
+  font-size: var(--type-metadata-size);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+
+.mode-btn.active {
+  background-color: var(--bg-raised);
+  color: var(--text-primary);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: var(--space-4) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.app-nav-item {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 var(--space-5);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--type-control-size);
+  font-weight: 500;
+  position: relative;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.app-nav-item:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.app-nav-item.active {
+  background-color: var(--bg-selected);
+  color: var(--text-primary);
+}
+
+.app-nav-item.active .nav-indicator {
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background-color: var(--accent);
+  border-radius: 0 2px 2px 0;
+}
+
+.sidebar-footer {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.app-main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-location-header {
+  height: var(--header-height);
+  padding: 0 var(--page-gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+}
+
+.location-title {
+  font-size: var(--type-section-title-size);
+  font-weight: 600;
+}
+
+.app-content-body {
+  flex: 1;
+  padding: var(--space-6) var(--page-gutter);
+}
+
+/* S4: Learning Workspace Shell */
+.shell-learning {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.learning-header {
+  height: var(--header-height);
+  padding: 0 var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+  flex-shrink: 0;
+}
+
+.learning-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--type-control-size);
+}
+
+.learning-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.learning-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.learning-outline-drawer {
+  width: var(--tree-width);
+  border-right: 1px solid var(--border-subtle);
+  background-color: var(--bg-navigation);
+  overflow-y: auto;
+  display: none; /* opened via outline button */
+}
+
+.learning-outline-drawer.open {
+  display: block;
+}
+
+.learning-workspace-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Paired Python Workspace (design §5, §11 P15) */
+.paired-workspace .workspace-viewport {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 4fr 6fr; /* 40% problem, 60% code */
+  overflow: hidden;
+}
+
+.desktop-guidance-banner {
+  display: none;
+  background-color: var(--info-bg);
+  color: var(--info);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--type-body-size);
+  border-bottom: 1px solid var(--border-subtle);
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Show desktop guidance below 1024px for Python (design §5, §8) */
+@media (max-width: 1023px) {
+  .paired-workspace .desktop-guidance-banner {
+    display: flex;
+  }
+  .paired-workspace .workspace-viewport {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+}
+
+.learning-task-footer {
+  height: 56px;
+  padding: 0 var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.task-footer-left,
+.task-footer-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* S5: Author Workspace Shell */
+.shell-author {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.author-header {
+  height: var(--header-height);
+  padding: 0 var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+  flex-shrink: 0;
+}
+
+.author-header-left,
+.author-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.author-tabs-bar {
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+  flex-shrink: 0;
+}
+
+.author-workspace-main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.author-tree-pane {
+  width: var(--tree-width);
+  border-right: 1px solid var(--border-subtle);
+  background-color: var(--bg-navigation);
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.author-editor-pane {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+  min-width: 0;
+}
+
+.author-inspector-pane {
+  width: var(--inspector-width);
+  border-left: 1px solid var(--border-subtle);
+  background-color: var(--bg-navigation);
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* Responsive collapse order for Author Shell (design §5) */
+@media (max-width: 1199px) {
+  .author-inspector-pane {
+    display: none; /* Inspector becomes on-demand drawer */
+  }
+}
+
+/* S6: Administration Shell */
+.shell-admin {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--bg-navigation);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.admin-sidebar-header {
+  height: var(--header-height);
+  padding: 0 var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.admin-badge {
+  font-size: var(--type-micro-size);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: var(--bg-raised);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+.admin-nav-list {
+  flex: 1;
+  padding: var(--space-4) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 var(--space-5);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--type-control-size);
+  font-weight: 500;
+  position: relative;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.admin-nav-item:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.admin-nav-item.active {
+  background-color: var(--bg-selected);
+  color: var(--text-primary);
+}
+
+.admin-nav-item.active .nav-indicator {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background-color: var(--accent);
+}
+
+.admin-sidebar-footer {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin-actor-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-actor-label {
+  font-size: var(--type-micro-size);
+  color: var(--text-muted);
+}
+
+.admin-actor-name {
+  font-size: var(--type-control-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.admin-return-link {
+  font-size: var(--type-metadata-size);
+  color: var(--link);
+  text-decoration: none;
+}
+
+.admin-return-link:hover {
+  text-decoration: underline;
+}
+
+.admin-main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.admin-location-header {
+  height: var(--header-height);
+  padding: 0 var(--page-gutter);
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+}
+
+.admin-title {
+  font-size: var(--type-section-title-size);
+  font-weight: 600;
+}
+
+.admin-content-body {
+  flex: 1;
+  padding: var(--space-6) var(--page-gutter);
+}

@@ -1,0 +1,12 @@
+{
+  "name": "zur-server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "zur-shared": "*"
+  }
+}
