@@ -6,6 +6,12 @@ import { AuthorizationService } from './services/auth-service.ts';
 import { ExecutionService } from './services/execution-service.ts';
 import { DraftService } from './services/draft-service.ts';
 import { AttemptService } from './services/attempt-service.ts';
+import { CourseService } from './services/course-service.ts';
+import { CourseStructureService } from './services/course-structure-service.ts';
+import { MediaService } from './services/media-service.ts';
+import { QuizService } from './services/quiz-service.ts';
+import { ExerciseAuthoringService } from './services/exercise-authoring-service.ts';
+import { CourseAutosaveService } from './services/course-autosave-service.ts';
 
 export function createServer(db: DatabaseSync): http.Server {
   const identityService = new IdentityService(db);
@@ -13,6 +19,12 @@ export function createServer(db: DatabaseSync): http.Server {
   const executionService = new ExecutionService(db);
   const draftService = new DraftService(db);
   const attemptService = new AttemptService(db);
+  const courseService = new CourseService(db);
+  const courseStructureService = new CourseStructureService(db);
+  const mediaService = new MediaService(db);
+  const quizService = new QuizService(db);
+  const exerciseAuthoringService = new ExerciseAuthoringService(db);
+  const courseAutosaveService = new CourseAutosaveService(db);
 
   function parseCookies(req: http.IncomingMessage): Record<string, string> {
     const header = req.headers.cookie;
@@ -39,7 +51,7 @@ export function createServer(db: DatabaseSync): http.Server {
       let data = '';
       req.on('data', (chunk) => {
         data += chunk;
-        if (data.length > 1024 * 1024) {
+        if (data.length > 10 * 1024 * 1024) {
           reject(new Error('Payload too large'));
         }
       });
@@ -410,6 +422,447 @@ export function createServer(db: DatabaseSync): http.Server {
         const attemptId = attemptRestoreMatch[1];
         const result = attemptService.restoreAttempt(attemptId, user.id);
         sendJson(res, 200, result);
+        return;
+      }
+
+      // 27. Author: List Owned Courses (T029)
+      if (method === 'GET' && pathname === '/api/author/courses') {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const status = url.searchParams.get('status') || undefined;
+        const search = url.searchParams.get('search') || undefined;
+        const limit = Number(url.searchParams.get('limit') || 20);
+        const offset = Number(url.searchParams.get('offset') || 0);
+        const result = courseService.listOwnedCourses(user.id, { status, search, limit, offset });
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // 28. Author: Create Course Draft (T029)
+      if (method === 'POST' && pathname === '/api/author/courses') {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const body = await parseJsonBody(req);
+        const created = courseService.createCourseDraft(user.id, body);
+        sendJson(res, 201, created);
+        return;
+      }
+
+      // 29. Author: Get Course Details (T030)
+      const authorCourseMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)$/);
+      if (method === 'GET' && authorCourseMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseMatch[1];
+        const course = courseService.getCourse(user.id, courseId);
+        sendJson(res, 200, course);
+        return;
+      }
+
+      // 30. Author: Update Course Metadata (T030)
+      const authorCourseMetaMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/metadata$/);
+      if (method === 'PUT' && authorCourseMetaMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseMetaMatch[1];
+        const body = await parseJsonBody(req);
+        const updated = courseService.updateCourseMetadata(
+          user.id,
+          courseId,
+          Number(body.expectedRevision),
+          body.metadata || body
+        );
+        sendJson(res, 200, updated);
+        return;
+      }
+
+      // 31. Author: Update Course Access Settings (T030)
+      const authorCourseSettingsMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/settings$/);
+      if (method === 'PUT' && authorCourseSettingsMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseSettingsMatch[1];
+        const body = await parseJsonBody(req);
+        const updated = courseService.updateCourseAccessSettings(user.id, courseId, body);
+        sendJson(res, 200, updated);
+        return;
+      }
+
+      // 32. Author: Archive Course
+      const authorCourseArchiveMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/archive$/);
+      if (method === 'POST' && authorCourseArchiveMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseArchiveMatch[1];
+        const updated = courseService.archiveCourse(user.id, courseId);
+        sendJson(res, 200, updated);
+        return;
+      }
+
+      // 33. Author: Restore Course
+      const authorCourseRestoreMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/restore$/);
+      if (method === 'POST' && authorCourseRestoreMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseRestoreMatch[1];
+        const updated = courseService.restoreCourse(user.id, courseId);
+        sendJson(res, 200, updated);
+        return;
+      }
+
+      // 34. Author: Delete Course Draft
+      if (method === 'DELETE' && authorCourseMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseMatch[1];
+        const result = courseService.deleteDraft(user.id, courseId);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // 35. Author: Get Course Tree Structure (T031)
+      const authorCourseStructureMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/structure$/);
+      if (method === 'GET' && authorCourseStructureMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseStructureMatch[1];
+        const tree = courseStructureService.getCourseTree(user.id, courseId);
+        sendJson(res, 200, tree);
+        return;
+      }
+
+      // 36. Author: Add Module (T031)
+      const authorCourseModulesMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/modules$/);
+      if (method === 'POST' && authorCourseModulesMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseModulesMatch[1];
+        const body = await parseJsonBody(req);
+        const mod = courseStructureService.addModule(user.id, courseId, body.title, body.position);
+        sendJson(res, 201, mod);
+        return;
+      }
+
+      // 37. Author: Update / Delete Module (T031)
+      const authorCourseModuleItemMatch = pathname.match(
+        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/modules\/([0-9a-fA-F-]+)$/
+      );
+      if (method === 'PUT' && authorCourseModuleItemMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseModuleItemMatch[1];
+        const moduleId = authorCourseModuleItemMatch[2];
+        const body = await parseJsonBody(req);
+        const mod = courseStructureService.updateModule(user.id, courseId, moduleId, body.title);
+        sendJson(res, 200, mod);
+        return;
+      }
+      if (method === 'DELETE' && authorCourseModuleItemMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseModuleItemMatch[1];
+        const moduleId = authorCourseModuleItemMatch[2];
+        const result = courseStructureService.deleteModule(user.id, courseId, moduleId);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // 38. Author: Add Lesson (T031)
+      const authorCourseLessonsMatch = pathname.match(
+        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/modules\/([0-9a-fA-F-]+)\/lessons$/
+      );
+      if (method === 'POST' && authorCourseLessonsMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseLessonsMatch[1];
+        const moduleId = authorCourseLessonsMatch[2];
+        const body = await parseJsonBody(req);
+        const lesson = courseStructureService.addLesson(
+          user.id,
+          courseId,
+          moduleId,
+          body.title,
+          body.description,
+          body.position
+        );
+        sendJson(res, 201, lesson);
+        return;
+      }
+
+      // 39. Author: Update / Delete Lesson (T031)
+      const authorCourseLessonItemMatch = pathname.match(
+        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/lessons\/([0-9a-fA-F-]+)$/
+      );
+      if (method === 'PUT' && authorCourseLessonItemMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseLessonItemMatch[1];
+        const lessonId = authorCourseLessonItemMatch[2];
+        const body = await parseJsonBody(req);
+        const lesson = courseStructureService.updateLesson(user.id, courseId, lessonId, body.title, body.description);
+        sendJson(res, 200, lesson);
+        return;
+      }
+      if (method === 'DELETE' && authorCourseLessonItemMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseLessonItemMatch[1];
+        const lessonId = authorCourseLessonItemMatch[2];
+        const result = courseStructureService.deleteLesson(user.id, courseId, lessonId);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // 40. Author: Add Step (T031)
+      const authorCourseStepsMatch = pathname.match(
+        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/lessons\/([0-9a-fA-F-]+)\/steps$/
+      );
+      if (method === 'POST' && authorCourseStepsMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseStepsMatch[1];
+        const lessonId = authorCourseStepsMatch[2];
+        const body = await parseJsonBody(req);
+        const step = courseStructureService.addStep(user.id, courseId, lessonId, body);
+        sendJson(res, 201, step);
+        return;
+      }
+
+      // 41. Author: Update / Delete Step (T031)
+      const authorCourseStepItemMatch = pathname.match(
+        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/steps\/([0-9a-fA-F-]+)$/
+      );
+      if (method === 'PUT' && authorCourseStepItemMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseStepItemMatch[1];
+        const stepId = authorCourseStepItemMatch[2];
+        const body = await parseJsonBody(req);
+        const step = courseStructureService.updateStep(user.id, courseId, stepId, body);
+        sendJson(res, 200, step);
+        return;
+      }
+      if (method === 'DELETE' && authorCourseStepItemMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseStepItemMatch[1];
+        const stepId = authorCourseStepItemMatch[2];
+        const result = courseStructureService.deleteStep(user.id, courseId, stepId);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // 42. Author: Duplicate Step (T031)
+      const authorCourseStepDupMatch = pathname.match(
+        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/steps\/([0-9a-fA-F-]+)\/duplicate$/
+      );
+      if (method === 'POST' && authorCourseStepDupMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseStepDupMatch[1];
+        const stepId = authorCourseStepDupMatch[2];
+        const duplicated = courseStructureService.duplicateStep(user.id, courseId, stepId);
+        sendJson(res, 201, duplicated);
+        return;
+      }
+
+      // 43. Author: Step Content Autosave & Recovery (T038)
+      const authorStepContentMatch = pathname.match(/^\/api\/author\/steps\/([0-9a-fA-F-]+)\/content$/);
+      if (method === 'GET' && authorStepContentMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const stepId = authorStepContentMatch[1];
+        const content = courseAutosaveService.getStepContent(user.id, stepId);
+        sendJson(res, 200, content);
+        return;
+      }
+      if (method === 'PUT' && authorStepContentMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const stepId = authorStepContentMatch[1];
+        const body = await parseJsonBody(req);
+        const updated = courseAutosaveService.saveStepContent(
+          user.id,
+          stepId,
+          Number(body.expectedRevision),
+          body.payload,
+          body.stepMeta
+        );
+        sendJson(res, 200, updated);
+        return;
+      }
+
+      // 44. Author: Media Asset Upload & Listing (T033)
+      const authorCourseAssetsMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/assets$/);
+      if (method === 'POST' && authorCourseAssetsMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseAssetsMatch[1];
+        const body = await parseJsonBody(req);
+        let buffer: Buffer;
+        if (body.base64) {
+          buffer = Buffer.from(body.base64, 'base64');
+        } else {
+          buffer = Buffer.from(body.data || '');
+        }
+        const asset = mediaService.uploadAsset(user.id, courseId, {
+          buffer,
+          filename: body.filename || 'image.png',
+          mimeType: body.mimeType || 'image/png',
+          altText: body.altText,
+          isDecorative: body.isDecorative,
+          caption: body.caption,
+        });
+        sendJson(res, 201, asset);
+        return;
+      }
+      if (method === 'GET' && authorCourseAssetsMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseAssetsMatch[1];
+        const assets = mediaService.listCourseAssets(user.id, courseId);
+        sendJson(res, 200, { assets });
+        return;
+      }
+
+      // 45. Author: Update Media Asset Metadata (T033)
+      const authorAssetItemMatch = pathname.match(/^\/api\/author\/assets\/([0-9a-fA-F-]+)$/);
+      if (method === 'PUT' && authorAssetItemMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const assetId = authorAssetItemMatch[1];
+        const body = await parseJsonBody(req);
+        const updated = mediaService.updateAssetMetadata(user.id, assetId, body);
+        sendJson(res, 200, updated);
+        return;
+      }
+
+      // 46. Public / Authorized Asset Delivery (T033)
+      const assetServeMatch = pathname.match(/^\/api\/assets\/([0-9a-fA-F-]+)$/);
+      if (method === 'GET' && assetServeMatch) {
+        const assetId = assetServeMatch[1];
+        let userContext = { userId: null as string | null, capabilities: ['student'] as any, isSuspended: false };
+        if (token) {
+          try {
+            const { user } = identityService.authenticateSession(token);
+            userContext = {
+              userId: user.id,
+              capabilities: user.capabilities,
+              isSuspended: user.accountStatus === 'suspended',
+            };
+          } catch {}
+        }
+        const file = mediaService.getAssetFile(assetId, userContext);
+        res.writeHead(200, {
+          'Content-Type': file.mimeType,
+          'Content-Length': file.buffer.length,
+          'Access-Control-Allow-Origin': '*',
+        });
+        res.end(file.buffer);
+        return;
+      }
+
+      // 47. Quiz Student View & Grading (T036)
+      const studentQuizMatch = pathname.match(/^\/api\/steps\/([0-9a-fA-F-]+)\/quiz$/);
+      if (method === 'GET' && studentQuizMatch) {
+        const stepId = studentQuizMatch[1];
+        const quiz = quizService.getStudentQuiz(stepId);
+        sendJson(res, 200, quiz);
+        return;
+      }
+
+      const studentQuizSubmitMatch = pathname.match(/^\/api\/steps\/([0-9a-fA-F-]+)\/quiz\/submit$/);
+      if (method === 'POST' && studentQuizSubmitMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const stepId = studentQuizSubmitMatch[1];
+        const body = await parseJsonBody(req);
+        const enrollmentId = body.enrollmentId || null;
+        const isPreview = Boolean(body.isPreview);
+        const result = quizService.gradeQuiz(user.id, enrollmentId, stepId, body.selectedOptionIds || [], isPreview);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // 48. Quiz Author View & Update (T036)
+      const authorQuizMatch = pathname.match(/^\/api\/author\/steps\/([0-9a-fA-F-]+)\/quiz$/);
+      if (method === 'GET' && authorQuizMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const stepId = authorQuizMatch[1];
+        const quiz = quizService.getAuthorQuiz(user.id, stepId);
+        sendJson(res, 200, quiz);
+        return;
+      }
+      if (method === 'PUT' && authorQuizMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const stepId = authorQuizMatch[1];
+        const body = await parseJsonBody(req);
+        const updated = quizService.updateQuiz(user.id, stepId, Number(body.expectedRevision), body.quiz || body);
+        sendJson(res, 200, updated);
+        return;
+      }
+
+      // 49. Python Exercise Author View & Update (T037)
+      const authorPythonMatch = pathname.match(/^\/api\/author\/steps\/([0-9a-fA-F-]+)\/python$/);
+      if (method === 'GET' && authorPythonMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const stepId = authorPythonMatch[1];
+        const ex = exerciseAuthoringService.getAuthorExercise(user.id, stepId);
+        sendJson(res, 200, ex);
+        return;
+      }
+      if (method === 'PUT' && authorPythonMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const stepId = authorPythonMatch[1];
+        const body = await parseJsonBody(req);
+        const updated = exerciseAuthoringService.updateExercise(
+          user.id,
+          stepId,
+          Number(body.expectedRevision),
+          body.exercise || body
+        );
+        sendJson(res, 200, updated);
+        return;
+      }
+
+      // 50. True Student Preview Payload (T039)
+      const authorPreviewStepMatch = pathname.match(
+        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/preview\/([0-9a-fA-F-]+)$/
+      );
+      if (method === 'GET' && authorPreviewStepMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorPreviewStepMatch[1];
+        const stepId = authorPreviewStepMatch[2];
+        const course = courseService.getCourse(user.id, courseId);
+        const step = db.prepare('SELECT * FROM steps WHERE id = ?').get(stepId) as any;
+        if (!step) throw authService.safeNotFound();
+
+        let previewData: any = null;
+        if (step.type === 'quiz') {
+          previewData = quizService.getStudentQuiz(stepId);
+        } else if (step.type === 'python') {
+          previewData = exerciseAuthoringService.getStudentExercise(stepId);
+        } else {
+          const rawContent = db.prepare('SELECT content_payload FROM step_contents WHERE step_id = ?').get(stepId) as any;
+          previewData = rawContent ? JSON.parse(rawContent.content_payload) : {};
+        }
+
+        sendJson(res, 200, {
+          courseTitle: course.title,
+          courseId,
+          stepId,
+          stepTitle: step.title,
+          stepType: step.type,
+          isRequired: Boolean(step.is_required),
+          estimatedDurationMinutes: step.estimated_duration_minutes,
+          content: previewData,
+          isPreview: true,
+        });
         return;
       }
 

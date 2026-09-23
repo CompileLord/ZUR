@@ -785,3 +785,424 @@
   background-color: var(--bg-hover);
 }
 
+/* --- Author Courses & Cards (P21) --- */
+.author-courses-container {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-8);
+}
+
+.author-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-6);
+}
+
+.author-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.author-course-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.author-course-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--transition-fast);
+}
+
+.author-course-row:hover {
+  border-color: var(--border-strong);
+}
+
+.course-row-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.course-row-title {
+  margin: 0;
+  font-size: var(--type-title-size);
+  font-weight: 600;
+}
+
+.course-row-title a {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.course-row-title a:hover {
+  text-decoration: underline;
+}
+
+.course-row-date {
+  font-size: var(--type-metadata-size);
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+}
+
+.author-modal-440 {
+  max-width: 440px;
+  width: 100%;
+}
+
+.sample-tree-preview {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background-color: var(--bg-canvas);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  text-align: left;
+}
+
+.sample-tree-title {
+  font-size: var(--type-metadata-size);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.sample-tree-node {
+  font-size: var(--type-body-size);
+  color: var(--text-secondary);
+  padding: var(--space-1) 0;
+}
+
+.sample-tree-node.child {
+  padding-left: var(--space-4);
+}
+
+/* --- Course Builder & Content Tree (P22) --- */
+.builder-tree-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--space-3);
+}
+
+.tree-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-3);
+}
+
+.tree-title {
+  font-size: var(--type-subhead-size);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.tree-root {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.tree-children {
+  list-style: none;
+  padding-left: var(--space-4);
+  margin: 0;
+}
+
+.tree-item {
+  margin: var(--space-1) 0;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.tree-item.selected {
+  background-color: var(--bg-hover);
+}
+
+.tree-node-content,
+.tree-node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-1) var(--space-2);
+  gap: var(--space-2);
+}
+
+.tree-label {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: var(--type-body-size);
+  flex: 1;
+}
+
+.tree-label:hover {
+  text-decoration: underline;
+}
+
+.tree-node-actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.step-type-badge {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.badge-theory {
+  background-color: rgba(94, 106, 210, 0.15);
+  color: #7b88e8;
+}
+
+.badge-video {
+  background-color: rgba(229, 72, 77, 0.15);
+  color: #f7686d;
+}
+
+.badge-quiz {
+  background-color: rgba(245, 166, 35, 0.15);
+  color: #f5a623;
+}
+
+.badge-python {
+  background-color: rgba(46, 160, 67, 0.15);
+  color: #4cd964;
+}
+
+.tree-footer {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+  margin-top: var(--space-3);
+}
+
+/* --- Markdown & Theory Editor (P23) --- */
+.markdown-toolbar {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background-color: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+}
+
+.theory-tabs {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-3);
+}
+
+.theory-tabs .tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: var(--type-body-size);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+}
+
+.theory-tabs .tab-btn.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent-citron);
+  font-weight: 600;
+}
+
+.theory-markdown-textarea {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.rich-text-body {
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.rich-text-body h1,
+.rich-text-body h2,
+.rich-text-body h3 {
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-3);
+}
+
+.rich-text-body p {
+  margin-bottom: var(--space-4);
+}
+
+.callout {
+  padding: var(--space-4);
+  border-left: 4px solid var(--accent-citron);
+  background-color: var(--bg-raised);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin: var(--space-4) 0;
+}
+
+.callout-title {
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--text-primary);
+}
+
+/* --- Video Editor (P23) --- */
+.responsive-embed {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background-color: #000;
+}
+
+.responsive-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- Quiz Editor (P24) --- */
+.quiz-option-row {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.option-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.option-letter {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.correct-answer-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--type-metadata-size);
+  cursor: pointer;
+}
+
+.correct-text {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.option-body-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.option-text-input {
+  flex: 1;
+}
+
+/* --- Python Exercise Editor Tabs (P25) --- */
+.sub-tabs-bar {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-4);
+}
+
+.sub-tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: var(--type-body-size);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.sub-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.sub-tab-btn.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent-citron);
+  font-weight: 600;
+}
+
+/* --- Student Preview Banner (P26) --- */
+.author-preview-banner {
+  background-color: #272822;
+  color: #fff;
+  border-bottom: 1px solid var(--border-strong);
+  padding: var(--space-3) 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.banner-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.preview-tag {
+  background-color: var(--accent-citron);
+  color: #121417;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-sm);
+  margin-right: var(--space-3);
+  letter-spacing: 0.05em;
+}
+
+.preview-text {
+  font-size: var(--type-body-size);
+  color: #e5e5e5;
+}
+
+/* --- Danger Zone (P31) --- */
+.danger-zone {
+  border: 1px solid rgba(229, 72, 77, 0.4);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.danger-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-danger-outline {
+  color: #f7686d;
+  border-color: rgba(229, 72, 77, 0.4);
+}
+
+.btn-danger-outline:hover {
+  background-color: rgba(229, 72, 77, 0.1);
+}
+

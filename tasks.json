@@ -594,82 +594,149 @@
             {
               "id": "T029",
               "title": "Create and list owned course drafts",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Build P21 owned-course filters and title-only creation of a private draft; enforce one owner, additive author capability, owner-only drafts, and accurate unpublished-change/student-count states."
+              "description": "Build P21 owned-course filters and title-only creation of a private draft; enforce one owner, additive author capability, owner-only drafts, and accurate unpublished-change/student-count states.",
+              "evidence": [
+                "packages/server/src/services/course-service.ts",
+                "packages/server/src/server.ts",
+                "packages/web/src/pages/author/AuthorCoursesPage.ts",
+                "packages/server/tests/course-authoring.test.ts",
+                "packages/web/tests/author-pages.test.ts"
+              ]
             },
             {
               "id": "T030",
               "title": "Implement course metadata and delivery settings",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Build P31 basics, existing primary category, up to five normalized tags, difficulty, language, outcomes, prerequisites, approximate duration, and separate draft metadata from explicitly applied live visibility/enrollment controls."
+              "description": "Build P31 basics, existing primary category, up to five normalized tags, difficulty, language, outcomes, prerequisites, approximate duration, and separate draft metadata from explicitly applied live visibility/enrollment controls.",
+              "evidence": [
+                "packages/server/src/services/course-service.ts",
+                "packages/server/src/server.ts",
+                "packages/web/src/pages/author/CourseSettingsPage.ts",
+                "packages/server/tests/course-authoring.test.ts",
+                "packages/web/tests/author-pages.test.ts"
+              ]
             },
             {
               "id": "T031",
               "title": "Build builder tree and structure operations",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Build P22 course/module/lesson/step selection, add/rename/duplicate/delete/collapse/reorder/move, drag and keyboard controls, 1–20 published steps per lesson, stable IDs, child-scope confirmation, and replacement instead of published step type mutation."
+              "description": "Build P22 course/module/lesson/step selection, add/rename/duplicate/delete/collapse/reorder/move, drag and keyboard controls, 1–20 published steps per lesson, stable IDs, child-scope confirmation, and replacement instead of published step type mutation.",
+              "evidence": [
+                "packages/server/src/services/course-structure-service.ts",
+                "packages/server/src/server.ts",
+                "packages/web/src/pages/author/CourseBuilderPage.ts",
+                "packages/server/tests/course-authoring.test.ts",
+                "packages/web/tests/author-pages.test.ts"
+              ]
             },
             {
               "id": "T032",
               "title": "Implement canonical rich content and Markdown",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Support required rich blocks and the documented safe Markdown subset through one canonical representation; sanitize paste/import, reject unsafe HTML/URIs, preserve Unicode, tables, code fences, image refs and alt/captions on editor/MCP round trips, and warn on unsupported export blocks."
+              "description": "Support required rich blocks and the documented safe Markdown subset through one canonical representation; sanitize paste/import, reject unsafe HTML/URIs, preserve Unicode, tables, code fences, image refs and alt/captions on editor/MCP round trips, and warn on unsupported export blocks.",
+              "evidence": [
+                "packages/shared/src/markdown.ts",
+                "packages/shared/src/index.ts",
+                "packages/shared/tests/markdown.test.ts"
+              ]
             },
             {
               "id": "T033",
               "title": "Build image upload and asset processing",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Support upload/paste/preview/replace, PNG/JPEG/WebP checks, size/dimension/decompression limits, processing/quarantine states, alt/decorative/caption metadata, object storage, authorized delivery, stable references, and version-aware retention."
+              "description": "Support upload/paste/preview/replace, PNG/JPEG/WebP checks, size/dimension/decompression limits, processing/quarantine states, alt/decorative/caption metadata, object storage, authorized delivery, stable references, and version-aware retention.",
+              "evidence": [
+                "packages/server/src/services/media-service.ts",
+                "packages/server/src/server.ts",
+                "packages/server/tests/quiz-and-media.test.ts"
+              ]
             },
             {
               "id": "T034",
               "title": "Build Theory author editor",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P23 title, formatting/insert controls, image metadata/processing placeholders, required flag and estimated duration, safe content validation, autosave, and student-equivalent preview."
+              "description": "Implement P23 title, formatting/insert controls, image metadata/processing placeholders, required flag and estimated duration, safe content validation, autosave, and student-equivalent preview.",
+              "evidence": [
+                "packages/server/src/services/course-autosave-service.ts",
+                "packages/web/src/pages/author/TheoryEditorPage.ts",
+                "packages/server/tests/course-authoring.test.ts",
+                "packages/web/tests/author-pages.test.ts"
+              ]
             },
             {
               "id": "T035",
               "title": "Build Video author editor",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P23 approved-provider URL validation, title, embed preview, verified captions or transcript, duration, failure recovery, and provider privacy guidance; do not add native upload."
+              "description": "Implement P23 approved-provider URL validation, title, embed preview, verified captions or transcript, duration, failure recovery, and provider privacy guidance; do not add native upload.",
+              "evidence": [
+                "packages/web/src/pages/author/VideoEditorPage.ts",
+                "packages/server/tests/quiz-and-media.test.ts",
+                "packages/web/tests/author-pages.test.ts"
+              ]
             },
             {
               "id": "T036",
               "title": "Build Quiz author editor and server assessment",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P24 rich prompt, 2–8 options, single/multiple choice answer-key constraints, safe type conversion, post-pass explanation, server-side exact-set grading, unlimited abuse-bounded attempts, and no pre-pass answer-key payload."
+              "description": "Implement P24 rich prompt, 2–8 options, single/multiple choice answer-key constraints, safe type conversion, post-pass explanation, server-side exact-set grading, unlimited abuse-bounded attempts, and no pre-pass answer-key payload.",
+              "evidence": [
+                "packages/server/src/services/quiz-service.ts",
+                "packages/server/src/server.ts",
+                "packages/web/src/pages/author/QuizEditorPage.ts",
+                "packages/server/tests/quiz-and-media.test.ts",
+                "packages/web/tests/author-pages.test.ts"
+              ]
             },
             {
               "id": "T037",
               "title": "Build Python exercise author editor",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P25 Problem/Code/Tests/Validation tabs for input/output format, constraints, starter, private reference, public/hidden tests, 0–3 hints, post-pass explanation, runtime and limit bounds, and protected author diagnostics."
+              "description": "Implement P25 Problem/Code/Tests/Validation tabs for input/output format, constraints, starter, private reference, public/hidden tests, 0–3 hints, post-pass explanation, runtime and limit bounds, and protected author diagnostics.",
+              "evidence": [
+                "packages/server/src/services/exercise-authoring-service.ts",
+                "packages/server/src/server.ts",
+                "packages/web/src/pages/author/PythonExerciseEditorPage.ts",
+                "packages/server/tests/quiz-and-media.test.ts",
+                "packages/web/tests/author-pages.test.ts"
+              ]
             },
             {
               "id": "T038",
               "title": "Implement author autosave and conflict recovery",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Save after about one idle second; show acknowledged revision and Saving/Saved/Not saved states, recover local changes, warn on unsynchronized navigation, detect cross-tab/server revision conflicts, and never silently overwrite newer content."
+              "description": "Save after about one idle second; show acknowledged revision and Saving/Saved/Not saved states, recover local changes, warn on unsynchronized navigation, detect cross-tab/server revision conflicts, and never silently overwrite newer content.",
+              "evidence": [
+                "packages/server/src/services/course-autosave-service.ts",
+                "packages/server/src/server.ts",
+                "packages/server/tests/course-authoring.test.ts"
+              ]
             },
             {
               "id": "T039",
               "title": "Build true student preview",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Render draft Theory, Video, Quiz, and Python through P26 student components with persistent preview banner and return to selected step; exclude hidden tests/reference code and all enrollment/progress/product-analytics writes."
+              "description": "Render draft Theory, Video, Quiz, and Python through P26 student components with persistent preview banner and return to selected step; exclude hidden tests/reference code and all enrollment/progress/product-analytics writes.",
+              "evidence": [
+                "packages/server/src/server.ts",
+                "packages/web/src/pages/author/AuthorPreviewPage.ts",
+                "packages/server/tests/quiz-and-media.test.ts",
+                "packages/web/tests/author-pages.test.ts"
+              ]
             }
           ],
-          "status": "not_started"
+          "status": "done"
         },
         {
           "id": "S2-M02",
