@@ -36,3 +36,59 @@ export function compareOutput(actualStdout: string, expectedStdout: string): Com
     normalizedExpected,
   };
 }
+
+export function isValidUtf8(input: string | Uint8Array): boolean {
+  if (typeof input === 'string') {
+    return !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/.test(input);
+  }
+  try {
+    const decoder = new TextDecoder('utf-8', { fatal: true });
+    decoder.decode(input);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function validatePythonSource(code: string): { valid: boolean; error?: string } {
+  if (typeof code !== 'string') {
+    return { valid: false, error: 'Source code must be a string' };
+  }
+  if (!isValidUtf8(code)) {
+    return { valid: false, error: 'Source code must be valid UTF-8' };
+  }
+  const bytes = Buffer.byteLength(code, 'utf-8');
+  if (bytes > 64 * 1024) {
+    return { valid: false, error: `Source code exceeds 64 KiB limit (${bytes} bytes)` };
+  }
+  return { valid: true };
+}
+
+export function validateTestCaseInputOutput(stdin: string, expectedStdout: string): { valid: boolean; error?: string } {
+  if (typeof stdin !== 'string' || typeof expectedStdout !== 'string') {
+    return { valid: false, error: 'Stdin and expected stdout must be strings' };
+  }
+  if (!isValidUtf8(stdin)) {
+    return { valid: false, error: 'Stdin must be valid UTF-8' };
+  }
+  if (!isValidUtf8(expectedStdout)) {
+    return { valid: false, error: 'Expected stdout must be valid UTF-8' };
+  }
+  const stdinBytes = Buffer.byteLength(stdin, 'utf-8');
+  if (stdinBytes > 64 * 1024) {
+    return { valid: false, error: `Stdin exceeds 64 KiB limit (${stdinBytes} bytes)` };
+  }
+  const stdoutBytes = Buffer.byteLength(expectedStdout, 'utf-8');
+  if (stdoutBytes > 64 * 1024) {
+    return { valid: false, error: `Expected stdout exceeds 64 KiB limit (${stdoutBytes} bytes)` };
+  }
+  return { valid: true };
+}
+
+export function validateTestCount(count: number): { valid: boolean; error?: string } {
+  if (count > 50) {
+    return { valid: false, error: `Exercise exceeds maximum of 50 tests (${count} tests)` };
+  }
+  return { valid: true };
+}
+

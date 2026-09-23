@@ -79,7 +79,7 @@ test('Audit: tasks.json Module S1-M01 completion status and evidence files', () 
 
   const stageS1 = tasksData.stages.find((s: any) => s.id === 'S1');
   assert.ok(stageS1, 'Stage S1 must exist');
-  assert.equal(stageS1.status, 'in_progress', 'Stage S1 must be marked in_progress');
+  assert.equal(stageS1.status, 'done', 'Stage S1 must be marked done');
 
   const moduleM01 = stageS1.modules.find((m: any) => m.id === 'S1-M01');
   assert.ok(moduleM01, 'Module S1-M01 must exist');
@@ -98,3 +98,29 @@ test('Audit: tasks.json Module S1-M01 completion status and evidence files', () 
     }
   }
 });
+
+test('Audit: tasks.json Module S1-M02 completion status and evidence files', () => {
+  const tasksRaw = readFileSync(join(process.cwd(), 'tasks.json'), 'utf-8');
+  const tasksData = JSON.parse(tasksRaw);
+
+  const stageS1 = tasksData.stages.find((s: any) => s.id === 'S1');
+  assert.ok(stageS1, 'Stage S1 must exist');
+
+  const moduleM02 = stageS1.modules.find((m: any) => m.id === 'S1-M02');
+  assert.ok(moduleM02, 'Module S1-M02 must exist');
+  assert.equal(moduleM02.status, 'done', 'Module S1-M02 must be marked done');
+
+  const requiredTasks = ['T019', 'T020', 'T021', 'T022', 'T023', 'T024', 'T025', 'T026', 'T027', 'T028'];
+  for (const taskId of requiredTasks) {
+    const task = moduleM02.tasks.find((t: any) => t.id === taskId);
+    assert.ok(task, `Task ${taskId} must exist in S1-M02`);
+    assert.equal(task.status, 'done', `Task ${taskId} must be marked done`);
+    assert.ok(Array.isArray(task.evidence) && task.evidence.length > 0, `Task ${taskId} must have evidence array`);
+
+    for (const fileRel of task.evidence) {
+      const fullPath = join(process.cwd(), fileRel);
+      assert.ok(statSync(fullPath).isFile(), `Evidence file ${fileRel} must exist`);
+    }
+  }
+});
+

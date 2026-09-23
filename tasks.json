@@ -309,7 +309,7 @@
       "id": "S1",
       "name": "Phase A — prove safe practice",
       "phase": "A",
-      "status": "in_progress",
+      "status": "done",
       "gate": "Isolated Run/Submit, hidden-output protection, idempotency, reconnect, malicious-code tests, and code recovery pass.",
       "modules": [
         {
@@ -440,77 +440,132 @@
             {
               "id": "T019",
               "title": "Define Python exercise and comparator",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement single-file pinned Python 3 stdin/stdout assessment revisions, public/hidden tests, private reference solution, limits, UTF-8 validation, fixed line-ending/trailing-whitespace comparator, and immutable grading snapshots."
+              "description": "Implement single-file pinned Python 3 stdin/stdout assessment revisions, public/hidden tests, private reference solution, limits, UTF-8 validation, fixed line-ending/trailing-whitespace comparator, and immutable grading snapshots.",
+              "evidence": [
+                "packages/shared/src/types/index.ts",
+                "packages/shared/src/constants.ts",
+                "packages/shared/src/comparator.ts",
+                "packages/shared/tests/comparator.test.ts"
+              ]
             },
             {
               "id": "T020",
               "title": "Build isolated execution workers",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Run each test in a fresh sandbox outside the API with no secrets, network, host filesystem, child processes, or cross-job state; enforce CPU, wall, memory, disk, output, source, and test-size limits; destroy sandboxes after every outcome."
+              "description": "Run each test in a fresh sandbox outside the API with no secrets, network, host filesystem, child processes, or cross-job state; enforce CPU, wall, memory, disk, output, source, and test-size limits; destroy sandboxes after every outcome.",
+              "evidence": [
+                "packages/worker/src/runner.ts",
+                "packages/worker/src/worker.ts",
+                "packages/worker/src/index.ts",
+                "packages/worker/tests/runner.test.ts"
+              ]
             },
             {
               "id": "T021",
               "title": "Build durable jobs and result lifecycle",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Queue accepted work, lease/recover jobs, authenticate worker results, persist QUEUED/RUNNING/one terminal verdict, handle crash/retry and total timeout, reject duplicates/late results, expose polling/reconnect and stable execution IDs."
+              "description": "Queue accepted work, lease/recover jobs, authenticate worker results, persist QUEUED/RUNNING/one terminal verdict, handle crash/retry and total timeout, reject duplicates/late results, expose polling/reconnect and stable execution IDs.",
+              "evidence": [
+                "packages/server/src/db/migrations/003_execution_boundary.sql",
+                "packages/server/src/services/execution-service.ts",
+                "packages/server/tests/execution-boundary.test.ts"
+              ]
             },
             {
               "id": "T022",
               "title": "Implement Run samples and custom input",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Run public tests or one custom stdin with short-lived records and bounded safe output. Keep sample/custom success separate from assessed pass and never update completion."
+              "description": "Run public tests or one custom stdin with short-lived records and bounded safe output. Keep sample/custom success separate from assessed pass and never update completion.",
+              "evidence": [
+                "packages/server/src/services/execution-service.ts",
+                "packages/worker/src/worker.ts",
+                "packages/server/tests/execution-boundary.test.ts"
+              ]
             },
             {
               "id": "T023",
               "title": "Implement Submit and protected grading",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Accept exact editor-code snapshots with idempotency keys; grade public then hidden tests in order; persist attempts and authoritative progress atomically or repair idempotently; redact all hidden inputs, expected/actual output, stderr, identifiers, and timing from student paths."
+              "description": "Accept exact editor-code snapshots with idempotency keys; grade public then hidden tests in order; persist attempts and authoritative progress atomically or repair idempotently; redact all hidden inputs, expected/actual output, stderr, identifiers, and timing from student paths.",
+              "evidence": [
+                "packages/server/src/services/execution-service.ts",
+                "packages/server/src/services/redaction-service.ts",
+                "packages/server/tests/execution-boundary.test.ts"
+              ]
             },
             {
               "id": "T024",
               "title": "Apply quotas and overload controls",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Enforce per-account Run/Submit rates, two active jobs per user, fair bounded queue, provider-independent admission, retry guidance, author-wide validation quotas, and operator kill switch that leaves reading/saving available."
+              "description": "Enforce per-account Run/Submit rates, two active jobs per user, fair bounded queue, provider-independent admission, retry guidance, author-wide validation quotas, and operator kill switch that leaves reading/saving available.",
+              "evidence": [
+                "packages/server/src/services/quota-service.ts",
+                "packages/server/tests/quotas-and-drafts.test.ts"
+              ]
             },
             {
               "id": "T025",
               "title": "Build code draft persistence and recovery",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Autosave code after 1–2 seconds by student/enrollment/version/step; acknowledge revision, preserve account-scoped local edits offline, resolve cross-tab conflicts, clear local cache on sign-out, and restore acknowledged code across devices."
+              "description": "Autosave code after 1–2 seconds by student/enrollment/version/step; acknowledge revision, preserve account-scoped local edits offline, resolve cross-tab conflicts, clear local cache on sign-out, and restore acknowledged code across devices.",
+              "evidence": [
+                "packages/server/src/services/draft-service.ts",
+                "packages/web/src/services/draft-manager.ts",
+                "packages/server/tests/quotas-and-drafts.test.ts",
+                "packages/web/tests/workspace-pages.test.ts"
+              ]
             },
             {
               "id": "T026",
               "title": "Build desktop Python workspace",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P15 paired problem/editor/results layout, resizable keyboard-operable panels, syntax/indent/brackets/line numbers/undo/search/shortcuts/theme/font controls, Run mode, Submit, hints, status reconnect, public/hidden/infrastructure feedback, and desktop guidance on compact devices."
+              "description": "Implement P15 paired problem/editor/results layout, resizable keyboard-operable panels, syntax/indent/brackets/line numbers/undo/search/shortcuts/theme/font controls, Run mode, Submit, hints, status reconnect, public/hidden/infrastructure feedback, and desktop guidance on compact devices.",
+              "evidence": [
+                "packages/web/src/pages/learning/PythonWorkspacePage.ts",
+                "packages/web/src/styles/components.css",
+                "packages/web/tests/workspace-pages.test.ts"
+              ]
             },
             {
               "id": "T027",
               "title": "Build attempt history and restore",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement paginated P16 attempt list/detail with immutable code, timestamp, verdict, runtime, infrastructure flag, protected diagnostics, read-only teacher variant, and confirmed Restore to editor without modifying history."
+              "description": "Implement paginated P16 attempt list/detail with immutable code, timestamp, verdict, runtime, infrastructure flag, protected diagnostics, read-only teacher variant, and confirmed Restore to editor without modifying history.",
+              "evidence": [
+                "packages/server/src/services/attempt-service.ts",
+                "packages/web/src/pages/learning/AttemptHistoryPage.ts",
+                "packages/server/tests/execution-boundary.test.ts",
+                "packages/web/tests/workspace-pages.test.ts"
+              ]
             },
             {
               "id": "T028",
               "title": "Validate runner isolation and reliability",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Run adversarial networking/file/process/output tests, hidden-input echo leakage checks, Unicode/comparator cases, worker crash and timeout recovery, idempotency/reconnect checks, and document an isolation review before Phase A exit."
+              "description": "Run adversarial networking/file/process/output tests, hidden-input echo leakage checks, Unicode/comparator cases, worker crash and timeout recovery, idempotency/reconnect checks, and document an isolation review before Phase A exit.",
+              "evidence": [
+                "packages/worker/tests/runner.test.ts",
+                "packages/server/tests/execution-boundary.test.ts",
+                "packages/server/tests/quotas-and-drafts.test.ts",
+                "docs/decisions/ADR-003-isolation-and-reliability-review.md"
+              ]
             }
           ],
-          "status": "not_started"
+          "status": "done"
         }
       ]
+
     },
     {
       "id": "S2",

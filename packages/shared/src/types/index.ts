@@ -422,3 +422,44 @@ export interface AuthSession {
   expiresAt: string;
   user: User;
 }
+
+export interface TestCaseResult {
+  position: number;
+  passed: boolean;
+  verdict: TerminalVerdict;
+  input?: string;
+  expectedOutput?: string;
+  actualOutput?: string;
+  stderr?: string;
+  executionTimeMs?: number;
+  isHidden?: boolean;
+  errorMessage?: string;
+}
+
+export interface ExecutionResult {
+  jobId: string;
+  attemptId?: string;
+  verdict: TerminalVerdict;
+  isInfrastructureFailure: boolean;
+  executionTimeMs: number;
+  testResults: TestCaseResult[];
+  guidance?: string;
+  completedAt?: string;
+}
+
+export interface CodeDraftResponse {
+  id?: string;
+  enrollmentId: string;
+  stepId: string;
+  code: string;
+  revision: number;
+  isStarter?: boolean;
+  updatedAt: string;
+}
+
+export interface DraftConflictResponse {
+  error: 'STALE_REVISION';
+  currentRevision: number;
+  serverCode: string;
+}
+

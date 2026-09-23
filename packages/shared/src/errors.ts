@@ -93,3 +93,11 @@ export class InfrastructureError extends ZURError {
     this.name = 'InfrastructureError';
   }
 }
+
+export class ServiceUnavailableError extends ZURError {
+  constructor(message: string = 'Service temporarily unavailable') {
+    super('INFRASTRUCTURE_ERROR', message, 503);
+    this.name = 'ServiceUnavailableError';
+  }
+}
+
