@@ -10,9 +10,9 @@ export function deriveEmbedUrl(videoUrl: string): DerivedVideoEmbed {
 
   const trimmed = videoUrl.trim();
 
-  // YouTube: youtube.com/watch?v=ID or youtu.be/ID
+  // YouTube: youtube.com/watch?v=ID or youtu.be/ID or youtube-nocookie.com/embed/ID
   const ytMatch = trimmed.match(
-    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i
+    /(?:youtube(?:-nocookie)?\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i
   );
   if (ytMatch) {
     return {

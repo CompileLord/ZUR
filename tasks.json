@@ -1021,61 +1021,111 @@
             {
               "id": "T057",
               "title": "Implement authenticated Streamable HTTP MCP",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Expose /mcp via the official SDK, test supported protocol revisions and real clients, require HTTPS outside loopback, validate Host/Origin/content type/request size, and publish read-only schema/Markdown/connection resources."
+              "description": "Expose /mcp via the official SDK, test supported protocol revisions and real clients, require HTTPS outside loopback, validate Host/Origin/content type/request size, and publish read-only schema/Markdown/connection resources.",
+              "evidence": [
+                "packages/server/src/mcp/mcp-server.ts",
+                "packages/server/src/mcp/transport.ts",
+                "packages/server/src/mcp/resources.ts",
+                "packages/server/src/server.ts",
+                "packages/server/tests/mcp-server.test.ts"
+              ]
             },
             {
               "id": "T058",
               "title": "Implement author context and course reads",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Provide get_author_context, list_courses, and get_course with scoped ownership, pagination and metadata/outline/full projections, size budgets, protected assessment-data policy, and no cross-author search."
+              "description": "Provide get_author_context, list_courses, and get_course with scoped ownership, pagination and metadata/outline/full projections, size budgets, protected assessment-data policy, and no cross-author search.",
+              "evidence": [
+                "packages/server/src/mcp/tools/course-read-tools.ts",
+                "packages/server/src/mcp/mcp-server.ts",
+                "packages/server/tests/mcp-tools.test.ts"
+              ]
             },
             {
               "id": "T059",
               "title": "Implement course and structure mutations",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Provide create/update course, module, lesson, and step plus move_content, duplicate_content, and delete_content using the same domain services and validation as the UI; enforce hierarchy, stable IDs, expected revisions, child-deletion intent, and protected published history."
+              "description": "Provide create/update course, module, lesson, and step plus move_content, duplicate_content, and delete_content using the same domain services and validation as the UI; enforce hierarchy, stable IDs, expected revisions, child-deletion intent, and protected published history.",
+              "evidence": [
+                "packages/server/src/mcp/tools/course-mutation-tools.ts",
+                "packages/server/src/mcp/mcp-server.ts",
+                "packages/server/src/services/course-structure-service.ts",
+                "packages/server/src/services/course-autosave-service.ts",
+                "packages/server/tests/mcp-tools.test.ts"
+              ]
             },
             {
               "id": "T060",
               "title": "Implement MCP image workflow",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Provide bounded create/complete upload, get/update image, attach/detach tools; validate actual bytes/checksum/MIME/dimensions, never forward author bearer tokens to storage, resolve stable zur-asset references, and enforce course ownership/readiness."
+              "description": "Provide bounded create/complete upload, get/update image, attach/detach tools; validate actual bytes/checksum/MIME/dimensions, never forward author bearer tokens to storage, resolve stable zur-asset references, and enforce course ownership/readiness.",
+              "evidence": [
+                "packages/server/src/mcp/tools/image-tools.ts",
+                "packages/server/src/mcp/mcp-server.ts",
+                "packages/server/src/services/media-service.ts",
+                "packages/server/tests/mcp-tools.test.ts"
+              ]
             },
             {
               "id": "T061",
               "title": "Implement assessment validation and publication tools",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Provide validate_exercise/get_validation, validate_course, and exact-revision publish_course through the existing isolated runner and publication transaction; honor exercises:validate/courses:publish and block invalid reference solutions."
+              "description": "Provide validate_exercise/get_validation, validate_course, and exact-revision publish_course through the existing isolated runner and publication transaction; honor exercises:validate/courses:publish and block invalid reference solutions.",
+              "evidence": [
+                "packages/server/src/mcp/tools/assessment-publication-tools.ts",
+                "packages/server/src/mcp/mcp-server.ts",
+                "packages/server/src/services/course-validation-service.ts",
+                "packages/server/src/services/course-publication-service.ts",
+                "packages/server/tests/mcp-tools.test.ts"
+              ]
             },
             {
               "id": "T062",
               "title": "Implement access and lifecycle tools",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Provide set_course_access, archive_course, restore_course, and delete_draft_course as separate scoped operations with effect summaries and existing-enrollment/version protections; never hide live actions in draft batches."
+              "description": "Provide set_course_access, archive_course, restore_course, and delete_draft_course as separate scoped operations with effect summaries and existing-enrollment/version protections; never hide live actions in draft batches.",
+              "evidence": [
+                "packages/server/src/mcp/tools/lifecycle-tools.ts",
+                "packages/server/src/mcp/mcp-server.ts",
+                "packages/server/src/services/course-lifecycle-service.ts",
+                "packages/server/tests/mcp-tools.test.ts"
+              ]
             },
             {
               "id": "T063",
               "title": "Implement idempotent batch authoring",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Require idempotency keys and expected_revision; return stable receipts for same retries and reject different payload reuse; implement prepare/apply atomic batches with temp IDs, 100-operation/1-MiB limits, digest-bound short-lived plans, and conflict recheck."
+              "description": "Require idempotency keys and expected_revision; return stable receipts for same retries and reject different payload reuse; implement prepare/apply atomic batches with temp IDs, 100-operation/1-MiB limits, digest-bound short-lived plans, and conflict recheck.",
+              "evidence": [
+                "packages/server/src/mcp/tools/batch-authoring-tool.ts",
+                "packages/server/src/mcp/mcp-server.ts",
+                "packages/server/tests/mcp-tools.test.ts"
+              ]
             },
             {
               "id": "T064",
               "title": "Enforce MCP security and quotas",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Check token, author, scope, ownership, parents, assets, and restrictions per request/commit; redact secrets and rich payloads from logs; apply per-token calls, author concurrency/storage/runner limits and safe domain/protocol errors; expose no arbitrary shell, fetch, or filesystem tool."
+              "description": "Check token, author, scope, ownership, parents, assets, and restrictions per request/commit; redact secrets and rich payloads from logs; apply per-token calls, author concurrency/storage/runner limits and safe domain/protocol errors; expose no arbitrary shell, fetch, or filesystem tool.",
+              "evidence": [
+                "packages/server/src/mcp/mcp-rate-limiter.ts",
+                "packages/server/src/mcp/mcp-server.ts",
+                "packages/server/src/services/mcp-auth-service.ts",
+                "packages/server/tests/mcp-server.test.ts",
+                "packages/server/tests/mcp-tools.test.ts"
+              ]
             }
           ],
-          "status": "not_started"
+          "status": "done"
         },
         {
           "id": "S3-M03",

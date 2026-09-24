@@ -20,6 +20,8 @@ import { InvitationService } from './services/invitation-service.ts';
 import { LearningProgressService } from './services/learning-progress-service.ts';
 import { McpTokenService } from './services/mcp-token-service.ts';
 import { McpAuthService } from './services/mcp-auth-service.ts';
+import { McpServer } from './mcp/mcp-server.ts';
+import { McpHttpTransport } from './mcp/transport.ts';
 
 export function createServer(db: DatabaseSync): http.Server {
 
@@ -42,6 +44,8 @@ export function createServer(db: DatabaseSync): http.Server {
   const learningProgressService = new LearningProgressService(db);
   const mcpTokenService = new McpTokenService(db);
   const mcpAuthService = new McpAuthService(db);
+  const mcpServer = new McpServer(db);
+  const mcpTransport = new McpHttpTransport(mcpServer);
 
   function parseCookies(req: http.IncomingMessage): Record<string, string> {
     const header = req.headers.cookie;
@@ -112,6 +116,12 @@ export function createServer(db: DatabaseSync): http.Server {
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname;
     const method = req.method?.toUpperCase();
+
+    // Streamable HTTP MCP (T057)
+    if (mcpTransport.isMcpRequest(pathname)) {
+      await mcpTransport.handleHttpRequest(req, res);
+      return;
+    }
 
     try {
       // 1. Sign Up (T013)
