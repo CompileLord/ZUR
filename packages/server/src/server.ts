@@ -18,8 +18,11 @@ import { CourseLifecycleService } from './services/course-lifecycle-service.ts';
 import { EnrollmentService } from './services/enrollment-service.ts';
 import { InvitationService } from './services/invitation-service.ts';
 import { LearningProgressService } from './services/learning-progress-service.ts';
+import { McpTokenService } from './services/mcp-token-service.ts';
+import { McpAuthService } from './services/mcp-auth-service.ts';
 
 export function createServer(db: DatabaseSync): http.Server {
+
   const identityService = new IdentityService(db);
   const authService = new AuthorizationService(db);
   const executionService = new ExecutionService(db);
@@ -37,6 +40,8 @@ export function createServer(db: DatabaseSync): http.Server {
   const enrollmentService = new EnrollmentService(db);
   const invitationService = new InvitationService(db, enrollmentService);
   const learningProgressService = new LearningProgressService(db);
+  const mcpTokenService = new McpTokenService(db);
+  const mcpAuthService = new McpAuthService(db);
 
   function parseCookies(req: http.IncomingMessage): Record<string, string> {
     const header = req.headers.cookie;
@@ -587,7 +592,57 @@ export function createServer(db: DatabaseSync): http.Server {
         return;
       }
 
+      // Author Access Tokens (T053)
+      if (method === 'POST' && pathname === '/api/author/tokens') {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const body = await parseJsonBody(req);
+        const result = mcpTokenService.createToken(user.id, body);
+        sendJson(res, 201, result);
+        return;
+      }
+
+      if (method === 'GET' && pathname === '/api/author/tokens') {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const status = (url.searchParams.get('status') as any) || undefined;
+        const tokens = mcpTokenService.listTokens(user.id, status);
+        sendJson(res, 200, { tokens });
+        return;
+      }
+
+      const authorTokenReplaceMatch = pathname.match(/^\/api\/author\/tokens\/([a-zA-Z0-9_-]+)\/replace$/);
+      if (method === 'POST' && authorTokenReplaceMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const tokenId = authorTokenReplaceMatch[1];
+        const body = await parseJsonBody(req);
+        const result = mcpTokenService.replaceToken(user.id, tokenId, body);
+        sendJson(res, 201, result);
+        return;
+      }
+
+      const authorTokenDetailMatch = pathname.match(/^\/api\/author\/tokens\/([a-zA-Z0-9_-]+)$/);
+      if (method === 'GET' && authorTokenDetailMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const tokenId = authorTokenDetailMatch[1];
+        const tokenData = mcpTokenService.getToken(user.id, tokenId);
+        sendJson(res, 200, tokenData);
+        return;
+      }
+
+      if (method === 'DELETE' && authorTokenDetailMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const tokenId = authorTokenDetailMatch[1];
+        mcpTokenService.revokeToken(user.id, tokenId);
+        sendJson(res, 200, { success: true });
+        return;
+      }
+
       // 39. Public: List Catalog (T044)
+
       if (method === 'GET' && pathname === '/api/courses/catalog') {
         const search = url.searchParams.get('search') || undefined;
         const categoryId = url.searchParams.get('categoryId') || undefined;

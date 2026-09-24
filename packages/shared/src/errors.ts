@@ -108,3 +108,11 @@ export class ServiceUnavailableError extends ZURError {
   }
 }
 
+export class ScopeRequiredError extends ZURError {
+  constructor(requiredScope: string, message: string = `Missing required scope: ${requiredScope}`) {
+    super('SCOPE_REQUIRED', message, 403, { requiredScope });
+    this.name = 'ScopeRequiredError';
+  }
+}
+
+

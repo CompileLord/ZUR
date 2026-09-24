@@ -1,10 +1,18 @@
-export function renderSettingsNav(activeTab: 'profile' | 'appearance' | 'security' | 'privacy'): string {
+export function renderSettingsNav(
+  activeTab: 'profile' | 'appearance' | 'security' | 'privacy' | 'ai-connections',
+  isAuthor: boolean = true
+): string {
   const tabs = [
     { id: 'profile', label: 'Profile', href: '/settings/profile' },
     { id: 'appearance', label: 'Appearance', href: '/settings/appearance' },
     { id: 'security', label: 'Security', href: '/settings/security' },
     { id: 'privacy', label: 'Privacy & account', href: '/settings/privacy' },
   ];
+
+  if (isAuthor || activeTab === 'ai-connections') {
+    tabs.push({ id: 'ai-connections', label: 'AI connections', href: '/settings/ai-connections' });
+  }
+
 
   const linksHtml = tabs
     .map(

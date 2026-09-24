@@ -29,7 +29,10 @@ import { renderProfileSettingsPage } from './pages/settings/ProfileSettingsPage.
 import { renderAppearanceSettingsPage } from './pages/settings/AppearanceSettingsPage.ts';
 import { renderSecuritySettingsPage } from './pages/settings/SecuritySettingsPage.ts';
 import { renderPrivacySettingsPage } from './pages/settings/PrivacySettingsPage.ts';
+import { renderAiConnectionsPage } from './pages/settings/AiConnectionsPage.ts';
+import { renderMcpClientSetupPage } from './pages/settings/McpClientSetupDialog.ts';
 import { renderSafeDenialPage } from './pages/status/SafeDenialPage.ts';
+
 
 const appEl = document.getElementById('app')!;
 const authClient = AuthClient.getInstance();
@@ -257,7 +260,38 @@ print("Result:", doubled)</code></pre>
           content: renderPrivacySettingsPage({}),
         });
         attachPrivacyListeners();
+      } else if (route.pageId === 'P43') {
+        // AI Connections (P43)
+        appEl.innerHTML = renderAppShell({
+          activePath: path,
+          user,
+          headerTitle: 'AI connections',
+          content: renderAiConnectionsPage({ user, tokens: [] }),
+        });
+      } else if (route.pageId === 'P44') {
+        // MCP Client Setup (P44)
+        const connectionId = params.connectionId || 'tok-sample';
+        appEl.innerHTML = renderAppShell({
+          activePath: path,
+          user,
+          headerTitle: 'Connection setup and verification',
+          content: renderMcpClientSetupPage({
+            token: {
+              id: connectionId,
+              tokenIdentifier: 'zat_sample',
+              label: 'Sample Agent',
+              scopes: ['courses:read', 'content:write'],
+              courseRestrictions: null,
+              expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+              isRevoked: false,
+              lastUsedAt: null,
+              createdAt: new Date().toISOString(),
+              status: 'never_used',
+            },
+          }),
+        });
       } else {
+
         // Default Student Dashboard (P09)
         content = `
           <div class="dashboard-resume-panel card p-6 mb-8 border border-subtle bg-surface rounded-lg">

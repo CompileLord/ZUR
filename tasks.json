@@ -946,7 +946,7 @@
       "id": "S3",
       "name": "P0 extension — external AI authoring through MCP",
       "phase": "B–C",
-      "status": "not_started",
+      "status": "in_progress",
       "gate": "A real SDK client creates and edits a course with Markdown, an uploaded image, quiz, and validated Python exercise, resolves a builder conflict, and publishes using an explicitly granted token; MCP-01–MCP-12 pass.",
       "modules": [
         {
@@ -964,33 +964,52 @@
             {
               "id": "T053",
               "title": "Implement scoped author token lifecycle",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Issue tokens only to reauthenticated active verified authors; use at least 256-bit secrets stored as digest plus lookup ID, one-time reveal, 1–90-day expiry, immediate revocation, last use, and access loss on suspension/capability/ownership change."
+              "description": "Issue tokens only to reauthenticated active verified authors; use at least 256-bit secrets stored as digest plus lookup ID, one-time reveal, 1–90-day expiry, immediate revocation, last use, and access loss on suspension/capability/ownership change.",
+              "evidence": [
+                "packages/server/src/services/mcp-token-service.ts",
+                "packages/server/src/server.ts",
+                "packages/server/tests/mcp-token-auth.test.ts"
+              ]
             },
             {
               "id": "T054",
               "title": "Enforce course restrictions and operation scopes",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement Read only, Draft authoring, Full course control, and custom scope grants; selected-course/all-owned restrictions, separate courses:create, created-course allowlisting, no self-expansion, and permission recheck before commit."
+              "description": "Implement Read only, Draft authoring, Full course control, and custom scope grants; selected-course/all-owned restrictions, separate courses:create, created-course allowlisting, no self-expansion, and permission recheck before commit.",
+              "evidence": [
+                "packages/server/src/services/mcp-auth-service.ts",
+                "packages/server/tests/mcp-token-auth.test.ts"
+              ]
             },
             {
               "id": "T055",
               "title": "Build AI connections settings",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P43 list/filter/detail, creation grant summary, reauthentication, masked one-time secret/copy, replacement with same-or-narrower grant, revocation confirmation, expired/revoked history, and safe token-free instrumentation."
+              "description": "Implement P43 list/filter/detail, creation grant summary, reauthentication, masked one-time secret/copy, replacement with same-or-narrower grant, revocation confirmation, expired/revoked history, and safe token-free instrumentation.",
+              "evidence": [
+                "packages/web/src/pages/settings/AiConnectionsPage.ts",
+                "packages/web/src/styles/components.css",
+                "packages/web/tests/mcp-settings-page.test.ts"
+              ]
             },
             {
               "id": "T056",
               "title": "Build client setup and verification",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P44 real endpoint/transport instructions, tested compatibility matrix, generic bearer guide, optional environment-token adapter, honest OAuth-only limitation, safe placeholder examples, and last observed authenticated context check rather than false connected status."
+              "description": "Implement P44 real endpoint/transport instructions, tested compatibility matrix, generic bearer guide, optional environment-token adapter, honest OAuth-only limitation, safe placeholder examples, and last observed authenticated context check rather than false connected status.",
+              "evidence": [
+                "packages/web/src/pages/settings/McpClientSetupDialog.ts",
+                "packages/web/src/styles/components.css",
+                "packages/web/tests/mcp-settings-page.test.ts"
+              ]
             }
           ],
-          "status": "not_started"
+          "status": "done"
         },
         {
           "id": "S3-M02",
