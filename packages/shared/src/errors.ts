@@ -56,6 +56,13 @@ export class AuthorizationError extends ZURError {
   }
 }
 
+export class ForbiddenError extends AuthorizationError {
+  constructor(message: string = 'Access denied') {
+    super(message);
+    this.name = 'ForbiddenError';
+  }
+}
+
 export class NotFoundError extends ZURError {
   constructor(message: string = "This page isn't available.") {
     super('NOT_FOUND', message, 404);

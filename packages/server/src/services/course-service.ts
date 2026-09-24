@@ -4,12 +4,14 @@ import {
   ValidationError,
   NotFoundError,
   AuthorizationError,
+  ConflictError,
   StaleRevisionError,
 } from 'zur-shared';
 import type {
   CourseVisibility,
   EnrollmentPolicy,
   PublicationStatus,
+  CourseVersionSnapshot,
 } from 'zur-shared';
 
 export interface ListOwnedCoursesOptions {
@@ -418,14 +420,20 @@ export class CourseService {
   updateCourseAccessSettings(
     userId: string,
     courseId: string,
-    settings: { visibility?: CourseVisibility; enrollmentPolicy?: EnrollmentPolicy }
+    settings: { visibility?: CourseVisibility; enrollmentPolicy?: EnrollmentPolicy; strict?: boolean }
   ): CourseSummary {
     const course = this.getCourse(userId, courseId);
 
-    let visibility = settings.visibility || course.visibility;
-    let enrollmentPolicy = settings.enrollmentPolicy || course.enrollmentPolicy;
+    const targetVisibility = settings.visibility || course.visibility;
+    const targetPolicy = settings.enrollmentPolicy || course.enrollmentPolicy;
 
-    // Invariant: private courses MUST be invitation_only (PRD §8.1, §17)
+    // If strict mode requested, reject invalid private + open combination
+    if (settings.strict && targetVisibility === 'private' && targetPolicy === 'open') {
+      throw new ValidationError('Private courses must use invitation_only enrollment policy');
+    }
+
+    const visibility = targetVisibility;
+    let enrollmentPolicy = targetPolicy;
     if (visibility === 'private') {
       enrollmentPolicy = 'invitation_only';
     }
@@ -459,7 +467,7 @@ export class CourseService {
     const nextStatus = course.currentVersionId ? 'published' : 'draft';
     const now = new Date().toISOString();
     this.db
-      .prepare("UPDATE courses SET publication_status = ?, updated_at = ? WHERE id = ?")
+      .prepare('UPDATE courses SET publication_status = ?, updated_at = ? WHERE id = ?')
       .run(nextStatus, now, courseId);
     return this.getCourse(userId, courseId);
   }
@@ -471,11 +479,279 @@ export class CourseService {
       this.db.prepare('SELECT COUNT(*) as cnt FROM course_versions WHERE course_id = ?').get(courseId) as any
     )?.cnt;
 
-    if (versionsCount > 0 || course.currentVersionId) {
-      throw new ValidationError('Cannot delete a published course. Use archive instead.');
+    if (versionsCount > 0 || course.currentVersionId || course.publicationStatus !== 'draft') {
+      throw new ConflictError('Cannot delete a published course. Use archive instead.');
     }
 
     this.db.prepare('DELETE FROM courses WHERE id = ?').run(courseId);
     return { success: true };
+  }
+
+  getCourseVersionSnapshot(versionId: string): CourseVersionSnapshot {
+    const row = this.db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(versionId) as any;
+    if (!row || !row.snapshot_data) {
+      throw new NotFoundError("This page isn't available.");
+    }
+    return JSON.parse(row.snapshot_data) as CourseVersionSnapshot;
+  }
+
+  enrollStudent(userId: string, courseId: string, invitationToken?: string): any {
+    const user = this.db.prepare('SELECT * FROM users WHERE id = ?').get(userId) as any;
+    if (!user) {
+      throw new NotFoundError("This page isn't available.");
+    }
+    if (!user.email_verified) {
+      throw new ValidationError('Email verification is required before enrolling in courses');
+    }
+
+    const course = this.db.prepare('SELECT * FROM courses WHERE id = ?').get(courseId) as any;
+    if (!course) {
+      throw new NotFoundError("This page isn't available.");
+    }
+
+    if (course.is_suspended) {
+      throw new AuthorizationError('Course access is suspended.');
+    }
+
+    if (course.publication_status !== 'published' || !course.current_version_id) {
+      throw new ValidationError('This course is not available for enrollment.');
+    }
+
+    if (course.enrollment_policy === 'invitation_only') {
+      if (!invitationToken) {
+        throw new AuthorizationError('This course requires an invitation to enroll.');
+      }
+      const tokenHash = crypto.createHash('sha256').update(invitationToken).digest('hex');
+      const invite = this.db
+        .prepare('SELECT * FROM invitations WHERE (token_hash = ? OR id = ?) AND course_id = ? AND is_revoked = 0')
+        .get(tokenHash, invitationToken, courseId) as any;
+      if (!invite) {
+        throw new AuthorizationError('Invalid or expired invitation token.');
+      }
+      if (new Date(invite.expires_at) < new Date()) {
+        throw new AuthorizationError('This invitation has expired.');
+      }
+      if (invite.max_uses && invite.uses_count >= invite.max_uses) {
+        throw new AuthorizationError('This invitation has reached its usage limit.');
+      }
+      this.db
+        .prepare('UPDATE invitations SET uses_count = uses_count + 1 WHERE id = ?')
+        .run(invite.id);
+    }
+
+    const existing = this.db
+      .prepare('SELECT * FROM enrollments WHERE user_id = ? AND course_id = ?')
+      .get(userId, courseId) as any;
+
+    const now = new Date().toISOString();
+
+    if (existing) {
+      if (existing.status === 'active') {
+        return existing;
+      }
+      if (existing.status === 'revoked') {
+        throw new AuthorizationError('Your access to this course was revoked. Please contact the course author.');
+      }
+      if (existing.status === 'left') {
+        this.db
+          .prepare("UPDATE enrollments SET status = 'active', updated_at = ? WHERE id = ?")
+          .run(now, existing.id);
+        return {
+          ...existing,
+          status: 'active',
+          updated_at: now,
+        };
+      }
+    }
+
+    const enrollmentId = crypto.randomUUID();
+    this.db
+      .prepare(
+        `INSERT INTO enrollments (id, user_id, course_id, pinned_version_id, status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, 'active', ?, ?)`
+      )
+      .run(enrollmentId, userId, courseId, course.current_version_id, now, now);
+
+    return {
+      id: enrollmentId,
+      userId,
+      courseId,
+      pinnedVersionId: course.current_version_id,
+      status: 'active',
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
+  getEnrolledStepContent(userId: string, enrollmentId: string, stepId: string): any {
+    const enrollment = this.db
+      .prepare('SELECT * FROM enrollments WHERE id = ?')
+      .get(enrollmentId) as any;
+
+    if (!enrollment || enrollment.user_id !== userId || enrollment.status !== 'active') {
+      throw new NotFoundError("This page isn't available.");
+    }
+
+    const course = this.db
+      .prepare('SELECT is_suspended FROM courses WHERE id = ?')
+      .get(enrollment.course_id) as any;
+
+    if (!course || course.is_suspended) {
+      throw new AuthorizationError('Course access is suspended.');
+    }
+
+    const snapshot = this.getCourseVersionSnapshot(enrollment.pinned_version_id);
+
+    let foundStep: any = null;
+    let foundLesson: any = null;
+    let foundModule: any = null;
+
+    for (const mod of snapshot.modules || []) {
+      for (const les of mod.lessons || []) {
+        for (const st of les.steps || []) {
+          if (st.id === stepId) {
+            foundStep = st;
+            foundLesson = les;
+            foundModule = mod;
+            break;
+          }
+        }
+        if (foundStep) break;
+      }
+      if (foundStep) break;
+    }
+
+    if (!foundStep) {
+      throw new NotFoundError("This page isn't available.");
+    }
+
+    const content = JSON.parse(JSON.stringify(foundStep.content));
+    if (foundStep.type === 'python') {
+      delete content.referenceSolution;
+      if (Array.isArray(content.testCases)) {
+        content.testCases = content.testCases
+          .filter((tc: any) => !tc.isHidden)
+          .map((tc: any) => ({
+            id: tc.id,
+            stdin: tc.stdin,
+            expectedStdout: tc.expectedStdout,
+            position: tc.position,
+          }));
+      }
+    }
+
+    return {
+      courseId: snapshot.courseId,
+      courseTitle: snapshot.title,
+      pinnedVersionNumber: snapshot.versionNumber,
+      moduleId: foundModule.id,
+      lessonId: foundLesson.id,
+      step: {
+        id: foundStep.id,
+        type: foundStep.type,
+        title: foundStep.title,
+        position: foundStep.position,
+        isRequired: foundStep.isRequired,
+        estimatedDurationMinutes: foundStep.estimatedDurationMinutes,
+      },
+      content,
+    };
+  }
+
+  getCourseRoster(userId: string, courseId: string): any[] {
+    this.getCourse(userId, courseId);
+
+    const rows = this.db
+      .prepare(
+        `SELECT
+          e.id as enrollment_id,
+          e.user_id,
+          u.display_name,
+          u.email,
+          e.pinned_version_id,
+          cv.version_number as pinned_version_number,
+          e.status,
+          e.created_at,
+          e.updated_at
+        FROM enrollments e
+        JOIN users u ON e.user_id = u.id
+        JOIN course_versions cv ON e.pinned_version_id = cv.id
+        WHERE e.course_id = ?
+        ORDER BY e.created_at DESC`
+      )
+      .all(courseId) as any[];
+
+    return rows.map((r) => ({
+      enrollmentId: r.enrollment_id,
+      userId: r.user_id,
+      displayName: r.display_name,
+      email: r.email,
+      pinnedVersionId: r.pinned_version_id,
+      pinnedVersionNumber: r.pinned_version_number,
+      status: r.status,
+      enrolledAt: r.created_at,
+      updatedAt: r.updated_at,
+    }));
+  }
+
+  listPublicCatalog(options: { search?: string; categoryId?: string; limit?: number; offset?: number } = {}): {
+    courses: any[];
+    total: number;
+  } {
+    const limit = Math.max(1, Math.min(100, options.limit || 20));
+    const offset = Math.max(0, options.offset || 0);
+
+    let whereClause = "WHERE c.publication_status = 'published' AND c.is_suspended = 0 AND c.visibility = 'public'";
+    const params: any[] = [];
+
+    if (options.categoryId) {
+      whereClause += ' AND c.category_id = ?';
+      params.push(options.categoryId);
+    }
+
+    if (options.search) {
+      whereClause += ' AND (LOWER(c.title) LIKE ? OR LOWER(c.description) LIKE ?)';
+      const term = `%${options.search.trim().toLowerCase()}%`;
+      params.push(term, term);
+    }
+
+    const countRow = this.db
+      .prepare(`SELECT COUNT(*) as cnt FROM courses c ${whereClause}`)
+      .get(...params) as any;
+    const total = countRow ? countRow.cnt : 0;
+
+    const rows = this.db
+      .prepare(
+        `SELECT
+          c.id, c.title, c.description, c.category_id, c.difficulty,
+          c.language, c.learning_outcomes, c.estimated_duration_minutes,
+          c.current_version_id, c.created_at, c.updated_at,
+          cat.name as category_name,
+          cv.version_number as version_number
+        FROM courses c
+        LEFT JOIN categories cat ON c.category_id = cat.id
+        LEFT JOIN course_versions cv ON c.current_version_id = cv.id
+        ${whereClause}
+        ORDER BY c.updated_at DESC
+        LIMIT ? OFFSET ?`
+      )
+      .all(...params, limit, offset) as any[];
+
+    const courses = rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      description: r.description || '',
+      categoryId: r.category_id,
+      categoryName: r.category_name,
+      difficulty: r.difficulty,
+      language: r.language,
+      learningOutcomes: JSON.parse(r.learning_outcomes || '[]'),
+      estimatedDurationMinutes: r.estimated_duration_minutes,
+      currentVersionId: r.current_version_id,
+      versionNumber: r.version_number || 1,
+      updatedAt: r.updated_at,
+    }));
+
+    return { courses, total };
   }
 }

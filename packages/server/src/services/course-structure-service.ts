@@ -387,15 +387,6 @@ export class CourseStructureService {
           memoryLimitMib: 128,
         },
       });
-
-      // Also create a sample public test case
-      const testCaseId = crypto.randomUUID();
-      this.db
-        .prepare(
-          `INSERT INTO test_cases (id, step_id, stdin, expected_stdout, is_hidden, position, created_at)
-           VALUES (?, ?, '', '', 0, 0, ?)`
-        )
-        .run(testCaseId, stepId, now);
     }
 
     this.db

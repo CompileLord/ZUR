@@ -753,40 +753,65 @@
             {
               "id": "T040",
               "title": "Validate exact draft and reference solutions",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Check metadata, hierarchy, required steps, media accessibility/readiness, quiz keys, and Python public+hidden tests; run private reference against every test and invalidate validation when grading inputs change; return linked errors and warnings."
+              "description": "Check metadata, hierarchy, required steps, media accessibility/readiness, quiz keys, and Python public+hidden tests; run private reference against every test and invalidate validation when grading inputs change; return linked errors and warnings.",
+              "evidence": [
+                "packages/server/src/services/course-validation-service.ts",
+                "packages/server/tests/publication-and-lifecycle.test.ts"
+              ]
             },
             {
               "id": "T041",
               "title": "Build review and publication transaction",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Build P27 blocking/warning review, save/revision state, impact statement, exact-revision publish action, atomic immutable version creation and latest-pointer swap, duplicate-click idempotency, stale-revision revalidation, and release receipt."
+              "description": "Build P27 blocking/warning review, save/revision state, impact statement, exact-revision publish action, atomic immutable version creation and latest-pointer swap, duplicate-click idempotency, stale-revision revalidation, and release receipt.",
+              "evidence": [
+                "packages/server/src/services/course-publication-service.ts",
+                "packages/web/src/pages/author/CoursePublishPage.ts",
+                "packages/server/tests/publication-and-lifecycle.test.ts",
+                "packages/web/tests/publish-page.test.ts"
+              ]
             },
             {
               "id": "T042",
               "title": "Pin enrollments and preserve old releases",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Assign latest version only to new enrollments; keep existing students' nodes, tests, assets, progress denominator, and attempts pinned; expose version labels in roster/analytics; forbid in-place published type/grading changes."
+              "description": "Assign latest version only to new enrollments; keep existing students' nodes, tests, assets, progress denominator, and attempts pinned; expose version labels in roster/analytics; forbid in-place published type/grading changes.",
+              "evidence": [
+                "packages/server/src/services/course-service.ts",
+                "packages/server/src/services/course-publication-service.ts",
+                "packages/server/tests/publication-and-lifecycle.test.ts"
+              ]
             },
             {
               "id": "T043",
               "title": "Implement archive, restore, delete-draft, and suspension",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Separate owner archive from admin suspension; block new joins on archive while active learners continue, block learning/execution on suspension, restore last release correctly, and delete only never-published drafts with confirmation."
+              "description": "Separate owner archive from admin suspension; block new joins on archive while active learners continue, block learning/execution on suspension, restore last release correctly, and delete only never-published drafts with confirmation.",
+              "evidence": [
+                "packages/server/src/services/course-lifecycle-service.ts",
+                "packages/server/src/services/course-service.ts",
+                "packages/server/tests/publication-and-lifecycle.test.ts"
+              ]
             },
             {
               "id": "T044",
               "title": "Implement visibility and enrollment policy",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Enforce public/unlisted/private discovery and open/invitation-only joining independently; make private invitation-only, exclude unlisted from search/indexing, protect course bodies until enrollment, and preserve existing access when policies change."
+              "description": "Enforce public/unlisted/private discovery and open/invitation-only joining independently; make private invitation-only, exclude unlisted from search/indexing, protect course bodies until enrollment, and preserve existing access when policies change.",
+              "evidence": [
+                "packages/server/src/services/course-lifecycle-service.ts",
+                "packages/server/src/services/course-service.ts",
+                "packages/server/tests/publication-and-lifecycle.test.ts"
+              ]
             }
           ],
-          "status": "not_started"
+          "status": "done"
         },
         {
           "id": "S2-M03",

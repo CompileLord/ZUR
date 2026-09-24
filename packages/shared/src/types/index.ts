@@ -463,3 +463,34 @@ export interface DraftConflictResponse {
   serverCode: string;
 }
 
+export interface ValidationErrorItem {
+  moduleId?: string;
+  lessonId?: string;
+  stepId?: string;
+  field?: string;
+  message: string;
+  blocking: boolean;
+}
+
+export interface ValidationWarningItem {
+  moduleId?: string;
+  lessonId?: string;
+  stepId?: string;
+  field?: string;
+  message: string;
+}
+
+export interface CourseValidationResult {
+  isValid: boolean;
+  draftRevision: number;
+  errors: ValidationErrorItem[];
+  warnings: ValidationWarningItem[];
+}
+
+export interface PublicationReceipt {
+  versionNumber: number;
+  versionId: string;
+  publishedAt: string;
+  studentCountPinnedToOldVersions: number;
+}
+
