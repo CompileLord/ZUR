@@ -22,6 +22,8 @@ import { McpTokenService } from './services/mcp-token-service.ts';
 import { McpAuthService } from './services/mcp-auth-service.ts';
 import { McpServer } from './mcp/mcp-server.ts';
 import { McpHttpTransport } from './mcp/transport.ts';
+import { AgentActivityService } from './services/agent-activity-service.ts';
+import { DraftRecoveryService } from './services/draft-recovery-service.ts';
 
 export function createServer(db: DatabaseSync): http.Server {
 
@@ -46,6 +48,8 @@ export function createServer(db: DatabaseSync): http.Server {
   const mcpAuthService = new McpAuthService(db);
   const mcpServer = new McpServer(db);
   const mcpTransport = new McpHttpTransport(mcpServer);
+  const agentActivityService = new AgentActivityService(db);
+  const draftRecoveryService = new DraftRecoveryService(db);
 
   function parseCookies(req: http.IncomingMessage): Record<string, string> {
     const header = req.headers.cookie;
@@ -648,6 +652,56 @@ export function createServer(db: DatabaseSync): http.Server {
         const tokenId = authorTokenDetailMatch[1];
         mcpTokenService.revokeToken(user.id, tokenId);
         sendJson(res, 200, { success: true });
+        return;
+      }
+
+      // Agent Activity: List Course Agent Activity (T065)
+      const authorCourseActivityMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/activity$/);
+      if (method === 'GET' && authorCourseActivityMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseActivityMatch[1];
+        const page = Number(url.searchParams.get('page') || 1);
+        const limit = Number(url.searchParams.get('limit') || 20);
+        const toolName = url.searchParams.get('toolName') || undefined;
+        const result = agentActivityService.listAgentActivity(user.id, courseId, { page, limit, toolName });
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // Agent Activity: Get Mutation Detail (T065)
+      const authorMutationDetailMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/activity\/([a-zA-Z0-9_-]+)$/);
+      if (method === 'GET' && authorMutationDetailMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const mutationId = authorMutationDetailMatch[2];
+        const result = agentActivityService.getMutationDetail(user.id, mutationId);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // Draft Recovery: List Recovery Revisions (T066)
+      const authorRecoveryListMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/recovery$/);
+      if (method === 'GET' && authorRecoveryListMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorRecoveryListMatch[1];
+        const revisions = draftRecoveryService.listRecoveryRevisions(user.id, courseId);
+        sendJson(res, 200, { revisions });
+        return;
+      }
+
+      // Draft Recovery: Restore Draft Revision (T066)
+      const authorRecoveryRestoreMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/recovery\/([a-zA-Z0-9_-]+)\/restore$/);
+      if (method === 'POST' && authorRecoveryRestoreMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorRecoveryRestoreMatch[1];
+        const revisionId = authorRecoveryRestoreMatch[2];
+        const body = await parseJsonBody(req);
+        const expectedRevision = Number(body.expectedRevision);
+        const result = draftRecoveryService.restoreDraftRevision(user.id, courseId, revisionId, expectedRevision);
+        sendJson(res, 200, result);
         return;
       }
 

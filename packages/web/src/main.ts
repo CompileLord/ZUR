@@ -31,6 +31,7 @@ import { renderSecuritySettingsPage } from './pages/settings/SecuritySettingsPag
 import { renderPrivacySettingsPage } from './pages/settings/PrivacySettingsPage.ts';
 import { renderAiConnectionsPage } from './pages/settings/AiConnectionsPage.ts';
 import { renderMcpClientSetupPage } from './pages/settings/McpClientSetupDialog.ts';
+import { renderAgentActivityPage } from './pages/author/AgentActivityPage.ts';
 import { renderSafeDenialPage } from './pages/status/SafeDenialPage.ts';
 
 
@@ -289,6 +290,16 @@ print("Result:", doubled)</code></pre>
               status: 'never_used',
             },
           }),
+        });
+      } else if (route.pageId === 'P45') {
+        // Agent Activity & Draft Recovery (P45)
+        const courseId = params.courseId || 'course-sample';
+        appEl.innerHTML = renderAgentActivityPage({
+          courseId,
+          courseTitle: 'Course Title',
+          publicationState: 'draft',
+          hasUnpublishedChanges: false,
+          activities: [],
         });
       } else {
 

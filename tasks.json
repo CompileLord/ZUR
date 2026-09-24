@@ -946,7 +946,7 @@
       "id": "S3",
       "name": "P0 extension — external AI authoring through MCP",
       "phase": "B–C",
-      "status": "in_progress",
+      "status": "done",
       "gate": "A real SDK client creates and edits a course with Markdown, an uploaded image, quiz, and validated Python exercise, resolves a builder conflict, and publishes using an explicitly granted token; MCP-01–MCP-12 pass.",
       "modules": [
         {
@@ -1144,33 +1144,57 @@
             {
               "id": "T065",
               "title": "Record safe agent mutation activity",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Store token ID, author, label, tool, affected IDs, prior/new revision, outcome, time, and correlation ID; provide list_agent_activity/get_change with scoped, paginated, secret-free summaries and protected content diffs."
+              "description": "Store token ID, author, label, tool, affected IDs, prior/new revision, outcome, time, and correlation ID; provide list_agent_activity/get_change with scoped, paginated, secret-free summaries and protected content diffs.",
+              "evidence": [
+                "packages/server/src/services/agent-activity-service.ts",
+                "packages/server/src/mcp/tools/agent-activity-tools.ts",
+                "packages/server/src/mcp/tools/course-mutation-tools.ts",
+                "packages/server/src/mcp/tools/batch-authoring-tool.ts",
+                "packages/server/src/server.ts",
+                "packages/server/tests/mcp-adversarial-and-e2e.test.ts"
+              ]
             },
             {
               "id": "T066",
               "title": "Implement draft revision recovery",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Keep recoverable draft revisions at least 30 days under approved policy; implement restore_draft_revision with expected revision and actual-effect scope checks, creating a new draft without rolling back published versions, access, or learner records."
+              "description": "Keep recoverable draft revisions at least 30 days under approved policy; implement restore_draft_revision with expected revision and actual-effect scope checks, creating a new draft without rolling back published versions, access, or learner records.",
+              "evidence": [
+                "packages/server/src/services/draft-recovery-service.ts",
+                "packages/server/src/mcp/tools/agent-activity-tools.ts",
+                "packages/server/src/mcp/tools/course-mutation-tools.ts",
+                "packages/server/src/server.ts",
+                "packages/server/tests/mcp-adversarial-and-e2e.test.ts"
+              ]
             },
             {
               "id": "T067",
               "title": "Build agent activity and builder update UI",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P45 filters, receipt/diff drawer, recovery review and conflict states; show remote update attribution in builder without overriding local save status, preserve unsynced edits, and handle deleted selected nodes safely."
+              "description": "Implement P45 filters, receipt/diff drawer, recovery review and conflict states; show remote update attribution in builder without overriding local save status, preserve unsynced edits, and handle deleted selected nodes safely.",
+              "evidence": [
+                "packages/web/src/pages/author/AgentActivityPage.ts",
+                "packages/web/src/pages/author/CourseBuilderPage.ts",
+                "packages/web/src/main.ts",
+                "packages/web/tests/agent-activity-page.test.ts"
+              ]
             },
             {
               "id": "T068",
               "title": "Verify MCP end to end and adversarial cases",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Run MCP-01–MCP-12 with a real SDK client, including cross-author IDs, restricted scopes, pending-write revocation, stale/repeated batches, unsafe Markdown/images, UI/MCP round trips, recovery, invalid reference, and unsupported OAuth-only client messaging."
+              "description": "Run MCP-01–MCP-12 with a real SDK client, including cross-author IDs, restricted scopes, pending-write revocation, stale/repeated batches, unsafe Markdown/images, UI/MCP round trips, recovery, invalid reference, and unsupported OAuth-only client messaging.",
+              "evidence": [
+                "packages/server/tests/mcp-adversarial-and-e2e.test.ts"
+              ]
             }
           ],
-          "status": "not_started"
+          "status": "done"
         }
       ]
     },

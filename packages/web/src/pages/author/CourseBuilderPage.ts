@@ -27,6 +27,13 @@ export interface ModuleSummary {
   lessons: LessonSummary[];
 }
 
+export interface RemoteUpdateInfo {
+  agentName: string;
+  timestampText?: string;
+  newRevision: number;
+  hasLocalEdits?: boolean;
+}
+
 export interface CourseBuilderPageOptions {
   courseId: string;
   courseTitle: string;
@@ -37,6 +44,7 @@ export interface CourseBuilderPageOptions {
   selectedType?: 'course' | 'module' | 'lesson' | 'step';
   selectedId?: string;
   feedbackMessage?: string;
+  remoteUpdate?: RemoteUpdateInfo;
 }
 
 export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string {
@@ -122,9 +130,12 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
 
   const treeContent = `
     <div class="builder-tree-container">
-      <div class="tree-header">
-        <h2 class="tree-title">Structure</h2>
-        <span class="text-secondary text-sm">${opts.modules.reduce((acc, m) => acc + m.lessons.reduce((lAcc, l) => lAcc + l.steps.length, 0), 0)} steps</span>
+      <div class="tree-header" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+        <div>
+          <h2 class="tree-title">Structure</h2>
+          <span class="text-secondary text-sm">${opts.modules.reduce((acc, m) => acc + m.lessons.reduce((lAcc, l) => lAcc + l.steps.length, 0), 0)} steps</span>
+        </div>
+        <a href="/teach/${opts.courseId}/activity" class="btn btn-secondary btn-compact" title="View agent activity and draft recovery">Recent changes</a>
       </div>
 
       <ul class="tree-root" role="tree" aria-label="Course Content Tree">
@@ -249,6 +260,16 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
           </section>
         </div>
       `;
+    } else {
+      editorContent = `
+        <div class="builder-center-pane">
+          <div class="alert alert-warning card p-4" role="alert" style="border-left: 4px solid var(--warning); background-color: var(--bg-surface);">
+            <h2 class="section-title text-warning mb-2" style="font-size: 1.125rem;">Selected module was deleted</h2>
+            <p class="text-secondary mb-3">The selected module no longer exists in this course draft. It may have been removed in a recent update.</p>
+            <a href="/teach/${opts.courseId}/content" class="btn btn-secondary btn-compact">Return to course overview</a>
+          </div>
+        </div>
+      `;
     }
   } else if (selectedType === 'lesson') {
     let targetLesson: LessonSummary | null = null;
@@ -360,6 +381,16 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
           </section>
         </div>
       `;
+    } else {
+      editorContent = `
+        <div class="builder-center-pane">
+          <div class="alert alert-warning card p-4" role="alert" style="border-left: 4px solid var(--warning); background-color: var(--bg-surface);">
+            <h2 class="section-title text-warning mb-2" style="font-size: 1.125rem;">Selected lesson was deleted</h2>
+            <p class="text-secondary mb-3">The selected lesson no longer exists in this course draft. It may have been removed in a recent update.</p>
+            <a href="/teach/${opts.courseId}/content" class="btn btn-secondary btn-compact">Return to course overview</a>
+          </div>
+        </div>
+      `;
     }
   } else if (selectedType === 'step') {
     let targetStep: StepSummary | null = null;
@@ -402,8 +433,39 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
           </div>
         </div>
       `;
+    } else {
+      editorContent = `
+        <div class="builder-center-pane">
+          <div class="alert alert-warning card p-4" role="alert" style="border-left: 4px solid var(--warning); background-color: var(--bg-surface);">
+            <h2 class="section-title text-warning mb-2" style="font-size: 1.125rem;">Selected step was deleted</h2>
+            <p class="text-secondary mb-3">The selected step no longer exists in this course draft. It may have been removed in a recent update.</p>
+            <a href="/teach/${opts.courseId}/content" class="btn btn-secondary btn-compact">Return to course overview</a>
+          </div>
+        </div>
+      `;
     }
   }
+
+  const remoteUpdateHtml = opts.remoteUpdate
+    ? `
+      <aside class="remote-update-strip" role="status" aria-live="polite" aria-label="Remote update notice" style="margin-bottom: 1rem; padding: 0.75rem 1rem; background-color: var(--bg-surface); border: 1px solid var(--border-default); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span aria-hidden="true">🤖</span>
+          <span>
+            Updated through <strong>${opts.remoteUpdate.agentName}</strong> · ${opts.remoteUpdate.timestampText || 'just now'}
+            <span class="text-secondary" style="font-size: 0.8125rem;">(Revision ${opts.remoteUpdate.newRevision})</span>
+            ${opts.remoteUpdate.hasLocalEdits ? '<span class="text-warning" style="display: block; font-size: 0.8125rem;">Unsaved local changes preserved. Review differences before replacing.</span>' : ''}
+          </span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <a href="/teach/${opts.courseId}/activity" class="btn btn-secondary btn-compact">View changes</a>
+          ${!opts.remoteUpdate.hasLocalEdits
+            ? '<button type="button" class="btn btn-primary btn-compact" id="load-update-btn">Load update</button>'
+            : '<button type="button" class="btn btn-secondary btn-compact" id="resolve-conflict-btn">Compare changes</button>'}
+        </div>
+      </aside>
+    `
+    : '';
 
   return renderAuthorWorkspaceShell({
     courseId: opts.courseId,
@@ -413,6 +475,6 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
     saveStatusText: opts.saveStatusText || 'Saved',
     activeTab: 'content',
     treeContent,
-    editorContent,
+    editorContent: `${remoteUpdateHtml}${editorContent}`,
   });
 }

@@ -45,6 +45,12 @@ import {
   createBatchAuthoringTools,
   executeBatchAuthorTool,
 } from './tools/batch-authoring-tool.ts';
+import { AgentActivityService } from '../services/agent-activity-service.ts';
+import { DraftRecoveryService } from '../services/draft-recovery-service.ts';
+import {
+  createAgentActivityTools,
+  executeAgentActivityTool,
+} from './tools/agent-activity-tools.ts';
 import {
   JSON_RPC_ERRORS,
   type JsonRpcRequest,
@@ -64,6 +70,8 @@ export class McpServer {
   private validationService: CourseValidationService;
   private publicationService: CoursePublicationService;
   private lifecycleService: CourseLifecycleService;
+  private activityService: AgentActivityService;
+  private recoveryService: DraftRecoveryService;
   private rateLimiter: McpRateLimiter;
   private tools: Map<string, McpTool> = new Map();
 
@@ -81,6 +89,8 @@ export class McpServer {
     this.validationService = new CourseValidationService(db);
     this.publicationService = new CoursePublicationService(db);
     this.lifecycleService = new CourseLifecycleService(db);
+    this.activityService = new AgentActivityService(db);
+    this.recoveryService = new DraftRecoveryService(db);
     this.rateLimiter = rateLimiter || new McpRateLimiter();
 
     this.registerTools();
@@ -92,6 +102,14 @@ export class McpServer {
 
   getTokenService(): McpTokenService {
     return this.tokenService;
+  }
+
+  getActivityService(): AgentActivityService {
+    return this.activityService;
+  }
+
+  getRecoveryService(): DraftRecoveryService {
+    return this.recoveryService;
   }
 
   private registerTools(): void {
@@ -108,6 +126,7 @@ export class McpServer {
       ...createAssessmentPublicationTools(),
       ...createLifecycleTools(),
       ...createBatchAuthoringTools(),
+      ...createAgentActivityTools(),
     ];
 
     for (const tool of allTools) {
@@ -340,7 +359,21 @@ export class McpServer {
           this.authService,
           this.courseService,
           this.structureService,
-          this.autosaveService
+          this.autosaveService,
+          this.activityService,
+          this.recoveryService
+        );
+      }
+
+      if (['get_agent_activity', 'restore_draft_revision'].includes(name)) {
+        return await executeAgentActivityTool(
+          name,
+          args,
+          token,
+          this.db,
+          this.authService,
+          this.activityService,
+          this.recoveryService
         );
       }
 

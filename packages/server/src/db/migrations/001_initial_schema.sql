@@ -351,6 +351,7 @@ CREATE TABLE IF NOT EXISTS agent_mutations (
   new_revision INTEGER NOT NULL,
   affected_entities TEXT NOT NULL, -- JSON array
   prior_content TEXT, -- JSON snapshot for recovery
+  new_content TEXT, -- JSON snapshot after mutation
   outcome TEXT NOT NULL,
   correlation_id TEXT,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),

@@ -10,6 +10,8 @@ import type { McpAuthService } from '../../services/mcp-auth-service.ts';
 import type { CourseService } from '../../services/course-service.ts';
 import type { CourseStructureService } from '../../services/course-structure-service.ts';
 import type { CourseAutosaveService } from '../../services/course-autosave-service.ts';
+import { AgentActivityService } from '../../services/agent-activity-service.ts';
+import { DraftRecoveryService } from '../../services/draft-recovery-service.ts';
 import type { McpTool, McpToolResult } from '../types.ts';
 
 export function createCourseMutationTools(): McpTool[] {
@@ -279,8 +281,13 @@ export async function executeCourseMutationTool(
   authService: McpAuthService,
   courseService: CourseService,
   structureService: CourseStructureService,
-  autosaveService: CourseAutosaveService
+  autosaveService: CourseAutosaveService,
+  activityService?: AgentActivityService,
+  recoveryService?: DraftRecoveryService
 ): Promise<McpToolResult> {
+  const actService = activityService || new AgentActivityService(db);
+  const recService = recoveryService || new DraftRecoveryService(db);
+
   switch (name) {
     case 'create_course': {
       authService.verifyMcpPermission(token, 'courses:create');
@@ -305,6 +312,20 @@ export async function executeCourseMutationTool(
       authService.allowlistCreatedCourse(token.id, created.id);
 
       const finalCourse = courseService.getCourse(token.authorId, created.id);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId: created.id,
+        toolName: 'create_course',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: 0,
+        newRevision: finalCourse.draftRevision,
+        affectedEntities: [created.id],
+        newContent: finalCourse,
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(finalCourse, null, 2) }],
       };
@@ -323,6 +344,8 @@ export async function executeCourseMutationTool(
 
       authService.verifyMcpPermission(token, 'content:write', courseId);
 
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
+
       const updated = courseService.updateCourseMetadata(
         token.authorId,
         courseId,
@@ -339,6 +362,20 @@ export async function executeCourseMutationTool(
         }
       );
 
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'update_course_metadata',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: expectedRevision,
+        newRevision: updated.draftRevision,
+        affectedEntities: [courseId],
+        priorContent: priorCourse,
+        newContent: updated,
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(updated, null, 2) }],
       };
@@ -352,7 +389,23 @@ export async function executeCourseMutationTool(
 
       authService.verifyMcpPermission(token, 'content:write', courseId);
 
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
       const mod = structureService.addModule(token.authorId, courseId, title, args.position);
+      const newCourse = courseService.getCourse(token.authorId, courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'create_module',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: newCourse.draftRevision,
+        affectedEntities: [mod.id],
+        newContent: mod,
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(mod, null, 2) }],
       };
@@ -368,7 +421,23 @@ export async function executeCourseMutationTool(
 
       authService.verifyMcpPermission(token, 'content:write', courseId);
 
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
       const mod = structureService.updateModule(token.authorId, courseId, moduleId, title);
+      const newCourse = courseService.getCourse(token.authorId, courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'update_module',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: newCourse.draftRevision,
+        affectedEntities: [moduleId],
+        newContent: mod,
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(mod, null, 2) }],
       };
@@ -390,7 +459,23 @@ export async function executeCourseMutationTool(
         throw new ValidationError('Module contains lessons. Set confirm_delete_children: true to delete.');
       }
 
+      recService.createSnapshot(token.authorId, courseId, `Auto-backup before deleting module ${moduleId}`);
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
       const result = structureService.deleteModule(token.authorId, courseId, moduleId);
+      const newCourse = courseService.getCourse(token.authorId, courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'delete_module',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: newCourse.draftRevision,
+        affectedEntities: [moduleId],
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       };
@@ -406,6 +491,7 @@ export async function executeCourseMutationTool(
 
       authService.verifyMcpPermission(token, 'content:write', courseId);
 
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
       const lesson = structureService.addLesson(
         token.authorId,
         courseId,
@@ -414,6 +500,21 @@ export async function executeCourseMutationTool(
         args.description,
         args.position
       );
+      const newCourse = courseService.getCourse(token.authorId, courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'create_lesson',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: newCourse.draftRevision,
+        affectedEntities: [lesson.id],
+        newContent: lesson,
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(lesson, null, 2) }],
       };
@@ -429,7 +530,23 @@ export async function executeCourseMutationTool(
 
       authService.verifyMcpPermission(token, 'content:write', courseId);
 
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
       const lesson = structureService.updateLesson(token.authorId, courseId, lessonId, title, args.description);
+      const newCourse = courseService.getCourse(token.authorId, courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'update_lesson',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: newCourse.draftRevision,
+        affectedEntities: [lessonId],
+        newContent: lesson,
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(lesson, null, 2) }],
       };
@@ -451,7 +568,23 @@ export async function executeCourseMutationTool(
         throw new ValidationError('Lesson contains steps. Set confirm_delete_children: true to delete.');
       }
 
+      recService.createSnapshot(token.authorId, courseId, `Auto-backup before deleting lesson ${lessonId}`);
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
       const result = structureService.deleteLesson(token.authorId, courseId, lessonId);
+      const newCourse = courseService.getCourse(token.authorId, courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'delete_lesson',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: newCourse.draftRevision,
+        affectedEntities: [lessonId],
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       };
@@ -468,6 +601,8 @@ export async function executeCourseMutationTool(
       if (!type) throw new ValidationError('type is required');
 
       authService.verifyMcpPermission(token, 'content:write', courseId);
+
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
 
       const step = structureService.addStep(token.authorId, courseId, lessonId, {
         title,
@@ -503,6 +638,21 @@ export async function executeCourseMutationTool(
         }
       }
 
+      const newCourse = courseService.getCourse(token.authorId, courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'create_step',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: newCourse.draftRevision,
+        affectedEntities: [step.id],
+        newContent: { step, content: args.content, testCases: args.test_cases },
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(step, null, 2) }],
       };
@@ -515,6 +665,8 @@ export async function executeCourseMutationTool(
       if (!stepId) throw new ValidationError('step_id is required');
 
       authService.verifyMcpPermission(token, 'content:write', courseId);
+
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
 
       const step = structureService.updateStep(token.authorId, courseId, stepId, {
         title: args.title,
@@ -548,6 +700,21 @@ export async function executeCourseMutationTool(
         }
       }
 
+      const newCourse = courseService.getCourse(token.authorId, courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'update_step',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: newCourse.draftRevision,
+        affectedEntities: [stepId],
+        newContent: { step, content: args.content, testCases: args.test_cases },
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(step, null, 2) }],
       };
@@ -561,7 +728,23 @@ export async function executeCourseMutationTool(
 
       authService.verifyMcpPermission(token, 'content:delete', courseId);
 
+      recService.createSnapshot(token.authorId, courseId, `Auto-backup before deleting step ${stepId}`);
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
       const result = structureService.deleteStep(token.authorId, courseId, stepId);
+      const newCourse = courseService.getCourse(token.authorId, courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'delete_step',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: newCourse.draftRevision,
+        affectedEntities: [stepId],
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       };
@@ -575,7 +758,23 @@ export async function executeCourseMutationTool(
 
       authService.verifyMcpPermission(token, 'content:write', courseId);
 
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
       const result = structureService.duplicateStep(token.authorId, courseId, stepId);
+      const newCourse = courseService.getCourse(token.authorId, courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'duplicate_step',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: newCourse.draftRevision,
+        affectedEntities: [result.id],
+        newContent: result,
+        outcome: 'success',
+      });
+
       return {
         content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       };

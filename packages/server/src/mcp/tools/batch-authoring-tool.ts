@@ -429,11 +429,13 @@ export async function executeBatchAuthorTool(
       created_at: now,
     };
 
+    const postSnapshotTree = structureService.getCourseTree(token.authorId, courseId);
+
     db.prepare(
       `INSERT INTO agent_mutations (
         id, token_id, author_id, course_id, tool_name, idempotency_key,
-        base_revision, new_revision, affected_entities, prior_content, outcome, created_at
-      ) VALUES (?, ?, ?, ?, 'batch_author', ?, ?, ?, ?, ?, 'success', ?)`
+        base_revision, new_revision, affected_entities, prior_content, new_content, outcome, created_at
+      ) VALUES (?, ?, ?, ?, 'batch_author', ?, ?, ?, ?, ?, ?, 'success', ?)`
     ).run(
       crypto.randomUUID(),
       token.id,
@@ -444,6 +446,7 @@ export async function executeBatchAuthorTool(
       newRevision,
       JSON.stringify(receipt),
       JSON.stringify(preSnapshotTree),
+      JSON.stringify(postSnapshotTree),
       now
     );
 
