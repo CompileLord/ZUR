@@ -571,7 +571,7 @@
       "id": "S2",
       "name": "Phase B — author-to-student delivery",
       "phase": "B",
-      "status": "not_started",
+      "status": "done",
       "gate": "An author creates, validates, previews, and publishes a mixed lesson; an invited learner enrolls, completes it, and resumes without staff database changes.",
       "modules": [
         {
@@ -835,61 +835,110 @@
             {
               "id": "T045",
               "title": "Implement enrollment lifecycle",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Make eligible joins idempotent; support Active/Left/Revoked, retained progress, policy-based rejoin, explicit owner reinstatement, and atomic state checks so revoked users cannot rejoin via open links."
+              "description": "Make eligible joins idempotent; support Active/Left/Revoked, retained progress, policy-based rejoin, explicit owner reinstatement, and atomic state checks so revoked users cannot rejoin via open links.",
+              "evidence": [
+                "packages/server/src/services/enrollment-service.ts",
+                "packages/server/src/server.ts",
+                "packages/server/tests/enrollment-and-progress.test.ts",
+                "packages/server/tests/enrollment-endpoints.test.ts"
+              ]
             },
             {
               "id": "T046",
               "title": "Implement email and link invitations",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Build P08/P28 single-use email invites bound to verified address with seven-day expiry, shareable links with expiry/use limit, cryptographic tokens/digests, atomic consumption, resend/regenerate/revoke, delivery failure path, and safe invalid/mismatch states."
+              "description": "Build P08/P28 single-use email invites bound to verified address with seven-day expiry, shareable links with expiry/use limit, cryptographic tokens/digests, atomic consumption, resend/regenerate/revoke, delivery failure path, and safe invalid/mismatch states.",
+              "evidence": [
+                "packages/server/src/services/invitation-service.ts",
+                "packages/server/src/server.ts",
+                "packages/web/src/pages/learning/AcceptInvitationPage.ts",
+                "packages/server/tests/invitations.test.ts",
+                "packages/server/tests/enrollment-endpoints.test.ts",
+                "packages/web/tests/learning-pages.test.ts"
+              ]
             },
             {
               "id": "T047",
               "title": "Build learning progress service",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Record explicit Theory/Video completion, correct Quiz pass, Python server pass, optional-step state, last visited step, timestamps, and course completion; count only satisfied required steps, floor incomplete percentages, preserve earlier passes after failures, and handle waivers separately."
+              "description": "Record explicit Theory/Video completion, correct Quiz pass, Python server pass, optional-step state, last visited step, timestamps, and course completion; count only satisfied required steps, floor incomplete percentages, preserve earlier passes after failures, and handle waivers separately.",
+              "evidence": [
+                "packages/server/src/services/learning-progress-service.ts",
+                "packages/server/src/server.ts",
+                "packages/server/tests/enrollment-and-progress.test.ts",
+                "packages/server/tests/enrollment-endpoints.test.ts"
+              ]
             },
             {
               "id": "T048",
               "title": "Build Continue and My courses pages",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P09 dominant resume and P10 in-progress/completed/previous enrollment lists, accurate next-step fallback, archive/suspension states, leave confirmation, and responsive rows."
+              "description": "Implement P09 dominant resume and P10 in-progress/completed/previous enrollment lists, accurate next-step fallback, archive/suspension states, leave confirmation, and responsive rows.",
+              "evidence": [
+                "packages/web/src/pages/learning/DashboardContinuePage.ts",
+                "packages/web/src/pages/learning/MyCoursesPage.ts",
+                "packages/server/src/server.ts",
+                "packages/web/tests/learning-pages.test.ts",
+                "packages/server/tests/enrollment-endpoints.test.ts"
+              ]
             },
             {
               "id": "T049",
               "title": "Build enrolled overview and lesson navigation",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P11 pinned-version syllabus, lesson rail, required/optional/waived status, course completion summary, free step navigation, version label, progress count, and resume/review action."
+              "description": "Implement P11 pinned-version syllabus, lesson rail, required/optional/waived status, course completion summary, free step navigation, version label, progress count, and resume/review action.",
+              "evidence": [
+                "packages/web/src/pages/learning/EnrolledCoursePage.ts",
+                "packages/server/src/server.ts",
+                "packages/web/tests/learning-pages.test.ts",
+                "packages/server/tests/enrollment-endpoints.test.ts"
+              ]
             },
             {
               "id": "T050",
               "title": "Build Theory and Video steps",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P12/P13 reading content, authorized image delivery, accessible code blocks, transcript/captions, failed-embed recovery, outline and previous/next navigation, Report issue, and explicit Mark complete action."
+              "description": "Implement P12/P13 reading content, authorized image delivery, accessible code blocks, transcript/captions, failed-embed recovery, outline and previous/next navigation, Report issue, and explicit Mark complete action.",
+              "evidence": [
+                "packages/web/src/pages/learning/TheoryStepPage.ts",
+                "packages/web/src/pages/learning/VideoStepPage.ts",
+                "packages/shared/src/video.ts",
+                "packages/shared/src/markdown.ts",
+                "packages/web/tests/learning-pages.test.ts"
+              ]
             },
             {
               "id": "T051",
               "title": "Build Quiz step",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P14 single/multiple selection, server Check answer, no pre-pass key leakage, retry feedback, post-pass answer/explanation, durable attempts, and continued practice without reversing completion."
+              "description": "Implement P14 single/multiple selection, server Check answer, no pre-pass key leakage, retry feedback, post-pass answer/explanation, durable attempts, and continued practice without reversing completion.",
+              "evidence": [
+                "packages/server/src/services/quiz-service.ts",
+                "packages/web/src/pages/learning/QuizStepPage.ts",
+                "packages/server/src/server.ts",
+                "packages/web/tests/learning-pages.test.ts"
+              ]
             },
             {
               "id": "T052",
               "title": "Verify mixed-lesson vertical slice",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Exercise title-only course creation through theory/video/quiz/Python authoring, reference validation, preview, publish, invitation, enrollment, completion, resume, version update, and no staff database intervention."
+              "description": "Exercise title-only course creation through theory/video/quiz/Python authoring, reference validation, preview, publish, invitation, enrollment, completion, resume, version update, and no staff database intervention.",
+              "evidence": [
+                "packages/server/tests/vertical-slice-s2.test.ts"
+              ]
             }
           ],
-          "status": "not_started"
+          "status": "done"
         }
       ]
     },

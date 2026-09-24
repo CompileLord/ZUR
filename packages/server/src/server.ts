@@ -15,6 +15,9 @@ import { CourseAutosaveService } from './services/course-autosave-service.ts';
 import { CourseValidationService } from './services/course-validation-service.ts';
 import { CoursePublicationService } from './services/course-publication-service.ts';
 import { CourseLifecycleService } from './services/course-lifecycle-service.ts';
+import { EnrollmentService } from './services/enrollment-service.ts';
+import { InvitationService } from './services/invitation-service.ts';
+import { LearningProgressService } from './services/learning-progress-service.ts';
 
 export function createServer(db: DatabaseSync): http.Server {
   const identityService = new IdentityService(db);
@@ -31,6 +34,9 @@ export function createServer(db: DatabaseSync): http.Server {
   const courseValidationService = new CourseValidationService(db);
   const coursePublicationService = new CoursePublicationService(db);
   const courseLifecycleService = new CourseLifecycleService(db);
+  const enrollmentService = new EnrollmentService(db);
+  const invitationService = new InvitationService(db, enrollmentService);
+  const learningProgressService = new LearningProgressService(db);
 
   function parseCookies(req: http.IncomingMessage): Record<string, string> {
     const header = req.headers.cookie;
@@ -960,6 +966,306 @@ export function createServer(db: DatabaseSync): http.Server {
           estimatedDurationMinutes: step.estimated_duration_minutes,
           content: previewData,
           isPreview: true,
+        });
+        return;
+      }
+
+      // --- Module S2-M03: Enrollment, Learning, and Completion (T045-T048) ---
+
+      // 51. Enroll in course (T045)
+      const enrollMatch = pathname.match(/^\/api\/courses\/([a-zA-Z0-9_-]+)\/enroll$/);
+      if (method === 'POST' && enrollMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = enrollMatch[1];
+        const enrollment = enrollmentService.enrollStudent(user.id, courseId);
+        sendJson(res, 200, { enrollment });
+        return;
+      }
+
+      // 52. Leave course (T045)
+      const leaveMatch = pathname.match(/^\/api\/courses\/([a-zA-Z0-9_-]+)\/leave$/);
+      if (method === 'POST' && leaveMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = leaveMatch[1];
+        const enrollment = enrollmentService.leaveCourse(user.id, courseId);
+        sendJson(res, 200, { enrollment });
+        return;
+      }
+
+      // 53. Revoke student (T045)
+      const revokeStudentMatch = pathname.match(
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/students\/([a-zA-Z0-9_-]+)\/revoke$/
+      );
+      if (method === 'POST' && revokeStudentMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = revokeStudentMatch[1];
+        const studentId = revokeStudentMatch[2];
+        const enrollment = enrollmentService.revokeStudent(user.id, courseId, studentId);
+        sendJson(res, 200, { enrollment });
+        return;
+      }
+
+      // 54. Reinstate student (T045)
+      const reinstateStudentMatch = pathname.match(
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/students\/([a-zA-Z0-9_-]+)\/reinstate$/
+      );
+      if (method === 'POST' && reinstateStudentMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = reinstateStudentMatch[1];
+        const studentId = reinstateStudentMatch[2];
+        const enrollment = enrollmentService.reinstateStudent(user.id, courseId, studentId);
+        sendJson(res, 200, { enrollment });
+        return;
+      }
+
+      // 55. Create Invitation (T046)
+      const createInviteMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/invitations$/);
+      if (method === 'POST' && createInviteMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = createInviteMatch[1];
+        const body = await parseJsonBody(req);
+        const result = invitationService.createInvitation(user.id, courseId, body);
+        sendJson(res, 201, result);
+        return;
+      }
+
+      // 56. List Invitations (T046)
+      if (method === 'GET' && createInviteMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = createInviteMatch[1];
+        const invitations = invitationService.listInvitations(user.id, courseId);
+        sendJson(res, 200, { invitations });
+        return;
+      }
+
+      // 57. Revoke Invitation (T046)
+      const revokeInviteMatch = pathname.match(/^\/api\/author\/invitations\/([a-zA-Z0-9_-]+)\/revoke$/);
+      if (method === 'POST' && revokeInviteMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const invitationId = revokeInviteMatch[1];
+        const result = invitationService.revokeInvitation(user.id, invitationId);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // 58. Resend / Regenerate Invitation (T046)
+      const resendInviteMatch = pathname.match(/^\/api\/author\/invitations\/([a-zA-Z0-9_-]+)\/resend$/);
+      if (method === 'POST' && resendInviteMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const invitationId = resendInviteMatch[1];
+        const result = invitationService.resendOrRegenerateInvitation(user.id, invitationId);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // 59. Preview Invitation (T046)
+      const previewInviteMatch = pathname.match(/^\/api\/invitations\/([a-zA-Z0-9_-]+)$/);
+      if (method === 'GET' && previewInviteMatch) {
+        const inviteToken = previewInviteMatch[1];
+        const preview = invitationService.getInvitationPreview(inviteToken);
+        sendJson(res, 200, preview);
+        return;
+      }
+
+      // 60. Accept Invitation (T046)
+      const acceptInviteMatch = pathname.match(/^\/api\/invitations\/([a-zA-Z0-9_-]+)\/accept$/);
+      if (method === 'POST' && acceptInviteMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const inviteToken = acceptInviteMatch[1];
+        const result = invitationService.acceptInvitation(user.id, inviteToken);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // 61. Mark Step Complete (T047)
+      const stepCompleteMatch = pathname.match(
+        /^\/api\/enrollments\/([a-zA-Z0-9_-]+)\/steps\/([a-zA-Z0-9_-]+)\/complete$/
+      );
+      if (method === 'POST' && stepCompleteMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const enrollmentId = stepCompleteMatch[1];
+        const stepId = stepCompleteMatch[2];
+        const progress = learningProgressService.markStepComplete(user.id, enrollmentId, stepId);
+        sendJson(res, 200, progress);
+        return;
+      }
+
+      // 62. Record Step Visit (T047)
+      const stepVisitMatch = pathname.match(
+        /^\/api\/enrollments\/([a-zA-Z0-9_-]+)\/steps\/([a-zA-Z0-9_-]+)\/visit$/
+      );
+      if (method === 'POST' && stepVisitMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const enrollmentId = stepVisitMatch[1];
+        const stepId = stepVisitMatch[2];
+        const result = learningProgressService.recordStepVisit(user.id, enrollmentId, stepId);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      // 63. Get Course Progress (T047)
+      const progressMatch = pathname.match(/^\/api\/enrollments\/([a-zA-Z0-9_-]+)\/progress$/);
+      if (method === 'GET' && progressMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const enrollmentId = progressMatch[1];
+        const progress = learningProgressService.getCourseProgress(user.id, enrollmentId);
+        sendJson(res, 200, progress);
+        return;
+      }
+
+      // 64. Student Dashboard (T048, P09)
+      if (method === 'GET' && pathname === '/api/student/dashboard') {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const enrollments = enrollmentService.listStudentEnrollments(user.id);
+        const activeEnrollments = enrollments.filter((e) => e.status === 'active' && !e.isSuspended);
+
+        const coursesWithProgress = activeEnrollments.map((enr) => {
+          const prog = learningProgressService.getCourseProgress(user.id, enr.id);
+          return {
+            enrollment: enr,
+            progress: prog,
+          };
+        });
+
+        const continueItem =
+          coursesWithProgress.find((c) => !c.progress.isCompleted) ||
+          coursesWithProgress[0] ||
+          null;
+
+        sendJson(res, 200, {
+          continueCourse: continueItem
+            ? {
+                courseId: continueItem.enrollment.courseId,
+                enrollmentId: continueItem.enrollment.id,
+                title: continueItem.enrollment.courseTitle,
+                description: continueItem.enrollment.courseDescription,
+                pinnedVersionNumber: continueItem.enrollment.pinnedVersionNumber,
+                percentage: continueItem.progress.percentage,
+                completedRequired: continueItem.progress.completedRequired,
+                totalRequired: continueItem.progress.totalRequired,
+                isCompleted: continueItem.progress.isCompleted,
+                nextIncompleteStepId: continueItem.progress.nextIncompleteStepId,
+                lastVisitedStepId: continueItem.progress.lastVisitedStepId,
+              }
+            : null,
+          recentCourses: coursesWithProgress.slice(0, 5).map((c) => ({
+            courseId: c.enrollment.courseId,
+            enrollmentId: c.enrollment.id,
+            title: c.enrollment.courseTitle,
+            description: c.enrollment.courseDescription,
+            difficulty: c.enrollment.difficulty,
+            percentage: c.progress.percentage,
+            isCompleted: c.progress.isCompleted,
+            status: c.enrollment.status,
+            updatedAt: c.enrollment.updatedAt,
+            nextStepId: c.progress.nextIncompleteStepId || c.progress.lastVisitedStepId,
+          })),
+        });
+        return;
+      }
+
+      // 65. Student My Courses (T048, P10)
+      if (method === 'GET' && pathname === '/api/student/courses') {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const enrollments = enrollmentService.listStudentEnrollments(user.id);
+        const results = enrollments.map((enr) => {
+          let prog: any = null;
+          try {
+            prog = learningProgressService.getCourseProgress(user.id, enr.id);
+          } catch {
+            prog = null;
+          }
+          return {
+            ...enr,
+            progress: prog
+              ? {
+                  percentage: prog.percentage,
+                  completedRequired: prog.completedRequired,
+                  totalRequired: prog.totalRequired,
+                  isCompleted: prog.isCompleted,
+                  nextIncompleteStepId: prog.nextIncompleteStepId,
+                  lastVisitedStepId: prog.lastVisitedStepId,
+                }
+              : null,
+          };
+        });
+        sendJson(res, 200, { enrollments: results });
+        return;
+      }
+
+      // 66. Get Enrolled Step View (T049, T050, T051)
+      const enrolledStepMatch = pathname.match(
+        /^\/api\/enrollments\/([a-zA-Z0-9_-]+)\/steps\/([a-zA-Z0-9_-]+)$/
+      );
+      if (method === 'GET' && enrolledStepMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const enrollmentId = enrolledStepMatch[1];
+        const stepId = enrolledStepMatch[2];
+
+        const progress = learningProgressService.getCourseProgress(user.id, enrollmentId);
+        const stepMeta = progress.steps.find((s) => s.id === stepId);
+        if (!stepMeta) throw authService.safeNotFound();
+
+        const enr = db.prepare('SELECT pinned_version_id FROM enrollments WHERE id = ?').get(enrollmentId) as any;
+        const ver = db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(enr.pinned_version_id) as any;
+        const snapshot = JSON.parse(ver.snapshot_data);
+        let stepSnapshot: any = null;
+        for (const m of snapshot.modules || []) {
+          for (const l of m.lessons || []) {
+            for (const s of l.steps || []) {
+              if (s.id === stepId) {
+                stepSnapshot = s;
+                break;
+              }
+            }
+          }
+        }
+
+        const stepIdx = progress.steps.findIndex((s) => s.id === stepId);
+        const previousStepId = stepIdx > 0 ? progress.steps[stepIdx - 1].id : null;
+        const nextStepId = stepIdx < progress.steps.length - 1 ? progress.steps[stepIdx + 1].id : null;
+
+        learningProgressService.recordStepVisit(user.id, enrollmentId, stepId);
+
+        let studentContent = stepSnapshot?.content;
+        if (stepMeta.type === 'quiz' && studentContent && !stepMeta.isCompleted) {
+          studentContent = {
+            ...studentContent,
+            options: (studentContent.options || []).map((o: any) => ({
+              id: o.id,
+              text: o.text,
+            })),
+            explanation: undefined,
+          };
+        }
+
+        sendJson(res, 200, {
+          step: {
+            ...(stepSnapshot || stepMeta),
+            content: studentContent,
+          },
+          stepMeta,
+          progress,
+          previousStepId,
+          nextStepId,
+          courseTitle: progress.courseTitle,
+          courseId: progress.courseId,
+          enrollmentId,
         });
         return;
       }

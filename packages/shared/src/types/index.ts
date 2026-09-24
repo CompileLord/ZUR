@@ -192,6 +192,7 @@ export interface Enrollment {
   courseId: string;
   pinnedVersionId: string;
   status: EnrollmentStatus;
+  lastVisitedStepId?: string | null;
   createdAt: string;
   updatedAt: string;
 }

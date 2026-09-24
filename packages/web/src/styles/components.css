@@ -1206,3 +1206,403 @@
   background-color: rgba(229, 72, 77, 0.1);
 }
 
+/* --- Module S2-M03: Learning Experience Components (P08-P14) --- */
+
+/* P08: Invitation Acceptance */
+.invitation-preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.invitation-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--type-metadata-size);
+  color: var(--text-secondary);
+}
+
+.invitation-notice {
+  padding: var(--space-3);
+  background-color: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-size: var(--type-body-size);
+  display: flex;
+  gap: var(--space-2);
+}
+
+.invitation-status-panel {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--surface-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.invitation-status-panel.invalid {
+  border-color: var(--danger);
+  background-color: var(--danger-bg);
+}
+
+.current-user-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3);
+  background-color: var(--surface-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--type-metadata-size);
+}
+
+/* P09: Continue Dashboard */
+.resume-hero-card {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 4px solid var(--accent-citron);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.resume-hero-card.completed-state {
+  border-left-color: var(--success);
+}
+
+.resume-hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resume-context-label {
+  font-size: var(--type-micro-size);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.resume-hero-title {
+  font-size: var(--type-heading-size);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.resume-step-line {
+  color: var(--text-secondary);
+  font-size: var(--type-body-size);
+  margin: 0;
+}
+
+.resume-hero-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.recent-courses-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* P10: My Courses */
+.course-card-row {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.course-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-version-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.course-card-title {
+  font-size: var(--type-subheading-size);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.course-card-title:hover {
+  color: var(--accent-citron);
+}
+
+.version-tag {
+  font-size: var(--type-micro-size);
+  color: var(--text-secondary);
+  background-color: var(--surface-subtle);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.course-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.card-footer-actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.previous-enrollments-section {
+  margin-top: var(--space-8);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-6);
+}
+
+.previous-course-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.previous-course-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* P11: Enrolled Overview */
+.course-header-card {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.completion-banner {
+  background-color: var(--success-bg);
+  border: 1px solid var(--success);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.completion-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.syllabus-modules {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.module-group {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  background-color: var(--surface-card);
+}
+
+.module-title {
+  font-size: var(--type-subheading-size);
+  font-weight: 700;
+  margin: 0 0 var(--space-3) 0;
+  color: var(--text-primary);
+}
+
+.lesson-title {
+  font-size: var(--type-body-size);
+  font-weight: 600;
+  margin: var(--space-3) 0 var(--space-2) 0;
+  color: var(--text-secondary);
+}
+
+.lesson-steps-rail {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* P12, P13, P14: Reading and Step Workspaces */
+.theory-step-content,
+.video-step-content,
+.quiz-step-content {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.reading-meta-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--type-metadata-size);
+  color: var(--text-secondary);
+}
+
+.step-navigation-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-8);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.footer-left,
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.report-issue-link {
+  font-size: var(--type-metadata-size);
+  color: var(--text-tertiary);
+  text-decoration: underline;
+}
+
+.report-issue-link:hover {
+  color: var(--text-secondary);
+}
+
+/* P13 Video Frame */
+.video-player-container {
+  width: 100%;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: #000;
+  border: 1px solid var(--border-subtle);
+}
+
+.video-aspect-frame {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+}
+
+.video-embed-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.transcript-accordion {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background-color: var(--surface-subtle);
+}
+
+.transcript-summary {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+/* P14 Quiz Controls */
+.quiz-options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: var(--space-4) 0;
+}
+
+.quiz-option-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-card);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.quiz-option-row:hover {
+  border-color: var(--border-focus);
+}
+
+.quiz-option-row.selected {
+  border-color: var(--accent-citron);
+  background-color: var(--surface-subtle);
+}
+
+.quiz-option-row.correct {
+  border-color: var(--success);
+  background-color: var(--success-bg);
+}
+
+.quiz-input-control {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-citron);
+}
+
+.quiz-feedback-strip {
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+}
+
+.quiz-feedback-strip.success {
+  background-color: var(--success-bg);
+  border-color: var(--success);
+}
+
+.quiz-feedback-strip.failure {
+  background-color: var(--danger-bg);
+  border-color: var(--danger);
+}
+
+
