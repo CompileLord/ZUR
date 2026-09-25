@@ -1775,5 +1775,277 @@
   background-color: var(--bg-raised);
 }
 
+/* ==========================================================================
+   Public Pages (P01–P03, P40–P42, design.md §10, §13)
+   ========================================================================== */
 
+/* P01: Landing Page */
+.landing-page {
+  display: flex;
+  flex-direction: column;
+}
 
+.landing-page > section {
+  padding-block: var(--space-12);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  max-width: var(--reading-width);
+}
+
+.max-w-reading {
+  max-width: 68ch;
+}
+
+.workspace-fragment {
+  margin-top: var(--space-12);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgb(0 0 0 / 12%);
+}
+
+.workspace-fragment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--bg-raised);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.workspace-fragment-label {
+  font-size: var(--type-control-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.workspace-fragment-meta {
+  color: var(--text-muted);
+}
+
+.workspace-fragment-body {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .workspace-fragment-body {
+    grid-template-columns: 280px 1fr;
+  }
+}
+
+.workspace-fragment-problem {
+  padding: var(--space-5);
+  background-color: var(--bg-canvas);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 768px) {
+  .workspace-fragment-problem {
+    border-bottom: none;
+    border-right: 1px solid var(--border-subtle);
+  }
+}
+
+.workspace-fragment-code {
+  padding: var(--space-5);
+  background-color: var(--code-bg);
+  overflow-x: auto;
+}
+
+.code-surface {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.reading-progression-section .grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 767px) {
+  .workspace-fragment-code .code-surface {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .reading-progression-section .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.line-num {
+  color: var(--text-muted);
+  user-select: none;
+  display: inline-block;
+  width: 1.5rem;
+  text-align: right;
+  margin-right: 0.75rem;
+}
+
+.progression-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.progression-rail-marker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.rail-ordinal {
+  font-size: var(--type-micro-size);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.rail-line {
+  flex: 1;
+  height: 1px;
+  background-color: var(--border-subtle);
+}
+
+.teaching-step {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.teaching-step-num {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-control);
+  font-size: var(--type-control-size);
+  flex-shrink: 0;
+}
+
+/* P02: Catalog & Search */
+.catalog-search-form {
+  position: relative;
+  width: 100%;
+}
+
+.search-input {
+  height: 44px;
+  font-size: 0.9375rem;
+  padding-left: var(--space-4);
+}
+
+.filter-group select {
+  height: 36px;
+  padding: 0 var(--space-3);
+  font-size: var(--type-metadata-size);
+}
+
+.catalog-page .desktop-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.catalog-page .mobile-filter-trigger {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .catalog-page .desktop-filters {
+    display: none;
+  }
+
+  .catalog-page .mobile-filter-trigger {
+    display: block;
+  }
+}
+
+.mobile-filter-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--overlay);
+}
+
+.sheet-panel {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  background-color: var(--bg-surface);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  padding: var(--space-6);
+  z-index: 1;
+  box-shadow: 0 -4px 24px rgb(0 0 0 / 24%);
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* P03: Course Overview */
+.overview-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+}
+
+@media (min-width: 1024px) {
+  .overview-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.enrollment-summary-card {
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
+}
+
+.syllabus-steps {
+  overflow: hidden;
+}
+
+.syllabus-step-row:hover {
+  background-color: var(--bg-hover);
+}
+
+/* P40 & P41: Help & Policies */
+.table-of-contents {
+  background-color: var(--bg-surface);
+}
+
+.report-modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  align-items: center;
+  justify-content: center;
+}
+
+.max-w-dialog {
+  max-width: 560px;
+  border-radius: var(--radius-xl);
+}

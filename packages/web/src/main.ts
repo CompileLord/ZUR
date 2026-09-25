@@ -33,10 +33,16 @@ import { renderAiConnectionsPage } from './pages/settings/AiConnectionsPage.ts';
 import { renderMcpClientSetupPage } from './pages/settings/McpClientSetupDialog.ts';
 import { renderAgentActivityPage } from './pages/author/AgentActivityPage.ts';
 import { renderSafeDenialPage } from './pages/status/SafeDenialPage.ts';
-
+import { renderLandingPage } from './pages/public/LandingPage.ts';
+import { renderCatalogPage, type CatalogPageProps } from './pages/public/CatalogPage.ts';
+import { renderCourseOverviewPage, type CourseOverviewPageProps } from './pages/public/CourseOverviewPage.ts';
+import { renderHelpPage, type HelpPageProps } from './pages/public/HelpPage.ts';
+import { renderPolicyPage } from './pages/public/PolicyPage.ts';
+import { CourseClient } from './services/course-client.ts';
 
 const appEl = document.getElementById('app')!;
 const authClient = AuthClient.getInstance();
+const courseClient = CourseClient.getInstance();
 
 export function applyTheme(theme: 'dark' | 'light' | 'system'): void {
   localStorage.setItem('zur_theme_preference', theme);
@@ -62,12 +68,14 @@ function initTheme(): void {
   }
 }
 
+let activeCatalogRequestId = 0;
+
 export function navigateTo(path: string): void {
   window.history.pushState({}, '', path);
   renderApp(path);
 }
 
-export function renderApp(path: string = window.location.pathname): void {
+export function renderApp(path: string = window.location.pathname + window.location.search): void {
   const match = matchRoute(path);
 
   if (!match) {
@@ -77,7 +85,9 @@ export function renderApp(path: string = window.location.pathname): void {
   }
 
   const { route, params } = match;
-  const searchParams = new URLSearchParams(window.location.search);
+  const searchParams = path.includes('?')
+    ? new URL(path, window.location.origin).searchParams
+    : new URLSearchParams(window.location.search);
   const currentUser = authClient.getUser();
 
   // Authentication guards for S3 (settings/learning), S4, S5, S6
@@ -97,74 +107,158 @@ export function renderApp(path: string = window.location.pathname): void {
         break;
       }
 
-      let content = '';
       if (route.pageId === 'P01') {
-        content = `
-          <section class="container-landing py-12">
-            <h1 class="display-title mb-4">Understand it. Then write it.</h1>
-            <p class="prose text-secondary mb-6">
-              Learn Python through short lessons and real exercises. Create a course that puts practice beside the explanation.
-            </p>
-            <div class="landing-actions flex gap-4 mb-10">
-              <a href="/courses" class="btn btn-primary">Explore courses</a>
-              <a href="#teaching" class="btn btn-secondary">See how teaching works</a>
-            </div>
-
-            <div class="workspace-fragment code-block p-6 mb-12">
-              <div class="flex justify-between items-center mb-3">
-                <span class="text-sm font-semibold text-secondary">Example workspace</span>
-                <span class="text-xs text-muted">Python 3.12</span>
-              </div>
-              <pre><code># Calculate doubled values
-numbers = [1, 2, 3, 4]
-doubled = [n * 2 for n in numbers]
-print("Result:", doubled)</code></pre>
-              <div class="mt-4 pt-3 border-t border-subtle">
-                <span class="text-xs text-muted">Sample output:</span>
-                <pre class="text-sm text-primary mt-1"><code>Result: [2, 4, 6, 8]</code></pre>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-8 mb-12">
-              <div>
-                <h3 class="font-semibold text-primary mb-2">1. Read</h3>
-                <p class="text-sm text-secondary">Focused concept explanations with clear syntax and real examples.</p>
-              </div>
-              <div>
-                <h3 class="font-semibold text-primary mb-2">2. Try</h3>
-                <p class="text-sm text-secondary">Write real Python code in the browser. Zero software installation.</p>
-              </div>
-              <div>
-                <h3 class="font-semibold text-primary mb-2">3. Check</h3>
-                <p class="text-sm text-secondary">Instant feedback against public test cases and protected hidden checks.</p>
-              </div>
-            </div>
-          </section>
-        `;
-      } else if (route.pageId === 'P02') {
-        content = `
-          <div class="container py-8">
-            <h1 class="h1 mb-4">Explore courses</h1>
-            <div class="course-list">
-              ${renderCourseRow({
-                id: 'course-python-foundations',
-                title: 'Python foundations',
-                description: 'Learn Python through short lessons and real exercises. Understand it, then write it.',
-                authorName: 'Guido van Rossum',
-                level: 'Beginner',
-                durationText: '45 mins',
-                actionText: 'View course',
-                actionHref: '/courses/course-python-foundations',
-              })}
-            </div>
-          </div>
-        `;
-      } else {
-        content = `<div class="container py-8"><h1 class="h1">${route.title}</h1></div>`;
+        const content = renderLandingPage({ isSignedIn: Boolean(currentUser) });
+        appEl.innerHTML = renderPublicShell({
+          activePath: path,
+          user: currentUser,
+          content,
+        });
+        break;
       }
 
+      if (route.pageId === 'P02') {
+        const q = searchParams.get('q') || '';
+        const category = searchParams.get('category') || '';
+        const level = searchParams.get('level') || '';
+        const language = searchParams.get('language') || '';
+        const page = Number(searchParams.get('page') || 1);
+
+        const requestId = ++activeCatalogRequestId;
+
+        const catalogState: CatalogPageProps = {
+          courses: [],
+          categories: [],
+          total: 0,
+          isLoading: true,
+          filters: { q, category, level, language, page, limit: 12 },
+        };
+
+        const initialContent = renderCatalogPage(catalogState);
+        appEl.innerHTML = renderPublicShell({
+          activePath: '/courses',
+          user: currentUser,
+          content: initialContent,
+        });
+        attachCatalogListeners(catalogState);
+
+        Promise.all([
+          courseClient.listCategories().catch(() => []),
+          courseClient.listCatalog({
+            search: q || undefined,
+            categoryId: category || undefined,
+            level: level || undefined,
+            language: language || undefined,
+            limit: 12,
+            offset: (page - 1) * 12,
+          }),
+        ])
+          .then(([cats, catRes]) => {
+            if (requestId !== activeCatalogRequestId || window.location.pathname !== '/courses') return;
+            catalogState.categories = cats;
+            catalogState.courses = catRes.courses;
+            catalogState.total = catRes.total;
+            catalogState.isLoading = false;
+            const updatedContent = renderCatalogPage(catalogState);
+            appEl.innerHTML = renderPublicShell({
+              activePath: '/courses',
+              user: currentUser,
+              content: updatedContent,
+            });
+            attachCatalogListeners(catalogState);
+          })
+          .catch((err) => {
+            if (requestId !== activeCatalogRequestId || window.location.pathname !== '/courses') return;
+            catalogState.isLoading = false;
+            catalogState.error = err.message || 'Failed to load course catalog';
+            const updatedContent = renderCatalogPage(catalogState);
+            appEl.innerHTML = renderPublicShell({
+              activePath: '/courses',
+              user: currentUser,
+              content: updatedContent,
+            });
+            attachCatalogListeners(catalogState);
+          });
+        break;
+      }
+
+      if (route.pageId === 'P03') {
+        const courseId = params.courseId;
+        const isCurrentOverview = () => {
+          const current = matchRoute(window.location.pathname);
+          return current?.route.pageId === 'P03' && current.params.courseId === courseId;
+        };
+        const initialContent = renderCourseOverviewPage({ isLoading: true });
+        appEl.innerHTML = renderPublicShell({
+          activePath: path,
+          user: currentUser,
+          content: initialContent,
+        });
+
+        courseClient
+          .getCourseOverview(courseId)
+          .then((data) => {
+            if (!isCurrentOverview()) return;
+            const updatedContent = renderCourseOverviewPage({
+              data,
+              currentUser,
+              isLoading: false,
+            });
+            appEl.innerHTML = renderPublicShell({
+              activePath: path,
+              user: currentUser,
+              content: updatedContent,
+            });
+            attachCourseOverviewListeners(courseId);
+          })
+          .catch((err: any) => {
+            if (!isCurrentOverview()) return;
+            const isDenial = err.status === 404 || err.status === 403 || err.message === "This page isn't available.";
+            if (isDenial) {
+              appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+            } else {
+              const errorContent = renderCourseOverviewPage({
+                isLoading: false,
+                isServiceError: true,
+              });
+              appEl.innerHTML = renderPublicShell({
+                activePath: path,
+                user: currentUser,
+                content: errorContent,
+              });
+              attachCourseOverviewListeners(courseId);
+            }
+          });
+        break;
+      }
+
+      if (route.pageId === 'P40') {
+        const courseId = searchParams.get('courseId') || '';
+        const content = renderHelpPage({ courseId });
+        appEl.innerHTML = renderPublicShell({
+          activePath: path,
+          user: currentUser,
+          content,
+        });
+        attachHelpListeners(courseId);
+        break;
+      }
+
+      if (route.pageId === 'P41') {
+        const isTerms = path === '/terms';
+        const content = renderPolicyPage({ type: isTerms ? 'terms' : 'privacy' });
+        appEl.innerHTML = renderPublicShell({
+          activePath: path,
+          user: currentUser,
+          content,
+        });
+        break;
+      }
+
+      const content = `<div class="container py-8"><h1 class="h1">${route.title}</h1></div>`;
       appEl.innerHTML = renderPublicShell({
         activePath: path,
+        user: currentUser,
         content,
       });
       break;
@@ -450,6 +544,323 @@ print(val * 2)
 }
 
 // --- DOM Event Listeners & Interaction Wiring ---
+
+function attachCatalogListeners(catalogState: CatalogPageProps): void {
+  // Search form submit & debounced search input
+  const searchForm = document.getElementById('catalog-search-form') as HTMLFormElement | null;
+  const searchInput = document.getElementById('catalog-search-input') as HTMLInputElement | null;
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const val = searchInput.value.trim();
+        const url = new URL(window.location.href);
+        const currentQ = url.searchParams.get('q') || '';
+        if (val !== currentQ) {
+          if (val) {
+            url.searchParams.set('q', val);
+          } else {
+            url.searchParams.delete('q');
+          }
+          url.searchParams.delete('page');
+          navigateTo(url.pathname + url.search);
+        }
+      }, 300);
+    });
+  }
+
+  if (searchForm && searchInput) {
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (debounceTimer) clearTimeout(debounceTimer);
+      const val = searchInput.value.trim();
+      const url = new URL(window.location.href);
+      if (val) {
+        url.searchParams.set('q', val);
+      } else {
+        url.searchParams.delete('q');
+      }
+      url.searchParams.delete('page');
+      navigateTo(url.pathname + url.search);
+    });
+  }
+
+  // Filter dropdowns
+  const filterCat = document.getElementById('filter-category') as HTMLSelectElement | null;
+  if (filterCat) {
+    filterCat.addEventListener('change', () => {
+      const url = new URL(window.location.href);
+      if (filterCat.value) {
+        url.searchParams.set('category', filterCat.value);
+      } else {
+        url.searchParams.delete('category');
+      }
+      url.searchParams.delete('page');
+      navigateTo(url.pathname + url.search);
+    });
+  }
+
+  const filterLevel = document.getElementById('filter-level') as HTMLSelectElement | null;
+  if (filterLevel) {
+    filterLevel.addEventListener('change', () => {
+      const url = new URL(window.location.href);
+      if (filterLevel.value) {
+        url.searchParams.set('level', filterLevel.value);
+      } else {
+        url.searchParams.delete('level');
+      }
+      url.searchParams.delete('page');
+      navigateTo(url.pathname + url.search);
+    });
+  }
+
+  const filterLang = document.getElementById('filter-language') as HTMLSelectElement | null;
+  if (filterLang) {
+    filterLang.addEventListener('change', () => {
+      const url = new URL(window.location.href);
+      if (filterLang.value) {
+        url.searchParams.set('language', filterLang.value);
+      } else {
+        url.searchParams.delete('language');
+      }
+      url.searchParams.delete('page');
+      navigateTo(url.pathname + url.search);
+    });
+  }
+
+  // Clear filters button (multiple could exist: desktop button, mobile clear, empty state clear button)
+  const clearButtons = document.querySelectorAll('[data-action="clear-filters"], #btn-clear-filters');
+  clearButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      navigateTo('/courses');
+    });
+  });
+
+  // Pagination buttons
+  const prevBtn = document.querySelector('[data-action="prev-page"]');
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      const curPage = Math.max(1, catalogState.filters.page || 1);
+      if (curPage > 1) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', String(curPage - 1));
+        navigateTo(url.pathname + url.search);
+      }
+    });
+  }
+
+  const nextBtn = document.querySelector('[data-action="next-page"]');
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      const curPage = Math.max(1, catalogState.filters.page || 1);
+      const url = new URL(window.location.href);
+      url.searchParams.set('page', String(curPage + 1));
+      navigateTo(url.pathname + url.search);
+    });
+  }
+
+  // Mobile Filter Sheet: keyboard accessible with focus entry, Escape close, and focus restoration
+  const mobileSheet = document.getElementById('mobile-filter-sheet');
+  const openSheetBtn = document.querySelector('[data-action="open-sheet"]');
+  const closeSheetBtns = document.querySelectorAll('[data-action="close-sheet"]');
+  const applyMobileBtn = document.querySelector('[data-action="apply-mobile-filters"]');
+
+  let mobileTriggerElement: HTMLElement | null = null;
+
+  const handleMobileSheetKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      closeMobileSheet();
+    }
+  };
+
+  function openMobileSheet(): void {
+    if (!mobileSheet) return;
+    mobileTriggerElement = document.activeElement as HTMLElement | null;
+    mobileSheet.style.display = 'flex';
+    mobileSheet.classList.add('open');
+    document.addEventListener('keydown', handleMobileSheetKeyDown);
+    const firstInput = mobileSheet.querySelector('select, input, button') as HTMLElement | null;
+    firstInput?.focus();
+  }
+
+  function closeMobileSheet(): void {
+    if (!mobileSheet) return;
+    mobileSheet.style.display = 'none';
+    mobileSheet.classList.remove('open');
+    document.removeEventListener('keydown', handleMobileSheetKeyDown);
+    mobileTriggerElement?.focus();
+  }
+
+  if (openSheetBtn) {
+    openSheetBtn.addEventListener('click', openMobileSheet);
+  }
+
+  closeSheetBtns.forEach((btn) => {
+    btn.addEventListener('click', closeMobileSheet);
+  });
+
+  if (applyMobileBtn) {
+    applyMobileBtn.addEventListener('click', () => {
+      const mobileCat = (document.getElementById('mobile-filter-category') as HTMLSelectElement | null)?.value;
+      const mobileLevel = (document.getElementById('mobile-filter-level') as HTMLSelectElement | null)?.value;
+      const mobileLang = (document.getElementById('mobile-filter-language') as HTMLSelectElement | null)?.value;
+
+      const url = new URL(window.location.href);
+      if (mobileCat) url.searchParams.set('category', mobileCat);
+      else url.searchParams.delete('category');
+
+      if (mobileLevel) url.searchParams.set('level', mobileLevel);
+      else url.searchParams.delete('level');
+
+      if (mobileLang) url.searchParams.set('language', mobileLang);
+      else url.searchParams.delete('language');
+
+      url.searchParams.delete('page');
+      closeMobileSheet();
+      navigateTo(url.pathname + url.search);
+    });
+  }
+
+  // Retry button: keeps query/filter URL state
+  const retryBtn = document.querySelector('[data-action="retry"]');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', () => {
+      renderApp(window.location.pathname + window.location.search);
+    });
+  }
+}
+
+function attachCourseOverviewListeners(courseId: string): void {
+  // Retry button for service failures: re-renders overview route
+  const retryBtn = document.querySelector('[data-action="retry"]');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', () => {
+      renderApp(window.location.pathname + window.location.search);
+    });
+  }
+
+  const enrollBtn = document.getElementById('btn-enroll-course') as HTMLButtonElement | null;
+  if (enrollBtn) {
+    enrollBtn.addEventListener('click', async () => {
+      enrollBtn.disabled = true;
+      enrollBtn.textContent = 'Enrolling…';
+
+      try {
+        await courseClient.enrollInCourse(courseId);
+        navigateTo('/learn');
+      } catch (err: any) {
+        enrollBtn.disabled = false;
+        enrollBtn.textContent = 'Enroll in course';
+        alert(err.message || 'Failed to enroll in course. Please try again.');
+      }
+    });
+  }
+}
+
+function attachHelpListeners(courseId?: string): void {
+  const modal = document.getElementById('report-issue-modal');
+  const openBtn = document.querySelector('[data-action="open-report"]');
+  const closeBtns = document.querySelectorAll('[data-action="close-report"]');
+  const form = document.getElementById('report-issue-form') as HTMLFormElement | null;
+
+  let helpTriggerElement: HTMLElement | null = null;
+
+  const handleModalKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      closeReportModal();
+    }
+  };
+
+  function openReportModal(): void {
+    if (!modal) return;
+    helpTriggerElement = document.activeElement as HTMLElement | null;
+    modal.style.display = 'flex';
+    modal.classList.add('open');
+    document.addEventListener('keydown', handleModalKeyDown);
+    const firstInput = modal.querySelector('input, select, textarea, button') as HTMLElement | null;
+    firstInput?.focus();
+  }
+
+  function closeReportModal(): void {
+    if (!modal) return;
+    modal.style.display = 'none';
+    modal.classList.remove('open');
+    document.removeEventListener('keydown', handleModalKeyDown);
+    helpTriggerElement?.focus();
+  }
+
+  if (openBtn) {
+    openBtn.addEventListener('click', openReportModal);
+  }
+
+  closeBtns.forEach((btn) => {
+    btn.addEventListener('click', closeReportModal);
+  });
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending report…';
+      }
+
+      const reportCourseId = (document.getElementById('report-course-id') as HTMLInputElement)?.value || courseId || '';
+      const type = (document.getElementById('report-type') as HTMLSelectElement)?.value || 'other';
+      const description = (document.getElementById('report-description') as HTMLTextAreaElement)?.value || '';
+      const courseVersionId = (document.getElementById('report-version-id') as HTMLInputElement)?.value || undefined;
+      const stepId = (document.getElementById('report-step-id') as HTMLInputElement)?.value || undefined;
+      const includeCodeConsent = (document.getElementById('report-include-code') as HTMLInputElement)?.checked || false;
+
+      try {
+        const res = await courseClient.submitReport({
+          courseId: reportCourseId,
+          courseVersionId,
+          stepId,
+          type,
+          description,
+          includeCodeConsent,
+        });
+
+        const currentUser = authClient.getUser();
+        const content = renderHelpPage({
+          courseId: reportCourseId,
+          isReportModalOpen: true,
+          reportSuccessReference: res.reference,
+        });
+        appEl.innerHTML = renderPublicShell({
+          activePath: window.location.pathname,
+          user: currentUser,
+          content,
+        });
+        attachHelpListeners(reportCourseId);
+      } catch (err: any) {
+        const currentUser = authClient.getUser();
+        const content = renderHelpPage({
+          courseId: reportCourseId,
+          courseVersionId,
+          stepId,
+          type,
+          description,
+          includeCode: includeCodeConsent,
+          isReportModalOpen: true,
+          reportError: err.message || 'Failed to submit report. Please try again.',
+        });
+        appEl.innerHTML = renderPublicShell({
+          activePath: window.location.pathname,
+          user: currentUser,
+          content,
+        });
+        attachHelpListeners(reportCourseId);
+        const descEl = document.getElementById('report-description') as HTMLTextAreaElement | null;
+        descEl?.focus();
+      }
+    });
+  }
+}
 
 function attachSignInListeners(): void {
   const form = document.getElementById('sign-in-form') as HTMLFormElement | null;

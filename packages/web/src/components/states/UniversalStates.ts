@@ -36,10 +36,10 @@ export function renderEmptyState(opts: { title: string; message: string; actionT
 export function renderNoMatchesState(query: string, clearFiltersHref: string): string {
   return `
     <div class="state-container state-no-matches" role="region" aria-label="No results found">
-      <h3 class="state-heading">No courses match “${query}”</h3>
+      <h3 class="state-heading">No courses match “${escapeHtml(query)}”</h3>
       <p class="state-message">Try adjusting your search terms or clearing filters.</p>
       <div class="state-actions mt-4">
-        <a href="${clearFiltersHref}" class="btn btn-secondary btn-compact">Clear filters</a>
+        <a href="${escapeHtml(clearFiltersHref)}" class="btn btn-secondary btn-compact">Clear filters</a>
       </div>
     </div>
   `;
@@ -49,7 +49,7 @@ export function renderAccessDeniedState(reason?: string): string {
   return `
     <div class="state-container state-denied" role="alert">
       <h2 class="state-heading">This page isn't available.</h2>
-      <p class="state-message">${reason || 'You do not have permission to view this content.'}</p>
+      <p class="state-message">${escapeHtml(reason || 'You do not have permission to view this content.')}</p>
       <div class="state-actions mt-4">
         <a href="/courses" class="btn btn-secondary btn-compact">Return to courses</a>
       </div>

@@ -705,20 +705,56 @@ export function createServer(db: DatabaseSync): http.Server {
         return;
       }
 
-      // 39. Public: List Catalog (T044)
-
+      // 39. Public: List Catalog (T044, T070)
       if (method === 'GET' && pathname === '/api/courses/catalog') {
-        const search = url.searchParams.get('search') || undefined;
-        const categoryId = url.searchParams.get('categoryId') || undefined;
+        const search = url.searchParams.get('search') || url.searchParams.get('q') || undefined;
+        const categoryId = url.searchParams.get('categoryId') || url.searchParams.get('category') || undefined;
+        const level = url.searchParams.get('level') || url.searchParams.get('difficulty') || undefined;
+        const language = url.searchParams.get('language') || undefined;
         const limit = Number(url.searchParams.get('limit') || 20);
         const offset = Number(url.searchParams.get('offset') || 0);
-        const catalog = courseService.listPublicCatalog({ search, categoryId, limit, offset });
+        const catalog = courseService.listPublicCatalog({ search, categoryId, level, language, limit, offset });
         sendJson(res, 200, catalog);
         return;
       }
 
-      // 40. Student: Enroll in Course (T042)
-      const studentCourseEnrollMatch = pathname.match(/^\/api\/courses\/([0-9a-fA-F-]+)\/enroll$/);
+      // Public: List Categories (T070)
+      if (method === 'GET' && pathname === '/api/categories') {
+        const categories = courseService.listCategories();
+        sendJson(res, 200, categories);
+        return;
+      }
+
+      // Public: Course Overview (P03, T071)
+      const publicCourseMatch = pathname.match(/^\/api\/courses\/([a-zA-Z0-9_-]+)$/);
+      if (method === 'GET' && publicCourseMatch && publicCourseMatch[1] !== 'catalog') {
+        let currentUserId: string | undefined;
+        if (token) {
+          try {
+            const { user } = identityService.authenticateSession(token);
+            currentUserId = user.id;
+          } catch {
+            // Visitor / unauthenticated
+          }
+        }
+        const courseId = publicCourseMatch[1];
+        const overview = courseService.getPublicCourseOverview(courseId, currentUserId);
+        sendJson(res, 200, overview);
+        return;
+      }
+
+      // Issue Reporting (P40, T072)
+      if (method === 'POST' && pathname === '/api/reports') {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const body = await parseJsonBody(req);
+        const report = courseService.createReport(user.id, body);
+        sendJson(res, 201, report);
+        return;
+      }
+
+      // 40. Student: Enroll in Course (T042, T071)
+      const studentCourseEnrollMatch = pathname.match(/^\/api\/courses\/([a-zA-Z0-9_-]+)\/enroll$/);
       if (method === 'POST' && studentCourseEnrollMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
