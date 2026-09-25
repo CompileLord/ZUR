@@ -211,6 +211,8 @@ export interface Invitation {
   expiresAt: string;
   isRevoked: boolean;
   createdAt: string;
+  emailDeliveryStatus?: 'not_applicable' | 'pending' | 'sent' | 'failed' | 'not_configured';
+  emailSentAt?: string | null;
 }
 
 export interface CodeDraft {
@@ -495,3 +497,177 @@ export interface PublicationReceipt {
   studentCountPinnedToOldVersions: number;
 }
 
+export interface RosterItem {
+  enrollmentId: string;
+  studentId: string;
+  displayName: string;
+  maskedEmail: string;
+  pinnedVersionNumber: number;
+  status: EnrollmentStatus;
+  enrolledAt: string;
+  lastActivityAt?: string | null;
+  completedStepsCount: number;
+  totalRequiredStepsCount: number;
+  progressPercent: number;
+}
+
+export interface CourseRosterResponse {
+  students: RosterItem[];
+  total: number;
+  limit: number;
+  offset: number;
+  versions: Array<{ id: string; versionNumber: number }>;
+}
+
+export interface OwnerStudentStepProgress {
+  id?: string;
+  stepId: string;
+  title?: string;
+  type?: StepType;
+  isRequired?: boolean;
+  position?: number;
+  ordinal?: number;
+  isCompleted: boolean;
+  satisfied?: boolean;
+  completedAt?: string | null;
+  isWaived: boolean;
+  waiverReason?: string | null;
+  waivedAt?: string | null;
+  attemptsCount: number;
+  submissionCount?: number;
+  bestScore?: number | null;
+}
+
+export interface OwnerStudentLessonItem {
+  id?: string;
+  lessonId: string;
+  title: string;
+  position: number;
+  ordinal?: number;
+  steps: OwnerStudentStepProgress[];
+}
+
+export interface OwnerStudentModuleItem {
+  id?: string;
+  moduleId: string;
+  title: string;
+  position: number;
+  ordinal?: number;
+  lessons: OwnerStudentLessonItem[];
+}
+
+export interface OwnerAssessmentAttemptItem {
+  id?: string;
+  attemptId: string;
+  stepId: string;
+  attemptNumber: number;
+  type: 'quiz' | 'python';
+  verdict: TerminalVerdict | string;
+  codeSnapshot?: string | null;
+  submittedCode?: string | null;
+  selectedOptionIds?: string[] | null;
+  executionTimeMs?: number | null;
+  isInfrastructureFailure: boolean;
+  createdAt: string;
+  submittedAt?: string;
+  score?: number | null;
+  isLatest?: boolean;
+}
+
+export interface OwnerStudentDetailResponse {
+  enrollment: {
+    id: string;
+    courseId: string;
+    courseTitle: string;
+    courseVersionId: string;
+    versionNumber: number | null;
+    status: EnrollmentStatus;
+    enrolledAt: string;
+    revokedAt?: string | null;
+    revocationReason?: string | null;
+    completedAt?: string | null;
+  };
+  student: {
+    id?: string;
+    enrollmentId: string;
+    studentId: string;
+    displayName: string;
+    email?: string | null;
+    maskedEmail?: string;
+    status: EnrollmentStatus;
+    pinnedVersionNumber: number;
+    pinnedVersionId: string;
+    enrolledAt: string;
+    lastActivityAt?: string | null;
+    completedRequired: number;
+    totalRequired: number;
+    progressPercent: number;
+  };
+  overallProgress: {
+    requiredStepsCompleted: number;
+    totalRequiredSteps: number;
+    percentage: number;
+    lastLearningActivityAt?: string | null;
+  };
+  curriculum: OwnerStudentModuleItem[];
+  stepProgress: Record<string, OwnerStudentStepProgress>;
+  attempts: Record<string, OwnerAssessmentAttemptItem[]>;
+  attemptList?: OwnerAssessmentAttemptItem[];
+  waivers: Record<string, { waivedAt?: string | null; reason: string }>;
+}
+
+export interface ExerciseInsightItem {
+  stepId: string;
+  stepTitle: string;
+  lessonTitle: string;
+  moduleTitle: string;
+  type: StepType;
+  distinctParticipants: number;
+  distinctPassingStudents: number;
+  passRatePercent: number | null;
+  medianAttemptsToPass: number | null;
+  lastActivityAt?: string | null;
+  waiverCount: number;
+  infrastructureFailureCount: number;
+}
+
+export interface CourseAnalyticsResponse {
+  courseId: string;
+  versions?: Array<{ id: string; versionNumber: number }>;
+  versionNumber?: number | null;
+  timeWindowDays?: number | null;
+  activeEnrollments: number;
+  learningActiveStudents: number;
+  completion: {
+    completedCount: number;
+    totalActive: number;
+    ratePercent: number | null;
+    count?: number;
+    total?: number;
+    percentage?: number;
+  };
+  averageProgressPercent: number | null;
+  exercises: ExerciseInsightItem[];
+  exerciseInsights?: ExerciseInsightItem[];
+}
+
+export type DomainEventName =
+  | 'course.created'
+  | 'course.published'
+  | 'enrollment.accepted'
+  | 'step.completed'
+  | 'exercise.run'
+  | 'exercise.submitted'
+  | 'hint.revealed'
+  | 'course.completed';
+
+export interface ProductAnalyticsEvent {
+  id: string;
+  eventName: DomainEventName;
+  pseudonymousUserId: string;
+  courseId?: string | null;
+  courseVersionId?: string | null;
+  stepId?: string | null;
+  metadata?: Record<string, string | number | boolean | null>;
+  createdAt: string;
+}

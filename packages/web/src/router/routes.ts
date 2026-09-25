@@ -75,6 +75,7 @@ export const ROUTES: RouteDefinition[] = [
   createRoute('P26', '/teach/:courseId/preview', 'S4', 'Student preview', 'author'),
   createRoute('P27', '/teach/:courseId/publish', 'S5', 'Review publication', 'author'),
   createRoute('P28', '/teach/:courseId/students', 'S5', 'Students and invitations', 'author'),
+  createRoute('P28', '/teach/:courseId/roster', 'S5', 'Students and invitations', 'author'),
   createRoute('P29', '/teach/:courseId/students/:enrollmentId', 'S5', 'Student detail', 'author'),
   createRoute('P30', '/teach/:courseId/analytics', 'S5', 'Course analytics', 'author'),
   createRoute('P31', '/teach/:courseId/settings', 'S5', 'Course settings', 'author'),

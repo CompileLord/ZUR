@@ -152,8 +152,8 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
     const versionId = 'version-arch-1';
     db.prepare(
       `INSERT INTO course_versions (id, course_id, version_number, snapshot_data, created_at)
-       VALUES (?, ?, 1, '{}', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`
-    ).run(versionId, course.id);
+       VALUES (?, ?, 1, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`
+    ).run(versionId, course.id, JSON.stringify({ modules: [{ lessons: [{ steps: [{ id: quizStepId, type: 'quiz' }] }] }] }));
 
     const enrollmentId = 'enroll-ada-arch';
     db.prepare(
@@ -185,7 +185,7 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
     assert.equal(progress?.is_completed, 1);
 
     // 3. Preview mode isolation: isPreview=true does not mutate database
-    const previewResult = quizService.gradeQuiz(studentId, enrollmentId, quizStepId, ['opt-and'], true);
+    const previewResult = quizService.gradeQuiz(authorId, null, quizStepId, ['opt-and'], true);
     assert.equal(previewResult.verdict, 'PASSED');
 
     const attemptsCountAfterPreview = (

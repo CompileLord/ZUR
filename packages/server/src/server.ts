@@ -1,6 +1,6 @@
 import http from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
-import { ZURError, AuthenticationError } from 'zur-shared';
+import { ZURError, AuthenticationError, AuthorizationError, NotFoundError, ValidationError } from 'zur-shared';
 import { IdentityService } from './services/identity-service.ts';
 import { AuthorizationService } from './services/auth-service.ts';
 import { ExecutionService } from './services/execution-service.ts';
@@ -24,8 +24,14 @@ import { McpServer } from './mcp/mcp-server.ts';
 import { McpHttpTransport } from './mcp/transport.ts';
 import { AgentActivityService } from './services/agent-activity-service.ts';
 import { DraftRecoveryService } from './services/draft-recovery-service.ts';
+import { TeacherRosterService } from './services/teacher-roster-service.ts';
+import { ProductAnalyticsService } from './services/product-analytics-service.ts';
+import { EmailDeliveryService } from './services/email-delivery-service.ts';
 
-export function createServer(db: DatabaseSync): http.Server {
+export function createServer(
+  db: DatabaseSync,
+  dependencies: { emailDeliveryService?: EmailDeliveryService } = {}
+): http.Server {
 
   const identityService = new IdentityService(db);
   const authService = new AuthorizationService(db);
@@ -50,6 +56,55 @@ export function createServer(db: DatabaseSync): http.Server {
   const mcpTransport = new McpHttpTransport(mcpServer);
   const agentActivityService = new AgentActivityService(db);
   const draftRecoveryService = new DraftRecoveryService(db);
+  const teacherRosterService = new TeacherRosterService(db);
+  const productAnalyticsService = new ProductAnalyticsService(db);
+  const emailDeliveryService = dependencies.emailDeliveryService || new EmailDeliveryService();
+
+  async function deliverCourseInvitation(ownerId: string, invitationId: string, courseId: string, token: string) {
+    const invitation = db.prepare(`SELECT i.recipient_email, i.expires_at, c.title, u.display_name
+      FROM invitations i JOIN courses c ON c.id = i.course_id
+      JOIN users u ON u.id = i.inviter_id WHERE i.id = ? AND i.course_id = ?`).get(invitationId, courseId) as any;
+    if (!invitation?.recipient_email) return null;
+    const delivery = await emailDeliveryService.sendInvitation({
+      recipientEmail: invitation.recipient_email,
+      courseTitle: invitation.title,
+      inviterName: invitation.display_name,
+      invitationUrl: `/join/${encodeURIComponent(token)}`,
+      expiresAt: invitation.expires_at,
+    });
+    invitationService.recordEmailDelivery(ownerId, invitationId, delivery.status, delivery.sentAt);
+    return delivery;
+  }
+
+  function recordProductEvent(input: {
+    eventName: import('zur-shared').DomainEventName;
+    userId: string;
+    courseId?: string;
+    enrollmentId?: string;
+    stepId?: string;
+    courseVersionId?: string;
+    idempotencyKey?: string;
+    metadata?: Record<string, unknown>;
+  }): void {
+    const enrollment = input.enrollmentId
+      ? db.prepare('SELECT course_id, pinned_version_id FROM enrollments WHERE id = ? AND user_id = ?')
+          .get(input.enrollmentId, input.userId) as { course_id: string; pinned_version_id: string } | undefined
+      : undefined;
+    if (input.enrollmentId && !enrollment) return;
+    try {
+      productAnalyticsService.recordEvent({
+        eventName: input.eventName,
+        userId: input.userId,
+        courseId: enrollment?.course_id || input.courseId,
+        courseVersionId: enrollment?.pinned_version_id || input.courseVersionId,
+        stepId: input.stepId,
+        metadata: input.metadata,
+        idempotencyKey: input.idempotencyKey,
+      });
+    } catch {
+      // A telemetry outage cannot turn an acknowledged domain mutation into an apparent failure.
+    }
+  }
 
   function parseCookies(req: http.IncomingMessage): Record<string, string> {
     const header = req.headers.cookie;
@@ -336,6 +391,7 @@ export function createServer(db: DatabaseSync): http.Server {
           code: body.code,
           idempotencyKey: body.idempotencyKey,
         });
+        recordProductEvent({ eventName: 'exercise.run', userId: user.id, enrollmentId: body.enrollmentId, stepId: body.stepId, metadata: { mode: 'samples' } });
         sendJson(res, 200, result);
         return;
       }
@@ -354,6 +410,7 @@ export function createServer(db: DatabaseSync): http.Server {
           stdin: body.stdin || '',
           idempotencyKey: body.idempotencyKey,
         });
+        recordProductEvent({ eventName: 'exercise.run', userId: user.id, enrollmentId: body.enrollmentId, stepId: body.stepId, metadata: { mode: 'custom' } });
         sendJson(res, 200, result);
         return;
       }
@@ -363,6 +420,8 @@ export function createServer(db: DatabaseSync): http.Server {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         const body = await parseJsonBody(req);
+        const wasCourseComplete = learningProgressService.getCourseProgress(user.id, body.enrollmentId).isCourseCompleted;
+        const priorStep = db.prepare('SELECT is_completed FROM step_progress WHERE enrollment_id = ? AND step_id = ?').get(body.enrollmentId, body.stepId) as { is_completed: number } | undefined;
         const result = await executionService.executeJobSynchronously({
           userId: user.id,
           enrollmentId: body.enrollmentId,
@@ -371,6 +430,9 @@ export function createServer(db: DatabaseSync): http.Server {
           code: body.code,
           idempotencyKey: body.idempotencyKey,
         });
+        recordProductEvent({ eventName: 'exercise.submitted', userId: user.id, enrollmentId: body.enrollmentId, stepId: body.stepId, metadata: { verdict: result.result?.verdict } });
+        if (result.result?.verdict === 'PASSED' && !priorStep?.is_completed) recordProductEvent({ eventName: 'step.completed', userId: user.id, enrollmentId: body.enrollmentId, stepId: body.stepId });
+        if (!wasCourseComplete && learningProgressService.getCourseProgress(user.id, body.enrollmentId).isCourseCompleted) recordProductEvent({ eventName: 'course.completed', userId: user.id, enrollmentId: body.enrollmentId });
         sendJson(res, 200, result);
         return;
       }
@@ -475,6 +537,7 @@ export function createServer(db: DatabaseSync): http.Server {
         const { user } = identityService.authenticateSession(token);
         const body = await parseJsonBody(req);
         const created = courseService.createCourseDraft(user.id, body);
+        recordProductEvent({ eventName: 'course.created', userId: user.id, courseId: created.id });
         sendJson(res, 201, created);
         return;
       }
@@ -531,7 +594,7 @@ export function createServer(db: DatabaseSync): http.Server {
       }
 
       // 33. Author: Publish Course (T041)
-      const authorCoursePublishMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/publish$/);
+      const authorCoursePublishMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/publish$/);
       if (method === 'POST' && authorCoursePublishMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -542,6 +605,7 @@ export function createServer(db: DatabaseSync): http.Server {
           changeSummary: body.changeSummary,
           idempotencyKey: body.idempotencyKey,
         });
+        recordProductEvent({ eventName: 'course.published', userId: user.id, courseId, courseVersionId: receipt.versionId });
         sendJson(res, 200, receipt);
         return;
       }
@@ -595,14 +659,195 @@ export function createServer(db: DatabaseSync): http.Server {
         return;
       }
 
-      // 38. Author: Get Course Roster (T042)
-      const authorCourseRosterMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/roster$/);
+      // 38. Author: Get Course Roster & Filters (P28, T073)
+      const authorCourseRosterMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/roster$/);
       if (method === 'GET' && authorCourseRosterMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         const courseId = authorCourseRosterMatch[1];
-        const roster = courseService.getCourseRoster(user.id, courseId);
+        const search = url.searchParams.get('search') || undefined;
+        const status = url.searchParams.get('status') || undefined;
+        const versionParam = url.searchParams.get('version') || url.searchParams.get('versionNumber');
+        const versionNumber = versionParam ? Number(versionParam) : undefined;
+        const limit = Number(url.searchParams.get('limit') || 20);
+        const offset = Number(url.searchParams.get('offset') || 0);
+
+        const roster = teacherRosterService.listRoster(user.id, courseId, {
+          search,
+          status,
+          versionNumber,
+          limit,
+          offset,
+        });
         sendJson(res, 200, roster);
+        return;
+      }
+
+      // 38b. Author: Student Detail for Course Owner (P29, T074)
+      const authorStudentDetailMatch = pathname.match(
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/roster\/([a-zA-Z0-9_-]+)$/
+      );
+      if (method === 'GET' && authorStudentDetailMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorStudentDetailMatch[1];
+        const enrollmentId = authorStudentDetailMatch[2];
+
+        const detail = teacherRosterService.getStudentDetail(user.id, courseId, enrollmentId);
+        sendJson(res, 200, detail);
+        return;
+      }
+
+      const studentAttemptsMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/roster\/([a-zA-Z0-9_-]+)\/steps\/([a-zA-Z0-9_-]+)\/attempts$/);
+      if (method === 'GET' && studentAttemptsMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const query = new URL(req.url || '/', 'http://localhost').searchParams;
+        const page = teacherRosterService.listStudentAttempts(user.id, studentAttemptsMatch[1], studentAttemptsMatch[2], studentAttemptsMatch[3],
+          Number(query.get('limit') || 10), Number(query.get('offset') || 0));
+        sendJson(res, 200, page);
+        return;
+      }
+      const studentAttemptDetailMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/roster\/([a-zA-Z0-9_-]+)\/steps\/([a-zA-Z0-9_-]+)\/attempts\/([a-zA-Z0-9_-]+)$/);
+      if (method === 'GET' && studentAttemptDetailMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const attempt = teacherRosterService.getStudentAttempt(user.id, studentAttemptDetailMatch[1], studentAttemptDetailMatch[2], studentAttemptDetailMatch[3], studentAttemptDetailMatch[4]);
+        sendJson(res, 200, attempt);
+        return;
+      }
+
+      // 38c. Author: Revoke Student Enrollment (P28, T073)
+      const authorRevokeEnrollmentMatch = pathname.match(
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/roster\/([a-zA-Z0-9_-]+)\/revoke$/
+      );
+      if (method === 'POST' && authorRevokeEnrollmentMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorRevokeEnrollmentMatch[1];
+        const enrollmentId = authorRevokeEnrollmentMatch[2];
+
+        const enr = enrollmentService.getEnrollmentById(enrollmentId);
+        if (!enr || enr.courseId !== courseId) {
+          throw new NotFoundError("Student enrollment not found.");
+        }
+        const updated = enrollmentService.revokeStudent(user.id, courseId, enr.userId);
+        sendJson(res, 200, updated);
+        return;
+      }
+
+      // 38d. Author: Reinstate Student Enrollment (P28, T073)
+      const authorReinstateEnrollmentMatch = pathname.match(
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/roster\/([a-zA-Z0-9_-]+)\/reinstate$/
+      );
+      if (method === 'POST' && authorReinstateEnrollmentMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorReinstateEnrollmentMatch[1];
+        const enrollmentId = authorReinstateEnrollmentMatch[2];
+
+        const enr = enrollmentService.getEnrollmentById(enrollmentId);
+        if (!enr || enr.courseId !== courseId) {
+          throw new NotFoundError("Student enrollment not found.");
+        }
+        const updated = enrollmentService.reinstateStudent(user.id, courseId, enr.userId);
+        sendJson(res, 200, updated);
+        return;
+      }
+
+      // 38e. Author: Course Invitations (P28, T073)
+      const authorCourseInvitationsMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/invitations$/);
+      if (method === 'GET' && authorCourseInvitationsMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseInvitationsMatch[1];
+        const invitations = invitationService.listInvitations(user.id, courseId);
+        sendJson(res, 200, { invitations: invitations.map(({ tokenHash, inviterId, ...safe }) => safe) });
+        return;
+      }
+
+      if (method === 'POST' && authorCourseInvitationsMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseInvitationsMatch[1];
+        const body = await parseJsonBody(req);
+        const result = invitationService.createInvitation(user.id, courseId, body);
+        const delivery = result.invitation.type === 'email'
+          ? await deliverCourseInvitation(user.id, result.invitation.id, courseId, result.token)
+          : null;
+        const updatedInvitation = delivery
+          ? invitationService.listInvitations(user.id, courseId).find((row) => row.id === result.invitation.id) || result.invitation
+          : result.invitation;
+        const { tokenHash, inviterId, ...safe } = updatedInvitation;
+        sendJson(res, 201, { invitation: safe, token: result.token, delivery });
+        return;
+      }
+
+      const authorRevokeInvitationMatch = pathname.match(/^\/api\/author\/invitations\/([a-zA-Z0-9_-]+)\/revoke$/);
+      if (method === 'POST' && authorRevokeInvitationMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const invitationId = authorRevokeInvitationMatch[1];
+        const result = invitationService.revokeInvitation(user.id, invitationId);
+        sendJson(res, 200, result);
+        return;
+      }
+
+      const authorResendInvitationMatch = pathname.match(/^\/api\/author\/invitations\/([a-zA-Z0-9_-]+)\/resend$/);
+      if (method === 'POST' && authorResendInvitationMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const invitationId = authorResendInvitationMatch[1];
+        const result = invitationService.resendOrRegenerateInvitation(user.id, invitationId);
+        const delivery = result.invitation.type === 'email'
+          ? await deliverCourseInvitation(user.id, invitationId, result.invitation.courseId, result.token)
+          : null;
+        const updatedInvitation = delivery
+          ? invitationService.listInvitations(user.id, result.invitation.courseId).find((row) => row.id === invitationId) || result.invitation
+          : result.invitation;
+        const { tokenHash, inviterId, ...safe } = updatedInvitation;
+        sendJson(res, 200, { invitation: safe, token: result.token, delivery });
+        return;
+      }
+
+      // 38f. Author: Course Analytics & Exact Metrics (P30, T075)
+      const authorCourseAnalyticsMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/analytics$/);
+      if (method === 'GET' && authorCourseAnalyticsMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseAnalyticsMatch[1];
+        const versionParam = url.searchParams.get('version') || url.searchParams.get('versionNumber');
+        const versionNumber = versionParam ? Number(versionParam) : undefined;
+        const windowParam = url.searchParams.get('timeWindowDays') || url.searchParams.get('days');
+        const timeWindowDays = windowParam ? Number(windowParam) : undefined;
+
+        const metrics = teacherRosterService.getCourseMetrics(user.id, courseId, {
+          versionNumber,
+          timeWindowDays,
+        });
+        sendJson(res, 200, metrics);
+        return;
+      }
+
+      // Product events are created only after trusted domain operations.
+      if (method === 'GET' && pathname === '/api/analytics/events') {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        if (!user.capabilities.includes('admin')) {
+          throw new AuthorizationError('Admin capability required to view raw product analytics events.');
+        }
+        const eventName = url.searchParams.get('eventName') || undefined;
+        const courseId = url.searchParams.get('courseId') || undefined;
+        const excludeStaff = url.searchParams.get('excludeStaff') === 'true';
+        const limit = Number(url.searchParams.get('limit') || 50);
+
+        const events = productAnalyticsService.listEvents({
+          eventName,
+          courseId,
+          excludeStaffOrPreview: excludeStaff,
+          limit,
+        });
+        sendJson(res, 200, { events });
         return;
       }
 
@@ -1038,7 +1283,14 @@ export function createServer(db: DatabaseSync): http.Server {
         const body = await parseJsonBody(req);
         const enrollmentId = body.enrollmentId || null;
         const isPreview = Boolean(body.isPreview);
+        const wasCourseComplete = !isPreview && enrollmentId ? learningProgressService.getCourseProgress(user.id, enrollmentId).isCourseCompleted : false;
+        const priorProgress = !isPreview && enrollmentId ? db.prepare('SELECT is_completed FROM step_progress WHERE enrollment_id = ? AND step_id = ?').get(enrollmentId, stepId) as { is_completed: number } | undefined : undefined;
         const result = quizService.gradeQuiz(user.id, enrollmentId, stepId, body.selectedOptionIds || [], isPreview);
+        if (!isPreview && enrollmentId) {
+          recordProductEvent({ eventName: 'exercise.submitted', userId: user.id, enrollmentId, stepId, metadata: { verdict: result.verdict } });
+          if (result.isPassed && !priorProgress?.is_completed) recordProductEvent({ eventName: 'step.completed', userId: user.id, enrollmentId, stepId });
+          if (!wasCourseComplete && learningProgressService.getCourseProgress(user.id, enrollmentId).isCourseCompleted) recordProductEvent({ eventName: 'course.completed', userId: user.id, enrollmentId });
+        }
         sendJson(res, 200, result);
         return;
       }
@@ -1133,7 +1385,9 @@ export function createServer(db: DatabaseSync): http.Server {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         const courseId = enrollMatch[1];
+        const priorEnrollment = db.prepare('SELECT id, status FROM enrollments WHERE user_id = ? AND course_id = ?').get(user.id, courseId) as { id: string; status: string } | undefined;
         const enrollment = enrollmentService.enrollStudent(user.id, courseId);
+        if (!priorEnrollment || priorEnrollment.status !== 'active') recordProductEvent({ eventName: 'enrollment.accepted', userId: user.id, enrollmentId: enrollment.id });
         sendJson(res, 200, { enrollment });
         return;
       }
@@ -1237,6 +1491,7 @@ export function createServer(db: DatabaseSync): http.Server {
         const { user } = identityService.authenticateSession(token);
         const inviteToken = acceptInviteMatch[1];
         const result = invitationService.acceptInvitation(user.id, inviteToken);
+        if (result.enrollment?.id) recordProductEvent({ eventName: 'enrollment.accepted', userId: user.id, enrollmentId: result.enrollment.id });
         sendJson(res, 200, result);
         return;
       }
@@ -1250,7 +1505,11 @@ export function createServer(db: DatabaseSync): http.Server {
         const { user } = identityService.authenticateSession(token);
         const enrollmentId = stepCompleteMatch[1];
         const stepId = stepCompleteMatch[2];
+        const wasCourseComplete = learningProgressService.getCourseProgress(user.id, enrollmentId).isCourseCompleted;
+        const priorProgress = db.prepare('SELECT is_completed FROM step_progress WHERE enrollment_id = ? AND step_id = ?').get(enrollmentId, stepId) as { is_completed: number } | undefined;
         const progress = learningProgressService.markStepComplete(user.id, enrollmentId, stepId);
+        if (!priorProgress?.is_completed) recordProductEvent({ eventName: 'step.completed', userId: user.id, enrollmentId, stepId });
+        if (!wasCourseComplete && progress.isCourseCompleted) recordProductEvent({ eventName: 'course.completed', userId: user.id, enrollmentId });
         sendJson(res, 200, progress);
         return;
       }
@@ -1266,6 +1525,86 @@ export function createServer(db: DatabaseSync): http.Server {
         const stepId = stepVisitMatch[2];
         const result = learningProgressService.recordStepVisit(user.id, enrollmentId, stepId);
         sendJson(res, 200, result);
+        return;
+      }
+
+      // 62b. Record Hint Reveal (T076)
+      const hintRevealMatch = pathname.match(
+        /^\/api\/enrollments\/([a-zA-Z0-9_-]+)\/steps\/([a-zA-Z0-9_-]+)\/hint-reveal$/
+      );
+      if (method === 'POST' && hintRevealMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const enrollmentId = hintRevealMatch[1];
+        const stepId = hintRevealMatch[2];
+
+        const enrollment = db
+          .prepare('SELECT user_id, status, course_id, pinned_version_id FROM enrollments WHERE id = ?')
+          .get(enrollmentId) as { user_id: string; status: string; course_id: string; pinned_version_id: string } | undefined;
+        if (!enrollment || enrollment.user_id !== user.id || enrollment.status !== 'active') {
+          throw new NotFoundError("This page isn't available.");
+        }
+
+        const course = db.prepare('SELECT is_suspended FROM courses WHERE id = ?').get(enrollment.course_id) as { is_suspended: number } | undefined;
+        if (!course || course.is_suspended) {
+          throw new AuthorizationError('Course access is suspended.');
+        }
+
+        // Verify step exists in the enrollment's pinned version snapshot
+        const versionRow = db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(enrollment.pinned_version_id) as { snapshot_data: string } | undefined;
+        if (!versionRow || !versionRow.snapshot_data) {
+          throw new NotFoundError("This page isn't available.");
+        }
+
+        let snapshot: any;
+        try {
+          snapshot = JSON.parse(versionRow.snapshot_data);
+        } catch {
+          throw new NotFoundError("This page isn't available.");
+        }
+
+        let foundStep: any = null;
+        for (const mod of snapshot.modules || []) {
+          for (const les of mod.lessons || []) {
+            for (const st of les.steps || []) {
+              if (st.id === stepId) {
+                foundStep = st;
+                break;
+              }
+            }
+            if (foundStep) break;
+          }
+          if (foundStep) break;
+        }
+
+        if (!foundStep) {
+          throw new NotFoundError("This page isn't available.");
+        }
+
+        // Hint eligibility comes only from the immutable version pinned to this enrollment.
+        const hints = foundStep.type === 'python' && Array.isArray(foundStep.content?.hints)
+          ? foundStep.content.hints
+          : [];
+        if (hints.length === 0) {
+          throw new ValidationError('This exercise does not have any hints.');
+        }
+
+        const body = await parseJsonBody(req);
+        const hintIndex = body?.hintIndex;
+        if (!Number.isInteger(hintIndex) || hintIndex < 0 || hintIndex >= hints.length) {
+          throw new ValidationError(`Invalid hint index: must be between 0 and ${hints.length - 1}.`);
+        }
+
+        recordProductEvent({
+          eventName: 'hint.revealed',
+          userId: user.id,
+          enrollmentId,
+          stepId,
+          idempotencyKey: `${enrollmentId}:${enrollment.pinned_version_id}:${stepId}:${hintIndex}`,
+          metadata: { hintIndex },
+        });
+
+        sendJson(res, 200, { success: true, hintIndex });
         return;
       }
 

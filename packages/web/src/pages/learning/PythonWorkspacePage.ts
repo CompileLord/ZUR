@@ -45,7 +45,7 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
 
   // Left Panel: Problem Statement
   const leftPanelHtml = `
-    <div class="problem-pane" role="region" aria-label="Problem Instructions">
+    <div class="problem-pane" role="region" aria-label="Problem Instructions" data-enrollment-id="${opts.enrollmentId}" data-step-id="${opts.stepId}">
       <div class="problem-header">
         <div class="problem-meta-row">
           <span>${opts.stepOrdinalText}</span>
@@ -97,7 +97,7 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
           <div class="hints-container">
             ${hints.map((hint, idx) => `
               <div class="hint-accordion">
-                <button type="button" class="hint-trigger" aria-expanded="false" data-hint-index="${idx}">
+                <button type="button" class="hint-trigger" aria-expanded="false" data-hint-index="${idx}" data-enrollment-id="${opts.enrollmentId}" data-step-id="${opts.stepId}">
                   <span>Hint ${idx + 1}</span>
                   <span class="hint-chevron">▼</span>
                 </button>

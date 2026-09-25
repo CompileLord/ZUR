@@ -211,6 +211,22 @@ export class QuizService {
     selectedOptionIds: string[],
     isPreview: boolean = false
   ): QuizGradeResult {
+    if (isPreview) {
+      const owner = this.db.prepare(`SELECT c.owner_id FROM steps s JOIN lessons l ON s.lesson_id = l.id
+        JOIN modules m ON l.module_id = m.id JOIN courses c ON m.course_id = c.id WHERE s.id = ?`).get(stepId) as { owner_id: string } | undefined;
+      if (!owner || owner.owner_id !== userId) throw new NotFoundError("This page isn't available.");
+    } else {
+      const enrollment = this.db.prepare(`SELECT e.user_id, e.status, cv.snapshot_data FROM enrollments e
+        JOIN course_versions cv ON e.pinned_version_id = cv.id WHERE e.id = ?`).get(enrollmentId) as any;
+      if (!enrollment || enrollment.user_id !== userId || enrollment.status !== 'active') {
+        throw new NotFoundError("This page isn't available.");
+      }
+      const snapshot = JSON.parse(enrollment.snapshot_data);
+      if (!(snapshot.modules || []).some((module: any) => (module.lessons || []).some((lesson: any) =>
+        (lesson.steps || []).some((step: any) => step.id === stepId && step.type === 'quiz')))) {
+        throw new NotFoundError("This page isn't available.");
+      }
+    }
     const contentRow = this.db
       .prepare('SELECT content_payload FROM step_contents WHERE step_id = ?')
       .get(stepId) as any;

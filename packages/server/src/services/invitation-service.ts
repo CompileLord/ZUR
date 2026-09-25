@@ -129,8 +129,9 @@ export class InvitationService {
       .prepare(
         `INSERT INTO invitations (
           id, course_id, inviter_id, token_hash, recipient_email,
-          type, max_uses, uses_count, expires_at, is_revoked, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, 0, ?)`
+          type, max_uses, uses_count, expires_at, is_revoked, created_at,
+          email_delivery_status, email_sent_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, 0, ?, ?, NULL)`
       )
       .run(
         id,
@@ -141,7 +142,8 @@ export class InvitationService {
         input.type,
         maxUses,
         expiresAt,
-        now
+        now,
+        input.type === 'email' ? 'pending' : 'not_applicable'
       );
 
     const invRow = this.db.prepare('SELECT * FROM invitations WHERE id = ?').get(id) as any;
@@ -304,7 +306,8 @@ export class InvitationService {
 
     this.db
       .prepare(
-        'UPDATE invitations SET token_hash = ?, expires_at = ?, is_revoked = 0 WHERE id = ?'
+        `UPDATE invitations SET token_hash = ?, expires_at = ?, is_revoked = 0,
+          email_delivery_status = 'pending', email_sent_at = NULL WHERE id = ?`
       )
       .run(newTokenHash, newExpiresAt, invitationId);
 
@@ -313,6 +316,20 @@ export class InvitationService {
       invitation: this.mapInvitationRow(updated),
       token: newPlainToken,
     };
+  }
+
+  recordEmailDelivery(
+    ownerId: string,
+    invitationId: string,
+    status: 'sent' | 'failed' | 'not_configured',
+    sentAt: string | null
+  ): Invitation {
+    const row = this.db.prepare('SELECT course_id, type FROM invitations WHERE id = ?').get(invitationId) as any;
+    if (!row || row.type !== 'email') throw new NotFoundError('Email invitation not found.');
+    this.checkCourseOwnerOrAdmin(ownerId, row.course_id);
+    this.db.prepare('UPDATE invitations SET email_delivery_status = ?, email_sent_at = ? WHERE id = ?')
+      .run(status, status === 'sent' ? sentAt : null, invitationId);
+    return this.mapInvitationRow(this.db.prepare('SELECT * FROM invitations WHERE id = ?').get(invitationId) as any);
   }
 
   private mapInvitationRow(row: any): Invitation {
@@ -328,6 +345,8 @@ export class InvitationService {
       expiresAt: row.expires_at,
       isRevoked: Boolean(row.is_revoked),
       createdAt: row.created_at,
+      emailDeliveryStatus: row.email_delivery_status || 'not_applicable',
+      emailSentAt: row.email_sent_at || null,
     };
   }
 }

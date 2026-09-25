@@ -17,7 +17,8 @@ export function seedDatabase(dbPath?: string): void {
       'test_cases', 'step_contents', 'steps', 'lessons', 'modules',
       'enrollments', 'invitations', 'course_versions', 'courses', 'categories',
       'author_access_tokens', 'agent_mutations', 'recovery_revisions', 'media_assets',
-      'media_uploads', 'reports', 'audit_events', 'verification_tokens', 'sessions', 'users', 'deletion_registry'
+      'media_uploads', 'reports', 'audit_events', 'verification_tokens', 'sessions', 'users', 'deletion_registry',
+      'product_analytics_events'
     ];
     for (const t of tables) {
       db.exec(`DELETE FROM ${t};`);
@@ -291,7 +292,12 @@ export function seedDatabase(dbPath?: string): void {
         versionNumber: 1,
         title: 'Python foundations',
         description: 'Version 1 initial snapshot',
-        modules: [{ id: mod1Id, title: 'Variables', position: 0 }],
+        modules: [{ id: mod1Id, title: 'Variables', position: 0, lessons: [{ id: les1Id, title: 'Naming and Values', position: 0, steps: [
+          { id: step1Id, title: 'What is a variable?', type: 'theory', position: 0, isRequired: true },
+          { id: step2Id, title: 'Variables in Memory', type: 'video', position: 1, isRequired: true },
+          { id: step3Id, title: 'Variable assignment syntax', type: 'quiz', position: 2, isRequired: true },
+          { id: step4Id, title: 'Echoing Numbers', type: 'python', position: 3, isRequired: true },
+        ] }] }],
         publishedAt: now,
       })
     );
@@ -310,9 +316,19 @@ export function seedDatabase(dbPath?: string): void {
         title: 'Python foundations',
         description: 'Version 2 with complete modules',
         modules: [
-          { id: mod1Id, title: 'Variables', position: 0 },
-          { id: mod2Id, title: 'Conditions', position: 1 },
-          { id: mod3Id, title: 'Loops', position: 2 },
+          { id: mod1Id, title: 'Variables', position: 0, lessons: [{ id: les1Id, title: 'Naming and Values', position: 0, steps: [
+            { id: step1Id, title: 'What is a variable?', type: 'theory', position: 0, isRequired: true },
+            { id: step2Id, title: 'Variables in Memory', type: 'video', position: 1, isRequired: true },
+            { id: step3Id, title: 'Variable assignment syntax', type: 'quiz', position: 2, isRequired: true },
+            { id: step4Id, title: 'Echoing Numbers', type: 'python', position: 3, isRequired: true },
+          ] }] },
+          { id: mod2Id, title: 'Conditions', position: 1, lessons: [{ id: les2Id, title: 'Branching', position: 0, steps: [
+            { id: step5Id, title: 'Valid conditional expressions', type: 'quiz', position: 0, isRequired: true },
+            { id: step6Id, title: 'Check Even or Odd', type: 'python', position: 1, isRequired: true },
+          ] }] },
+          { id: mod3Id, title: 'Loops', position: 2, lessons: [{ id: les3Id, title: 'For and While', position: 0, steps: [
+            { id: step7Id, title: 'Sum of Numbers', type: 'python', position: 0, isRequired: true },
+          ] }] },
         ],
         publishedAt: now,
       })

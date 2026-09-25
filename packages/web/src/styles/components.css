@@ -1531,6 +1531,8 @@
   width: 100%;
   height: 100%;
   border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  border-left: 4px solid transparent;
 }
 
 .transcript-accordion {
@@ -2048,4 +2050,312 @@
 .max-w-dialog {
   max-width: 560px;
   border-radius: var(--radius-xl);
+}
+
+/* P28, P29, P30: Teacher Roster, Student Detail & Analytics */
+.hidden {
+  display: none !important;
+}
+
+.modal-backdrop.hidden {
+  display: none !important;
+}
+
+.modal-backdrop:not(.hidden) {
+  display: flex !important;
+}
+
+.data-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-surface);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-control-size);
+  text-align: left;
+}
+
+.data-table th {
+  padding: var(--space-3) var(--space-4);
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-raised);
+}
+
+.data-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background-color: var(--bg-hover);
+}
+
+.status-badge.muted {
+  background-color: var(--bg-raised);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+/* P30 Horizontal Definition List of Metrics (Design §12 P30 & PRD §14) */
+.metrics-definition-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .metrics-definition-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .metrics-definition-item {
+    padding: 0 var(--space-6);
+    border-left: 1px solid var(--border-subtle);
+  }
+
+  .metrics-definition-item:first-child {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .metrics-definition-item:last-child {
+    padding-right: 0;
+  }
+}
+
+.analytics-version-scope {
+  margin: -8px 0 24px;
+  max-width: 80ch;
+}
+
+.horizontal-metrics-section {
+  padding: 8px 0 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.analytics-page-container {
+  padding: var(--space-6);
+}
+
+.analytics-header,
+.analytics-filters {
+  min-width: 0;
+}
+
+@media (max-width: 1023px) {
+  .analytics-header {
+    align-items: flex-start;
+  }
+
+  .analytics-filters {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 767px) {
+  .analytics-page-container {
+    padding: var(--page-gutter);
+  }
+
+  .analytics-header {
+    display: block;
+  }
+
+  .analytics-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: var(--space-4);
+  }
+
+  .analytics-filters > div,
+  .analytics-filters select {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .analytics-filters button {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}
+
+@media (max-width: 767px) {
+  .metrics-definition-item {
+    padding: var(--space-4) 0;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .metrics-definition-item:first-child {
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+.metrics-definition-item dt {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.metrics-definition-item dd {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.metrics-definition-item .metric-caption {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: var(--space-1);
+  line-height: 1.35;
+}
+
+/* P29 Student Detail Layout & Curriculum Rail (Design §12 P29 & PRD §14) */
+.student-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .student-detail-layout {
+    grid-template-columns: 380px 1fr;
+    align-items: start;
+  }
+}
+
+.curriculum-steps-list {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background-color: var(--bg-surface);
+  overflow: hidden;
+}
+
+.step-rail-item {
+  display: block;
+  width: 100%;
+  border: 0;
+  padding: 12px 16px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  text-decoration: none;
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.step-rail-item:last-child {
+  border-bottom: none;
+}
+
+.step-rail-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.step-rail-item.selected,
+.step-rail-item[aria-pressed="true"] {
+  background-color: var(--bg-raised);
+  border-left-color: var(--accent);
+}
+
+.step-rail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.step-rail-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.step-rail-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.step-rail-badge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.step-rail-lesson-title {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  flex: 1;
+  min-width: 0;
+}
+
+.step-rail-optional {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-style: italic;
+  flex-shrink: 0;
+}
+
+.step-rail-step-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.step-rail-item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.step-rail-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.step-rail-attempts-count {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.code-snapshot-wrapper pre {
+  margin: 0;
+  font-family: var(--font-mono);
 }

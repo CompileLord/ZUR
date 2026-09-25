@@ -467,6 +467,65 @@
   }
 }
 
+@media (max-width: 767px) {
+  .shell-author {
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .author-header {
+    height: auto;
+    min-height: var(--header-height);
+    padding: var(--space-3) var(--page-gutter);
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+
+  .author-header-left {
+    flex-wrap: wrap;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .author-course-title {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .author-header-right {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .author-header-right .btn {
+    min-height: 44px;
+  }
+
+  .author-tabs-bar .tabs-nav {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .author-tabs-bar .tab-link {
+    flex-shrink: 0;
+  }
+
+  .author-workspace-main {
+    display: block;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .author-editor-pane {
+    overflow: visible;
+    padding: var(--space-4) var(--page-gutter);
+  }
+}
+
 /* S6: Administration Shell */
 .shell-admin {
   display: flex;
