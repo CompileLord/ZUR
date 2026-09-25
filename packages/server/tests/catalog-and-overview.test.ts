@@ -298,6 +298,24 @@ test('Course Catalog, Public Overview, and Reporting Endpoints (T069–T072)', a
     assert.strictEqual(resAuthor.status, 200);
   });
 
+  await t.test('GET /api/courses/:courseId safely denies unauthorized access to draft courses (AC-05)', async () => {
+    // Unauthenticated request to draft course -> 404 safe denial
+    const resAnon = await fetch(`${baseUrl}/api/courses/${courseE.id}`);
+    assert.strictEqual(resAnon.status, 404);
+
+    // Non-owner student request to draft course -> 404 safe denial
+    const resStudent = await fetch(`${baseUrl}/api/courses/${courseE.id}`, {
+      headers: { Authorization: `Bearer ${studentToken}` },
+    });
+    assert.strictEqual(resStudent.status, 404);
+
+    // Author request to own draft course -> 200 allowed
+    const resAuthor = await fetch(`${baseUrl}/api/courses/${courseE.id}`, {
+      headers: { Authorization: `Bearer ${authorToken}` },
+    });
+    assert.strictEqual(resAuthor.status, 200);
+  });
+
   // --- 4. Enrollment Action ---
   await t.test('POST /api/courses/:courseId/enroll enrolls student in public open course', async () => {
     const res = await fetch(`${baseUrl}/api/courses/${courseA.id}/enroll`, {
@@ -321,6 +339,34 @@ test('Course Catalog, Public Overview, and Reporting Endpoints (T069–T072)', a
     const overview = (await overviewRes.json()) as any;
     assert.strictEqual(overview.enrollmentStatus.isEnrolled, true);
     assert.strictEqual(overview.enrollmentStatus.status, 'active');
+
+    // Revoke enrollment and confirm GET /api/courses/:courseId reflects revoked state
+    db.prepare("UPDATE enrollments SET status = 'revoked' WHERE user_id = ? AND course_id = ?").run(studentId, courseA.id);
+    const revokedRes = await fetch(`${baseUrl}/api/courses/${courseA.id}`, {
+      headers: { Authorization: `Bearer ${studentToken}` },
+    });
+    const revokedOverview = (await revokedRes.json()) as any;
+    assert.strictEqual(revokedOverview.enrollmentStatus.isEnrolled, false);
+    assert.strictEqual(revokedOverview.enrollmentStatus.status, 'revoked');
+
+    // Restore to active for remaining tests
+    db.prepare("UPDATE enrollments SET status = 'active' WHERE user_id = ? AND course_id = ?").run(studentId, courseA.id);
+  });
+
+  await t.test('GET /api/courses/:courseId reflects archived publicationStatus', async () => {
+    const courseArchived = courseService.createCourseDraft(authorId, {
+      title: 'Archived Python History',
+    });
+    courseService.updateCourseAccessSettings(authorId, courseArchived.id, {
+      visibility: 'public',
+      enrollmentPolicy: 'open',
+    });
+    db.prepare("UPDATE courses SET publication_status = 'archived' WHERE id = ?").run(courseArchived.id);
+
+    const resArchived = await fetch(`${baseUrl}/api/courses/${courseArchived.id}`);
+    assert.strictEqual(resArchived.status, 200);
+    const bodyArchived = (await resArchived.json()) as any;
+    assert.strictEqual(bodyArchived.course.publicationStatus, 'archived');
   });
 
   await t.test('POST /api/courses/:courseId/enroll rejects invitation-only course without token', async () => {

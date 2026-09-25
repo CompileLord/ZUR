@@ -175,6 +175,7 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
       <button
         type="button"
         id="btn-enroll-course"
+        data-action="enroll-course"
         class="btn btn-primary w-full"
         ${isEnrolling ? 'disabled aria-disabled="true"' : ''}
       >
@@ -295,11 +296,18 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
     <div class="course-overview-page container py-10" data-course-id="${escapeHtml(course.id)}">
       <!-- Header -->
       <header class="course-overview-header mb-8 max-w-reading">
-        <nav class="breadcrumb text-xs text-muted mb-4" aria-label="Breadcrumb">
-          <a href="/courses" class="text-secondary hover:underline">Courses</a>
-          <span class="mx-2">/</span>
-          <span class="text-primary font-medium" aria-current="page">${escapeHtml(course.title)}</span>
-        </nav>
+        ${
+          course.visibility === 'unlisted'
+            ? `<div class="unlisted-notice text-xs text-muted mb-4 flex items-center gap-1.5" role="status">
+                <span class="unlisted-badge font-mono uppercase text-micro px-1.5 py-0.5 rounded bg-surface border border-subtle">Unlisted</span>
+                <span>Accessible via direct link only. Excluded from public catalog.</span>
+               </div>`
+            : `<nav class="breadcrumb text-xs text-muted mb-4" aria-label="Breadcrumb">
+                <a href="/courses" class="text-secondary hover:underline">Courses</a>
+                <span class="mx-2">/</span>
+                <span class="text-primary font-medium" aria-current="page">${escapeHtml(course.title)}</span>
+               </nav>`
+        }
 
         <h1 class="page-title font-semibold mb-3">${escapeHtml(course.title)}</h1>
         <p class="prose text-secondary text-base mb-4 leading-relaxed">${escapeHtml(course.description)}</p>

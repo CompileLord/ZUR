@@ -370,6 +370,93 @@ test('Course Overview Page P03 (T071)', async (t) => {
     assert.ok(html.includes('suspended by administration'));
   });
 
+  await t.test('shows Access revoked banner when user enrollment is revoked', () => {
+    const revokedData = {
+      ...sampleOverviewData,
+      enrollmentStatus: {
+        isEnrolled: false,
+        status: 'revoked',
+      },
+    };
+
+    const html = renderCourseOverviewPage({
+      data: revokedData,
+      currentUser: { id: 'u-1', email: 'ada@zur.internal', displayName: 'Ada' },
+    });
+
+    assert.ok(html.includes('Access revoked'));
+    assert.ok(html.includes('Your access to this course has been removed'));
+    assert.ok(!html.includes('id="btn-enroll-course"'));
+    assert.ok(!html.includes('Continue learning'));
+  });
+
+  await t.test('shows Archived course banner when course is archived and student not enrolled', () => {
+    const archivedData = {
+      ...sampleOverviewData,
+      course: {
+        ...sampleOverviewData.course,
+        publicationStatus: 'archived' as const,
+      },
+      enrollmentStatus: {
+        isEnrolled: false,
+        status: null,
+      },
+    };
+
+    const html = renderCourseOverviewPage({
+      data: archivedData,
+      currentUser: { id: 'u-1', email: 'ada@zur.internal', displayName: 'Ada' },
+    });
+
+    assert.ok(html.includes('Archived course'));
+    assert.ok(html.includes('no longer accepts new student enrollments'));
+    assert.ok(!html.includes('id="btn-enroll-course"'));
+  });
+
+  await t.test('allows enrolled student to continue learning even when course is archived', () => {
+    const archivedEnrolledData = {
+      ...sampleOverviewData,
+      course: {
+        ...sampleOverviewData.course,
+        publicationStatus: 'archived' as const,
+      },
+      enrollmentStatus: {
+        isEnrolled: true,
+        enrollmentId: 'enr-archive-1',
+        status: 'active',
+      },
+    };
+
+    const html = renderCourseOverviewPage({
+      data: archivedEnrolledData,
+      currentUser: { id: 'u-1', email: 'ada@zur.internal', displayName: 'Ada' },
+    });
+
+    assert.ok(html.includes('Continue learning'));
+    assert.ok(html.includes('href="/learn"'));
+    assert.ok(!html.includes('id="btn-enroll-course"'));
+  });
+
+  await t.test('omits catalog discovery links in breadcrumbs for unlisted courses (design.md P03)', () => {
+    const unlistedData = {
+      ...sampleOverviewData,
+      course: {
+        ...sampleOverviewData.course,
+        visibility: 'unlisted' as const,
+      },
+    };
+
+    const html = renderCourseOverviewPage({
+      data: unlistedData,
+      currentUser: null,
+    });
+
+    assert.ok(html.includes('Unlisted'));
+    assert.ok(html.includes('Accessible via direct link only'));
+    // Verify catalog link is omitted
+    assert.ok(!html.includes('<a href="/courses" class="text-secondary hover:underline">Courses</a>'));
+  });
+
   await t.test('escapes untrusted values in course overview page and syllabus', () => {
     const maliciousOverviewData = {
       course: {

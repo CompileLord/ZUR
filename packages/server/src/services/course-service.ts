@@ -968,7 +968,10 @@ export class CourseService {
           // ignore parsing error
         }
       }
-    } else {
+    }
+
+    if (syllabus.length === 0 || syllabus.every((m) => !m.lessons || m.lessons.length === 0)) {
+      syllabus.length = 0;
       const modules = this.db
         .prepare('SELECT * FROM modules WHERE course_id = ? ORDER BY position ASC')
         .all(courseId) as any[];

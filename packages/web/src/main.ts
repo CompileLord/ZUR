@@ -209,6 +209,19 @@ export function renderApp(path: string = window.location.pathname + window.locat
               user: currentUser,
               content: updatedContent,
             });
+
+            let robotsMeta = document.querySelector('meta[name="robots"]');
+            if (data.course.visibility === 'unlisted') {
+              if (!robotsMeta) {
+                robotsMeta = document.createElement('meta');
+                robotsMeta.setAttribute('name', 'robots');
+                document.head.appendChild(robotsMeta);
+              }
+              robotsMeta.setAttribute('content', 'noindex, nofollow');
+            } else if (robotsMeta) {
+              robotsMeta.removeAttribute('content');
+            }
+
             attachCourseOverviewListeners(courseId);
           })
           .catch((err: any) => {
@@ -741,22 +754,26 @@ function attachCourseOverviewListeners(courseId: string): void {
     });
   }
 
-  const enrollBtn = document.getElementById('btn-enroll-course') as HTMLButtonElement | null;
-  if (enrollBtn) {
-    enrollBtn.addEventListener('click', async () => {
-      enrollBtn.disabled = true;
-      enrollBtn.textContent = 'Enrolling…';
+  const enrollBtns = document.querySelectorAll<HTMLButtonElement>('[data-action="enroll-course"], #btn-enroll-course');
+  enrollBtns.forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      enrollBtns.forEach((b) => {
+        b.disabled = true;
+        b.textContent = 'Enrolling…';
+      });
 
       try {
         await courseClient.enrollInCourse(courseId);
         navigateTo('/learn');
       } catch (err: any) {
-        enrollBtn.disabled = false;
-        enrollBtn.textContent = 'Enroll in course';
+        enrollBtns.forEach((b) => {
+          b.disabled = false;
+          b.textContent = 'Enroll in course';
+        });
         alert(err.message || 'Failed to enroll in course. Please try again.');
       }
     });
-  }
+  });
 }
 
 function attachHelpListeners(courseId?: string): void {

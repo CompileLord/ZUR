@@ -1250,7 +1250,7 @@
             {
               "id": "T071",
               "title": "Build public and unlisted course overview",
-              "status": "in_progress",
+              "status": "done",
               "priority": "P0",
               "description": "Implement P03 metadata, outcomes, prerequisites, informational syllabus, and state-specific enroll/sign-in/verify/invite/continue actions without leaking step bodies or private course existence.",
               "evidence": [
