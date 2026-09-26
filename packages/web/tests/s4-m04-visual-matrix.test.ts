@@ -49,7 +49,7 @@ test('T087 representative journeys have GUI Chrome 200% zoom captures with measu
   const file = path.join(root, 'docs/evidence/s4-m04-gui-zoom-captures.json');
   assert.ok(fs.existsSync(file), 'GUI zoom capture report exists');
   const report = JSON.parse(fs.readFileSync(file, 'utf8'));
-  assert.equal(report.captures.length, 20);
+  assert.equal(report.captures.length, 28);
   assert.match(report.method, /GUI Chrome Appearance Zoom setting selected 200%/);
   assert.match(report.method, /no Emulation\.setDeviceMetricsOverride/);
   assert.equal(matrix.viewportMatrix.representativeBrowserZoom200.captureCount, report.captures.length);
@@ -57,6 +57,9 @@ test('T087 representative journeys have GUI Chrome 200% zoom captures with measu
     [...new Set(report.captures.map((item: any) => item.id))].sort(),
     [...matrix.viewportMatrix.representativeBrowserZoom200.journeys].sort(),
   );
+  const p22Zoom = report.captures.filter((item: any) => item.id === 's4_t087_p22_builder_deep_tree_long_titles');
+  assert.deepEqual(p22Zoom.map((item: any) => item.theme).sort(), ['dark', 'light']);
+  assert.ok(p22Zoom.every((item: any) => item.browserZoomPercent === 200));
   for (const item of report.captures) {
     assert.equal(item.browserZoomPercent, 200, item.id);
     assert.equal(item.actual.innerWidth * 2, item.baseline.innerWidth, `${item.id} ${item.theme} CSS width`);
@@ -136,4 +139,37 @@ test('T087 P29 detail has responsive browser bounds evidence at every required v
   }
   const zoomReport = JSON.parse(fs.readFileSync(path.join(root, 'docs/evidence/s4-m04-gui-zoom-captures.json'), 'utf8'));
   assert.equal(zoomReport.captures.filter((item: any) => item.id === 's4_t087_p29_student_detail').length, 2);
+});
+
+test('T087 admin waiver review screenshots come from the authenticated client/API flow', () => {
+  const file = path.join(root, 'docs/evidence/s4-m04-interactive-browser-flows.json');
+  assert.ok(fs.existsSync(file), 'interactive browser flow report exists');
+  const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+  assert.match(report.method, /real sign-in form/);
+  assert.match(report.method, /authenticated GET preview API/);
+  assert.match(report.notCaptured, /waiver was not applied/);
+  assert.equal(report.apiPreviewStatus, 200);
+  assert.equal(report.captures.length, 2);
+  for (const capture of report.captures) {
+    assert.deepEqual(capture.viewport, [1440, 900]);
+    assert.equal(capture.authenticatedRequestStatus, 200);
+    assert.equal(capture.buttonEnabled, true);
+    assert.match(capture.reviewText, /^1 active enrollment\(s\) will be affected/);
+    assert.deepEqual(pngDimensions(capture.screenshot), [1440, 900]);
+  }
+  const p22 = report.liveRouteProbes.P22;
+  assert.match(p22.result, /open-inspector visual checkpoint/);
+  assert.equal(p22.captures.length, 2);
+  for (const capture of p22.captures) {
+    assert.equal(capture.inspectorLabel, 'Step Settings');
+    assert.deepEqual(pngDimensions(capture.screenshot), [1440, 900]);
+  }
+  assert.match(p22.result, /Inspector visibility controls were not exercised/);
+  assert.equal(report.liveRouteProbes.P27.containsPublicationReviewComponent, false);
+  const p15 = report.liveRouteProbes.P15;
+  assert.deepEqual(p15.controls, ['Run samples', 'Submit solution']);
+  assert.equal(p15.apiRequestsFromRunClick, 0);
+  assert.equal(p15.resultChangedAfterRunClick, false);
+  assert.equal(p15.hasHiddenFailureText, false);
+  assert.equal(p15.saveIndicator, 'Saved');
 });

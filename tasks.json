@@ -1546,9 +1546,23 @@
                 "screenshots/s4_t087_p14_quiz_multiple_choice_390x844_light.png",
                 "screenshots/s4_t087_p25_python_test_list_390x844_dark.png",
                 "screenshots/s4_t087_p29_student_detail_320x844_light.png",
-                "screenshots/s4_t087_p29_student_detail_200zoom_dark_gui.png"
+                "screenshots/s4_t087_p29_student_detail_200zoom_dark_gui.png",
+                "scripts/capture-s4-m04-interactive-states.ts",
+                "docs/evidence/s4-m04-interactive-browser-flows.json",
+                "screenshots/s4_t087_p34_waiver_scope_review_1440x900_dark.png",
+                "screenshots/s4_t087_p34_waiver_scope_review_1440x900_light.png",
+                "screenshots/s4_t087_p22_live_client_inspector_visible_1440x900_dark.png",
+                "screenshots/s4_t087_p22_live_client_inspector_visible_1440x900_light.png",
+                "screenshots/s4_t087_p09_dashboard_completed_course_200zoom_dark_gui.png",
+                "screenshots/s4_t087_p09_dashboard_completed_course_200zoom_light_gui.png",
+                "screenshots/s4_t087_p12_theory_inline_image_200zoom_dark_gui.png",
+                "screenshots/s4_t087_p12_theory_inline_image_200zoom_light_gui.png",
+                "screenshots/s4_t087_p14_quiz_multiple_choice_200zoom_dark_gui.png",
+                "screenshots/s4_t087_p14_quiz_multiple_choice_200zoom_light_gui.png",
+                "screenshots/s4_t087_p25_python_test_list_200zoom_dark_gui.png",
+                "screenshots/s4_t087_p25_python_test_list_200zoom_light_gui.png"
               ],
-              "blocker": "All 32 expanded fixtures have both-theme captures at five CSS widths. P28 roster layout and P29 student-detail bounds are verified across their targeted mobile sizes/themes; P29 also has measured actual 200% GUI captures in both themes. Added completed dashboard, inline-image component, multiple-choice, and long public/hidden test-list states. Remaining checks: builder inspector-open, client-side waiver confirmation, publish-confirmation interaction, actual 200% zoom on remaining routes, revoked-token and one-time-secret states (secret excluded), real concurrent-edit conflict, and additional error/recovery routes. The inline image is a local illustrative asset, not course-attached media. Captures are component fixtures, not authenticated full-app journeys."
+              "blocker": "T087 remains in progress. Actual GUI Chrome 200% captures now cover 14 routes in both themes, including completed dashboard, inline-image component, multiple-choice quiz, and long Python test list. The authenticated waiver preview has a live scope-count/ready-to-confirm capture in both themes; its mutation was not submitted. The live P22 visible inspector panel is captured in both themes and satisfies the open-inspector visual checkpoint. The deep-tree/long-title P22 builder fixture has measured actual 200% captures in both themes; only the live authenticated route at 200% remains unverified. Inspector visibility controls are optional behavior and were not exercised. Live P27 lacks the publication review/confirmation route. Live P15 renders Run samples/Submit controls, but Run caused no API request or result change; live unsaved and hidden-failure states are absent. Other gaps: actual 200% zoom for additional routes/states, revoked-token and one-time-secret states (secret intentionally excluded), real concurrent-edit conflict, course-attached media authorization, and additional error/recovery routes. The inline image is a local illustrative asset. Captures are fixture components except the explicitly labeled local signed-in browser probes; none establish production behavior."
             },
             {
               "id": "T088",

@@ -99,13 +99,17 @@
         "s4_t087_p30_analytics_sparse_activity",
         "s4_t087_p34_admin_course_suspended",
         "s4_t087_p43_token_grant_dialog",
-        "s4_t087_p29_student_detail"
+        "s4_t087_p29_student_detail",
+        "s4_t087_p09_dashboard_completed_course",
+        "s4_t087_p12_theory_inline_image",
+        "s4_t087_p14_quiz_multiple_choice",
+        "s4_t087_p25_python_test_list"
       ],
       "themes": [
         "dark",
         "light"
       ],
-      "captureCount": 20
+      "captureCount": 28
     }
   },
   "expandedJourneys": {
@@ -1103,9 +1107,11 @@
       "evidence": [
         "screenshots/s4_t087_p09_dashboard_empty_1440x900_dark.png",
         "screenshots/s4_t087_p09_dashboard_populated_390x844_light.png",
-        "screenshots/s4_t087_p09_dashboard_completed_course_390x844_dark.png"
+        "screenshots/s4_t087_p09_dashboard_completed_course_390x844_dark.png",
+        "screenshots/s4_t087_p09_dashboard_completed_course_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p09_dashboard_completed_course_200zoom_light_gui.png"
       ],
-      "gap": "Empty, populated, and completed-course dashboard states are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom is not captured for these routes."
+      "gap": "Empty, populated, and completed-course dashboard states have five-width/two-theme captures. Actual 200% Chrome UI zoom covers only the completed-course branch in both themes; empty and populated states remain unzoomed."
     },
     {
       "id": 4,
@@ -1114,9 +1120,11 @@
       "evidence": [
         "screenshots/s4_t087_p12_theory_code_example_1440x900_dark.png",
         "screenshots/s4_t087_p13_video_unavailable_transcript_390x844_light.png",
-        "screenshots/s4_t087_p12_theory_inline_image_1440x900_light.png"
+        "screenshots/s4_t087_p12_theory_inline_image_1440x900_light.png",
+        "screenshots/s4_t087_p12_theory_inline_image_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p12_theory_inline_image_200zoom_light_gui.png"
       ],
-      "gap": "Code, failed-video transcript, and inline-image rendering are captured across the five CSS viewports in both themes. The inline image is a local illustrative asset, not course-attached media; actual 200% Chrome UI zoom is not captured for these routes."
+      "gap": "Theory code, video transcript failure, and inline-image rendering have five-width/two-theme captures. Actual 200% zoom covers only the inline-image fixture; code/video states remain unzoomed. The image is local illustrative content, not a course-authorized media asset."
     },
     {
       "id": 5,
@@ -1125,9 +1133,11 @@
       "evidence": [
         "screenshots/s4_t087_p14_quiz_selected_incorrect_1440x900_dark.png",
         "screenshots/s4_t087_p14_quiz_passed_390x844_light.png",
-        "screenshots/s4_t087_p14_quiz_multiple_choice_390x844_light.png"
+        "screenshots/s4_t087_p14_quiz_multiple_choice_390x844_light.png",
+        "screenshots/s4_t087_p14_quiz_multiple_choice_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p14_quiz_multiple_choice_200zoom_light_gui.png"
       ],
-      "gap": "Selected/incorrect, passed, and multiple-choice quiz states are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom is not captured for this route."
+      "gap": "Selected/incorrect, passed, and multiple-choice states have five-width/two-theme captures. Actual 200% zoom covers the multiple-choice state only; selected/incorrect and passed states remain unzoomed."
     },
     {
       "id": 6,
@@ -1139,7 +1149,7 @@
         "screenshots/s4_t087_p15_python_queued_390x844_light.png",
         "screenshots/s4_t087_p15_python_passed_1440x900_dark.png"
       ],
-      "gap": "Python queued has actual 200% Chrome UI zoom captures in both themes; idle, public/hidden failure, unsaved, and passed states lack actual 200% zoom captures. Hidden failure is represented only in desktop dark."
+      "gap": "The component fixtures cover the listed Python adverse states; actual 200% zoom covers queued only. On the live P15 route, Run samples/Submit controls render but clicking Run caused no API request/result update, and live unsaved/hidden-failure states are absent."
     },
     {
       "id": 7,
@@ -1147,9 +1157,13 @@
       "coverage": "partial",
       "evidence": [
         "screenshots/s4_t087_p22_builder_deep_tree_long_titles_768x1024_light.png",
-        "screenshots/s4_t087_p22_builder_deep_tree_long_titles_200zoom_dark_gui.png"
+        "screenshots/s4_t087_p22_builder_deep_tree_long_titles_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p22_builder_deep_tree_long_titles_200zoom_light_gui.png",
+        "docs/evidence/s4-m04-interactive-browser-flows.json",
+        "screenshots/s4_t087_p22_live_client_inspector_visible_1440x900_dark.png",
+        "screenshots/s4_t087_p22_live_client_inspector_visible_1440x900_light.png"
       ],
-      "gap": "Deep course tree and long title are captured at all five CSS viewports in dark/light and actual 200% Chrome UI zoom in both themes. The open-inspector state remains unrepresented because the standalone renderer does not operate the client-side inspector drawer."
+      "gap": "The open-inspector visual checkpoint is captured on a real authenticated P22 browser route in both themes. Deep-tree/long-title builder fixtures have measured actual 200% GUI Chrome captures in both themes and responsive captures across the matrix. The remaining zoom gap is the live authenticated route at 200%; fixture captures do not establish that live-route state. Inspector visibility controls are optional behavior and were not exercised."
     },
     {
       "id": 8,
@@ -1157,9 +1171,11 @@
       "coverage": "partial",
       "evidence": [
         "screenshots/s4_t087_p25_python_reference_stale_1440x900_dark.png",
-        "screenshots/s4_t087_p25_python_test_list_390x844_dark.png"
+        "screenshots/s4_t087_p25_python_test_list_390x844_dark.png",
+        "screenshots/s4_t087_p25_python_test_list_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p25_python_test_list_200zoom_light_gui.png"
       ],
-      "gap": "Stale reference validation and a long public/hidden test-list state are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom for P25 is not represented."
+      "gap": "Stale reference validation and a long public/hidden test-list state have five-width/two-theme captures. Actual 200% zoom covers the test-list state only; stale-validation remains unzoomed."
     },
     {
       "id": 9,
@@ -1168,9 +1184,10 @@
       "evidence": [
         "screenshots/s4_t087_p27_publish_blocked_errors_320x844_dark.png",
         "screenshots/s4_t087_p27_publish_blocked_errors_200zoom_dark_gui.png",
-        "screenshots/s4_t087_p27_publish_receipt_768x1024_light.png"
+        "screenshots/s4_t087_p27_publish_receipt_768x1024_light.png",
+        "docs/evidence/s4-m04-interactive-browser-flows.json"
       ],
-      "gap": "Blocked validation and publication receipt are captured at all five CSS viewports in dark/light; blocked publication also has actual 200% Chrome UI captures in both themes. The publish confirmation interaction is not represented by the static renderer."
+      "gap": "Blocked validation and receipt component fixtures cover all five widths/themes; blocked validation also has actual 200% zoom in both themes. The live P27 route currently falls through to the generic S5 builder shell, so the P27 review and publish-confirmation flow are not implemented in that route."
     },
     {
       "id": 10,
@@ -1195,9 +1212,12 @@
       "coverage": "partial",
       "evidence": [
         "screenshots/s4_t087_p34_admin_course_suspended_768x1024_light.png",
-        "screenshots/s4_t087_p34_admin_course_suspended_200zoom_dark_gui.png"
+        "screenshots/s4_t087_p34_admin_course_suspended_200zoom_dark_gui.png",
+        "docs/evidence/s4-m04-interactive-browser-flows.json",
+        "screenshots/s4_t087_p34_waiver_scope_review_1440x900_dark.png",
+        "screenshots/s4_t087_p34_waiver_scope_review_1440x900_light.png"
       ],
-      "gap": "Suspended admin course detail is captured at all five CSS viewports in dark/light and actual 200% Chrome UI in both themes. Waiver confirmation remains unavailable because it requires the client-side affected-enrollment review interaction."
+      "gap": "A real signed-in browser invokes the admin waiver preview endpoint (HTTP 200) and captures the server-reviewed affected count and ready-to-confirm form in both themes. The waiver POST was intentionally not submitted; the post-commit result is not captured."
     },
     {
       "id": 12,
@@ -1377,6 +1397,30 @@
     {
       "file": "screenshots/s4_t087_p25_python_test_list_390x844_dark.png",
       "result": "Long author test-list view separates public examples from the hidden grading suite; the test tab remains usable in the narrow viewport."
+    },
+    {
+      "file": "screenshots/s4_t087_p09_dashboard_completed_course_200zoom_dark_gui.png",
+      "result": "At actual 200% UI zoom, the completed-course summary and review/explore actions remain visible in a reduced CSS viewport."
+    },
+    {
+      "file": "screenshots/s4_t087_p12_theory_inline_image_200zoom_light_gui.png",
+      "result": "At actual 200% UI zoom the inline illustration and surrounding lesson text remain rendered; this is not a test of course-media authorization."
+    },
+    {
+      "file": "screenshots/s4_t087_p14_quiz_multiple_choice_200zoom_dark_gui.png",
+      "result": "At actual 200% UI zoom the quiz title, select-all instruction, checkboxes, and answer action remain readable."
+    },
+    {
+      "file": "screenshots/s4_t087_p25_python_test_list_200zoom_light_gui.png",
+      "result": "At actual 200% UI zoom the public and hidden test sections remain distinct and the long author list scrolls vertically."
+    },
+    {
+      "file": "screenshots/s4_t087_p34_waiver_scope_review_1440x900_dark.png",
+      "result": "The client-rendered admin page shows one affected active enrollment from its authenticated server preview; reason/password fields and enabled apply action are visible. No mutation was submitted."
+    },
+    {
+      "file": "screenshots/s4_t087_p34_waiver_scope_review_1440x900_light.png",
+      "result": "Light theme preserves the waiver consequence, selected version/step, reviewed affected count, and ready-to-confirm controls."
     }
   ],
   "rosterMobileLayoutEvidence": "docs/evidence/s4-m04-roster-layout-checks.json"

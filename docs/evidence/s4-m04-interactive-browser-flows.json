@@ -1,0 +1,79 @@
+{
+  "method": "Local Vite browser application and in-process ZUR server backed by an isolated temporary SQLite database seeded with repository fixtures. Chrome executed the delivered client JavaScript. Admin signed in through the real sign-in form; the waiver selector change invoked the authenticated GET preview API. No waiver POST was submitted.",
+  "fixture": "seedDatabase() in a temporary database; three active Python foundations enrollments; seeded admin login performed in browser and never included in artifacts.",
+  "flow": "Open admin course detail → choose a pinned version/required step → trigger change → display server-reviewed affected enrollment count → capture ready-to-confirm form.",
+  "apiPreviewStatus": 200,
+  "captures": [
+    {
+      "route": "/admin/courses/course-python-foundations",
+      "theme": "dark",
+      "viewport": [
+        1440,
+        900
+      ],
+      "reviewText": "1 active enrollment(s) will be affected · all active enrollments pinned to this version.",
+      "buttonEnabled": true,
+      "authenticatedRequestStatus": 200,
+      "screenshot": "screenshots/s4_t087_p34_waiver_scope_review_1440x900_dark.png"
+    },
+    {
+      "route": "/admin/courses/course-python-foundations",
+      "theme": "light",
+      "viewport": [
+        1440,
+        900
+      ],
+      "reviewText": "1 active enrollment(s) will be affected · all active enrollments pinned to this version.",
+      "buttonEnabled": true,
+      "authenticatedRequestStatus": 200,
+      "screenshot": "screenshots/s4_t087_p34_waiver_scope_review_1440x900_light.png"
+    }
+  ],
+  "liveRouteProbes": {
+    "P22": {
+      "result": "The real client route renders the selected-exercise settings panel in its visible state in both themes, satisfying the P22 open-inspector visual checkpoint. Inspector visibility controls were not exercised.",
+      "captures": [
+        {
+          "route": "/teach/course-python-foundations/content",
+          "theme": "dark",
+          "viewport": [
+            1440,
+            900
+          ],
+          "inspectorLabel": "Step Settings",
+          "inspectorText": "Exercise Settings\nEstimated duration (minutes)",
+          "screenshot": "screenshots/s4_t087_p22_live_client_inspector_visible_1440x900_dark.png"
+        },
+        {
+          "route": "/teach/course-python-foundations/content",
+          "theme": "light",
+          "viewport": [
+            1440,
+            900
+          ],
+          "inspectorLabel": "Step Settings",
+          "inspectorText": "Exercise Settings\nEstimated duration (minutes)",
+          "screenshot": "screenshots/s4_t087_p22_live_client_inspector_visible_1440x900_light.png"
+        }
+      ]
+    },
+    "P27": {
+      "result": "The real route currently falls through to the generic S5 builder shell; the P27 review page and publish-confirmation control are absent.",
+      "containsPublicationReviewComponent": false,
+      "visibleTextIncludesSample": true
+    },
+    "P15": {
+      "result": "The live student route renders Run samples and Submit solution controls, but clicking Run samples caused no API request or result change; no unsaved or hidden-failure state is wired into this route.",
+      "controls": [
+        "Run samples",
+        "Submit solution"
+      ],
+      "apiRequestsFromRunClick": 0,
+      "resultChangedAfterRunClick": false,
+      "hasHiddenFailureText": false,
+      "saveIndicator": "Saved",
+      "resultText": "RESULTS\n\nNo runs yet. Try a sample first."
+    }
+  },
+  "notCaptured": "The waiver was not applied; evidence is the real server-reviewed confirmation-ready state. P22 evidence verifies the visible inspector panel; inspector visibility controls were not exercised. P27 has no implemented live review/confirmation route. P15 has no live save/hidden-failure interaction, and Run samples caused no API request or result change. No mock API or fabricated auth state was used."
+}

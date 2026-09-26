@@ -256,6 +256,10 @@ const guiZoomJourneyNames = new Set([
   's4_t087_p34_admin_course_suspended',
   's4_t087_p43_token_grant_dialog',
   's4_t087_p29_student_detail',
+  's4_t087_p09_dashboard_completed_course',
+  's4_t087_p12_theory_inline_image',
+  's4_t087_p14_quiz_multiple_choice',
+  's4_t087_p25_python_test_list',
 ]);
 
 async function captureGuiBrowserZoom200(fixtures: typeof guiZoomTargets) {
@@ -463,11 +467,14 @@ try {
     enrollmentId: 'enr-ada', stepId: 'step-theory', isCompleted: false, nextStepUrl: '/learn/enr-ada/steps/step-video',
   });
   await captureJourney('s4_t087_p12_theory_code_example', theory);
+  const illustrationPath = path.join(root, 'packages/web/public/favicon.svg');
+  const illustrationSvg = fs.readFileSync(illustrationPath, 'utf8').replace('<svg ', '<svg width="64" height="64" ');
+  const illustrationDataUri = `data:image/svg+xml;base64,${Buffer.from(illustrationSvg).toString('base64')}`;
   await captureJourney('s4_t087_p12_theory_inline_image', renderTheoryStepPage({
     courseTitle: 'Python foundations', courseOverviewUrl: '/learn/enr-ada', lessonTitle: 'Values',
     stepTitle: 'Read a labeled diagram', stepOrdinalText: 'Lesson 1 · Step 2 of 4', isRequired: true,
     estimatedDurationMinutes: 4,
-    markdownContent: `## Value flow\n\nThe diagram shows a value moving from input to output.\n\n![ZUR mark used as a small illustrative image](${path.relative(tempDir, path.join(root, 'packages/web/public/favicon.svg')).split(path.sep).join('/')})\n\nUse the text explanation as the source of instructions.`,
+    markdownContent: `## Value flow\n\nThe diagram shows a value moving from input to output.\n\n![ZUR mark used as a small illustrative image](${illustrationDataUri})\n\nUse the text explanation as the source of instructions.`,
     enrollmentId: 'enr-ada', stepId: 'step-theory-image', isCompleted: false,
   }));
   await captureJourney('s4_t087_p13_video_unavailable_transcript', renderVideoStepPage({
@@ -700,5 +707,5 @@ try {
   console.log('Captured S4-M04 operational and Python workspace responsive/adverse fixtures.');
 } finally {
   closeDatabase(dbPath);
-  fs.rmSync(tempDir, { recursive: true, force: true });
+  fs.rmSync(tempDir, { recursive: true, force: true, maxRetries: 8, retryDelay: 100 });
 }
