@@ -1,14 +1,16 @@
 {
   "method": "GUI Chrome Appearance Zoom setting selected 200% in an isolated temporary Chrome profile. Chrome CDP was used only to navigate, read browser metrics, and capture PNGs; no Emulation.setDeviceMetricsOverride, setDeviceScaleFactor, setPageScaleFactor, or forced zoom command was used.",
   "chromeVersion": "154.0.8037.57",
-  "measuredAt": "2026-09-26T05:27:28.569Z",
+  "measuredAt": "2026-09-26T21:15:21.506Z",
   "baseline": {
     "innerWidth": 1536,
     "innerHeight": 746,
     "outerWidth": 1536,
     "outerHeight": 832,
     "devicePixelRatio": 1.25,
-    "visualViewportScale": 1
+    "visualViewportScale": 1,
+    "scrollWidth": 1521,
+    "bodyScrollWidth": 1521
   },
   "captures": [
     {
@@ -21,7 +23,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -29,8 +33,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p01_landing_200zoom_dark_gui.png"
     },
     {
@@ -43,7 +50,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -51,8 +60,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p01_landing_200zoom_light_gui.png"
     },
     {
@@ -65,7 +77,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -73,8 +87,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p02_catalog_long_content_200zoom_dark_gui.png"
     },
     {
@@ -87,7 +104,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -95,9 +114,120 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p02_catalog_long_content_200zoom_light_gui.png"
+    },
+    {
+      "id": "s4_t087_p04_sign_in_validation",
+      "theme": "dark",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p04_sign_in_validation_200zoom_dark_gui.png"
+    },
+    {
+      "id": "s4_t087_p04_sign_in_validation",
+      "theme": "light",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p04_sign_in_validation_200zoom_light_gui.png"
+    },
+    {
+      "id": "s4_t087_p08_invitation_expired",
+      "theme": "dark",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p08_invitation_expired_200zoom_dark_gui.png"
+    },
+    {
+      "id": "s4_t087_p08_invitation_expired",
+      "theme": "light",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p08_invitation_expired_200zoom_light_gui.png"
     },
     {
       "id": "s4_t087_p09_dashboard_completed_course",
@@ -109,7 +239,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -117,8 +249,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p09_dashboard_completed_course_200zoom_dark_gui.png"
     },
     {
@@ -131,7 +266,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -139,8 +276,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p09_dashboard_completed_course_200zoom_light_gui.png"
     },
     {
@@ -153,7 +293,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -161,8 +303,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p12_theory_inline_image_200zoom_dark_gui.png"
     },
     {
@@ -175,7 +320,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -183,8 +330,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p12_theory_inline_image_200zoom_light_gui.png"
     },
     {
@@ -197,7 +347,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -205,8 +357,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p14_quiz_multiple_choice_200zoom_dark_gui.png"
     },
     {
@@ -219,7 +374,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -227,8 +384,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p14_quiz_multiple_choice_200zoom_light_gui.png"
     },
     {
@@ -241,7 +401,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -249,8 +411,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p34_admin_course_suspended_200zoom_dark_gui.png"
     },
     {
@@ -263,7 +428,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -271,8 +438,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p34_admin_course_suspended_200zoom_light_gui.png"
     },
     {
@@ -285,7 +455,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -293,8 +465,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p15_python_queued_200zoom_dark_gui.png"
     },
     {
@@ -307,7 +482,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -315,8 +492,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p15_python_queued_200zoom_light_gui.png"
     },
     {
@@ -329,7 +509,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -337,8 +519,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p22_builder_deep_tree_long_titles_200zoom_dark_gui.png"
     },
     {
@@ -351,7 +536,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -359,8 +546,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p22_builder_deep_tree_long_titles_200zoom_light_gui.png"
     },
     {
@@ -373,7 +563,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -381,8 +573,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p27_publish_blocked_errors_200zoom_dark_gui.png"
     },
     {
@@ -395,7 +590,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -403,8 +600,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p27_publish_blocked_errors_200zoom_light_gui.png"
     },
     {
@@ -417,7 +617,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -425,8 +627,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p25_python_test_list_200zoom_dark_gui.png"
     },
     {
@@ -439,7 +644,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -447,8 +654,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p25_python_test_list_200zoom_light_gui.png"
     },
     {
@@ -461,7 +671,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -469,8 +681,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p29_student_detail_200zoom_dark_gui.png"
     },
     {
@@ -483,7 +698,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -491,8 +708,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p29_student_detail_200zoom_light_gui.png"
     },
     {
@@ -505,7 +725,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -513,8 +735,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p30_analytics_sparse_activity_200zoom_dark_gui.png"
     },
     {
@@ -527,7 +752,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -535,8 +762,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p30_analytics_sparse_activity_200zoom_light_gui.png"
     },
     {
@@ -549,7 +779,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -557,8 +789,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p28_roster_students_and_invitations_200zoom_dark_gui.png"
     },
     {
@@ -571,7 +806,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -579,9 +816,66 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p28_roster_students_and_invitations_200zoom_light_gui.png"
+    },
+    {
+      "id": "s4_t087_p43_connections_empty",
+      "theme": "dark",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p43_connections_empty_200zoom_dark_gui.png"
+    },
+    {
+      "id": "s4_t087_p43_connections_empty",
+      "theme": "light",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p43_connections_empty_200zoom_light_gui.png"
     },
     {
       "id": "s4_t087_p43_token_grant_dialog",
@@ -593,7 +887,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -601,8 +897,11 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p43_token_grant_dialog_200zoom_dark_gui.png"
     },
     {
@@ -615,7 +914,9 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 1.25,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
       },
       "actual": {
         "innerWidth": 768,
@@ -623,9 +924,174 @@
         "outerWidth": 1536,
         "outerHeight": 832,
         "devicePixelRatio": 2.5,
-        "visualViewportScale": 1
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
       },
+      "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p43_token_grant_dialog_200zoom_light_gui.png"
+    },
+    {
+      "id": "s4_t087_p44_setup_generic",
+      "theme": "dark",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p44_setup_generic_200zoom_dark_gui.png"
+    },
+    {
+      "id": "s4_t087_p44_setup_generic",
+      "theme": "light",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p44_setup_generic_200zoom_light_gui.png"
+    },
+    {
+      "id": "s4_t087_p44_setup_oauth_client",
+      "theme": "dark",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p44_setup_oauth_client_200zoom_dark_gui.png"
+    },
+    {
+      "id": "s4_t087_p44_setup_oauth_client",
+      "theme": "light",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 760,
+        "bodyScrollWidth": 760
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p44_setup_oauth_client_200zoom_light_gui.png"
+    },
+    {
+      "id": "s4_t087_p45_agent_update_diff_recovery",
+      "theme": "dark",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p45_agent_update_diff_recovery_200zoom_dark_gui.png"
+    },
+    {
+      "id": "s4_t087_p45_agent_update_diff_recovery",
+      "theme": "light",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1,
+        "scrollWidth": 1521,
+        "bodyScrollWidth": 1521
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
+      },
+      "horizontalOverflow": false,
+      "screenshot": "screenshots/s4_t087_p45_agent_update_diff_recovery_200zoom_light_gui.png"
     }
   ]
 }

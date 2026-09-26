@@ -207,7 +207,7 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
             <tbody>
               ${filteredTokens
                 .map((token) => {
-                  let badgeStatus: 'neutral' | 'success' | 'warning' | 'destructive' = 'neutral';
+                  let badgeStatus: 'info' | 'success' | 'warning' | 'danger' = 'info';
                   let statusLabel = 'Never used';
                   if (token.status === 'active') {
                     badgeStatus = 'success';
@@ -216,7 +216,7 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                     badgeStatus = 'warning';
                     statusLabel = 'Expired';
                   } else if (token.status === 'revoked') {
-                    badgeStatus = 'destructive';
+                    badgeStatus = 'danger';
                     statusLabel = 'Revoked';
                   }
 

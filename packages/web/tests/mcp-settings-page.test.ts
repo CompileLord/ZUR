@@ -129,6 +129,9 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
     assert.ok(html.includes('Never used'), 'Never used status badge rendered');
     assert.ok(html.includes('Expired'), 'Expired status badge rendered');
     assert.ok(html.includes('Revoked'), 'Revoked status badge rendered');
+    assert.ok(html.includes('class="status-badge warning"'), 'Expired status uses the supported warning badge');
+    assert.ok(html.includes('class="status-badge danger"'), 'Revoked status uses the supported danger badge');
+    assert.ok(!html.includes('undefined'), 'Status badges must not render an undefined icon');
 
     // Never reveals raw secret in the table
     assert.ok(!html.includes('zur_at_'), 'Plaintext secret must never appear in token table');
@@ -323,6 +326,7 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
     });
     assert.ok(connectedHtml.includes('Connected & Verified'), 'Must report verified when lastUsedAt is set');
     assert.ok(connectedHtml.includes('Last observed authenticated request'), 'Must display timestamp');
+    assert.ok(!connectedHtml.includes('undefined'), 'Connected badge icon must be defined');
 
     // 2. Token without lastUsedAt (Never used)
     const waitingHtml = renderMcpClientSetupPage({
@@ -333,6 +337,8 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
       'Must report waiting when lastUsedAt is null'
     );
     assert.ok(!waitingHtml.includes('Connected & Verified'), 'Must not report fake connection success');
+    assert.ok(waitingHtml.includes('status-badge info'), 'Waiting status uses the supported info badge');
+    assert.ok(!waitingHtml.includes('undefined'), 'Waiting badge icon must be defined');
   });
 
   await t.test('P44: OAuth-only client notice rendered when selected', () => {

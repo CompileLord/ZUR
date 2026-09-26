@@ -260,10 +260,16 @@ const guiZoomJourneyNames = new Set([
   's4_t087_p12_theory_inline_image',
   's4_t087_p14_quiz_multiple_choice',
   's4_t087_p25_python_test_list',
+  's4_t087_p04_sign_in_validation',
+  's4_t087_p08_invitation_expired',
+  's4_t087_p44_setup_generic',
+  's4_t087_p44_setup_oauth_client',
+  's4_t087_p45_agent_update_diff_recovery',
+  's4_t087_p43_connections_empty',
 ]);
 
 async function captureGuiBrowserZoom200(fixtures: typeof guiZoomTargets) {
-  if (fixtures.length !== guiZoomJourneyNames.size * 2) throw new Error('Expected dark/light fixtures for all nine GUI zoom journeys');
+  if (fixtures.length !== guiZoomJourneyNames.size * 2) throw new Error(`Expected dark/light fixtures for all ${guiZoomJourneyNames.size} GUI zoom journeys`);
   const pages = new Map(fixtures.map((fixture) => [`/${fixture.name}/${fixture.theme}`, fixture.content]));
   const httpServer = createHttpServer((request, response) => {
     const content = pages.get(new URL(request.url || '/', 'http://127.0.0.1').pathname);
@@ -327,7 +333,7 @@ async function captureGuiBrowserZoom200(fixtures: typeof guiZoomTargets) {
     };
     const metrics = async () => {
       const result = await send('Runtime.evaluate', {
-        expression: '({innerWidth,innerHeight,outerWidth,outerHeight,devicePixelRatio,visualViewportScale:visualViewport.scale})',
+        expression: '({innerWidth,innerHeight,outerWidth,outerHeight,devicePixelRatio,visualViewportScale:visualViewport.scale,scrollWidth:document.documentElement.scrollWidth,bodyScrollWidth:document.body.scrollWidth})',
         returnByValue: true,
       });
       return result.result?.value as Record<string, number>;
@@ -355,10 +361,11 @@ async function captureGuiBrowserZoom200(fixtures: typeof guiZoomTargets) {
         throw new Error(`${fixture.name}/${fixture.theme}: GUI 200% zoom metrics mismatched baseline=${JSON.stringify(baseline)} actual=${JSON.stringify(actual)}`);
       }
       if (!actual.innerHeight || !actual.outerHeight) throw new Error(`${fixture.name}/${fixture.theme}: Chrome omitted vertical viewport measurements`);
+      if (actual.scrollWidth > actual.innerWidth || actual.bodyScrollWidth > actual.innerWidth) throw new Error(`${fixture.name}/${fixture.theme}: GUI 200% capture has horizontal page overflow: ${JSON.stringify(actual)}`);
       const screenshot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
       const file = `screenshots/${fixture.name}_200zoom_${fixture.theme}_gui.png`;
       fs.writeFileSync(path.join(root, file), Buffer.from(screenshot.data, 'base64'));
-      captures.push({ id: fixture.name, theme: fixture.theme, browserZoomPercent: 200, baseline, actual, screenshot: file });
+      captures.push({ id: fixture.name, theme: fixture.theme, browserZoomPercent: 200, baseline, actual, horizontalOverflow: false, screenshot: file });
     }
     fs.writeFileSync(path.join(root, 'docs/evidence/s4-m04-gui-zoom-captures.json'), JSON.stringify({
       method: 'GUI Chrome Appearance Zoom setting selected 200% in an isolated temporary Chrome profile. Chrome CDP was used only to navigate, read browser metrics, and capture PNGs; no Emulation.setDeviceMetricsOverride, setDeviceScaleFactor, setPageScaleFactor, or forced zoom command was used.',

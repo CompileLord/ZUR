@@ -49,7 +49,7 @@ test('T087 representative journeys have GUI Chrome 200% zoom captures with measu
   const file = path.join(root, 'docs/evidence/s4-m04-gui-zoom-captures.json');
   assert.ok(fs.existsSync(file), 'GUI zoom capture report exists');
   const report = JSON.parse(fs.readFileSync(file, 'utf8'));
-  assert.equal(report.captures.length, 28);
+  assert.equal(report.captures.length, 40);
   assert.match(report.method, /GUI Chrome Appearance Zoom setting selected 200%/);
   assert.match(report.method, /no Emulation\.setDeviceMetricsOverride/);
   assert.equal(matrix.viewportMatrix.representativeBrowserZoom200.captureCount, report.captures.length);
@@ -68,6 +68,9 @@ test('T087 representative journeys have GUI Chrome 200% zoom captures with measu
     assert.equal(item.actual.outerHeight, item.baseline.outerHeight, `${item.id} ${item.theme} window height`);
     assert.equal(item.actual.devicePixelRatio, item.baseline.devicePixelRatio * 2, `${item.id} ${item.theme} DPR`);
     assert.equal(item.actual.visualViewportScale, 1, `${item.id} ${item.theme} is browser zoom, not pinch zoom`);
+    assert.equal(item.horizontalOverflow, false, `${item.id} ${item.theme} has no page-level horizontal overflow`);
+    assert.ok(item.actual.scrollWidth <= item.actual.innerWidth, `${item.id} ${item.theme} root scroll width`);
+    assert.ok(item.actual.bodyScrollWidth <= item.actual.innerWidth, `${item.id} ${item.theme} body scroll width`);
     assert.ok(item.actual.innerHeight > 0 && item.actual.outerHeight > 0, `${item.id} ${item.theme} height metrics`);
     const [width, height] = pngDimensions(item.screenshot);
     assert.ok(width > 0 && height > 0, item.screenshot);
@@ -281,6 +284,40 @@ test('T087 live P12/P13 lessons, media authorization, and failure recovery have 
     assert.equal(capture.horizontalOverflow, false);
     assert.ok(fs.existsSync(path.join(root, capture.screenshot)));
   }
+});
+
+test('T087 live P43 lifecycle at actual Chrome UI 200% keeps recovery actions and statuses visible', () => {
+  const report = JSON.parse(fs.readFileSync(path.join(root, 'docs/evidence/s4-m04-interactive-browser-flows.json'), 'utf8'));
+  const zoom = report.liveRouteProbes.P43.liveGuiZoom;
+  assert.equal(zoom.secretValueIncluded, false);
+  assert.equal(zoom.captures.length, 16);
+  assert.deepEqual(zoom.reauthErrorActionReachability.map((item: any) => item.theme).sort(), ['dark', 'light']);
+  for (const theme of ['dark', 'light']) {
+    for (const state of ['reauth_error', 'reauth_error_actions', 'one_time_secret', 'expired_status', 'expired_status_status_column', 'revocation_confirmation', 'revoked_status', 'revoked_status_status_column']) {
+      const capture = zoom.captures.find((item: any) => item.state === state && item.theme === theme);
+      assert.ok(capture, `P43 ${state} ${theme} capture exists`);
+      assert.equal(capture.browserZoomPercent, 200);
+      assert.equal(capture.actual.innerWidth * 2, capture.baseline.innerWidth);
+      assert.equal(capture.actual.devicePixelRatio, capture.baseline.devicePixelRatio * 2);
+      assert.equal(capture.actual.visualViewportScale, 1);
+      assert.equal(capture.horizontalOverflow, false);
+      assert.ok(fs.existsSync(path.join(root, capture.screenshot)), capture.screenshot);
+      assert.deepEqual(pngDimensions(capture.screenshot), [
+        Math.floor(capture.actual.innerWidth * capture.actual.devicePixelRatio),
+        Math.floor(capture.actual.innerHeight * capture.actual.devicePixelRatio),
+      ]);
+      if (state === 'one_time_secret') assert.equal(capture.secretMasked, true);
+      if (state === 'expired_status_status_column') {
+        assert.equal(capture.rowEvidence.statusVisible, true);
+        assert.match(capture.rowEvidence.status, /Expired/);
+      }
+      if (state === 'revoked_status_status_column') {
+        assert.equal(capture.rowEvidence.statusVisible, true);
+        assert.match(capture.rowEvidence.status, /Revoked/);
+      }
+    }
+  }
+  assert.ok(zoom.reauthErrorActionReachability.every((item: any) => item.dialogCanScroll && item.atBottom && item.actionVisible));
 });
 
 test('T087 P43 authenticated token lifecycle captures a masked one-time value and revoked status', () => {

@@ -75,7 +75,7 @@
       ]
     },
     "actualBrowserZoom200": {
-      "method": "GUI Chrome 154 in an isolated temporary profile used chrome://settings/appearance \u2192 Zoom \u2192 200%; then loaded the local ZUR landing page. This used Chrome's browser UI zoom, not CDP viewport, DPR, or page-scale emulation.",
+      "method": "GUI Chrome 154 in an isolated temporary profile used chrome://settings/appearance → Zoom → 200%; then loaded the local ZUR landing page. This used Chrome's browser UI zoom, not CDP viewport, DPR, or page-scale emulation.",
       "metrics": {
         "innerWidth": 768,
         "outerWidth": 1536,
@@ -87,7 +87,7 @@
       "details": "docs/evidence/s4-m04-t086-local-probes.json"
     },
     "representativeBrowserZoom200": {
-      "method": "Reproducible GUI Chrome capture: run S4_CAPTURE_GUI_ZOOM=1 node --experimental-strip-types scripts/capture-s4-m04-screenshots.ts. The script uses an isolated headful Chrome profile, selects Zoom \u2192 200% through chrome://settings/appearance, then captures real page-renderer fixtures in both themes. It checks each page innerWidth/innerHeight, outerWidth/outerHeight, DPR, and visualViewport scale against that same session\u2019s 100% baseline before saving. No DevTools viewport/DPR/page-scale override is used for these captures.",
+      "method": "Reproducible GUI Chrome capture: run S4_CAPTURE_GUI_ZOOM=1 node --experimental-strip-types scripts/capture-s4-m04-screenshots.ts. The script uses an isolated headful Chrome profile, selects Zoom → 200% through chrome://settings/appearance, then captures real page-renderer fixtures in both themes. It checks each page innerWidth/innerHeight, outerWidth/outerHeight, DPR, and visualViewport scale against that same session’s 100% baseline before saving. No DevTools viewport/DPR/page-scale override is used for these captures.",
       "report": "docs/evidence/s4-m04-gui-zoom-captures.json",
       "journeys": [
         "s4_t087_p01_landing",
@@ -103,13 +103,19 @@
         "s4_t087_p09_dashboard_completed_course",
         "s4_t087_p12_theory_inline_image",
         "s4_t087_p14_quiz_multiple_choice",
-        "s4_t087_p25_python_test_list"
+        "s4_t087_p25_python_test_list",
+        "s4_t087_p04_sign_in_validation",
+        "s4_t087_p08_invitation_expired",
+        "s4_t087_p44_setup_generic",
+        "s4_t087_p44_setup_oauth_client",
+        "s4_t087_p45_agent_update_diff_recovery",
+        "s4_t087_p43_connections_empty"
       ],
       "themes": [
         "dark",
         "light"
       ],
-      "captureCount": 28
+      "captureCount": 40
     }
   },
   "expandedJourneys": {
@@ -1093,12 +1099,17 @@
     {
       "id": 2,
       "checkpoint": "Sign-in validation and invitation-expired state",
-      "coverage": "partial",
+      "coverage": "captured",
       "evidence": [
         "screenshots/s4_t087_p04_sign_in_validation_390x844_light.png",
-        "screenshots/s4_t087_p08_invitation_expired_390x844_light.png"
+        "screenshots/s4_t087_p08_invitation_expired_390x844_light.png",
+        "screenshots/s4_t087_p04_sign_in_validation_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p04_sign_in_validation_200zoom_light_gui.png",
+        "screenshots/s4_t087_p08_invitation_expired_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p08_invitation_expired_200zoom_light_gui.png",
+        "docs/evidence/s4-m04-gui-zoom-captures.json"
       ],
-      "gap": "Sign-in validation and expired-invitation states are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom is not captured for these routes."
+      "gap": ""
     },
     {
       "id": 3,
@@ -1211,7 +1222,7 @@
         "screenshots/s4_t087_p27_publish_receipt_200zoom_dark_gui.png",
         "screenshots/s4_t087_p27_publish_receipt_200zoom_light_gui.png"
       ],
-      "gap": "Authenticated live P15 workspace captures cover 320\u00d7844, 390\u00d7844, 768\u00d71024, and 1440\u00d7900 in both themes, plus genuine headful Chrome UI 200% captures in both themes. The real offline/unsaved state is captured after browser network disconnect and confirms the local recovery copy. P16 list/detail and P27 publication-review routes have the same four responsive viewports in both themes and actual Chrome UI 200% captures in both themes. No horizontal document overflow was measured on these combinations. Remaining gaps include unrelated adverse routes, revoked-token states, and course-attached media authorization. P15 stale-reset conflict and P16 hidden-failure timing redaction are captured; API regressions retain timing for public-test failures. A genuine pinned-version hidden-test pass records completion, and two live browser tabs exercise both explicit draft-conflict resolutions. P15 Reset code is hidden below 1024px; browser programmatic-click checks at 320px verify no reset API request and unchanged code. P16 omits Restore to editor at compact render, hides it after desktop-to-compact resize, and browser checks verify compact clicks do not open confirmation or call restore. P27\u2019s real server receipt is captured at 320px/390px and actual Chrome UI 200% in both themes, with no horizontal overflow."
+      "gap": "Authenticated live P15 workspace captures cover 320×844, 390×844, 768×1024, and 1440×900 in both themes, plus genuine headful Chrome UI 200% captures in both themes. The real offline/unsaved state is captured after browser network disconnect and confirms the local recovery copy. P16 list/detail and P27 publication-review routes have the same four responsive viewports in both themes and actual Chrome UI 200% captures in both themes. No horizontal document overflow was measured on these combinations. Remaining gaps include unrelated adverse routes, revoked-token states, and course-attached media authorization. P15 stale-reset conflict and P16 hidden-failure timing redaction are captured; API regressions retain timing for public-test failures. A genuine pinned-version hidden-test pass records completion, and two live browser tabs exercise both explicit draft-conflict resolutions. P15 Reset code is hidden below 1024px; browser programmatic-click checks at 320px verify no reset API request and unchanged code. P16 omits Restore to editor at compact render, hides it after desktop-to-compact resize, and browser checks verify compact clicks do not open confirmation or call restore. P27’s real server receipt is captured at 320px/390px and actual Chrome UI 200% in both themes, with no horizontal overflow."
     },
     {
       "id": 7,
@@ -1252,7 +1263,7 @@
         "screenshots/s4_t087_p27_publish_confirmation_1440x900_light.png",
         "screenshots/s4_t087_p27_publish_receipt_1440x900_light.png"
       ],
-      "gap": "Live authenticated P27 review, explicit confirmation/cancel, successful publish API, and server-issued receipt are verified in dark/light at 1440\u00d7900 against an isolated disposable database. Component fixtures cover blocked validation and responsive receipt states at five widths/themes; blocked validation has actual 200% zoom in both themes. Live 200% and mobile confirmation remain unverified."
+      "gap": "Live authenticated P27 review, explicit confirmation/cancel, successful publish API, and server-issued receipt are verified in dark/light at 1440×900 against an isolated disposable database. Component fixtures cover blocked validation and responsive receipt states at five widths/themes; blocked validation has actual 200% zoom in both themes. Live 200% and mobile confirmation remain unverified."
     },
     {
       "id": 10,
@@ -1331,9 +1342,30 @@
         "screenshots/s4_t087_p43_revoked_status_768x1024_dark.png",
         "screenshots/s4_t087_p43_revoked_status_768x1024_light.png",
         "screenshots/s4_t087_p43_revoked_status_390x844_dark.png",
-        "screenshots/s4_t087_p43_revoked_status_390x844_light.png"
+        "screenshots/s4_t087_p43_revoked_status_390x844_light.png",
+        "screenshots/s4_t087_p43_live_reauth_error_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_reauth_error_actions_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_one_time_secret_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_expired_status_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_expired_status_status_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_revocation_confirmation_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_revoked_status_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_revoked_status_status_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_reauth_error_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_reauth_error_actions_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_one_time_secret_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_expired_status_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_expired_status_status_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_revocation_confirmation_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_revoked_status_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_revoked_status_status_200zoom_light_gui.png",
+        "scripts/capture-s4-m04-interactive-states.ts",
+        "packages/web/tests/mcp-settings-page.test.ts",
+        "screenshots/s4_t087_p43_connections_empty_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_connections_empty_200zoom_light_gui.png",
+        "docs/evidence/s4-m04-gui-zoom-captures.json"
       ],
-      "gap": "A real verified author saw invalid-password denial without token creation, retried with correct reauthentication, captured the one-time reveal modal with its secret password-masked, then revoked the token and captured authorized revoked status at 1440, 1024, 768, 390, and 320 CSS px in both themes. The raw value is absent from screenshots and reports. Existing grant-modal 200% evidence is a component fixture; actual live P43 200% zoom remains unverified."
+      "gap": "The empty AI-connections page has actual Chrome UI 200% fixture captures in both themes. The authenticated live token lifecycle has actual 200% captures in both themes for denied reauthentication, reachable create actions after internal dialog scrolling, masked one-time reveal, expiry, revocation confirmation, and visible expired/revoked status rows; companion captures expose the horizontally scrollable status column. No raw secret or page-level horizontal overflow was recorded. P43 empty is a rendered fixture, not an authenticated live empty account."
     },
     {
       "id": 14,
@@ -1341,18 +1373,26 @@
       "coverage": "partial",
       "evidence": [
         "screenshots/s4_t087_p44_setup_generic_1440x900_dark.png",
-        "screenshots/s4_t087_p44_setup_oauth_client_390x844_light.png"
+        "screenshots/s4_t087_p44_setup_oauth_client_390x844_light.png",
+        "screenshots/s4_t087_p44_setup_generic_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p44_setup_generic_200zoom_light_gui.png",
+        "screenshots/s4_t087_p44_setup_oauth_client_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p44_setup_oauth_client_200zoom_light_gui.png",
+        "docs/evidence/s4-m04-gui-zoom-captures.json"
       ],
-      "gap": "Generic and OAuth-only setup components are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom for P44 and external client connections are not represented."
+      "gap": "Generic bearer and OAuth-only client setup fixtures have responsive captures across the required CSS widths/themes and actual Chrome UI 200% captures in both themes. An external client connection attempt is not represented; these are rendered setup-page fixtures."
     },
     {
       "id": 15,
       "checkpoint": "Remote updates, concurrent-edit conflict, diff, recovery confirmation",
       "coverage": "partial",
       "evidence": [
-        "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png"
+        "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png",
+        "screenshots/s4_t087_p45_agent_update_diff_recovery_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p45_agent_update_diff_recovery_200zoom_light_gui.png",
+        "docs/evidence/s4-m04-gui-zoom-captures.json"
       ],
-      "gap": "The deterministic mutation diff and recovery confirmation are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom and the concurrent-edit conflict state are not represented."
+      "gap": "The P45 agent-update diff and recovery-confirmation fixture is captured responsively in both themes and at actual Chrome UI 200% in both themes. The concurrent remote-edit conflict branch is not represented; P15 two-tab draft conflict evidence is a separate learner-editor scenario."
     }
   ],
   "requiredAdverseStates": [
@@ -1436,9 +1476,28 @@
         "screenshots/s4_t087_p43_reauth_error_320x844_dark.png",
         "screenshots/s4_t087_p43_one_time_secret_320x844_dark.png",
         "screenshots/s4_t087_p43_revoked_status_320x844_light.png",
-        "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png"
+        "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png",
+        "screenshots/s4_t087_p43_live_reauth_error_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_reauth_error_actions_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_one_time_secret_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_expired_status_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_expired_status_status_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_revocation_confirmation_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_revoked_status_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_revoked_status_status_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_live_reauth_error_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_reauth_error_actions_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_one_time_secret_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_expired_status_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_expired_status_status_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_revocation_confirmation_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_revoked_status_200zoom_light_gui.png",
+        "screenshots/s4_t087_p43_live_revoked_status_status_200zoom_light_gui.png",
+        "screenshots/s4_t087_p45_agent_update_diff_recovery_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p45_agent_update_diff_recovery_200zoom_light_gui.png",
+        "docs/evidence/s4-m04-gui-zoom-captures.json"
       ],
-      "gap": "One-time secret flow is captured with the generated value password-masked and omitted from evidence; an authenticated revoke mutation and revoked status are verified. P45 draft recovery is represented by a component fixture; a real concurrent agent conflict remains uncovered."
+      "gap": "Live P43 token creation, denial, masked one-time reveal, expiry, revocation, and recovery are covered at required CSS widths and actual 200% zoom in both themes. P45 diff/recovery is captured as a fixture, but the concurrent remote-edit conflict branch still lacks evidence."
     }
   ],
   "visualInspection": [

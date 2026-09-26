@@ -75,10 +75,10 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
             <h2 class="text-xl font-semibold text-primary">${token.label}</h2>
             ${
               token.isRevoked
-                ? renderStatusBadge({ status: 'destructive', label: 'Revoked' })
+                ? renderStatusBadge({ status: 'danger', label: 'Revoked' })
                 : isConnected
                 ? renderStatusBadge({ status: 'success', label: 'Connected' })
-                : renderStatusBadge({ status: 'neutral', label: 'Waiting for requests' })
+                : renderStatusBadge({ status: 'info', label: 'Waiting for requests' })
             }
           </div>
           <p class="text-xs font-mono text-muted mt-1">Identifier: ${token.tokenIdentifier} · Scopes: ${formatScopeSummary(token.scopes)}</p>

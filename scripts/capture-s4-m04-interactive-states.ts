@@ -224,6 +224,150 @@ async function captureLiveGuiZoom(webOrigin: string, attemptId: string): Promise
   }
 }
 
+async function captureLiveP43GuiZoom(webOrigin: string): Promise<Record<string, unknown>> {
+  const debugPort = await freePort();
+  const browser = spawn('google-chrome', [
+    '--no-first-run', '--no-default-browser-check', '--disable-sync', '--remote-allow-origins=*',
+    `--remote-debugging-port=${debugPort}`, `--user-data-dir=${path.join(temp, 'p43-live-gui-zoom-profile')}`,
+    '--window-size=1440,1000', `${webOrigin}/sign-in`,
+  ], { stdio: 'ignore' });
+  let guiSocket: WebSocket | undefined;
+  try {
+    let pageTarget: any;
+    for (let i = 0; i < 150; i++) {
+      try {
+        const targets = await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json() as any[];
+        pageTarget = targets.find((target) => target.type === 'page');
+        if (pageTarget?.webSocketDebuggerUrl) break;
+      } catch { /* wait for GUI Chrome startup */ }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    if (!pageTarget?.webSocketDebuggerUrl) throw new Error('GUI Chrome did not expose a P43 page target');
+    guiSocket = new WebSocket(pageTarget.webSocketDebuggerUrl);
+    await new Promise<void>((resolve, reject) => {
+      guiSocket!.addEventListener('open', () => resolve(), { once: true });
+      guiSocket!.addEventListener('error', () => reject(new Error('Could not connect to P43 GUI Chrome DevTools')), { once: true });
+    });
+    let nextId = 0;
+    const pending = new Map<number, { resolve: (value: any) => void; reject: (error: Error) => void }>();
+    guiSocket.addEventListener('message', (event) => {
+      const message = JSON.parse(String(event.data));
+      if (!message.id) return;
+      const waiter = pending.get(message.id);
+      if (!waiter) return;
+      pending.delete(message.id);
+      if (message.error) waiter.reject(new Error(message.error.message)); else waiter.resolve(message.result);
+    });
+    const command = (method: string, params: Record<string, unknown> = {}) => new Promise<any>((resolve, reject) => {
+      const id = ++nextId;
+      pending.set(id, { resolve, reject });
+      guiSocket!.send(JSON.stringify({ id, method, params }));
+    });
+    const evaluate = async (expression: string) => (await command('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true })).result?.value;
+    const wait = async (expression: string, accept: (value: any) => boolean, label: string) => {
+      for (let i = 0; i < 120; i++) {
+        const value = await evaluate(expression);
+        if (accept(value)) return value;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      throw new Error(`P43 GUI Chrome timed out waiting for ${label}`);
+    };
+    const go = async (url: string) => {
+      await command('Page.navigate', { url });
+      const expected = new URL(url).pathname + new URL(url).search;
+      await wait('location.pathname + location.search', (value) => value === expected, expected);
+      await wait('document.readyState', (value) => value === 'complete' || value === 'interactive', `${expected} document`);
+    };
+    await command('Page.enable');
+    await command('Runtime.enable');
+    await go(`${webOrigin}/sign-in`);
+    await wait('Boolean(document.querySelector("#sign-in-form"))', Boolean, 'sign-in form');
+    const windowInfo = await command('Browser.getWindowForTarget');
+    await command('Browser.setWindowBounds', { windowId: windowInfo.windowId, bounds: { windowState: 'maximized' } });
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const baseline = await evaluate('({innerWidth,innerHeight,outerWidth,outerHeight,devicePixelRatio,visualViewportScale:visualViewport.scale})');
+    await go('chrome://settings/appearance');
+    await wait(`(()=>{function find(root){for(const e of root.querySelectorAll('*')){if(e.id==='zoomLevel')return e;if(e.shadowRoot){const x=find(e.shadowRoot);if(x)return x}}}return Boolean(find(document))})()`, Boolean, 'Chrome page zoom selector');
+    const zoom = await evaluate(`(()=>{function find(root){for(const e of root.querySelectorAll('*')){if(e.id==='zoomLevel')return e;if(e.shadowRoot){const x=find(e.shadowRoot);if(x)return x}}}const s=find(document);const o=[...s.options].find(o=>o.textContent.trim()==='200%');if(!o)return null;s.value=o.value;s.dispatchEvent(new Event('change',{bubbles:true}));return {value:s.value,label:o.textContent.trim()}})()`);
+    if (zoom?.label !== '200%' || zoom?.value !== '2') throw new Error(`Could not select actual 200% Chrome zoom for live P43: ${JSON.stringify(zoom)}`);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const captures: Array<Record<string, unknown>> = [];
+    const capture = async (state: string, theme: 'dark' | 'light') => {
+      await evaluate(`localStorage.setItem('zur_theme_preference','${theme}');document.documentElement.setAttribute('data-theme','${theme}')`);
+      if (state === 'reauth_error') await evaluate("document.querySelector('#create-token-modal .modal-dialog').scrollTop=0");
+      let rowEvidence: Record<string, unknown> | undefined;
+      if (state === 'expired_status' || state === 'revoked_status') {
+        rowEvidence = await evaluate(`(()=>{const row=[...document.querySelectorAll('.connections-table tbody tr')].find(item=>item.innerText.includes('T087 Actual Zoom Evidence Connection'));if(!row)return {found:false};row.scrollIntoView({block:'center'});const bounds=row.getBoundingClientRect();const label=${JSON.stringify(state === 'expired_status' ? 'Expired' : 'Revoked')};return {found:true,rowVisible:bounds.top>=0&&bounds.bottom<=innerHeight,statusText:row.innerText.includes(label)?label:null}})()`);
+        if (!rowEvidence.found || !rowEvidence.rowVisible || !rowEvidence.statusText) throw new Error(`P43 ${state} row is not visible in its 200% capture: ${JSON.stringify(rowEvidence)}`);
+      }
+      const actual = await evaluate('({innerWidth,innerHeight,outerWidth,outerHeight,devicePixelRatio,visualViewportScale:visualViewport.scale,scrollWidth:document.documentElement.scrollWidth,bodyScrollWidth:document.body.scrollWidth})');
+      if (actual.innerWidth * 2 !== baseline.innerWidth || actual.devicePixelRatio !== baseline.devicePixelRatio * 2 || actual.visualViewportScale !== 1) throw new Error(`P43 actual 200% browser zoom mismatch: ${JSON.stringify({ baseline, actual })}`);
+      if (actual.scrollWidth > actual.innerWidth || actual.bodyScrollWidth > actual.innerWidth) throw new Error(`P43 live ${state} has horizontal overflow at 200%: ${JSON.stringify(actual)}`);
+      const shot = await command('Page.captureScreenshot', { format: 'png', fromSurface: true });
+      const screenshot = `screenshots/s4_t087_p43_live_${state}_200zoom_${theme}_gui.png`;
+      fs.writeFileSync(path.join(root, screenshot), Buffer.from(shot.data, 'base64'));
+      captures.push({ state, route: '/settings/ai-connections', theme, browserZoomPercent: 200, baseline, actual, horizontalOverflow: false, secretMasked: state === 'one_time_secret', rowEvidence, screenshot });
+      if (state === 'expired_status' || state === 'revoked_status') {
+        const tableEvidence = await evaluate(`(()=>{const wrapper=document.querySelector('.connections-table-wrapper');if(!wrapper)return {found:false};wrapper.scrollLeft=wrapper.scrollWidth;const row=[...wrapper.querySelectorAll('tbody tr')].find(item=>item.innerText.includes('T087 Actual Zoom Evidence Connection'));const status=[...row.querySelectorAll('td')].map(cell=>cell.textContent.trim()).find(text=>text.includes('${state === 'expired_status' ? 'Expired' : 'Revoked'}'));const bounds=row.getBoundingClientRect();return {found:true,scrollLeft:wrapper.scrollLeft,statusVisible:Boolean(status),rowVisible:bounds.top>=0&&bounds.bottom<=innerHeight,status}})()`);
+        if (!tableEvidence.found || !tableEvidence.rowVisible || !tableEvidence.statusVisible) throw new Error(`P43 ${state} status is not visible in its 200% companion capture: ${JSON.stringify(tableEvidence)}`);
+        const statusShot = await command('Page.captureScreenshot', { format: 'png', fromSurface: true });
+        const statusScreenshot = `screenshots/s4_t087_p43_live_${state}_status_200zoom_${theme}_gui.png`;
+        fs.writeFileSync(path.join(root, statusScreenshot), Buffer.from(statusShot.data, 'base64'));
+        captures.push({ state: `${state}_status_column`, route: '/settings/ai-connections', theme, browserZoomPercent: 200, baseline, actual, horizontalOverflow: false, secretMasked: false, rowEvidence: tableEvidence, screenshot: statusScreenshot });
+        await evaluate("document.querySelector('.connections-table-wrapper').scrollLeft=0");
+      }
+    };
+    await go(`${webOrigin}/sign-in`);
+    await wait('Boolean(document.querySelector("#sign-in-form"))', Boolean, 'P43 author sign-in form');
+    await evaluate(`(()=>{document.querySelector('#email').value='guido@zur.internal';document.querySelector('#password').value='AuthorPass123!';document.querySelector('#sign-in-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+    await wait("JSON.parse(localStorage.getItem('zur_current_user')||'{}').capabilities?.includes('author')", Boolean, 'verified author session');
+    await go(`${webOrigin}/settings/ai-connections`);
+    await wait('Boolean(document.getElementById("btn-open-create-token"))', Boolean, 'P43 token list');
+    await evaluate("document.getElementById('btn-open-create-token')?.click()");
+    await wait('Boolean(document.getElementById("create-token-form"))', Boolean, 'P43 create form');
+    await evaluate(`(()=>{const form=document.getElementById('create-token-form');form.querySelector('#connection-name').value='T087 Actual Zoom Evidence Connection';form.querySelector('#connection-password').value='invalid';form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+    await wait('document.getElementById("connections-error")?.innerText.includes("Invalid password")', Boolean, 'safe reauthentication error');
+    const reauthErrorActionReachability: Array<Record<string, unknown>> = [];
+    for (const theme of ['dark', 'light'] as const) {
+      await capture('reauth_error', theme);
+      const reachability = await evaluate(`(()=>{const dialog=document.querySelector('#create-token-modal .modal-dialog');const action=document.querySelector('#create-token-form button[type="submit"]');dialog.scrollTop=dialog.scrollHeight;const rect=action.getBoundingClientRect();return {dialogCanScroll:dialog.scrollHeight>dialog.clientHeight,atBottom:dialog.scrollTop+dialog.clientHeight>=dialog.scrollHeight,actionVisible:rect.top>=0&&rect.bottom<=innerHeight,actionText:action.innerText}})()`);
+      if (!reachability.dialogCanScroll || !reachability.atBottom || !reachability.actionVisible) throw new Error(`P43 actual-zoom dialog actions are not reachable after internal scrolling: ${JSON.stringify(reachability)}`);
+      await capture('reauth_error_actions', theme);
+      reauthErrorActionReachability.push({ theme, ...reachability });
+    }
+    await evaluate("document.querySelector('#create-token-modal [data-dialog-action=cancel]')?.click()");
+    await wait('!Boolean(document.getElementById("create-token-form"))', Boolean, 'dismiss rejected token form');
+    await evaluate("document.getElementById('btn-open-create-token')?.click()");
+    await wait('Boolean(document.getElementById("create-token-form"))', Boolean, 'fresh token form');
+    await evaluate(`(()=>{const form=document.getElementById('create-token-form');form.querySelector('#connection-name').value='T087 Actual Zoom Evidence Connection';form.querySelector('#connection-password').value='AuthorPass123!';form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+    await wait('Boolean(document.getElementById("token-reveal-modal"))', Boolean, 'one-time reveal modal');
+    const secretSafe = await evaluate(`(()=>{const input=document.getElementById('revealed-token-value');return {present:Boolean(input?.value),masked:input?.type==='password'}})()`);
+    if (!secretSafe.present || !secretSafe.masked) throw new Error('P43 zoom capture encountered an unmasked or missing one-time secret.');
+    for (const theme of ['dark', 'light'] as const) await capture('one_time_secret', theme);
+    await evaluate("document.getElementById('btn-view-setup')?.click()");
+    await go(`${webOrigin}/settings/ai-connections`);
+    const zoomToken = db.prepare('SELECT id FROM author_access_tokens WHERE author_id = ? AND label = ? ORDER BY created_at DESC LIMIT 1').get('user-author-1', 'T087 Actual Zoom Evidence Connection') as any;
+    if (!zoomToken) throw new Error('The P43 zoom fixture token was not found after creation.');
+    db.prepare('UPDATE author_access_tokens SET expires_at = ? WHERE id = ?').run(new Date(Date.now() - 60_000).toISOString(), zoomToken.id);
+    await go(`${webOrigin}/settings/ai-connections?filter=expired`);
+    await wait("document.body.innerText.includes('T087 Actual Zoom Evidence Connection') && document.body.innerText.includes('Expired')", Boolean, 'expired token status');
+    for (const theme of ['dark', 'light'] as const) await capture('expired_status', theme);
+    await wait('Boolean(document.querySelector("[data-action=\\\"revoke-token\\\"]"))', Boolean, 'created token in list');
+    await evaluate("document.querySelector('[data-action=\"revoke-token\"]')?.click()");
+    await wait('Boolean(document.getElementById("revoke-token-modal"))', Boolean, 'revocation confirmation dialog');
+    for (const theme of ['dark', 'light'] as const) await capture('revocation_confirmation', theme);
+    await evaluate("document.getElementById('btn-confirm-revoke')?.click()");
+    await wait("document.body.innerText.includes('Revoked')", Boolean, 'successful token revocation');
+    await go(`${webOrigin}/settings/ai-connections?filter=revoked`);
+    await wait("document.body.innerText.includes('T087 Actual Zoom Evidence Connection') && document.body.innerText.includes('Revoked')", Boolean, 'revoked status row');
+    for (const theme of ['dark', 'light'] as const) await capture('revoked_status', theme);
+    return { method: 'Headful Chrome UI Appearance > Zoom 200% selected via chrome://settings/appearance; authenticated P43 connection lifecycle executed through delivered app UI against an isolated local SQLite fixture.', baseline, captures, reauthErrorActionReachability, expirationFixture: 'The issued disposable token expiration was advanced in the isolated SQLite fixture before visiting the authenticated expired-token filter; the application then rendered the real expired status and allowed revocation.', secretValueIncluded: false };
+  } finally {
+    guiSocket?.close();
+    await stopChild(browser);
+  }
+}
+
 try {
   apiPort = await freePort();
   await new Promise<void>((resolve, reject) => {
@@ -786,6 +930,7 @@ try {
     await waitFor("document.body.innerText.includes('T087 Local Evidence Connection') && document.body.innerText.includes('Revoked')", Boolean, 'P43 revoked row render');
     for (const [width,height] of [[1440,900],[1024,768],[768,1024],[390,844],[320,844]] as const) await captureP43('revoked_status', theme, width, height);
   }
+  const p43LiveGuiZoom = await captureLiveP43GuiZoom(webOrigin);
   const p15Responses = apiResponses.slice(p15ApiIndex);
   fs.writeFileSync(reportPath, JSON.stringify({
     method: 'Local Vite browser application and in-process ZUR server backed by an isolated temporary SQLite database seeded with repository fixtures. Chrome executed the delivered client JavaScript. Admin signed in through the real sign-in form; the waiver selector change invoked the authenticated GET preview API. No waiver POST was submitted.',
@@ -798,7 +943,7 @@ try {
       P27: { result: 'Live authenticated validation and explicit confirmation verified. A successful publish response produced a receipt captured at 320px/390px in both themes and at actual GUI Chrome 200% zoom in both themes.', containsPublicationReviewComponent: publishRouteHasReview, initialBody: p27Body, initialProbe: publishProbe, initialApiResponses: p27Responses, captures: p27Captures, receiptResponsiveCaptures: p27ReceiptCaptures, responsiveCaptures: p27Responsive },
       P15: { result: 'Live authenticated samples, redacted hidden-test failure, actual pinned-version pass/completion, offline recovery, revision-checked reset conflict, and actual two-tab draft conflict/reload recovery verified.', captures: p15Captures, states: p15States, passingCompletion: p15PassEvidence, twoTabConflict: twoTabConflictEvidence, responsiveCaptures: p15Responsive, offline: p15Offline, staleReset: { remoteEditStatus: remoteEdit.status, remoteRevision: remoteEdit.revision, conflictResponse: resetApiResponse, localCodePreserved: true, notice: staleResetResult.notice, screenshot: staleResetScreenshot }, apiResponses: p15Responses },
       P16: { ...p16Probe, responsiveCaptures: p16Responsive },
-      P43: { result: 'An authenticated author saw a safe invalid-password error with no token created, corrected reauthentication, created a scoped token through the page, inspected its one-time reveal in a masked password field without exposing its value in screenshots or evidence, then revoked it; the authorized token list returned revoked status.', secretValueIncluded: false, secretMasked: true, rejectedReauthentication: rejectedTokenState.status === 200 && rejectedTokenState.createdTokenCount === 0, tokenListStatus: tokenListState.status, createdTokenCount: tokenListState.createdTokenCount, revocationConfirmationCaptured: true, revokedStatus: revokedState.recordStatus, revokedEndpointStatus: revokedState.status, captures: p43Captures },
+      P43: { result: 'An authenticated author saw a safe invalid-password error with no token created, corrected reauthentication, created a scoped token through the page, inspected its one-time reveal in a masked password field without exposing its value in screenshots or evidence, then revoked it; the authorized token list returned revoked status.', secretValueIncluded: false, secretMasked: true, rejectedReauthentication: rejectedTokenState.status === 200 && rejectedTokenState.createdTokenCount === 0, tokenListStatus: tokenListState.status, createdTokenCount: tokenListState.createdTokenCount, revocationConfirmationCaptured: true, revokedStatus: revokedState.recordStatus, revokedEndpointStatus: revokedState.status, captures: p43Captures, liveGuiZoom: p43LiveGuiZoom },
       liveGuiZoom,
     },
     notCaptured: 'The waiver was not applied; evidence is the real server-reviewed confirmation-ready state. P22 is captured with the inspector visible by default. P43 raw token values were not included in screenshots or reports. No mocked API or fabricated auth state was used. All publish mutations, P43 token creation/revocation, and P15 learner runs/submissions occurred against a disposable local SQLite fixture; no external course or learner data was changed.',
