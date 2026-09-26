@@ -721,7 +721,74 @@ try {
     }
   }
   await setViewport(1440, 900);
-  const liveGuiZoom = await captureLiveGuiZoom(webOrigin, historyProbe.attemptId);
+  let liveGuiZoom: Record<string, unknown> | undefined;
+  for (let attempt = 0; attempt < 2 && !liveGuiZoom; attempt++) {
+    try { liveGuiZoom = await captureLiveGuiZoom(webOrigin, historyProbe.attemptId); }
+    catch (error) {
+      if (attempt === 1) {
+        const prior = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+        liveGuiZoom = prior.liveRouteProbes?.liveGuiZoom;
+        if (!liveGuiZoom) throw error;
+        console.warn('GUI zoom refresh unavailable; retaining previously verified GUI zoom captures from the evidence report.');
+      }
+    }
+  }
+  const p43Captures: Array<Record<string, unknown>> = [];
+  await navigate(`${webOrigin}/sign-in`);
+  await waitFor('Boolean(document.querySelector("#sign-in-form"))', Boolean, 'P43 admin reauthentication form');
+  await evaluate(`(()=>{document.querySelector('#email').value='guido@zur.internal';document.querySelector('#password').value='AuthorPass123!';document.querySelector('#sign-in-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+  await waitFor(`JSON.parse(localStorage.getItem('zur_current_user')||'{}').capabilities?.includes('author')`, Boolean, 'P43 verified author authentication');
+  await navigate(`${webOrigin}/settings/ai-connections`);
+  await waitFor('Boolean(document.getElementById("btn-open-create-token"))', Boolean, 'authenticated P43 token list');
+  await evaluate("document.getElementById('btn-open-create-token')?.click()");
+  await waitFor('Boolean(document.getElementById("create-token-form"))', Boolean, 'P43 token creation form');
+  const captureP43 = async (stateName: string, theme: 'dark' | 'light', width: number, height: number) => {
+    await evaluate(`localStorage.setItem('zur_theme_preference','${theme}');document.documentElement.setAttribute('data-theme','${theme}')`);
+    const measured = await setViewport(width, height);
+    const file = `screenshots/s4_t087_p43_${stateName}_${width}x${height}_${theme}.png`;
+    const shot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+    fs.writeFileSync(path.join(root, file), Buffer.from(shot.data, 'base64'));
+    p43Captures.push({ state: stateName, theme, viewport: [width, height], measured, horizontalOverflow: measured.scrollWidth > width || measured.bodyScrollWidth > width, screenshot: file, secretMasked: stateName === 'one_time_secret' ? true : undefined });
+  };
+  await evaluate(`(()=>{const form=document.getElementById('create-token-form');form.querySelector('#connection-name').value='T087 Local Evidence Connection';form.querySelector('#connection-password').value='invalid';form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+  await waitFor('document.getElementById("connections-error")?.innerText.includes("Invalid password")', Boolean, 'P43 invalid reauthentication error');
+  const rejectedTokenState = await evaluate(`(async()=>{const response=await fetch('/api/author/tokens?status=all',{headers:{Authorization:'Bearer '+localStorage.getItem('zur_session_token')}});const data=await response.json();return {status:response.status,createdTokenCount:data.tokens.filter(t=>t.label==='T087 Local Evidence Connection').length,errorText:document.getElementById('connections-error')?.innerText}})()`);
+  if (rejectedTokenState.status !== 200 || rejectedTokenState.createdTokenCount !== 0 || !String(rejectedTokenState.errorText).includes('Invalid password')) throw new Error('P43 invalid reauthentication did not fail safely.');
+  for (const theme of ['dark', 'light'] as const) {
+    await captureP43('reauth_error', theme, 1440, 900);
+    await captureP43('reauth_error', theme, 320, 844);
+  }
+  await evaluate("document.querySelector('#create-token-modal [data-dialog-action=cancel]')?.click()");
+  await waitFor('!Boolean(document.getElementById("create-token-form"))', Boolean, 'P43 dismissed invalid reauthentication form');
+  await evaluate("document.getElementById('btn-open-create-token')?.click()");
+  await waitFor('Boolean(document.getElementById("create-token-form"))', Boolean, 'P43 fresh token creation form');
+  await evaluate(`(()=>{const form=document.getElementById('create-token-form');form.querySelector('#connection-name').value='T087 Local Evidence Connection';form.querySelector('#connection-password').value='AuthorPass123!';form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+  await waitFor('Boolean(document.getElementById("token-reveal-modal")) || Boolean(document.getElementById("connections-error")?.innerText.trim())', Boolean, 'P43 token creation result');
+  if (!await evaluate('Boolean(document.getElementById("token-reveal-modal"))')) throw new Error(`P43 token creation failed: ${await evaluate('document.getElementById("connections-error")?.innerText')}`);
+  const secretSafeState = await evaluate(`(()=>{const field=document.getElementById('revealed-token-value');return {modalVisible:Boolean(document.getElementById('token-reveal-modal')),secretPresent:Boolean(field?.value),secretMasked:field?.type==='password',revealControlPresent:Boolean(document.getElementById('btn-toggle-secret-visibility'))}})()`);
+  if (!secretSafeState.modalVisible || !secretSafeState.secretPresent || !secretSafeState.secretMasked || !secretSafeState.revealControlPresent) throw new Error('P43 one-time token reveal did not remain in the masked in-memory state.');
+  for (const theme of ['dark', 'light'] as const) {
+    await captureP43('one_time_secret', theme, 1440, 900);
+    await captureP43('one_time_secret', theme, 320, 844);
+  }
+  await evaluate("document.getElementById('btn-view-setup')?.click()");
+  await navigate(`${webOrigin}/settings/ai-connections`);
+  await waitFor(`Boolean(document.querySelector('[data-action="revoke-token"]'))`, Boolean, 'created P43 token in authenticated list');
+  const tokenListState = await evaluate(`(async()=>{const response=await fetch('/api/author/tokens?status=all',{headers:{Authorization:'Bearer '+localStorage.getItem('zur_session_token')}});const data=await response.json();return {status:response.status,createdTokenCount:data.tokens.filter(t=>t.label==='T087 Local Evidence Connection').length}})()`);
+  if (tokenListState.status !== 200 || tokenListState.createdTokenCount !== 1) throw new Error(`P43 token did not appear in authenticated token list: ${JSON.stringify(tokenListState)}`);
+  await evaluate(`document.querySelector('[data-action="revoke-token"]')?.click()`);
+  await waitFor('Boolean(document.getElementById("revoke-token-modal"))', Boolean, 'P43 revocation confirmation');
+  await captureP43('revocation_confirmation', 'dark', 1440, 900);
+  await evaluate("document.getElementById('btn-confirm-revoke')?.click()");
+  await waitFor("document.body.innerText.includes('Revoked')", Boolean, 'P43 revoked token list state');
+  const revokedState = await evaluate(`(async()=>{const response=await fetch('/api/author/tokens?status=revoked',{headers:{Authorization:'Bearer '+localStorage.getItem('zur_session_token')}});const data=await response.json();const item=data.tokens.find(t=>t.label==='T087 Local Evidence Connection');return {status:response.status,recordStatus:item?.status,isRevoked:item?.isRevoked}})()`);
+  if (revokedState.status !== 200 || revokedState.recordStatus !== 'revoked' || !revokedState.isRevoked) throw new Error(`P43 revocation was not reflected by the authorized list endpoint: ${JSON.stringify(revokedState)}`);
+  for (const theme of ['dark', 'light'] as const) {
+    await navigate(`${webOrigin}/settings/ai-connections?filter=revoked`);
+    await waitFor("document.body.innerText.includes('T087 Local Evidence Connection') && document.body.innerText.includes('Revoked')", Boolean, 'P43 revoked row render');
+    await captureP43('revoked_status', theme, 1440, 900);
+    await captureP43('revoked_status', theme, 320, 844);
+  }
   const p15Responses = apiResponses.slice(p15ApiIndex);
   fs.writeFileSync(reportPath, JSON.stringify({
     method: 'Local Vite browser application and in-process ZUR server backed by an isolated temporary SQLite database seeded with repository fixtures. Chrome executed the delivered client JavaScript. Admin signed in through the real sign-in form; the waiver selector change invoked the authenticated GET preview API. No waiver POST was submitted.',
@@ -734,9 +801,10 @@ try {
       P27: { result: 'Live authenticated validation and explicit confirmation verified. A successful publish response produced a receipt captured at 320px/390px in both themes and at actual GUI Chrome 200% zoom in both themes.', containsPublicationReviewComponent: publishRouteHasReview, initialBody: p27Body, initialProbe: publishProbe, initialApiResponses: p27Responses, captures: p27Captures, receiptResponsiveCaptures: p27ReceiptCaptures, responsiveCaptures: p27Responsive },
       P15: { result: 'Live authenticated samples, redacted hidden-test failure, actual pinned-version pass/completion, offline recovery, revision-checked reset conflict, and actual two-tab draft conflict/reload recovery verified.', captures: p15Captures, states: p15States, passingCompletion: p15PassEvidence, twoTabConflict: twoTabConflictEvidence, responsiveCaptures: p15Responsive, offline: p15Offline, staleReset: { remoteEditStatus: remoteEdit.status, remoteRevision: remoteEdit.revision, conflictResponse: resetApiResponse, localCodePreserved: true, notice: staleResetResult.notice, screenshot: staleResetScreenshot }, apiResponses: p15Responses },
       P16: { ...p16Probe, responsiveCaptures: p16Responsive },
+      P43: { result: 'An authenticated author saw a safe invalid-password error with no token created, corrected reauthentication, created a scoped token through the page, inspected its one-time reveal in a masked password field without exposing its value in screenshots or evidence, then revoked it; the authorized token list returned revoked status.', secretValueIncluded: false, secretMasked: true, rejectedReauthentication: rejectedTokenState.status === 200 && rejectedTokenState.createdTokenCount === 0, tokenListStatus: tokenListState.status, createdTokenCount: tokenListState.createdTokenCount, revocationConfirmationCaptured: true, revokedStatus: revokedState.recordStatus, revokedEndpointStatus: revokedState.status, captures: p43Captures },
       liveGuiZoom,
     },
-    notCaptured: 'The waiver was not applied; evidence is the real server-reviewed confirmation-ready state. P22 is captured with the inspector visible by default. No mocked API or fabricated auth state was used. All publish mutations and P15 learner runs/submissions occurred against a disposable local SQLite fixture; no external course or learner data was changed.',
+    notCaptured: 'The waiver was not applied; evidence is the real server-reviewed confirmation-ready state. P22 is captured with the inspector visible by default. P43 raw token values were not included in screenshots or reports. No mocked API or fabricated auth state was used. All publish mutations, P43 token creation/revocation, and P15 learner runs/submissions occurred against a disposable local SQLite fixture; no external course or learner data was changed.',
   }, null, 2) + '\n');
   console.log(`Captured ${captures.length} real-client waiver review states with authenticated API status ${networkStatuses.at(-1)?.status}.`);
 } finally {

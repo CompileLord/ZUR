@@ -89,6 +89,73 @@ function showRouteFailure(message: string, retryPath: string): void {
   document.getElementById('route-retry')?.addEventListener('click', () => renderApp(retryPath));
 }
 
+async function renderAiConnectionsSettings(path: string, user: NonNullable<ReturnType<typeof authClient.getUser>>, state: { showCreateModal?: boolean; revealedToken?: any; revokingToken?: any; error?: string; successMessage?: string } = {}): Promise<void> {
+  if (!user.capabilities.includes('author')) {
+    appEl.innerHTML = renderAppShell({ activePath: path.split('?')[0], user, headerTitle: 'AI connections', content: renderAiConnectionsPage({ user, tokens: [] }) });
+    return;
+  }
+  try {
+    const response = await authClient.fetchApi(`/api/author/tokens?status=${encodeURIComponent(new URLSearchParams(path.split('?')[1] || '').get('filter') || 'all')}`);
+    const tokens = response.tokens || [];
+    const render = () => {
+      appEl.innerHTML = renderAppShell({ activePath: path.split('?')[0], user, headerTitle: 'AI connections', content: renderAiConnectionsPage({ user, tokens, activeFilter: (new URLSearchParams(path.split('?')[1] || '').get('filter') || 'all') as any, ...state }) });
+      const createButton = document.getElementById('btn-open-create-token') || document.getElementById('btn-empty-create-token');
+      createButton?.addEventListener('click', () => { state = { showCreateModal: true }; render(); });
+      document.querySelectorAll<HTMLElement>('[data-dialog-action="cancel"]').forEach((button) => button.addEventListener('click', () => { state = {}; render(); }));
+      const createForm = document.getElementById('create-token-form') as HTMLFormElement | null;
+      createForm?.addEventListener('submit', (event) => {
+        event.preventDefault();
+        void (async () => {
+          const form = new FormData(createForm);
+          const allScopes = [...createForm.querySelectorAll<HTMLInputElement>('input[name="scopes"]')];
+          const preset = String(form.get('preset'));
+          const presetScopes: Record<string, string[]> = {
+            draft_authoring: ['courses:read', 'courses:create', 'content:write', 'media:write', 'exercises:validate'],
+            read_only: ['courses:read'],
+            full_course_control: ['courses:read', 'courses:create', 'content:write', 'media:write', 'exercises:validate', 'content:delete', 'courses:publish', 'courses:manage'],
+          };
+          const scopes = preset === 'custom' ? allScopes.filter((input) => input.checked).map((input) => input.value) : (presetScopes[preset] || []);
+          const courseRestrictions = form.get('courseScopeType') === 'selected' ? [...createForm.querySelectorAll<HTMLInputElement>('input[name="selectedCourses"]:checked')].map((input) => input.value) : null;
+          try {
+            const created = await authClient.fetchApi('/api/author/tokens', { method: 'POST', body: JSON.stringify({ label: form.get('label'), password: form.get('password'), scopes, courseRestrictions, expiryDays: Number(form.get('expiryDays')) }) });
+            state = { revealedToken: { id: created.token.id, rawToken: created.rawToken, label: created.token.label, scopes: created.token.scopes, courseRestrictions: created.token.courseRestrictions, expiresAt: created.token.expiresAt } };
+            await renderAiConnectionsSettings(path, user, state);
+          } catch (error: any) {
+            state = { showCreateModal: true, error: error.message || 'The token could not be created.' };
+            await renderAiConnectionsSettings(path, user, state);
+          }
+        })();
+      });
+      document.querySelectorAll<HTMLButtonElement>('[data-action="revoke-token"]').forEach((button) => button.addEventListener('click', () => {
+        state = { revokingToken: tokens.find((item: any) => item.id === button.dataset.tokenId) };
+        render();
+      }));
+      document.getElementById('btn-confirm-revoke')?.addEventListener('click', (event) => {
+        const button = event.currentTarget as HTMLButtonElement;
+        void authClient.fetchApi(`/api/author/tokens/${encodeURIComponent(button.dataset.tokenId || '')}`, { method: 'DELETE' })
+          .then(() => renderAiConnectionsSettings(path, user, { successMessage: 'Connection revoked.' }))
+          .catch((error: any) => renderAiConnectionsSettings(path, user, { error: error.message || 'The connection could not be revoked.' }));
+      });
+      document.getElementById('btn-toggle-secret-visibility')?.addEventListener('click', (event) => {
+        const input = document.getElementById('revealed-token-value') as HTMLInputElement | null;
+        const button = event.currentTarget as HTMLButtonElement;
+        if (!input) return;
+        input.type = input.type === 'password' ? 'text' : 'password';
+        button.textContent = input.type === 'password' ? 'Reveal' : 'Hide';
+      });
+      document.getElementById('btn-copy-token')?.addEventListener('click', () => {
+        const input = document.getElementById('revealed-token-value') as HTMLInputElement | null;
+        const announcement = document.getElementById('copy-announcement');
+        if (!input || !navigator.clipboard?.writeText) { if (announcement) announcement.textContent = 'Clipboard access is unavailable. Select and copy the token manually.'; return; }
+        void navigator.clipboard.writeText(input.value).then(() => { if (announcement) announcement.textContent = 'Token copied. Store it in a secure client configuration.'; });
+      });
+    };
+    render();
+  } catch (error: any) {
+    showRouteFailure(error.message || 'Could not load AI connections.', path);
+  }
+}
+
 async function loadPythonWorkspace(enrollmentId: string, stepId: string, requestedPath: string): Promise<void> {
   const isCurrent = () => window.location.pathname + window.location.search === requestedPath;
   showRouteLoading('Python workspace');
@@ -909,12 +976,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
         });
       } else if (route.pageId === 'P43') {
         // AI Connections (P43)
-        appEl.innerHTML = renderAppShell({
-          activePath: path,
-          user,
-          headerTitle: 'AI connections',
-          content: renderAiConnectionsPage({ user, tokens: [] }),
-        });
+        void renderAiConnectionsSettings(path, user);
       } else if (route.pageId === 'P44') {
         // MCP Client Setup (P44)
         const connectionId = params.connectionId || 'tok-sample';

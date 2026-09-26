@@ -1766,9 +1766,71 @@
 
 .token-secret-text {
   flex: 1;
+  min-width: 0;
   word-break: break-all;
   user-select: all;
   color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  .settings-connections-container {
+    width: 100%;
+    min-width: 0;
+  }
+  .settings-connections-container > .flex:first-child > h1 {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .settings-connections-container > .flex:first-child {
+    flex-wrap: wrap;
+  }
+  .settings-connections-container > .flex:first-child > button {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+  .settings-connections-container .settings-subnav,
+  .settings-connections-container .tabs-nav,
+  .settings-connections-container .filter-tab-bar,
+  .settings-connections-container .connections-table-wrapper {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .settings-connections-container .filter-tab-bar {
+    flex-wrap: wrap;
+  }
+  .connections-table {
+    min-width: 640px;
+  }
+  #token-reveal-modal {
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+  #token-reveal-modal .modal-dialog {
+    width: 100%;
+    min-width: 0;
+    margin: auto 0;
+    padding: var(--space-4);
+  }
+  #token-reveal-modal .token-secret-box {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  #token-reveal-modal .token-secret-text {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  #token-reveal-modal .token-secret-box button {
+    flex: 1 1 auto;
+  }
+  #token-reveal-modal .dialog-footer {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  #token-reveal-modal #btn-view-setup {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
 }
 
 .setup-rail {

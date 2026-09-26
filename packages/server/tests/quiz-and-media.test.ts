@@ -19,7 +19,7 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
   const structureService = new CourseStructureService(db);
   const mediaService = new MediaService(db, 'data/test-uploads');
   const quizService = new QuizService(db);
-  const exerciseService = new ExerciseAuthoringService(db);
+    const exerciseService = new ExerciseAuthoringService(db);
 
   const authorId = 'user-author-1'; // Seeded author: Charles Babbage
   const studentId = 'user-student-1'; // Seeded student: Ada Lovelace
@@ -93,6 +93,18 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
       caption: 'Figure 1.1 revised',
     });
     assert.equal(updated.altText, 'Updated ALU diagram');
+
+    const now = new Date().toISOString();
+    const mediaVersionId = 'version-media-access';
+    db.prepare('INSERT INTO course_versions (id, course_id, version_number, snapshot_data, created_at) VALUES (?, ?, 2, ?, ?)').run(mediaVersionId, course.id, JSON.stringify({ modules: [] }), now);
+    db.prepare("UPDATE courses SET visibility = 'private', publication_status = 'published', current_version_id = ? WHERE id = ?").run(mediaVersionId, course.id);
+    db.prepare("INSERT INTO enrollments (id, user_id, course_id, pinned_version_id, status, created_at, updated_at) VALUES ('enr-media-active', ?, ?, ?, 'active', ?, ?)").run('user-student-2', course.id, mediaVersionId, now, now);
+
+    assert.equal(mediaService.getAssetFile(asset.id, { userId: authorId, capabilities: ['student', 'author'], isSuspended: false }).mimeType, 'image/png');
+    assert.equal(mediaService.getAssetFile(asset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }).mimeType, 'image/png');
+    assert.throws(() => mediaService.getAssetFile(asset.id, { userId: null, capabilities: ['student'], isSuspended: false }), NotFoundError);
+    db.prepare("UPDATE enrollments SET status = 'revoked', updated_at = ? WHERE id = 'enr-media-active'").run(now);
+    assert.throws(() => mediaService.getAssetFile(asset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }), NotFoundError);
   });
 
   let quizStepId = '';

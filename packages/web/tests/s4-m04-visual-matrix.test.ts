@@ -220,6 +220,31 @@ test('T087 real P15/P27 browser flows have authenticated API and screenshot evid
   }
 });
 
+test('T087 P43 authenticated token lifecycle captures a masked one-time value and revoked status', () => {
+  const report = JSON.parse(fs.readFileSync(path.join(root, 'docs/evidence/s4-m04-interactive-browser-flows.json'), 'utf8'));
+  const p43 = report.liveRouteProbes.P43;
+  assert.equal(p43.secretValueIncluded, false);
+  assert.equal(p43.secretMasked, true);
+  assert.equal(p43.rejectedReauthentication, true);
+  assert.equal(p43.tokenListStatus, 200);
+  assert.equal(p43.createdTokenCount, 1);
+  assert.equal(p43.revocationConfirmationCaptured, true);
+  assert.equal(p43.revokedEndpointStatus, 200);
+  assert.equal(p43.revokedStatus, 'revoked');
+  const reveal = p43.captures.filter((item: any) => item.state === 'one_time_secret');
+  const reauthError = p43.captures.filter((item: any) => item.state === 'reauth_error');
+  const revoked = p43.captures.filter((item: any) => item.state === 'revoked_status');
+  assert.equal(reveal.length, 4);
+  assert.equal(reauthError.length, 4);
+  assert.equal(revoked.length, 4);
+  for (const item of [...reauthError, ...reveal, ...revoked]) {
+    assert.equal(item.horizontalOverflow, false, `${item.screenshot} must reflow without document overflow`);
+    assert.deepEqual(pngDimensions(item.screenshot), item.viewport);
+    assert.ok(['dark', 'light'].includes(item.theme));
+    if (item.state === 'one_time_secret') assert.equal(item.secretMasked, true);
+  }
+});
+
 test('T087 checkpoint gaps are explicit and evidence links resolve', () => {
   assert.equal(matrix.design17Checkpoints.length, 15);
   assert.equal(matrix.requiredAdverseStates.length, 9);

@@ -219,6 +219,12 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
     assert.ok(html.includes('/settings/ai-connections/tok-new-1/setup'), 'Links to setup for the new token');
   });
 
+  await t.test('P43: Reauthentication errors remain visible inside the open token dialog', () => {
+    const html = renderAiConnectionsPage({ user: authorUser, tokens: [], showCreateModal: true, error: 'Invalid password.' });
+    assert.match(html, /id="create-token-error"[^>]*role="alert"/);
+    assert.match(html, /Invalid password\./);
+  });
+
   await t.test('P43: Revoke confirmation modal displays consequence warning and destructive action', () => {
     const html = renderAiConnectionsPage({
       user: authorUser,

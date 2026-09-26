@@ -279,14 +279,14 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
       `
       }
 
-      ${opts.showCreateModal ? renderCreateTokenModal(opts.courses || []) : ''}
+      ${opts.showCreateModal ? renderCreateTokenModal(opts.courses || [], opts.error) : ''}
       ${opts.revealedToken ? renderTokenRevealModal(opts.revealedToken) : ''}
       ${opts.revokingToken ? renderRevokeConfirmationModal(opts.revokingToken) : ''}
     </div>
   `;
 }
 
-function renderCreateTokenModal(courses: AuthorCourseOption[]): string {
+function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): string {
   return `
     <div id="create-token-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="create-token-title">
       <div class="modal-dialog" tabindex="-1" style="max-width: 560px;">
@@ -294,6 +294,8 @@ function renderCreateTokenModal(courses: AuthorCourseOption[]): string {
           <h2 id="create-token-title" class="dialog-title">Create access token</h2>
           <p class="text-xs text-secondary mt-1">Issue a scoped credential for an external AI agent using MCP.</p>
         </header>
+
+        ${error ? `<div id="create-token-error" class="form-error p-3 border border-danger rounded" role="alert">${escapeHtml(error)}</div>` : ''}
 
         <form id="create-token-form" class="space-y-4 py-3" novalidate>
           ${renderTextInput({
@@ -419,6 +421,10 @@ function renderCreateTokenModal(courses: AuthorCourseOption[]): string {
       </div>
     </div>
   `;
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
 }
 
 function renderTokenRevealModal(revealed: RevealedTokenData): string {
