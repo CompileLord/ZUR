@@ -28,6 +28,7 @@ import { renderCoursePublishPage } from '../packages/web/src/pages/author/Course
 import { renderPythonExerciseEditorPage } from '../packages/web/src/pages/author/PythonExerciseEditorPage.ts';
 import { renderCourseAnalyticsPage } from '../packages/web/src/pages/author/CourseAnalyticsPage.ts';
 import { renderStudentsAndInvitationsPage } from '../packages/web/src/pages/author/StudentsAndInvitationsPage.ts';
+import { renderStudentDetailPage } from '../packages/web/src/pages/author/StudentDetailPage.ts';
 import { renderAiConnectionsPage } from '../packages/web/src/pages/settings/AiConnectionsPage.ts';
 import { renderMcpClientSetupContent } from '../packages/web/src/pages/settings/McpClientSetupDialog.ts';
 import { renderAgentActivityPage } from '../packages/web/src/pages/author/AgentActivityPage.ts';
@@ -41,6 +42,7 @@ const out = path.join(root, 'screenshots');
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zur-s4m04-'));
 const guiZoomTargets: Array<{ name: string; theme: 'dark' | 'light'; content: string }> = [];
 const rosterLayoutMeasurements: Array<Record<string, unknown>> = [];
+const studentDetailLayoutMeasurements: Array<Record<string, unknown>> = [];
 const styles = ['tokens.css', 'typography.css', 'layout.css', 'shells.css', 'components.css']
   .map((file) => fs.readFileSync(path.join(root, 'packages/web/src/styles', file), 'utf8')).join('\n');
 const admin = new AdminService(db);
@@ -188,6 +190,29 @@ async function capture(name: string, content: string, width: number, height: num
       assert.ok(measured.controls.every((control: any) => control.left >= 0 && control.right <= width + 1), `${name}: filter control is outside viewport (${JSON.stringify(measured)})`);
       rosterLayoutMeasurements.push({ name, theme: name.endsWith('_dark') ? 'dark' : 'light', ...measured });
     }
+    if (name.startsWith('s4_t087_p29_student_detail_')) {
+      const layout = await send('Runtime.evaluate', {
+        expression: `(()=>{const hero=document.querySelector('.student-hero-card')?.getBoundingClientRect();const heading=document.querySelector('.student-hero-card h1')?.getBoundingClientRect();const actions=document.querySelector('.student-header-actions')?.getBoundingClientRect();const progress=document.querySelector('.student-hero-card')?.innerText.match(/\\d+ of \\d+ completed \\(\\d+%\\)/)?.[0];const curriculum=document.querySelector('.curriculum-steps-list');return {width:innerWidth,height:innerHeight,documentWidth:document.documentElement.scrollWidth,documentClientWidth:document.documentElement.clientWidth,heroLeft:hero?.left,heroRight:hero?.right,headingRight:heading?.right,actionsLeft:actions?.left,actionsRight:actions?.right,progressSummary:progress,completedStepLabels:curriculum?.querySelectorAll('.status-badge.success').length,notStartedStepLabels:[...curriculum?.querySelectorAll('.step-rail-item')||[]].filter(item=>item.innerText.includes('Not started')).length}})()`,
+        returnByValue: true,
+      });
+      const measured = layout.result?.value;
+      assert.ok(measured, `${name}: P29 layout metrics should be available`);
+      assert.ok(measured.documentWidth <= measured.documentClientWidth, `${name}: student detail should not overflow horizontally (${JSON.stringify(measured)})`);
+      assert.ok(measured.heroRight <= width + 1, `${name}: student summary card should fit viewport (${JSON.stringify(measured)})`);
+      assert.ok(measured.actionsRight <= width + 1, `${name}: student actions should fit viewport (${JSON.stringify(measured)})`);
+      assert.equal(measured.progressSummary, '3 of 8 completed (38%)', `${name}: summary matches the seeded progress records`);
+      assert.equal(measured.completedStepLabels, 3, `${name}: three curriculum steps display as completed`);
+      assert.equal(measured.notStartedStepLabels, 5, `${name}: five curriculum steps display as not started`);
+      studentDetailLayoutMeasurements.push({ name, theme: name.endsWith('_dark') ? 'dark' : 'light', ...measured });
+    }
+    if (name.startsWith('s4_t087_p12_theory_inline_image_')) {
+      const images = await send('Runtime.evaluate', {
+        expression: '[...document.querySelectorAll(".markdown-prose img")].map(image => ({complete:image.complete,naturalWidth:image.naturalWidth,alt:image.alt}))',
+        returnByValue: true,
+      });
+      const measuredImages = images.result?.value as Array<{ complete: boolean; naturalWidth: number; alt: string }>;
+      assert.ok(measuredImages.length > 0 && measuredImages.every((image) => image.complete && image.naturalWidth > 0), `${name}: inline image asset should load (${JSON.stringify(measuredImages)})`);
+    }
     const screenshot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
     fs.writeFileSync(path.join(out, `${name}.png`), Buffer.from(screenshot.data, 'base64'));
   } finally {
@@ -230,6 +255,7 @@ const guiZoomJourneyNames = new Set([
   's4_t087_p30_analytics_sparse_activity',
   's4_t087_p34_admin_course_suspended',
   's4_t087_p43_token_grant_dialog',
+  's4_t087_p29_student_detail',
 ]);
 
 async function captureGuiBrowserZoom200(fixtures: typeof guiZoomTargets) {
@@ -418,6 +444,16 @@ try {
       description: 'Completed reference course.', difficulty: 'beginner', percentage: 100,
       isCompleted: true, status: 'active' }],
   }));
+  await captureJourney('s4_t087_p09_dashboard_completed_course', renderDashboardContinuePage({
+    user: dashboardUser,
+    continueCourse: {
+      courseId: 'course-completed', enrollmentId: 'enr-completed', title: 'Completed Python Foundations',
+      description: 'All required steps are satisfied.', pinnedVersionNumber: 1,
+      percentage: 100, completedRequired: 5, totalRequired: 5, isCompleted: true,
+      nextIncompleteStepId: null, nextStepTitle: null,
+    },
+    recentCourses: [],
+  }));
 
   const theory = renderTheoryStepPage({
     courseTitle: 'Python foundations', courseOverviewUrl: '/learn/enr-ada', lessonTitle: 'Variables',
@@ -427,6 +463,13 @@ try {
     enrollmentId: 'enr-ada', stepId: 'step-theory', isCompleted: false, nextStepUrl: '/learn/enr-ada/steps/step-video',
   });
   await captureJourney('s4_t087_p12_theory_code_example', theory);
+  await captureJourney('s4_t087_p12_theory_inline_image', renderTheoryStepPage({
+    courseTitle: 'Python foundations', courseOverviewUrl: '/learn/enr-ada', lessonTitle: 'Values',
+    stepTitle: 'Read a labeled diagram', stepOrdinalText: 'Lesson 1 · Step 2 of 4', isRequired: true,
+    estimatedDurationMinutes: 4,
+    markdownContent: `## Value flow\n\nThe diagram shows a value moving from input to output.\n\n![ZUR mark used as a small illustrative image](${path.relative(tempDir, path.join(root, 'packages/web/public/favicon.svg')).split(path.sep).join('/')})\n\nUse the text explanation as the source of instructions.`,
+    enrollmentId: 'enr-ada', stepId: 'step-theory-image', isCompleted: false,
+  }));
   await captureJourney('s4_t087_p13_video_unavailable_transcript', renderVideoStepPage({
     courseTitle: 'Python foundations', courseOverviewUrl: '/learn/enr-ada', lessonTitle: 'Functions',
     stepTitle: 'A video lesson with a readable transcript', stepOrdinalText: 'Lesson 2 · Step 1 of 3',
@@ -450,6 +493,14 @@ try {
   await captureJourney('s4_t087_p14_quiz_passed', renderQuizStepPage({
     ...quizCommon, isCompleted: true, selectedOptionIds: ['opt-3'],
     feedback: { isPassed: true, verdict: 'PASSED', explanation: 'Floor division returns the whole-number quotient.', correctOptionIds: ['opt-3'] },
+  }));
+  await captureJourney('s4_t087_p14_quiz_multiple_choice', renderQuizStepPage({
+    ...quizCommon, quizType: 'multiple_choice', stepTitle: 'Choose all true statements',
+    prompt: 'Which statements about Python values are true?', options: [
+      { id: 'opt-immutable', text: 'An integer value is immutable.' },
+      { id: 'opt-list', text: 'A list can hold multiple values.' },
+      { id: 'opt-string', text: 'Every string is a number.' },
+    ], isCompleted: false, selectedOptionIds: ['opt-immutable', 'opt-list'],
   }));
 
   await captureJourney('s4_t087_p03_course_suspended', renderCourseOverviewPage({
@@ -525,6 +576,45 @@ try {
     validationStatus: 'needs_recheck', validationResults: [{ position: 1, passed: false, name: 'Hidden edge case', error: 'Reference validation is stale after a source change.' }],
     revision: 12, isRequired: true, estimatedDurationMinutes: 10, saveStatus: 'conflict',
   }));
+  const longTestList = renderPythonExerciseEditorPage({
+    courseId: builderCourseId, courseTitle: longCourseTitle, publicationState: 'draft', hasUnpublishedChanges: true,
+    stepId: 'fixture-step-test-list', stepTitle: 'Inspect public and hidden test cases', activeSubTab: 'tests',
+    problemStatement: 'Sum the supplied integers.', inputFormat: 'Integers separated by spaces.', outputFormat: 'Print the sum.',
+    constraints: '1 ≤ n ≤ 1000', starterCode: 'print(sum(map(int, input().split())))\n', referenceSolution: 'print(sum(map(int, input().split())))\n',
+    hints: [], solutionExplanation: 'Add each input value.',
+    publicTests: Array.from({ length: 5 }, (_, i) => ({ stdin: `1 ${i + 2}`, expectedStdout: String(i + 3) })),
+    hiddenTests: Array.from({ length: 4 }, (_, i) => ({ stdin: `${i + 5} 10`, expectedStdout: String(i + 15), isHidden: true })),
+    runtimeLimits: { cpuTimeoutSeconds: 2, wallTimeoutSeconds: 5, memoryLimitMib: 128 },
+    validationStatus: 'passed', revision: 13, isRequired: true, estimatedDurationMinutes: 10, saveStatus: 'saved',
+  });
+  await captureJourney('s4_t087_p25_python_test_list', longTestList);
+
+  const detailCurriculum = Array.from({ length: 4 }, (_, moduleIndex) => ({
+    id: `detail-module-${moduleIndex + 1}`, title: ['Variables and Types', 'Decisions and Branching', 'Loops and Collections', 'Functions and Review'][moduleIndex],
+    ordinal: moduleIndex + 1,
+    lessons: Array.from({ length: 2 }, (_, lessonIndex) => ({
+      id: `detail-lesson-${moduleIndex + 1}-${lessonIndex + 1}`,
+      title: lessonIndex === 1 && moduleIndex === 3 ? 'A longer lesson title that wraps while preserving the step rail layout' : `Lesson ${lessonIndex + 1}: ${['Read', 'Practice'][lessonIndex]}`,
+      ordinal: lessonIndex + 1,
+      steps: [{ id: `detail-step-${moduleIndex + 1}-${lessonIndex + 1}`, title: lessonIndex ? 'Write and check a short program' : 'Read the concept and example', type: lessonIndex ? 'python' as const : 'theory' as const, ordinal: 1, isRequired: true }],
+    })),
+  }));
+  const detailData = {
+    enrollment: { id: 'enr-detail-fixture', courseId: builderCourseId, courseTitle: 'Python foundations', courseVersionId: 'cv-detail-fixture', versionNumber: 3, status: 'active' as const, enrolledAt: '2026-08-20T08:30:00.000Z', revokedAt: null, revocationReason: null, completedAt: null },
+    student: { id: 'user-detail-fixture', displayName: 'Ada Lovelace', email: 'a***a@example.test' },
+    overallProgress: { requiredStepsCompleted: 3, totalRequiredSteps: 8, percentage: 38, lastLearningActivityAt: '2026-09-25T13:15:00.000Z' },
+    curriculum: detailCurriculum,
+    stepProgress: {
+      'detail-step-1-1': { satisfied: true, completedAt: '2026-09-02T10:00:00.000Z', submissionCount: 0, bestScore: null, isWaived: false },
+      'detail-step-1-2': { satisfied: true, completedAt: '2026-09-04T10:00:00.000Z', submissionCount: 1, bestScore: 100, isWaived: false },
+      'detail-step-2-1': { satisfied: true, completedAt: '2026-09-06T10:00:00.000Z', submissionCount: 0, bestScore: null, isWaived: false },
+    },
+    attempts: {}, waivers: {},
+  };
+  await captureJourney('s4_t087_p29_student_detail', renderStudentDetailPage({
+    courseId: builderCourseId, courseTitle: 'Python foundations', publicationState: 'published',
+    hasUnpublishedChanges: false, data: detailData, selectedStepId: 'detail-step-1-1',
+  }));
 
   const sparseAnalytics = {
     courseId: builderCourseId, courseVersionId: 'cv-fixture-v2', windowDays: 30, versionNumber: 2,
@@ -599,6 +689,12 @@ try {
     fs.writeFileSync(path.join(root, 'docs/evidence/s4-m04-roster-layout-checks.json'), JSON.stringify({
       method: 'Headless Chrome CDP captures of the real StudentsAndInvitationsPage renderer at asserted CSS viewports. This report checks document/toolbar scroll widths and invitation button bounds, in addition to saving the corresponding PNGs.',
       captures: rosterLayoutMeasurements,
+    }, null, 2) + '\n');
+  }
+  if (studentDetailLayoutMeasurements.length) {
+    fs.writeFileSync(path.join(root, 'docs/evidence/s4-m04-student-detail-layout-checks.json'), JSON.stringify({
+      method: 'Headless Chrome CDP captures of the real StudentDetailPage renderer at asserted CSS viewports. The report records document width, hero-card bounds, and action bounds for every theme and requested size.',
+      captures: studentDetailLayoutMeasurements,
     }, null, 2) + '\n');
   }
   console.log('Captured S4-M04 operational and Python workspace responsive/adverse fixtures.');

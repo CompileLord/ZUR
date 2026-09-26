@@ -49,7 +49,7 @@ test('T087 representative journeys have GUI Chrome 200% zoom captures with measu
   const file = path.join(root, 'docs/evidence/s4-m04-gui-zoom-captures.json');
   assert.ok(fs.existsSync(file), 'GUI zoom capture report exists');
   const report = JSON.parse(fs.readFileSync(file, 'utf8'));
-  assert.equal(report.captures.length, 18);
+  assert.equal(report.captures.length, 20);
   assert.match(report.method, /GUI Chrome Appearance Zoom setting selected 200%/);
   assert.match(report.method, /no Emulation\.setDeviceMetricsOverride/);
   assert.equal(matrix.viewportMatrix.representativeBrowserZoom200.captureCount, report.captures.length);
@@ -102,7 +102,7 @@ test('T087 checkpoint gaps are explicit and evidence links resolve', () => {
 });
 
 test('T087 expanded journey captures resolve at their declared themes and CSS viewports', () => {
-  assert.equal(matrix.expandedJourneys.cases.length, 27);
+  assert.equal(matrix.expandedJourneys.cases.length, 32);
   for (const journey of matrix.expandedJourneys.cases) {
     assert.deepEqual(journey.themes, ['dark', 'light'], journey.id);
     assert.deepEqual(journey.viewports, [[1440, 900], [1024, 768], [768, 1024], [390, 844], [320, 844]], journey.id);
@@ -113,4 +113,27 @@ test('T087 expanded journey captures resolve at their declared themes and CSS vi
       }
     }
   }
+});
+
+test('T087 P29 detail has responsive browser bounds evidence at every required viewport and theme', () => {
+  const reportPath = path.join(root, 'docs/evidence/s4-m04-student-detail-layout-checks.json');
+  assert.ok(fs.existsSync(reportPath), 'P29 layout measurements exist');
+  const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  assert.equal(report.captures.length, 10);
+  const expected = new Set(['1440x900', '1024x768', '768x1024', '390x844', '320x844']);
+  for (const theme of ['dark', 'light']) {
+    const captures = report.captures.filter((item: any) => item.theme === theme);
+    assert.equal(captures.length, 5, `${theme} P29 capture count`);
+    assert.deepEqual(new Set(captures.map((item: any) => `${item.width}x${item.height}`)), expected, `${theme} P29 viewports`);
+    for (const item of captures) {
+      assert.ok(item.documentWidth <= item.documentClientWidth, `${item.name}: document has no horizontal overflow`);
+      assert.ok(item.heroRight <= item.width + 1, `${item.name}: hero fits viewport`);
+      assert.ok(item.actionsRight <= item.width + 1, `${item.name}: actions fit viewport`);
+      assert.equal(item.progressSummary, '3 of 8 completed (38%)', `${item.name}: displayed progress summary`);
+      assert.equal(item.completedStepLabels, 3, `${item.name}: completed curriculum rows`);
+      assert.equal(item.notStartedStepLabels, 5, `${item.name}: not-started curriculum rows`);
+    }
+  }
+  const zoomReport = JSON.parse(fs.readFileSync(path.join(root, 'docs/evidence/s4-m04-gui-zoom-captures.json'), 'utf8'));
+  assert.equal(zoomReport.captures.filter((item: any) => item.id === 's4_t087_p29_student_detail').length, 2);
 });

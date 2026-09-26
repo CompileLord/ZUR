@@ -98,13 +98,14 @@
         "s4_t087_p28_roster_students_and_invitations",
         "s4_t087_p30_analytics_sparse_activity",
         "s4_t087_p34_admin_course_suspended",
-        "s4_t087_p43_token_grant_dialog"
+        "s4_t087_p43_token_grant_dialog",
+        "s4_t087_p29_student_detail"
       ],
       "themes": [
         "dark",
         "light"
       ],
-      "captureCount": 18
+      "captureCount": 20
     }
   },
   "expandedJourneys": {
@@ -919,6 +920,156 @@
           "dark",
           "light"
         ]
+      },
+      {
+        "id": "P09 completed dashboard",
+        "prefix": "s4_t087_p09_dashboard_completed_course",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P12 inline image component fixture",
+        "prefix": "s4_t087_p12_theory_inline_image",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P14 multiple-choice selected state",
+        "prefix": "s4_t087_p14_quiz_multiple_choice",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P25 public/hidden test list and long list",
+        "prefix": "s4_t087_p25_python_test_list",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P29 responsive student detail",
+        "prefix": "s4_t087_p29_student_detail",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
       }
     ]
   },
@@ -943,7 +1094,7 @@
         "screenshots/s4_t087_p04_sign_in_validation_390x844_light.png",
         "screenshots/s4_t087_p08_invitation_expired_390x844_light.png"
       ],
-    "gap": "Sign-in validation and expired-invitation states are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom is not captured for these routes."
+      "gap": "Sign-in validation and expired-invitation states are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom is not captured for these routes."
     },
     {
       "id": 3,
@@ -951,9 +1102,10 @@
       "coverage": "partial",
       "evidence": [
         "screenshots/s4_t087_p09_dashboard_empty_1440x900_dark.png",
-        "screenshots/s4_t087_p09_dashboard_populated_390x844_light.png"
+        "screenshots/s4_t087_p09_dashboard_populated_390x844_light.png",
+        "screenshots/s4_t087_p09_dashboard_completed_course_390x844_dark.png"
       ],
-    "gap": "Empty and populated dashboard states are captured across the five CSS viewports in both themes; the completed-course branch and actual 200% Chrome UI zoom are not represented."
+      "gap": "Empty, populated, and completed-course dashboard states are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom is not captured for these routes."
     },
     {
       "id": 4,
@@ -961,9 +1113,10 @@
       "coverage": "partial",
       "evidence": [
         "screenshots/s4_t087_p12_theory_code_example_1440x900_dark.png",
-        "screenshots/s4_t087_p13_video_unavailable_transcript_390x844_light.png"
+        "screenshots/s4_t087_p13_video_unavailable_transcript_390x844_light.png",
+        "screenshots/s4_t087_p12_theory_inline_image_1440x900_light.png"
       ],
-    "gap": "Code and failed-video transcript states are captured across the five CSS viewports in both themes; inline image media and actual 200% Chrome UI zoom for these routes are not represented."
+      "gap": "Code, failed-video transcript, and inline-image rendering are captured across the five CSS viewports in both themes. The inline image is a local illustrative asset, not course-attached media; actual 200% Chrome UI zoom is not captured for these routes."
     },
     {
       "id": 5,
@@ -971,9 +1124,10 @@
       "coverage": "partial",
       "evidence": [
         "screenshots/s4_t087_p14_quiz_selected_incorrect_1440x900_dark.png",
-        "screenshots/s4_t087_p14_quiz_passed_390x844_light.png"
+        "screenshots/s4_t087_p14_quiz_passed_390x844_light.png",
+        "screenshots/s4_t087_p14_quiz_multiple_choice_390x844_light.png"
       ],
-    "gap": "Selected/incorrect and passed quiz states are captured across the five CSS viewports in both themes; a multiple-choice state and actual 200% Chrome UI zoom for this route are not represented."
+      "gap": "Selected/incorrect, passed, and multiple-choice quiz states are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom is not captured for this route."
     },
     {
       "id": 6,
@@ -985,7 +1139,7 @@
         "screenshots/s4_t087_p15_python_queued_390x844_light.png",
         "screenshots/s4_t087_p15_python_passed_1440x900_dark.png"
       ],
-    "gap": "Python queued has actual 200% Chrome UI zoom captures in both themes; idle, public/hidden failure, unsaved, and passed states lack actual 200% zoom captures. Hidden failure is represented only in desktop dark."
+      "gap": "Python queued has actual 200% Chrome UI zoom captures in both themes; idle, public/hidden failure, unsaved, and passed states lack actual 200% zoom captures. Hidden failure is represented only in desktop dark."
     },
     {
       "id": 7,
@@ -1002,9 +1156,10 @@
       "checkpoint": "Python author tests and stale reference validation",
       "coverage": "partial",
       "evidence": [
-        "screenshots/s4_t087_p25_python_reference_stale_1440x900_dark.png"
+        "screenshots/s4_t087_p25_python_reference_stale_1440x900_dark.png",
+        "screenshots/s4_t087_p25_python_test_list_390x844_dark.png"
       ],
-    "gap": "Stale reference validation is captured across the five CSS viewports in both themes; an explicit public/hidden test-list or long-test state and actual 200% Chrome UI zoom for P25 are not represented."
+      "gap": "Stale reference validation and a long public/hidden test-list state are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom for P25 is not represented."
     },
     {
       "id": 9,
@@ -1027,9 +1182,12 @@
         "screenshots/s4_t087_p28_roster_students_and_invitations_200zoom_light_gui.png",
         "screenshots/s4_t087_p30_analytics_sparse_activity_200zoom_light_gui.png",
         "screenshots/s4_m02_p29_student_detail.png",
-        "docs/evidence/s4-m04-roster-layout-checks.json"
+        "docs/evidence/s4-m04-roster-layout-checks.json",
+        "screenshots/s4_t087_p29_student_detail_320x844_light.png",
+        "screenshots/s4_t087_p29_student_detail_200zoom_dark_gui.png",
+        "docs/evidence/s4-m04-student-detail-layout-checks.json"
       ],
-      "gap": "Roster filters and sparse analytics are captured at all five CSS viewports in dark/light and actual 200% Chrome UI in both themes; P28 title/action and filter-toolbar bounds are measured with no horizontal overflow at 320/390. Student detail has only the earlier desktop dark capture; its responsive/zoom states remain outstanding."
+      "gap": "P29 student detail is captured across all five CSS viewports and both themes with actual 200% Chrome UI zoom in both themes; browser bounds checks found no horizontal overflow. These remain component fixtures, not authenticated full-app routes; detail-attempt interaction is not represented in this responsive fixture."
     },
     {
       "id": 11,
@@ -1068,7 +1226,7 @@
         "screenshots/s4_t087_p44_setup_generic_1440x900_dark.png",
         "screenshots/s4_t087_p44_setup_oauth_client_390x844_light.png"
       ],
-    "gap": "Generic and OAuth-only setup components are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom for P44 and external client connections are not represented."
+      "gap": "Generic and OAuth-only setup components are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom for P44 and external client connections are not represented."
     },
     {
       "id": 15,
@@ -1077,7 +1235,7 @@
       "evidence": [
         "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png"
       ],
-    "gap": "The deterministic mutation diff and recovery confirmation are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom and the concurrent-edit conflict state are not represented."
+      "gap": "The deterministic mutation diff and recovery confirmation are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom and the concurrent-edit conflict state are not represented."
     }
   ],
   "requiredAdverseStates": [
@@ -1195,6 +1353,30 @@
     {
       "file": "screenshots/s4_t087_p28_roster_students_and_invitations_390x844_light.png",
       "result": "At 390 CSS px, invite action is below heading/description and all filters fit within their card. The table scrolls horizontally within its own wrapper."
+    },
+    {
+      "file": "screenshots/s4_t087_p29_student_detail_320x844_light.png",
+      "result": "At 320 CSS px the student name remains intact; status, enrollment metadata, and actions stack below it. The summary says 3 of 8 completed (38%), matching three Completed curriculum labels and five Not started rows; the page has no horizontal overflow."
+    },
+    {
+      "file": "screenshots/s4_t087_p29_student_detail_200zoom_dark_gui.png",
+      "result": "Actual Chrome UI zoom at 200% preserves the student identity/actions and keeps the curriculum view scrollable; this is a component fixture rather than an authenticated page."
+    },
+    {
+      "file": "screenshots/s4_t087_p09_dashboard_completed_course_390x844_dark.png",
+      "result": "The completed-course dashboard branch displays the all-courses-complete message and review/explore actions without a progress percentage pretending there is an active next lesson."
+    },
+    {
+      "file": "screenshots/s4_t087_p12_theory_inline_image_1440x900_light.png",
+      "result": "The local illustrative image asset loads with adjacent explanatory text. It demonstrates inline image rendering only, not course media authorization or attachment."
+    },
+    {
+      "file": "screenshots/s4_t087_p14_quiz_multiple_choice_390x844_light.png",
+      "result": "Multiple-choice prompt, select-all instruction, checkbox answers, and submit action are visible at mobile width."
+    },
+    {
+      "file": "screenshots/s4_t087_p25_python_test_list_390x844_dark.png",
+      "result": "Long author test-list view separates public examples from the hidden grading suite; the test tab remains usable in the narrow viewport."
     }
   ],
   "rosterMobileLayoutEvidence": "docs/evidence/s4-m04-roster-layout-checks.json"

@@ -1,7 +1,7 @@
 {
   "method": "GUI Chrome Appearance Zoom setting selected 200% in an isolated temporary Chrome profile. Chrome CDP was used only to navigate, read browser metrics, and capture PNGs; no Emulation.setDeviceMetricsOverride, setDeviceScaleFactor, setPageScaleFactor, or forced zoom command was used.",
   "chromeVersion": "154.0.8037.57",
-  "measuredAt": "2026-09-26T04:29:29.890Z",
+  "measuredAt": "2026-09-26T05:00:01.451Z",
   "baseline": {
     "innerWidth": 1536,
     "innerHeight": 746,
@@ -274,6 +274,50 @@
         "visualViewportScale": 1
       },
       "screenshot": "screenshots/s4_t087_p27_publish_blocked_errors_200zoom_light_gui.png"
+    },
+    {
+      "id": "s4_t087_p29_student_detail",
+      "theme": "dark",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1
+      },
+      "screenshot": "screenshots/s4_t087_p29_student_detail_200zoom_dark_gui.png"
+    },
+    {
+      "id": "s4_t087_p29_student_detail",
+      "theme": "light",
+      "browserZoomPercent": 200,
+      "baseline": {
+        "innerWidth": 1536,
+        "innerHeight": 746,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 1.25,
+        "visualViewportScale": 1
+      },
+      "actual": {
+        "innerWidth": 768,
+        "innerHeight": 373,
+        "outerWidth": 1536,
+        "outerHeight": 832,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1
+      },
+      "screenshot": "screenshots/s4_t087_p29_student_detail_200zoom_light_gui.png"
     },
     {
       "id": "s4_t087_p30_analytics_sparse_activity",

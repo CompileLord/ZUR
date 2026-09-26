@@ -1539,9 +1539,16 @@
                 "docs/evidence/s4-m04-gui-zoom-captures.json",
                 "screenshots/s4_t087_p30_analytics_sparse_activity_390x844_light.png",
                 "screenshots/s4_t087_p43_connections_expired_revocation_review_390x844_dark.png",
-                "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png"
+                "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png",
+                "docs/evidence/s4-m04-student-detail-layout-checks.json",
+                "screenshots/s4_t087_p09_dashboard_completed_course_390x844_dark.png",
+                "screenshots/s4_t087_p12_theory_inline_image_1440x900_light.png",
+                "screenshots/s4_t087_p14_quiz_multiple_choice_390x844_light.png",
+                "screenshots/s4_t087_p25_python_test_list_390x844_dark.png",
+                "screenshots/s4_t087_p29_student_detail_320x844_light.png",
+                "screenshots/s4_t087_p29_student_detail_200zoom_dark_gui.png"
               ],
-              "blocker": "All 27 expanded fixtures now have both-theme captures at five CSS widths; P28 roster header/filter fit is verified at 320/390 in both themes, and 18 actual 200% GUI Chrome captures cover nine journeys with measured baseline width/height/DPR assertions. Remaining checks: builder inspector-open, client-side waiver confirmation, responsive P29 student detail, actual zoom on the remaining journeys, revoked-token and one-time-secret states (secret excluded), real concurrent-edit conflict, inline image media, and additional error/recovery routes. Captures are component fixtures, not authenticated full-app journeys."
+              "blocker": "All 32 expanded fixtures have both-theme captures at five CSS widths. P28 roster layout and P29 student-detail bounds are verified across their targeted mobile sizes/themes; P29 also has measured actual 200% GUI captures in both themes. Added completed dashboard, inline-image component, multiple-choice, and long public/hidden test-list states. Remaining checks: builder inspector-open, client-side waiver confirmation, publish-confirmation interaction, actual 200% zoom on remaining routes, revoked-token and one-time-secret states (secret excluded), real concurrent-edit conflict, and additional error/recovery routes. The inline image is a local illustrative asset, not course-attached media. Captures are component fixtures, not authenticated full-app journeys."
             },
             {
               "id": "T088",
