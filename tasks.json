@@ -189,7 +189,7 @@
             {
               "id": "T005",
               "title": "Set up modular application and environments",
-              "status": "done",
+              "status": "in_progress",
               "priority": "P0",
               "description": "Create reproducible local, test, staging, and production configuration; separate web/API from execution workers; document secrets, migrations, deployment, rollback, and deterministic nonproduction fixtures.",
               "evidence": [
@@ -198,7 +198,9 @@
                 "packages/shared",
                 "packages/server",
                 "packages/web",
-                "packages/server/src/db/seed.ts"
+                "packages/server/src/db/seed.ts",
+                "packages/server/tests/database-config.test.ts",
+                "Blocker: PostgreSQL adapter and compatible migrations, separate execution worker, staging/production deployment and rollback configuration remain unimplemented"
               ]
             },
             {

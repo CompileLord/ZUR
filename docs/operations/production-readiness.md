@@ -2,6 +2,10 @@
 
 **Status:** implementation guidance; staging and production procedures have not been exercised.
 
+## Deployment adapter gap
+
+`DATABASE_URL` currently accepts SQLite file paths only. A PostgreSQL URL now fails at startup instead of being treated as a SQLite filename. The approved PostgreSQL production decision has no application adapter or compatible migrations yet. Execution requests still run synchronously in the API process despite the persisted lease queue. Do not deploy this build as a separated API/worker service or count T005 as complete. Staging and production deployment manifests, secrets provisioning, rollback commands, and restore rehearsal depend on selecting and implementing those adapters.
+
 ## Monitoring currently implemented
 
 - `GET /healthz` performs a database `SELECT 1` and returns only `{"status":"ok"}` when the API can reach its database. It does not prove email, object storage, runner, or backup health.
