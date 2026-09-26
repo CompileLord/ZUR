@@ -71,6 +71,7 @@ export class ExecutionService {
     }
 
     // Enforce quotas, rate limits, active jobs limit, and operator kill switch
+    this.quotaService.assertExecutionAvailable();
     if (jobType !== 'author_validation') {
       this.quotaService.checkCanEnqueue(userId, jobType);
     }
@@ -120,21 +121,20 @@ export class ExecutionService {
 
   getJob(jobId: string, requestingUserId: string): { job: ExecutionJob; result?: ExecutionResult | null } {
     const row = this.db.prepare(`
-      SELECT id, user_id, enrollment_id, step_id, job_type, code, stdin, idempotency_key,
-             status, lease_expires_at, result_payload, attempt_id, created_at, updated_at
-      FROM execution_jobs
-      WHERE id = ?
+      SELECT j.id, j.user_id, j.enrollment_id, j.step_id, j.job_type, j.code, j.stdin, j.idempotency_key,
+             j.status, j.lease_expires_at, j.result_payload, j.attempt_id, j.created_at, j.updated_at,
+             e.course_id, c.owner_id course_owner_id
+      FROM execution_jobs j JOIN enrollments e ON e.id=j.enrollment_id JOIN courses c ON c.id=e.course_id
+      WHERE j.id = ?
     `).get(jobId) as any;
 
     if (!row) {
       throw new NotFoundError("This page isn't available.");
     }
 
-    // Permission check: owning user or course owner/admin
+    // Keep learner code and execution output private to the learner and course owner.
     if (row.user_id !== requestingUserId) {
-      const userRow = this.db.prepare('SELECT capabilities FROM users WHERE id = ?').get(requestingUserId) as { capabilities: string } | undefined;
-      const caps = userRow ? JSON.parse(userRow.capabilities) : [];
-      if (!caps.includes('admin') && !caps.includes('author')) {
+      if (row.course_owner_id !== requestingUserId) {
         throw new NotFoundError("This page isn't available.");
       }
     }
@@ -401,4 +401,3 @@ export class ExecutionService {
     return { job: completedJob, result: finalResult || result };
   }
 }
-

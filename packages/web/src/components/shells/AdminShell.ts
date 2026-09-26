@@ -5,6 +5,10 @@ export interface AdminShellOptions {
   content: string;
 }
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]!));
+}
+
 export function renderAdminShell(opts: AdminShellOptions): string {
   const navItems = [
     { label: 'Overview', path: '/admin' },
@@ -20,7 +24,7 @@ export function renderAdminShell(opts: AdminShellOptions): string {
   const navHtml = navItems
     .map(
       (item) => `
-      <a href="${item.path}" class="admin-nav-item ${opts.activePath === item.path ? 'active' : ''}">
+      <a href="${item.path}" class="admin-nav-item ${opts.activePath === item.path || (item.path !== '/admin' && opts.activePath.startsWith(`${item.path}/`)) ? 'active' : ''}">
         <span class="nav-indicator"></span>
         <span class="nav-label">${item.label}</span>
       </a>
@@ -46,7 +50,7 @@ export function renderAdminShell(opts: AdminShellOptions): string {
         <div class="admin-sidebar-footer">
           <div class="admin-actor-card">
             <span class="admin-actor-label">Acting Admin</span>
-            <span class="admin-actor-name">${opts.adminUser.displayName}</span>
+            <span class="admin-actor-name">${escapeHtml(opts.adminUser.displayName)}</span>
           </div>
           <a href="/learn" class="admin-return-link">← Return to App</a>
         </div>
@@ -54,7 +58,7 @@ export function renderAdminShell(opts: AdminShellOptions): string {
 
       <div class="admin-main-area">
         <header class="admin-location-header" role="banner">
-          <h1 class="admin-title">${opts.headerTitle}</h1>
+          <h1 class="admin-title">${escapeHtml(opts.headerTitle)}</h1>
         </header>
 
         <main id="main-content" class="admin-content-body" role="main">

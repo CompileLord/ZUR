@@ -47,9 +47,9 @@ export class AuthorizationService {
       return { allowed: false, role: 'visitor', isEnrolled: false };
     }
 
-    // Admins have operational access
+    // Admin support review is confined to the dedicated records page, which shows the grant reason and expiry.
     if (user.capabilities.includes('admin')) {
-      return { allowed: true, role: 'admin', isEnrolled: false, course };
+      return { allowed: false, role: 'visitor', isEnrolled: false };
     }
 
     // Owner access
@@ -115,11 +115,6 @@ export class AuthorizationService {
 
     // Course owner viewing attempt in owned course
     if (user.userId && attempt.owner_id === user.userId) {
-      return true;
-    }
-
-    // Admin
-    if (user.capabilities.includes('admin')) {
       return true;
     }
 

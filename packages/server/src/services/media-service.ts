@@ -220,6 +220,13 @@ export class MediaService {
     return { buffer, mimeType: asset.mimeType };
   }
 
+  getAdminPreviewFile(adminId: string, assetId: string): { buffer: Buffer; mimeType: string } {
+    const actor=this.db.prepare('SELECT capabilities,account_status FROM users WHERE id=?').get(adminId) as any;
+    const asset=this.db.prepare('SELECT file_path,mime_type,processing_status FROM media_assets WHERE id=?').get(assetId) as any;
+    if(!actor || actor.account_status!=='active' || !JSON.parse(actor.capabilities||'[]').includes('admin') || !asset || asset.processing_status!=='ready' || !fs.existsSync(asset.file_path)) throw new NotFoundError("This page isn't available.");
+    return {buffer:fs.readFileSync(asset.file_path),mimeType:asset.mime_type};
+  }
+
   updateAssetMetadata(
     userId: string,
     assetId: string,

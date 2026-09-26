@@ -16,9 +16,9 @@ export function seedDatabase(dbPath?: string): void {
       'step_progress', 'assessment_attempts', 'code_drafts', 'execution_jobs',
       'test_cases', 'step_contents', 'steps', 'lessons', 'modules',
       'enrollments', 'invitations', 'course_versions', 'courses', 'categories',
-      'author_access_tokens', 'agent_mutations', 'recovery_revisions', 'media_assets',
+      'author_access_tokens', 'agent_mutations', 'recovery_revisions', 'media_assets', 'admin_support_access',
       'media_uploads', 'reports', 'audit_events', 'verification_tokens', 'sessions', 'users', 'deletion_registry',
-      'product_analytics_events'
+      'product_analytics_events', 'privacy_requests'
     ];
     for (const t of tables) {
       db.exec(`DELETE FROM ${t};`);

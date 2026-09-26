@@ -8,8 +8,11 @@ export interface PrivacySettingsPageOptions {
   error?: string;
   successMessage?: string;
   exportData?: any;
+  exportDownloadUrl?: string;
   isLoading?: boolean;
 }
+
+const escapePrivacy = (value: unknown): string => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]!));
 
 export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {}): string {
   const requests = opts.requests || [];
@@ -78,11 +81,11 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
               <p class="text-sm text-secondary mb-3">Your export has been compiled. You can download the JSON payload below.</p>
               <a
                 id="download-export-link"
-                href="data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(opts.exportData, null, 2))}"
-                download="zur-learning-export.json"
+                href="${escapePrivacy(opts.exportDownloadUrl||`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(opts.exportData, null, 2))}`)}"
+                ${opts.exportDownloadUrl?'':'download="zur-learning-export.json"'}
                 class="btn btn-secondary btn-compact"
               >
-                Download zur-learning-export.json
+                ${opts.exportDownloadUrl?'Download ZIP export':'Download zur-learning-export.json'}
               </a>
             </div>
           `
@@ -138,12 +141,13 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
                   <div>
                     <span class="font-semibold capitalize">${req.requestType} request</span>
                     <span class="text-xs text-muted block">${new Date(req.createdAt).toLocaleDateString()}</span>
-                    ${req.blockerReason ? `<span class="text-xs text-danger block mt-1">${req.blockerReason}</span>` : ''}
+                    ${req.blockerReason ? `<span class="text-xs text-danger block mt-1">${escapePrivacy(req.blockerReason)}</span>` : ''}
                   </div>
                   <div>
                     <span class="status-badge ${req.status === 'completed' ? 'success' : req.status === 'failed' ? 'danger' : 'info'}">
                       ${req.status}
                     </span>
+                    ${req.requestType==='export'&&req.exportExpiresAt&&new Date(req.exportExpiresAt).getTime()>Date.now()?`<a class="text-primary underline block mt-2" href="/api/settings/privacy/exports/${encodeURIComponent(req.id)}">Download export · expires ${escapePrivacy(new Date(req.exportExpiresAt).toLocaleString())}</a>`:''}
                   </div>
                 </div>
               `
@@ -157,7 +161,7 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
       </div>
 
       <!-- Account Deletion Consequence Dialog -->
-      <div id="delete-account-modal" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-delete-title">
+      <div id="delete-account-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-delete-title">
         <div class="modal-dialog" tabindex="-1">
           <header class="dialog-header">
             <h2 id="modal-delete-title" class="dialog-title text-danger">Permanently delete your account?</h2>

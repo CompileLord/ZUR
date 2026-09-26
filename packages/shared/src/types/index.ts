@@ -415,6 +415,7 @@ export interface PrivacyRequest {
   status: PrivacyRequestStatus;
   consequenceAcknowledged: boolean;
   blockerReason?: string | null;
+  exportExpiresAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -28,11 +28,15 @@ export class QuotaService {
     `).run(paused ? 'true' : 'false', now);
   }
 
-  checkCanEnqueue(userId: string, jobType: 'run_samples' | 'run_custom' | 'submit'): void {
-    // 1. Operator kill switch check
+  assertExecutionAvailable(): void {
     if (this.isExecutionPaused()) {
       throw new ServiceUnavailableError('Python execution is temporarily paused for maintenance. Code draft saving and reading remain available.');
     }
+  }
+
+  checkCanEnqueue(userId: string, jobType: 'run_samples' | 'run_custom' | 'submit'): void {
+    // 1. Operator kill switch check
+    this.assertExecutionAvailable();
 
     // 2. Max active jobs per user (queued or running)
     const activeRow = this.db.prepare(`

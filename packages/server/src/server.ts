@@ -9,6 +9,7 @@ import { AttemptService } from './services/attempt-service.ts';
 import { CourseService } from './services/course-service.ts';
 import { CourseStructureService } from './services/course-structure-service.ts';
 import { MediaService } from './services/media-service.ts';
+import { createJsonZip } from './services/export-archive.ts';
 import { QuizService } from './services/quiz-service.ts';
 import { ExerciseAuthoringService } from './services/exercise-authoring-service.ts';
 import { CourseAutosaveService } from './services/course-autosave-service.ts';
@@ -27,6 +28,7 @@ import { DraftRecoveryService } from './services/draft-recovery-service.ts';
 import { TeacherRosterService } from './services/teacher-roster-service.ts';
 import { ProductAnalyticsService } from './services/product-analytics-service.ts';
 import { EmailDeliveryService } from './services/email-delivery-service.ts';
+import { AdminService } from './services/admin-service.ts';
 
 export function createServer(
   db: DatabaseSync,
@@ -59,6 +61,7 @@ export function createServer(
   const teacherRosterService = new TeacherRosterService(db);
   const productAnalyticsService = new ProductAnalyticsService(db);
   const emailDeliveryService = dependencies.emailDeliveryService || new EmailDeliveryService();
+  const adminService = new AdminService(db);
 
   async function deliverCourseInvitation(ownerId: string, invitationId: string, courseId: string, token: string) {
     const invitation = db.prepare(`SELECT i.recipient_email, i.expires_at, c.title, u.display_name
@@ -321,6 +324,9 @@ export function createServer(
         return;
       }
 
+      const privacyExportDownload=pathname.match(/^\/api\/settings\/privacy\/exports\/([a-zA-Z0-9_-]+)$/);
+      if(method==='GET'&&privacyExportDownload){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=identityService.getPrivacyExport(user.id,privacyExportDownload[1]);const bytes=createJsonZip('account-export.json',body);res.writeHead(200,{'Content-Type':'application/zip','Content-Length':bytes.length,'Content-Disposition':`attachment; filename="zur-account-export-${privacyExportDownload[1]}.zip"`,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(bytes);return;}
+
       // 14. Data Export (T017)
       if (method === 'POST' && pathname === '/api/settings/privacy/export') {
         if (!token) throw new AuthenticationError();
@@ -453,8 +459,8 @@ export function createServer(
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         authService.requireAdmin(user);
-        const isPaused = executionService.getQuotaService().isExecutionPaused();
-        sendJson(res, 200, { executionPaused: isPaused });
+        const overview = adminService.getOperationsOverview(user.id);
+        sendJson(res, 200, { executionPaused: overview.execution.paused, updatedAt: overview.execution.updatedAt });
         return;
       }
 
@@ -462,8 +468,9 @@ export function createServer(
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         authService.requireAdmin(user);
-        executionService.getQuotaService().setExecutionPaused(true);
-        sendJson(res, 200, { executionPaused: true });
+        const body = await parseJsonBody(req);
+        identityService.verifyCurrentPassword(user.id, body.currentPassword);
+        sendJson(res, 200, adminService.setExecutionPaused(user.id, true, body.reason));
         return;
       }
 
@@ -471,10 +478,69 @@ export function createServer(
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         authService.requireAdmin(user);
-        executionService.getQuotaService().setExecutionPaused(false);
-        sendJson(res, 200, { executionPaused: false });
+        const body = await parseJsonBody(req);
+        identityService.verifyCurrentPassword(user.id, body.currentPassword);
+        sendJson(res, 200, adminService.setExecutionPaused(user.id, false, body.reason));
         return;
       }
+
+      const adminPage = (limitName='limit', offsetName='offset') => ({ limit: Number(url.searchParams.get(limitName) || 20), offset: Number(url.searchParams.get(offsetName) || 0) });
+      if (method === 'GET' && pathname === '/api/admin/operations') {
+        if (!token) throw new AuthenticationError(); const { user } = identityService.authenticateSession(token);
+        sendJson(res,200,adminService.getOperationsOverview(user.id)); return;
+      }
+      if (method === 'GET' && pathname === '/api/admin/execution/jobs') {
+        if (!token) throw new AuthenticationError(); const { user } = identityService.authenticateSession(token); const page=adminPage();
+        sendJson(res,200,adminService.listExecutionJobs(user.id,url.searchParams.get('from')||undefined,url.searchParams.get('to')||undefined,page.limit,page.offset)); return;
+      }
+      if (method === 'GET' && pathname === '/api/admin/users') {
+        if (!token) throw new AuthenticationError(); const { user } = identityService.authenticateSession(token); const page=adminPage();
+        sendJson(res,200,adminService.listUsers(user.id,{search:url.searchParams.get('search')||undefined,status:url.searchParams.get('status')||undefined,capability:url.searchParams.get('capability')||undefined,...page})); return;
+      }
+      const adminUserMatch=pathname.match(/^\/api\/admin\/users\/([a-zA-Z0-9_-]+)$/);
+      if(method==='GET'&&adminUserMatch){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);sendJson(res,200,adminService.getUserDetail(user.id,adminUserMatch[1]));return;}
+      const adminUserActionMatch=pathname.match(/^\/api\/admin\/users\/([a-zA-Z0-9_-]+)\/(grant-author|revoke-author|suspend|restore)$/);
+      if(method==='POST'&&adminUserActionMatch){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);const action=adminUserActionMatch[2].replace('-','_') as any;sendJson(res,200,adminService.changeUserState(user.id,adminUserActionMatch[1],action,body.reason));return;}
+      if(method==='POST'&&pathname==='/api/admin/support-access'){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);const grant=adminService.beginSupportAccess(user.id,body.userId,body.courseId,body.reason);sendJson(res,201,grant);return;}
+      const supportRecords=pathname.match(/^\/api\/admin\/support-access\/([a-zA-Z0-9_-]+)\/records$/);
+      if(method==='GET'&&supportRecords){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);sendJson(res,200,adminService.getSupportedStudentRecords(user.id,supportRecords[1]));return;}
+      const supportRevoke=pathname.match(/^\/api\/admin\/support-access\/([a-zA-Z0-9_-]+)\/revoke$/);
+      if(method==='POST'&&supportRevoke){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.revokeSupportAccess(user.id,supportRevoke[1],body.reason));return;}
+      if(method==='GET'&&pathname==='/api/admin/courses'){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const page=adminPage();sendJson(res,200,adminService.listCourses(user.id,url.searchParams.get('search')||'',page.limit,page.offset));return;}
+      const adminCourseMatch=pathname.match(/^\/api\/admin\/courses\/([a-zA-Z0-9_-]+)$/);
+      if(method==='GET'&&adminCourseMatch){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);sendJson(res,200,adminService.getCourseDetail(user.id,adminCourseMatch[1]));return;}
+      const adminCourseSuspend=pathname.match(/^\/api\/admin\/courses\/([a-zA-Z0-9_-]+)\/suspension$/);
+      if(method==='POST'&&adminCourseSuspend){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);if(typeof body.suspended!=='boolean'&&body.suspended!=='true'&&body.suspended!=='false')throw new ValidationError('Choose whether to suspend or restore the course.');sendJson(res,200,adminService.setCourseSuspended(user.id,adminCourseSuspend[1],body.suspended===true||body.suspended==='true',body.reason));return;}
+      const adminArchiveCourse=pathname.match(/^\/api\/admin\/courses\/([a-zA-Z0-9_-]+)\/archive-for-deletion$/);
+      if(method==='POST'&&adminArchiveCourse){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.archiveCourseForDeletion(user.id,adminArchiveCourse[1],body.reason));return;}
+      const adminWaiver=pathname.match(/^\/api\/admin\/courses\/([a-zA-Z0-9_-]+)\/waivers$/);
+      if(method==='GET'&&adminWaiver){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const query=url.searchParams;sendJson(res,200,adminService.previewWaiver(user.id,adminWaiver[1],query.get('versionId')||'',query.get('stepId')||''));return;}
+      if(method==='POST'&&adminWaiver){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.waiveStep(user.id,adminWaiver[1],body.versionId,body.stepId,body.reason,body.enrollmentIds,Number(body.reviewedAffectedCount)));return;}
+      if(method==='GET'&&pathname==='/api/admin/categories'){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);sendJson(res,200,{items:adminService.listCategories(user.id)});return;}
+      if(method==='POST'&&pathname==='/api/admin/categories'){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,201,adminService.saveCategory(user.id,body.name,undefined,undefined,body.reason));return;}
+      const adminCategory=pathname.match(/^\/api\/admin\/categories\/([a-zA-Z0-9_-]+)$/);
+      if(method==='PUT'&&adminCategory){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.saveCategory(user.id,body.name,adminCategory[1],undefined,body.reason));return;}
+      if(method==='DELETE'&&adminCategory){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.removeCategory(user.id,adminCategory[1],body.replacementId,body.reason));return;}
+      if(method==='GET'&&pathname==='/api/admin/reports'){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const page=adminPage();sendJson(res,200,adminService.listReports(user.id,url.searchParams.get('status')||undefined,page.limit,page.offset));return;}
+      const reportDetail=pathname.match(/^\/api\/admin\/reports\/([a-zA-Z0-9_-]+)$/);
+      if(method==='GET'&&reportDetail){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);sendJson(res,200,adminService.getReport(user.id,reportDetail[1]));return;}
+      if(method==='PATCH'&&reportDetail){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.updateReport(user.id,reportDetail[1],body.status,body.outcome||'',body.internalNotes||'',body.reason));return;}
+      if(method==='GET'&&pathname==='/api/admin/media'){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const page=adminPage();sendJson(res,200,adminService.listMedia(user.id,page.limit,page.offset));return;}
+      const adminMediaPreview=pathname.match(/^\/api\/admin\/media\/([a-zA-Z0-9_-]+)\/preview$/);
+      if(method==='POST'&&adminMediaPreview){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);adminService.authorizeMediaPreview(user.id,adminMediaPreview[1],body.reason);const file=mediaService.getAdminPreviewFile(user.id,adminMediaPreview[1]);res.writeHead(200,{'Content-Type':file.mimeType,'Content-Length':file.buffer.length,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(file.buffer);return;}
+      const adminMediaReview=pathname.match(/^\/api\/admin\/media\/([a-zA-Z0-9_-]+)\/(quarantine|restore)$/);
+      if(method==='POST'&&adminMediaReview){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.reviewMedia(user.id,adminMediaReview[1],adminMediaReview[2],body.reason));return;}
+      const adminMediaDelete=pathname.match(/^\/api\/admin\/media\/([a-zA-Z0-9_-]+)$/);
+      if(method==='DELETE'&&adminMediaDelete){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.deleteMedia(user.id,adminMediaDelete[1],body.reason));return;}
+      if(method==='GET'&&pathname==='/api/admin/audit'){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const page=adminPage('limit','offset');sendJson(res,200,adminService.listAudit(user.id,{actorId:url.searchParams.get('actorId')||undefined,action:url.searchParams.get('action')||undefined,targetType:url.searchParams.get('targetType')||undefined,targetId:url.searchParams.get('targetId')||undefined,reason:url.searchParams.get('reason')||undefined,correlationId:url.searchParams.get('correlationId')||undefined,from:url.searchParams.get('from')||undefined,to:url.searchParams.get('to')||undefined,...page}));return;}
+      const auditDetail=pathname.match(/^\/api\/admin\/audit\/([a-zA-Z0-9_-]+)$/);
+      if(method==='GET'&&auditDetail){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);sendJson(res,200,adminService.getAuditEvent(user.id,auditDetail[1]));return;}
+      if(method==='GET'&&pathname==='/api/admin/privacy-requests'){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const page=adminPage();sendJson(res,200,adminService.listPrivacyRequests(user.id,url.searchParams.get('status')||undefined,page.limit,page.offset));return;}
+      const privacyAction=pathname.match(/^\/api\/admin\/privacy-requests\/([a-zA-Z0-9_-]+)$/);
+      if(method==='PATCH'&&privacyAction){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.updatePrivacyRequest(user.id,privacyAction[1],body.status,body.reason));return;}
+      if(method==='POST'&&privacyAction){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.purgeAccount(user.id,privacyAction[1],body.reason));return;}
+      const privacyExport=pathname.match(/^\/api\/admin\/privacy-requests\/([a-zA-Z0-9_-]+)\/export$/);
+      if(method==='POST'&&privacyExport){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);const bundle=adminService.exportAccount(user.id,privacyExport[1],body.reason);const bytes=Buffer.from(JSON.stringify(bundle,null,2));res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length,'Content-Disposition':`attachment; filename="zur-account-export-${privacyExport[1]}.json"`,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(bytes);return;}
 
       // 24. List Attempts (T027)
       if (method === 'GET' && pathname === '/api/attempts') {
@@ -649,12 +715,9 @@ export function createServer(
         const { user } = identityService.authenticateSession(token);
         const courseId = adminCourseSuspendMatch[1];
         const body = await parseJsonBody(req);
-        const updated = courseLifecycleService.setCourseSuspension(
-          user.id,
-          courseId,
-          Boolean(body.isSuspended),
-          body.reason
-        );
+        identityService.verifyCurrentPassword(user.id, body.currentPassword);
+        if (typeof body.isSuspended !== 'boolean') throw new ValidationError('Choose whether to suspend or restore the course.');
+        const updated = adminService.setCourseSuspended(user.id, courseId, body.isSuspended, body.reason);
         sendJson(res, 200, updated);
         return;
       }

@@ -1,4 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
+import crypto from 'node:crypto';
 import {
   NotFoundError,
   AuthorizationError,
@@ -54,10 +55,7 @@ export class AttemptService {
     if (enrollment.user_id !== requestingUserId) {
       // Check if teacher/owner of course or admin
       const course = this.db.prepare('SELECT owner_id FROM courses WHERE id = ?').get(enrollment.course_id) as { owner_id: string } | undefined;
-      const user = this.db.prepare('SELECT capabilities FROM users WHERE id = ?').get(requestingUserId) as { capabilities: string } | undefined;
-      const caps = user ? JSON.parse(user.capabilities) : [];
-
-      if (course?.owner_id !== requestingUserId && !caps.includes('admin')) {
+      if (course?.owner_id !== requestingUserId) {
         throw new NotFoundError("This page isn't available.");
       }
     }
@@ -112,10 +110,7 @@ export class AttemptService {
     const isOwnerStudent = row.user_id === requestingUserId;
     if (!isOwnerStudent) {
       const course = this.db.prepare('SELECT owner_id FROM courses WHERE id = ?').get(row.course_id) as { owner_id: string } | undefined;
-      const user = this.db.prepare('SELECT capabilities FROM users WHERE id = ?').get(requestingUserId) as { capabilities: string } | undefined;
-      const caps = user ? JSON.parse(user.capabilities) : [];
-
-      if (course?.owner_id !== requestingUserId && !caps.includes('admin')) {
+      if (course?.owner_id !== requestingUserId) {
         throw new NotFoundError("This page isn't available.");
       }
     }
@@ -162,5 +157,10 @@ export class AttemptService {
       success: true,
       code: row.code_snapshot,
     };
+  }
+
+  private auditSupportView(actorId:string,action:string,targetId:string,reason:string,metadata:Record<string,string>):void {
+    this.db.prepare(`INSERT INTO audit_events(id,actor_id,action,target_type,target_id,reason,metadata,correlation_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)`)
+      .run(crypto.randomUUID(),actorId,action,'assessment_attempt',targetId,reason,JSON.stringify(metadata),crypto.randomUUID(),new Date().toISOString());
   }
 }

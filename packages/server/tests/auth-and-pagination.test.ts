@@ -46,11 +46,15 @@ test('Authorization and Pagination Core (T007, AC-05, AC-10)', async (t) => {
     const suspendedAccess = authService.getCourseAccess(studentCtx, 'course-suspended-tricks');
     assert.strictEqual(suspendedAccess.allowed, false);
 
-    // Admin can access suspended course
+    // Admin course access is confined to the bannered support records page.
     const adminCtx = { userId: 'user-admin-1', capabilities: ['admin' as const], isSuspended: false };
+    const deniedAdminAccess = authService.getCourseAccess(adminCtx, 'course-suspended-tricks');
+    assert.strictEqual(deniedAdminAccess.allowed, false);
+    const grantNow=new Date();
+    db.prepare(`INSERT INTO admin_support_access (id,admin_id,student_id,course_id,reason,created_at,expires_at)
+      VALUES ('test-admin-grant','user-admin-1','user-student-1','course-suspended-tricks','Investigation support request',?,?)`).run(grantNow.toISOString(),new Date(grantNow.getTime()+30*60_000).toISOString());
     const adminAccess = authService.getCourseAccess(adminCtx, 'course-suspended-tricks');
-    assert.strictEqual(adminAccess.allowed, true);
-    assert.strictEqual(adminAccess.role, 'admin');
+    assert.strictEqual(adminAccess.allowed, false);
   });
 
   await t.test('Server-side pagination returns bounded pages and correct metadata', () => {

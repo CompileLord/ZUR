@@ -164,6 +164,13 @@ test('Quotas, Overload Controls & Operator Kill Switch (T024)', async (t) => {
       assert.strictEqual(err.statusCode, 503);
       return true;
     });
+    assert.throws(() => executionService.enqueueJob({
+      userId: studentUser,
+      enrollmentId: studentEnrollment,
+      stepId,
+      jobType: 'author_validation',
+      code: 'print(1)',
+    }), (err: any) => err instanceof ServiceUnavailableError && err.statusCode === 503);
 
     // Saving and loading drafts MUST STILL WORK
     const saved = draftService.saveDraft(studentUser, studentEnrollment, stepId, 'x = 42', 3);

@@ -1377,68 +1377,116 @@
             {
               "id": "T077",
               "title": "Build operations overview",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P32 real execution, queue, runner, report, and email health with timestamps and incident links; render unavailable telemetry honestly and avoid fake healthy states."
+              "description": "Implement P32 real execution, queue, runner, report, and email health with timestamps and incident links; render unavailable telemetry honestly and avoid fake healthy states.",
+              "evidence": [
+                "docs/evidence/S4-M03-verification.md",
+                "packages/server/src/services/admin-service.ts",
+                "screenshots/s4_m03_overview.png"
+              ]
             },
             {
               "id": "T078",
               "title": "Build user administration and audited support access",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P33 search/filter/detail, author grant/revoke, account suspend/restore, privacy-request status, stronger admin auth, reason-gated learner-record access, visible support banner, and audit events."
+              "description": "Implement P33 search/filter/detail, author grant/revoke, account suspend/restore, privacy-request status, stronger admin auth, reason-gated learner-record access, visible support banner, and audit events.",
+              "evidence": [
+                "docs/evidence/S4-M03-verification.md",
+                "packages/server/tests/admin-operations.test.ts",
+                "packages/server/tests/auth-and-pagination.test.ts",
+                "screenshots/s4_m03_users_user_student_1.png"
+              ]
             },
             {
               "id": "T079",
               "title": "Build course administration and completion waiver",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P34 course lookup, suspension/restore and reports; add reasoned exact-version/step/affected-enrollment waiver with reviewed count, learner notice, distinct progress provenance, and no passing-attempt credit."
+              "description": "Implement P34 course lookup, suspension/restore and reports; add reasoned exact-version/step/affected-enrollment waiver with reviewed count, learner notice, distinct progress provenance, and no passing-attempt credit.",
+              "evidence": [
+                "docs/evidence/S4-M03-verification.md",
+                "packages/server/tests/admin-operations.test.ts",
+                "screenshots/s4_m03_courses_course_python_foundations.png"
+              ]
             },
             {
               "id": "T080",
               "title": "Build category administration",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P35 create/edit and normalized duplicate checks, usage counts, rename effects, and prevention of in-use category removal without reassignment."
+              "description": "Implement P35 create/edit and normalized duplicate checks, usage counts, rename effects, and prevention of in-use category removal without reassignment.",
+              "evidence": [
+                "docs/evidence/S4-M03-verification.md",
+                "packages/server/tests/admin-operations.test.ts",
+                "screenshots/s4_m03_categories.png"
+              ]
             },
             {
               "id": "T081",
               "title": "Implement private report workflow",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Accept broken-exercise/inappropriate-content reports with automatic course/version/step context, optional consented code, Open/Investigating/Resolved status, private admin P36 triage and resolution outcome, and support reference."
+              "description": "Accept broken-exercise/inappropriate-content reports with automatic course/version/step context, optional consented code, Open/Investigating/Resolved status, private admin P36 triage and resolution outcome, and support reference.",
+              "evidence": [
+                "docs/evidence/S4-M03-verification.md",
+                "packages/server/tests/admin-operations.test.ts",
+                "screenshots/s4_m03_reports_report_screen.png"
+              ]
             },
             {
               "id": "T082",
               "title": "Build media operations",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P37 asset processing/quarantine list, authorized safe preview, owner/reference counts, review reason and impact, and retained-version deletion protection."
+              "description": "Implement P37 asset processing/quarantine list, authorized safe preview, owner/reference counts, review reason and impact, and retained-version deletion protection.",
+              "evidence": [
+                "docs/evidence/S4-M03-verification.md",
+                "packages/server/tests/admin-operations.test.ts",
+                "screenshots/s4_m03_media.png"
+              ]
             },
             {
               "id": "T083",
               "title": "Build execution operations and kill switch",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement P38 queue/worker/job health, time filters, paginated payload-safe records, explicit disable/reactivate new execution, audited confirmation, and confirmed backend state."
+              "description": "Implement P38 queue/worker/job health, time filters, paginated payload-safe records, explicit disable/reactivate new execution, audited confirmation, and confirmed backend state.",
+              "evidence": [
+                "docs/evidence/S4-M03-verification.md",
+                "packages/server/tests/admin-operations.test.ts",
+                "screenshots/s4_m03_execution.png"
+              ]
             },
             {
               "id": "T084",
               "title": "Build audit search and sensitive-action trail",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Record and expose P39 paginated actor/action/target/time/reason/correlation search for admin, support, access, waiver, and agent mutations; redact credentials, code, hidden tests, signed URLs, and secret payloads."
+              "description": "Record and expose P39 paginated actor/action/target/time/reason/correlation search for admin, support, access, waiver, and agent mutations; redact credentials, code, hidden tests, signed URLs, and secret payloads.",
+              "evidence": [
+                "docs/evidence/S4-M03-verification.md",
+                "packages/server/tests/admin-operations.test.ts",
+                "screenshots/s4_m03_audit.png"
+              ]
             },
             {
               "id": "T085",
               "title": "Fulfill export and deletion requests",
-              "status": "not_started",
+              "status": "done",
               "priority": "P0",
-              "description": "Implement audited manual support execution for account export/deletion, ownership blocker resolution, active-data purge within the approved policy, backup re-deletion marker, and user-visible request status."
+              "description": "Implement audited manual support execution for account export/deletion, ownership blocker resolution, active-data purge within the approved policy, backup re-deletion marker, and user-visible request status.",
+              "evidence": [
+                "docs/evidence/S4-M03-verification.md",
+                "packages/server/tests/admin-operations.test.ts",
+                "packages/server/src/services/export-archive.ts",
+                "screenshots/s4_m03_privacy_export.png",
+                "screenshots/s4_m03_privacy_export_mobile.png"
+              ]
             }
           ],
-          "status": "not_started"
+          "status": "done"
         },
         {
           "id": "S4-M04",

@@ -92,6 +92,7 @@ export const ROUTES: RouteDefinition[] = [
   createRoute('P37', '/admin/media', 'S6', 'Media operations', 'admin'),
   createRoute('P38', '/admin/execution', 'S6', 'Execution operations', 'admin'),
   createRoute('P39', '/admin/audit', 'S6', 'Audit log', 'admin'),
+  createRoute('P39', '/admin/audit/:eventId', 'S6', 'Audit event detail', 'admin'),
 
   // Public Legal & Support (P40–P42)
   createRoute('P40', '/help', 'S1', 'Help and reporting'),

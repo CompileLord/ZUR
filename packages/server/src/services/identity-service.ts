@@ -27,6 +27,7 @@ export class IdentityService {
 
   constructor(db: DatabaseSync) {
     this.db = db;
+    this.db.prepare('DELETE FROM privacy_exports WHERE expires_at<=?').run(new Date().toISOString());
   }
 
   private checkRateLimit(key: string, maxAttempts: number = 5, windowMs: number = 15 * 60 * 1000): void {
@@ -415,6 +416,16 @@ export class IdentityService {
     return true;
   }
 
+  verifyCurrentPassword(userId: string, password: string): boolean {
+    if (!password) throw new ValidationError('Current password is required for this administrator action.');
+    const rateKey=`admin-reauth:${userId}`;
+    this.checkRateLimit(rateKey,5,15*60*1000);
+    const user = this.db.prepare('SELECT password_hash FROM users WHERE id=?').get(userId) as { password_hash: string } | undefined;
+    if (!user || !verifyPassword(password, user.password_hash)) { this.recordRateLimitFailure(rateKey); throw new AuthenticationError('Reauthentication failed.'); }
+    this.clearRateLimit(rateKey);
+    return true;
+  }
+
   // --- T016: Profile & Appearance Settings ---
 
   updateProfile(userId: string, data: { displayName: string }): User {
@@ -544,13 +555,15 @@ export class IdentityService {
 
     const requestId = `priv-${crypto.randomUUID()}`;
     const now = new Date().toISOString();
-
-    this.db.prepare(`
-      INSERT INTO privacy_requests (id, user_id, request_type, status, consequence_acknowledged, blocker_reason, created_at, updated_at)
-      VALUES (?, ?, 'export', 'completed', 1, NULL, ?, ?)
-    `).run(requestId, userId, now, now);
-
-    return { requestId, exportPayload };
+    const expiresAt=new Date(Date.now()+24*60*60*1000).toISOString();
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      this.db.prepare(`INSERT INTO privacy_requests (id,user_id,request_type,status,consequence_acknowledged,blocker_reason,created_at,updated_at) VALUES (?,?,'export','completed',1,NULL,?,?)`).run(requestId,userId,now,now);
+      this.db.prepare(`INSERT INTO privacy_exports(request_id,user_id,package_json,expires_at,created_at) VALUES(?,?,?,?,?)`).run(requestId,userId,JSON.stringify(exportPayload),expiresAt,now);
+      this.db.prepare(`INSERT INTO audit_events(id,actor_id,action,target_type,target_id,reason,metadata,correlation_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)`).run(crypto.randomUUID(),userId,'privacy_request:export_requested','user',userId,'User requested their own account export',JSON.stringify({requestId,expiresAt}),crypto.randomUUID(),now);
+      this.db.exec('COMMIT');
+    } catch(error) { this.db.exec('ROLLBACK'); throw error; }
+    return { requestId, exportPayload, downloadUrl:`/api/settings/privacy/exports/${encodeURIComponent(requestId)}`, expiresAt };
   }
 
   requestAccountDeletion(userId: string, consequenceAcknowledged: boolean): { success: boolean; requestId: string } {
@@ -560,7 +573,7 @@ export class IdentityService {
 
     // Sole-Owner Course Check (PRD §15, tasks.json T017, POLICY-001 §4)
     const ownedCourses = this.db.prepare(`
-      SELECT id, title, publication_status FROM courses WHERE owner_id = ?
+      SELECT id, title, publication_status FROM courses WHERE owner_id = ? AND publication_status != 'archived'
     `).all(userId) as Array<{ id: string; title: string; publication_status: string }>;
 
     if (ownedCourses.length > 0) {
@@ -605,13 +618,15 @@ export class IdentityService {
   }
 
   getPrivacyStatus(userId: string): { requests: PrivacyRequest[]; ownedCourseCount: number } {
+    this.db.prepare('DELETE FROM privacy_exports WHERE expires_at<=?').run(new Date().toISOString());
     const requestsRaw = this.db.prepare(`
-      SELECT id, user_id, request_type, status, consequence_acknowledged, blocker_reason, created_at, updated_at
-      FROM privacy_requests WHERE user_id = ? ORDER BY created_at DESC
+      SELECT p.id, p.user_id, p.request_type, p.status, p.consequence_acknowledged, p.blocker_reason, p.created_at, p.updated_at,
+        (SELECT expires_at FROM privacy_exports x WHERE x.request_id=p.id) export_expires_at
+      FROM privacy_requests p WHERE p.user_id = ? ORDER BY p.created_at DESC
     `).all(userId) as any[];
 
     const ownedCourses = this.db.prepare(`
-      SELECT COUNT(*) as count FROM courses WHERE owner_id = ?
+      SELECT COUNT(*) as count FROM courses WHERE owner_id = ? AND publication_status != 'archived'
     `).get(userId) as { count: number };
 
     const requests: PrivacyRequest[] = requestsRaw.map((r) => ({
@@ -621,6 +636,7 @@ export class IdentityService {
       status: r.status,
       consequenceAcknowledged: Boolean(r.consequence_acknowledged),
       blockerReason: r.blocker_reason,
+      exportExpiresAt: r.export_expires_at || null,
       createdAt: r.created_at,
       updatedAt: r.updated_at,
     }));
@@ -629,6 +645,14 @@ export class IdentityService {
       requests,
       ownedCourseCount: ownedCourses.count,
     };
+  }
+
+  getPrivacyExport(userId:string,requestId:string):string {
+    const row=this.db.prepare(`SELECT package_json,expires_at FROM privacy_exports WHERE request_id=? AND user_id=?`).get(requestId,userId) as any;
+    if(!row)throw new NotFoundError("This page isn't available.");
+    if(Date.parse(row.expires_at)<=Date.now()){this.db.prepare('DELETE FROM privacy_exports WHERE request_id=?').run(requestId);throw new NotFoundError("This page isn't available.");}
+    this.db.prepare(`UPDATE privacy_exports SET downloaded_at=?,download_count=download_count+1 WHERE request_id=?`).run(new Date().toISOString(),requestId);
+    return row.package_json;
   }
 
   // --- T018: Safe Denial Contract ---

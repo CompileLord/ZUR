@@ -41,6 +41,7 @@ import { renderPolicyPage } from './pages/public/PolicyPage.ts';
 import { renderStudentsAndInvitationsPage } from './pages/author/StudentsAndInvitationsPage.ts';
 import { renderStudentDetailPage } from './pages/author/StudentDetailPage.ts';
 import { renderCourseAnalyticsPage } from './pages/author/CourseAnalyticsPage.ts';
+import { renderAdminPage } from './pages/admin/AdminPages.ts';
 import { CourseClient } from './services/course-client.ts';
 
 const appEl = document.getElementById('app')!;
@@ -73,6 +74,37 @@ function initTheme(): void {
 
 let activeCatalogRequestId = 0;
 
+async function loadAdminPage(path: string, displayName: string, email: string): Promise<void> {
+  const headers = { Authorization: `Bearer ${authClient.getToken() || ''}` };
+  const api = async (url: string) => { const res=await fetch(url,{headers}); if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.error?.message||`Admin request failed (${res.status})`);}return res.json(); };
+  try {
+    const search = new URL(path,window.location.origin).search;
+    let data:any;
+    if(path.split('?')[0]==='/admin') data=await api('/api/admin/operations');
+    else if(path.split('?')[0]==='/admin/users') data=await api(`/api/admin/users${search}`);
+    else if(path.startsWith('/admin/users/')) {
+      const userId=decodeURIComponent(path.split('?')[0].split('/')[3]);
+      data=await api(`/api/admin/users/${encodeURIComponent(userId)}`);
+      const grant=new URL(path,window.location.origin).searchParams.get('supportAccess');
+      if(grant) data.supportRecords=await api(`/api/admin/support-access/${encodeURIComponent(grant)}/records`);
+    }
+    else if(path.split('?')[0]==='/admin/courses') data=await api(`/api/admin/courses${search}`);
+    else if(path.startsWith('/admin/courses/')) data=await api(`/api/admin/courses/${encodeURIComponent(path.split('?')[0].split('/')[3])}`);
+    else if(path==='/admin/categories') data=await api('/api/admin/categories');
+    else if(path.split('?')[0]==='/admin/reports') data=await api(`/api/admin/reports${search}`);
+    else if(path.startsWith('/admin/reports/')) data=await api(`/api/admin/reports/${encodeURIComponent(path.split('?')[0].split('/')[3])}`);
+    else if(path.split('?')[0]==='/admin/media') data=await api(`/api/admin/media${search}`);
+    else if(path.split('?')[0]==='/admin/execution') { const [overview,jobs]=await Promise.all([api('/api/admin/operations'),api(`/api/admin/execution/jobs${search}`)]);data={overview,jobs}; }
+    else if(path.startsWith('/admin/audit/')) data=await api(`/api/admin/audit/${encodeURIComponent(path.split('?')[0].split('/')[3])}`);
+    else if(path==='/admin/audit') data=await api(`/api/admin/audit${search}`);
+    else data={};
+    if(window.location.pathname+window.location.search!==path&&window.location.pathname!==path.split('?')[0])return;
+    appEl.innerHTML=renderAdminPage(path,data,undefined,{displayName,email});
+  } catch(error:any) {
+    appEl.innerHTML=renderAdminPage(path,null,error.message,{displayName,email});
+  }
+}
+
 export function navigateTo(path: string): void {
   window.history.pushState({}, '', path);
   renderApp(path);
@@ -97,6 +129,11 @@ export function renderApp(path: string = window.location.pathname + window.locat
   if (route.requiredCapability && !currentUser) {
     const returnTo = getSafeReturnDestination(path);
     navigateTo(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+    return;
+  }
+  if (route.shell === 'S6' && !currentUser?.capabilities?.includes('admin')) {
+    appEl.innerHTML = renderSafeDenialPage({ type: 'access-denied' });
+    initTheme();
     return;
   }
 
@@ -371,6 +408,15 @@ export function renderApp(path: string = window.location.pathname + window.locat
           content: renderPrivacySettingsPage({}),
         });
         attachPrivacyListeners();
+        const privacyPath=window.location.pathname+window.location.search;
+        void authClient.getPrivacyStatus().then((status)=>{
+          if(window.location.pathname+window.location.search!==privacyPath)return;
+          appEl.innerHTML=renderAppShell({activePath:path,user,headerTitle:'Privacy and account requests',content:renderPrivacySettingsPage(status)});
+          attachPrivacyListeners();
+        }).catch((error:any)=>{
+          if(window.location.pathname+window.location.search!==privacyPath)return;
+          const region=document.getElementById('privacy-error');if(region){region.className='form-error mb-6 p-3 border border-danger rounded';region.textContent=error.message||'Could not load request status.';}
+        });
       } else if (route.pageId === 'P43') {
         // AI Connections (P43)
         appEl.innerHTML = renderAppShell({
@@ -734,20 +780,9 @@ print(val * 2)
     }
 
     case 'S6': {
-      appEl.innerHTML = renderAdminShell({
-        activePath: path,
-        adminUser: { displayName: 'Margaret Hamilton', email: 'margaret@zur.internal' },
-        headerTitle: route.title,
-        content: `
-          <div class="admin-overview-card p-6 bg-surface border border-subtle rounded-lg">
-            <div class="flex items-center gap-2 mb-4">
-              <span class="status-badge success">Healthy</span>
-              <span class="text-xs text-muted">Platform Operational</span>
-            </div>
-            <p class="text-sm text-secondary">All execution workers, queue dispatchers, and database clusters are operating within normal budgets.</p>
-          </div>
-        `,
-      });
+      const actor = currentUser!;
+      appEl.innerHTML = renderAdminPage(path, null, undefined, { displayName: actor.displayName, email: actor.email });
+      void loadAdminPage(path, actor.displayName, actor.email);
       break;
     }
   }
@@ -1527,13 +1562,13 @@ function attachPrivacyListeners(): void {
 
   if (btnOpenDeleteModal && deleteModal) {
     btnOpenDeleteModal.addEventListener('click', () => {
-      deleteModal.style.display = 'flex';
+      deleteModal.classList.remove('hidden');
     });
   }
 
   if (btnCancelDelete && deleteModal) {
     btnCancelDelete.addEventListener('click', () => {
-      deleteModal.style.display = 'none';
+      deleteModal.classList.add('hidden');
     });
   }
 
@@ -1574,6 +1609,7 @@ function attachPrivacyListeners(): void {
           headerTitle: 'Privacy and account requests',
           content: renderPrivacySettingsPage({
             exportData: result.exportPayload,
+            exportDownloadUrl: result.downloadUrl,
             successMessage: 'Data export package generated.',
           }),
         });
@@ -2063,7 +2099,58 @@ function attachCourseAnalyticsListeners(courseId: string): void {
 }
 
 // Global click handler for internal SPA navigation and interactive widgets
+document.addEventListener('submit', async (event) => {
+  const previewForm=(event.target as HTMLElement).closest('form[data-admin-preview]') as HTMLFormElement|null;
+  if(previewForm){
+    event.preventDefault();const values=Object.fromEntries(new FormData(previewForm).entries());const button=previewForm.querySelector('button') as HTMLButtonElement|null;if(button){button.disabled=true;button.textContent='Checking and loading…';}
+    try{const response=await fetch(previewForm.getAttribute('action')||'',{method:'POST',headers:{Authorization:`Bearer ${authClient.getToken()||''}`,'Content-Type':'application/json'},body:JSON.stringify(values)});if(!response.ok){const err=await response.json().catch(()=>({}));throw new Error(err.error?.message||'Preview is unavailable.');}const blob=await response.blob();if(!blob.type.startsWith('image/'))throw new Error('The preview did not contain a safe image.');const src=URL.createObjectURL(blob);const dialog=document.createElement('dialog');dialog.className='admin-media-preview-dialog';dialog.innerHTML=`<form method="dialog"><button class="btn btn-secondary">Close preview</button></form><img alt="Authorized media preview" src="${src}">`;document.body.append(dialog);dialog.addEventListener('close',()=>{URL.revokeObjectURL(src);dialog.remove();});dialog.showModal();}
+    catch(error:any){const feedback=document.createElement('p');feedback.className='text-danger';feedback.setAttribute('role','alert');feedback.textContent=error.message;previewForm.append(feedback);}finally{if(button){button.disabled=false;button.textContent='Safe preview';}}
+    return;
+  }
+  const exportForm=(event.target as HTMLElement).closest('form[data-admin-export]') as HTMLFormElement|null;
+  if(exportForm){
+    event.preventDefault();const feedback=exportForm.querySelector('.form-error') as HTMLElement|null;const button=exportForm.querySelector('button[type="submit"]') as HTMLButtonElement|null;if(button){button.disabled=true;button.textContent='Preparing export…';}
+    try{const response=await fetch(exportForm.getAttribute('action')||'',{method:'POST',headers:{Authorization:`Bearer ${authClient.getToken()||''}`,'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(exportForm).entries()))});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error?.message||'The export could not be prepared.');if(feedback){feedback.classList.remove('hidden');feedback.classList.add('text-success');feedback.setAttribute('role','status');feedback.textContent=`Export is ready for the account owner in Privacy settings until ${new Date(result.expiresAt).toLocaleString()}.`;}if(button)button.textContent='Export prepared';}
+    catch(error:any){if(feedback){feedback.textContent=error.message;feedback.classList.remove('hidden');}if(button){button.disabled=false;button.textContent='Prepare export for user';}}
+    return;
+  }
+  const form = (event.target as HTMLElement).closest('form[data-admin-mutation]') as HTMLFormElement | null;
+  if (!form) return;
+  event.preventDefault();
+  const action=form.getAttribute('action')||'';
+  const method=(form.getAttribute('method')||'post').toUpperCase();
+  const values=Object.fromEntries(new FormData(form).entries()) as Record<string,string>;
+  if(values.suspended!==undefined) values.suspended=String(values.suspended==='true');
+  if(values.versionStep){ const [versionId,stepId]=values.versionStep.split('|');values.versionId=versionId;values.stepId=stepId;delete values.versionStep; }
+  const feedback=form.querySelector('.form-error') as HTMLElement|null;
+  const button=form.querySelector('button[type="submit"]') as HTMLButtonElement|null;
+  if(button){button.disabled=true;button.dataset.label=button.textContent||'';button.textContent='Confirming…';}
+  if(feedback){feedback.textContent='';feedback.classList.add('hidden');}
+  try{
+    const res=await fetch(action,{method,headers:{Authorization:`Bearer ${authClient.getToken()||''}`,'Content-Type':'application/json'},body:JSON.stringify(values)});
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok)throw new Error(body.error?.message||'The administrator action could not be completed.');
+    if(action==='/api/admin/support-access') { navigateTo(`/admin/users/${encodeURIComponent(body.userId)}?supportAccess=${encodeURIComponent(body.id)}`);return; }
+    renderApp(window.location.pathname+window.location.search);
+  }catch(error:any){
+    if(feedback){feedback.textContent=error.message;feedback.classList.remove('hidden');}
+    if(button){button.disabled=false;button.textContent=button.dataset.label||'Retry';}
+  }
+});
+document.addEventListener('change', async (event) => {
+  const select=(event.target as HTMLElement).closest('[data-waiver-step]') as HTMLSelectElement|null;
+  if(!select)return;
+  const form=select.closest('form') as HTMLFormElement|null;if(!form)return;
+  const [versionId,stepId]=(select.value||'').split('|');const action=form.getAttribute('action')||'';
+  const output=form.querySelector('.waiver-review-count') as HTMLElement|null;const countField=form.querySelector('[name="reviewedAffectedCount"]') as HTMLInputElement|null;const button=form.querySelector('button[type="submit"]') as HTMLButtonElement|null;
+  if(output)output.textContent='Checking affected enrollments…';if(button)button.disabled=true;
+  try{const query=new URLSearchParams({versionId,stepId});const res=await fetch(`${action}?${query}`,{headers:{Authorization:`Bearer ${authClient.getToken()||''}`}});const result=await res.json().catch(()=>({}));if(!res.ok)throw new Error(result.error?.message||'Could not review waiver scope.');if(countField)countField.value=String(result.affectedCount);if(output)output.textContent=`${result.affectedCount} active enrollment(s) will be affected · ${result.scope}.`;if(button)button.disabled=result.affectedCount===0;}
+  catch(error:any){if(countField)countField.value='0';if(output)output.textContent=error.message;if(button)button.disabled=true;}
+});
+
 document.addEventListener('click', (e) => {
+  const retry=(e.target as HTMLElement).closest('[data-admin-retry]');
+  if(retry){renderApp(window.location.pathname+window.location.search);return;}
   const hintTrigger = (e.target as HTMLElement).closest('.hint-trigger') as HTMLButtonElement | null;
   if (hintTrigger) {
     const isExpanded = hintTrigger.getAttribute('aria-expanded') === 'true';
