@@ -11,10 +11,18 @@ import { NotFoundError, ConflictError, ValidationError } from 'zur-shared';
 import crypto from 'node:crypto';
 import { closeDatabase } from '../src/db/database.ts';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { inflateRawSync } from 'node:zlib';
 import { createJsonZip } from '../src/services/export-archive.ts';
 
 function setup(){const path=`file:admin-${crypto.randomUUID()}?mode=memory&cache=shared`;runMigrations(path);seedDatabase(path);return {db:getDatabase(path),cleanup:()=>closeDatabase(path)};}
+function useDeletionRegistry(t: any) {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'zur-admin-registry-'));
+  const previous = process.env.DELETION_REGISTRY_PATH;
+  process.env.DELETION_REGISTRY_PATH = path.join(directory, 'tombstones.jsonl');
+  t.after(() => { if (previous === undefined) delete process.env.DELETION_REGISTRY_PATH; else process.env.DELETION_REGISTRY_PATH = previous; fs.rmSync(directory, { recursive: true, force: true }); });
+}
 
 test('AdminService enforces role boundaries, audited access, and real operations state',(t)=>{
   const {db,cleanup}=setup();t.after(cleanup);const admin=new AdminService(db);
@@ -163,6 +171,7 @@ test('Audit search scopes actor, target, reason, time, and correlation while rem
 });
 
 test('Deletion purge waits 30 days, blocks ownership, scrubs identity, and writes re-deletion marker',(t)=>{
+  useDeletionRegistry(t);
   const {db,cleanup}=setup();t.after(cleanup);const admin=new AdminService(db), old=new Date(Date.now()-31*86400000).toISOString(),now=new Date().toISOString();
   db.prepare(`INSERT INTO privacy_requests(id,user_id,request_type,status,consequence_acknowledged,created_at,updated_at) VALUES('priv-old','user-student-1','deletion','pending',1,?,?)`).run(old,now);
   const result=admin.purgeAccount('user-admin-1','priv-old','Verified account deletion after retention period');
@@ -195,6 +204,7 @@ test('ZIP export contains a valid compressed JSON member',(t)=>{
 });
 
 test('Deletion reports owner blockers and admin can resolve them by archived courses',(t)=>{
+  useDeletionRegistry(t);
   const {db,cleanup}=setup();t.after(cleanup);const admin=new AdminService(db),old=new Date(Date.now()-31*86400000).toISOString(),now=new Date().toISOString();
   db.prepare(`INSERT INTO privacy_requests(id,user_id,request_type,status,consequence_acknowledged,created_at,updated_at) VALUES('priv-owner-delete','user-author-1','deletion','pending',1,?,?)`).run(old,now);
   assert.throws(()=>admin.purgeAccount('user-admin-1','priv-owner-delete','Review ownership before deletion request'),ConflictError);

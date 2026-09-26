@@ -29,7 +29,7 @@ export function readDeletionTombstones(): DeletionTombstone[] {
   const lines = fs.readFileSync(registryPath(), 'utf8').split('\n').filter(Boolean);
   return lines.map((line) => {
     const entry = JSON.parse(line) as DeletionTombstone;
-    if (!/^[0-9a-f-]{36}$/i.test(entry.userId) || !/^[0-9a-f]{64}$/i.test(entry.emailHash) || !Number.isFinite(Date.parse(entry.purgedAt))) {
+    if (typeof entry.userId !== 'string' || !entry.userId || entry.userId.length > 128 || !/^[0-9a-f]{64}$/i.test(entry.emailHash) || !Number.isFinite(Date.parse(entry.purgedAt))) {
       throw new Error('Deletion registry contains an invalid tombstone; restore must remain closed.');
     }
     return entry;
