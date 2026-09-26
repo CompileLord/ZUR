@@ -132,7 +132,7 @@
       "id": "S0",
       "name": "Product decisions and technical foundation",
       "phase": "Before and across phases A–C",
-      "status": "done",
+      "status": "in_progress",
       "modules": [
         {
           "id": "S0-M01",
@@ -176,12 +176,14 @@
             {
               "id": "T004",
               "title": "Define retention and ownership policy",
-              "status": "done",
+              "status": "in_progress",
               "priority": "P0",
               "description": "Approve retention, export, deletion, backup expiry, and sole-owner transfer/archive procedure for accounts, drafts, attempts, media, tokens, invitations, logs, and local caches; define restore re-deletion handling.",
               "evidence": [
                 "docs/decisions/POLICY-retention-and-ownership.md",
-                "packages/server/src/db/reapply-deletions.ts"
+                "packages/server/src/db/reapply-deletions.ts",
+                "packages/server/tests/deletion-restore.test.ts",
+                "Blocker: provision independent durable append-only registry storage and exercise restore in staging"
               ]
             },
             {
@@ -226,7 +228,7 @@
               ]
             }
           ],
-          "status": "done"
+          "status": "in_progress"
         },
         {
           "id": "S0-M02",

@@ -1,6 +1,6 @@
 # POLICY-001: Data Retention, Ownership, Export, and Deletion Policy
 
-- **Status**: Approved
+- **Status**: Implementation in progress; external registry durability and staging restore require approval
 - **Effective Date**: 2026-09-24
 - **Version**: 1.0
 - **Policy Owners**: Data Protection Officer / Privacy Reviewer, Engineering Lead
@@ -42,17 +42,17 @@ This policy governs the retention, export, deletion, and ownership transfer of a
    - All active sessions and author tokens are instantly revoked.
    - All email invitations sent to this address become invalid.
    - After verification window, personal data is permanently scrubbed: `display_name = 'Deleted Learner'`, `email = 'deleted-uuid@purged.invalid'`, `password_hash = ''`.
-   - A cryptographic deletion record is written to `deletion_registry` with `(user_id, email_hash, requested_at, purged_at)`.
+   - A deletion tombstone is flushed to the external `DELETION_REGISTRY_PATH` before the database purge transaction. The same metadata is copied to `deletion_registry` for operational lookup. If the database transaction fails, the external tombstone still prevents the account from being reactivated on restore; support must complete the purge before restoring service.
 
 ### 3.2 Restore Re-Deletion Handling (AC-20 Compliance)
 - **Problem**: When a database backup from $T - \Delta$ is restored during disaster recovery, users who were deleted between $T - \Delta$ and $T$ could be resurrected in active state.
 - **Solution**:
-  1. The `deletion_registry` table is backed up out-of-band and maintained on an append-only, high-durability replicated store.
-  2. The service startup and database restore verification runbook mandates:
+  1. Configure `DELETION_REGISTRY_PATH` as an absolute file path on independent, durable, append-only storage. Its history must survive database backup restoration. Provision an empty file before first startup; preserve file integrity and access controls. This storage has not yet been selected or exercised in staging.
+  2. Production startup reads this file and reapplies tombstones before listening. The database restore verification runbook also mandates:
      ```bash
      npm run db:reapply-deletions
      ```
-  3. This script scans `deletion_registry` and immediately scrubs and deactivates any restored records matching registered deleted identities **before public traffic is accepted**.
+  3. This script scans the external registry and immediately scrubs and deactivates any restored records matching registered deleted identities **before public traffic is accepted**. Missing or malformed registry data aborts startup and restore. A local test covers a backup created before its tombstone; a staging restore remains required.
 
 ---
 
