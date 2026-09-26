@@ -78,7 +78,7 @@ export function applyTheme(theme: 'dark' | 'light' | 'system'): void {
 }
 
 function initTheme(): void {
-  const savedTheme = (localStorage.getItem('zur_theme_preference') as 'dark' | 'light' | 'system') || 'system';
+  const savedTheme = (localStorage.getItem('zur_theme_preference') as 'dark' | 'light' | 'system') || 'dark';
   applyTheme(savedTheme);
 
   const themeSelect = document.getElementById('theme-select') as HTMLSelectElement | null;
@@ -1093,7 +1093,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
         attachProfileListeners();
       } else if (route.pageId === 'P18') {
         // Appearance Settings
-        const savedTheme = (localStorage.getItem('zur_theme_preference') as 'dark' | 'light' | 'system') || 'system';
+        const savedTheme = (localStorage.getItem('zur_theme_preference') as 'dark' | 'light' | 'system') || 'dark';
         const resolvedSystem = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         appEl.innerHTML = renderAppShell({
           activePath: path,
