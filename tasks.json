@@ -1526,9 +1526,14 @@
                 "screenshots/s4_m04_python_guidance_390.png",
                 "screenshots/s4_m04_matrix_operations_1440x900_dark.png",
                 "screenshots/s4_m04_matrix_python_unsaved_320x844_light.png",
-                "screenshots/s4_m04_matrix_python_dpr2_320css_light.png"
+                "screenshots/s4_m04_matrix_python_dpr2_320css_light.png",
+                "screenshots/s4_t087_p08_invitation_expired_390x844_light.png",
+                "screenshots/s4_t087_p27_publish_blocked_errors_1440x900_dark.png",
+                "screenshots/s4_t087_p30_analytics_sparse_activity_390x844_light.png",
+                "screenshots/s4_t087_p43_connections_expired_revocation_review_390x844_dark.png",
+                "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png"
               ],
-              "blocker": "The auditable matrix records missing fixtures for long content, expired invitations, empty/populated dashboard, theory/video, quiz variants, author builder/validation/publication, suspension/waiver, sparse metrics, token/recovery, and agent update/conflict states. Current captures are standalone component fixtures rather than full authenticated routes; browser UI zoom and manual reflow inspection also remain outstanding."
+              "blocker": "The matrix identifies remaining checks: intermediate widths for expanded journeys, builder inspector-open, client-side waiver confirmation, actual browser UI zoom/text enlargement (current headless CDP only controls viewport/DPR), revoked-token and one-time-secret states (secret excluded), real concurrent-edit conflict, inline image media, and additional error/recovery routes. Captures are component fixtures, not authenticated full-app journeys."
             },
             {
               "id": "T088",

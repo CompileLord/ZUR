@@ -43,3 +43,16 @@ test('T087 checkpoint gaps are explicit and evidence links resolve', () => {
     for (const file of entry.evidence) assert.ok(fs.existsSync(path.join(root, file)), `${file} exists`);
   }
 });
+
+test('T087 expanded journey captures resolve at their declared themes and CSS viewports', () => {
+  assert.equal(matrix.expandedJourneys.cases.length, 26);
+  for (const journey of matrix.expandedJourneys.cases) {
+    assert.deepEqual(journey.themes, ['dark', 'light'], journey.id);
+    for (const [width, height] of journey.viewports) {
+      for (const theme of journey.themes) {
+        const file = `screenshots/${journey.prefix}_${width}x${height}_${theme}.png`;
+        assert.deepEqual(pngDimensions(file), [width, height], `${journey.id}: ${file}`);
+      }
+    }
+  }
+});
