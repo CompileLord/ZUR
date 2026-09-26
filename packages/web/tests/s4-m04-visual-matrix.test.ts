@@ -45,6 +45,52 @@ test('T087 actual Chrome 200% UI zoom has separately captured browser metrics an
   assert.ok(fs.existsSync(path.join(root, zoom.details)));
 });
 
+test('T087 representative journeys have GUI Chrome 200% zoom captures with measured viewport/DPR', () => {
+  const file = path.join(root, 'docs/evidence/s4-m04-gui-zoom-captures.json');
+  assert.ok(fs.existsSync(file), 'GUI zoom capture report exists');
+  const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+  assert.equal(report.captures.length, 18);
+  assert.match(report.method, /GUI Chrome Appearance Zoom setting selected 200%/);
+  assert.match(report.method, /no Emulation\.setDeviceMetricsOverride/);
+  assert.equal(matrix.viewportMatrix.representativeBrowserZoom200.captureCount, report.captures.length);
+  assert.deepEqual(
+    [...new Set(report.captures.map((item: any) => item.id))].sort(),
+    [...matrix.viewportMatrix.representativeBrowserZoom200.journeys].sort(),
+  );
+  for (const item of report.captures) {
+    assert.equal(item.browserZoomPercent, 200, item.id);
+    assert.equal(item.actual.innerWidth * 2, item.baseline.innerWidth, `${item.id} ${item.theme} CSS width`);
+    assert.ok(Math.abs(item.actual.innerHeight * 2 - item.baseline.innerHeight) <= 1, `${item.id} ${item.theme} CSS height`);
+    assert.equal(item.actual.outerWidth, item.baseline.outerWidth, `${item.id} ${item.theme} window width`);
+    assert.equal(item.actual.outerHeight, item.baseline.outerHeight, `${item.id} ${item.theme} window height`);
+    assert.equal(item.actual.devicePixelRatio, item.baseline.devicePixelRatio * 2, `${item.id} ${item.theme} DPR`);
+    assert.equal(item.actual.visualViewportScale, 1, `${item.id} ${item.theme} is browser zoom, not pinch zoom`);
+    assert.ok(item.actual.innerHeight > 0 && item.actual.outerHeight > 0, `${item.id} ${item.theme} height metrics`);
+    const [width, height] = pngDimensions(item.screenshot);
+    assert.ok(width > 0 && height > 0, item.screenshot);
+  }
+});
+
+test('T087 P28 roster header and filters fit the 320px and 390px viewports in both themes', () => {
+  const file = path.join(root, 'docs/evidence/s4-m04-roster-layout-checks.json');
+  assert.ok(fs.existsSync(file), 'P28 responsive layout measurements exist');
+  const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+  assert.equal(report.captures.length, 4);
+  assert.deepEqual(
+    report.captures.map((item: any) => [item.width, item.theme]).sort((a: any[], b: any[]) => a[0] - b[0] || a[1].localeCompare(b[1])),
+    [[320, 'dark'], [320, 'light'], [390, 'dark'], [390, 'light']],
+  );
+  for (const item of report.captures) {
+    assert.equal(item.height, 844);
+    assert.ok(item.documentWidth <= item.documentClientWidth, `${item.name}: no page-level horizontal overflow`);
+    assert.ok(item.headerActionTop >= item.headerTitleBottom, `${item.name}: invite action follows the title/description`);
+    assert.ok(item.headerActionRight <= item.headerRight + 1, `${item.name}: invite action remains within its header`);
+    assert.ok(item.toolbarScrollWidth <= item.toolbarWidth + 1, `${item.name}: filter toolbar has no overflow`);
+    assert.ok(item.controls.every((control: any) => control.left >= 0 && control.right <= item.width + 1), `${item.name}: filter control fits viewport`);
+    assert.deepEqual(pngDimensions(`screenshots/${item.name}.png`), [item.width, item.height], item.name);
+  }
+});
+
 test('T087 checkpoint gaps are explicit and evidence links resolve', () => {
   assert.equal(matrix.design17Checkpoints.length, 15);
   assert.equal(matrix.requiredAdverseStates.length, 9);
@@ -56,9 +102,10 @@ test('T087 checkpoint gaps are explicit and evidence links resolve', () => {
 });
 
 test('T087 expanded journey captures resolve at their declared themes and CSS viewports', () => {
-  assert.equal(matrix.expandedJourneys.cases.length, 26);
+  assert.equal(matrix.expandedJourneys.cases.length, 27);
   for (const journey of matrix.expandedJourneys.cases) {
     assert.deepEqual(journey.themes, ['dark', 'light'], journey.id);
+    assert.deepEqual(journey.viewports, [[1440, 900], [1024, 768], [768, 1024], [390, 844], [320, 844]], journey.id);
     for (const [width, height] of journey.viewports) {
       for (const theme of journey.themes) {
         const file = `screenshots/${journey.prefix}_${width}x${height}_${theme}.png`;

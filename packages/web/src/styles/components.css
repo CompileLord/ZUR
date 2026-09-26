@@ -2366,6 +2366,65 @@
 .admin-page-content h2, .admin-page-content h3 { margin: 24px 0 8px; }
 .admin-filter-form { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin-bottom: 20px; }
 .admin-filter-form label { min-width: 180px; }
+
+@media (max-width: 767px) {
+  .author-editor-pane .students-page-container.p-6 {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .students-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .students-header > div:first-child,
+  .students-header .header-actions {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .students-header .header-actions .btn {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .roster-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: var(--space-3);
+  }
+
+  .roster-toolbar > div {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    flex: 0 1 auto;
+  }
+
+  .roster-toolbar > div:nth-child(2) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .roster-toolbar .form-input,
+  .roster-toolbar .form-select,
+  .roster-toolbar button {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
 .admin-mutation-form { display: grid; gap: 12px; max-width: 520px; margin: 12px 0; }
 .admin-page-content dl { display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr); gap: 8px 16px; }
 .admin-page-content dt { color: var(--text-secondary); }

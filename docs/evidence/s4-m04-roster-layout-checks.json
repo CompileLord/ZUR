@@ -1,0 +1,153 @@
+{
+  "method": "Headless Chrome CDP captures of the real StudentsAndInvitationsPage renderer at asserted CSS viewports. This report checks document/toolbar scroll widths and invitation button bounds, in addition to saving the corresponding PNGs.",
+  "captures": [
+    {
+      "name": "s4_t087_p28_roster_students_and_invitations_390x844_dark",
+      "theme": "dark",
+      "width": 390,
+      "height": 844,
+      "documentWidth": 390,
+      "documentClientWidth": 390,
+      "headerWidth": 358,
+      "headerTitleBottom": 243,
+      "headerActionTop": 255,
+      "headerActionRight": 374,
+      "headerRight": 374,
+      "toolbarWidth": 356,
+      "toolbarScrollWidth": 356,
+      "controls": [
+        {
+          "left": 29,
+          "right": 361
+        },
+        {
+          "left": 29,
+          "right": 361
+        },
+        {
+          "left": 29,
+          "right": 361
+        },
+        {
+          "left": 29,
+          "right": 361
+        },
+        {
+          "left": 29,
+          "right": 361
+        }
+      ]
+    },
+    {
+      "name": "s4_t087_p28_roster_students_and_invitations_320x844_dark",
+      "theme": "dark",
+      "width": 320,
+      "height": 844,
+      "documentWidth": 320,
+      "documentClientWidth": 320,
+      "headerWidth": 288,
+      "headerTitleBottom": 311,
+      "headerActionTop": 323,
+      "headerActionRight": 304,
+      "headerRight": 304,
+      "toolbarWidth": 286,
+      "toolbarScrollWidth": 286,
+      "controls": [
+        {
+          "left": 29,
+          "right": 291
+        },
+        {
+          "left": 29,
+          "right": 291
+        },
+        {
+          "left": 29,
+          "right": 291
+        },
+        {
+          "left": 29,
+          "right": 291
+        },
+        {
+          "left": 29,
+          "right": 291
+        }
+      ]
+    },
+    {
+      "name": "s4_t087_p28_roster_students_and_invitations_390x844_light",
+      "theme": "light",
+      "width": 390,
+      "height": 844,
+      "documentWidth": 390,
+      "documentClientWidth": 390,
+      "headerWidth": 358,
+      "headerTitleBottom": 243,
+      "headerActionTop": 255,
+      "headerActionRight": 374,
+      "headerRight": 374,
+      "toolbarWidth": 356,
+      "toolbarScrollWidth": 356,
+      "controls": [
+        {
+          "left": 29,
+          "right": 361
+        },
+        {
+          "left": 29,
+          "right": 361
+        },
+        {
+          "left": 29,
+          "right": 361
+        },
+        {
+          "left": 29,
+          "right": 361
+        },
+        {
+          "left": 29,
+          "right": 361
+        }
+      ]
+    },
+    {
+      "name": "s4_t087_p28_roster_students_and_invitations_320x844_light",
+      "theme": "light",
+      "width": 320,
+      "height": 844,
+      "documentWidth": 320,
+      "documentClientWidth": 320,
+      "headerWidth": 288,
+      "headerTitleBottom": 311,
+      "headerActionTop": 323,
+      "headerActionRight": 304,
+      "headerRight": 304,
+      "toolbarWidth": 286,
+      "toolbarScrollWidth": 286,
+      "controls": [
+        {
+          "left": 29,
+          "right": 291
+        },
+        {
+          "left": 29,
+          "right": 291
+        },
+        {
+          "left": 29,
+          "right": 291
+        },
+        {
+          "left": 29,
+          "right": 291
+        },
+        {
+          "left": 29,
+          "right": 291
+        }
+      ]
+    }
+  ]
+}

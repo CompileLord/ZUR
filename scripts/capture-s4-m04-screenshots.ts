@@ -3,8 +3,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
+import { createServer as createHttpServer } from 'node:http';
 import { pathToFileURL } from 'node:url';
 import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
 import { closeDatabase, getDatabase } from '../packages/server/src/db/database.ts';
 import { runMigrations } from '../packages/server/src/db/migrate.ts';
 import { seedDatabase } from '../packages/server/src/db/seed.ts';
@@ -25,6 +27,7 @@ import { renderCourseBuilderPage } from '../packages/web/src/pages/author/Course
 import { renderCoursePublishPage } from '../packages/web/src/pages/author/CoursePublishPage.ts';
 import { renderPythonExerciseEditorPage } from '../packages/web/src/pages/author/PythonExerciseEditorPage.ts';
 import { renderCourseAnalyticsPage } from '../packages/web/src/pages/author/CourseAnalyticsPage.ts';
+import { renderStudentsAndInvitationsPage } from '../packages/web/src/pages/author/StudentsAndInvitationsPage.ts';
 import { renderAiConnectionsPage } from '../packages/web/src/pages/settings/AiConnectionsPage.ts';
 import { renderMcpClientSetupContent } from '../packages/web/src/pages/settings/McpClientSetupDialog.ts';
 import { renderAgentActivityPage } from '../packages/web/src/pages/author/AgentActivityPage.ts';
@@ -36,6 +39,8 @@ const dbPath = `file:s4m04-${crypto.randomUUID()}?mode=memory&cache=shared`;
 const db = (runMigrations(dbPath), seedDatabase(dbPath), getDatabase(dbPath));
 const out = path.join(root, 'screenshots');
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zur-s4m04-'));
+const guiZoomTargets: Array<{ name: string; theme: 'dark' | 'light'; content: string }> = [];
+const rosterLayoutMeasurements: Array<Record<string, unknown>> = [];
 const styles = ['tokens.css', 'typography.css', 'layout.css', 'shells.css', 'components.css']
   .map((file) => fs.readFileSync(path.join(root, 'packages/web/src/styles', file), 'utf8')).join('\n');
 const admin = new AdminService(db);
@@ -169,6 +174,20 @@ async function capture(name: string, content: string, width: number, height: num
     if (actual?.width !== width || actual?.height !== height || actual?.dpr !== scale) {
       throw new Error(`${name}: expected ${width}x${height} CSS px at DPR ${scale}, got ${JSON.stringify(actual)}`);
     }
+    if (name.startsWith('s4_t087_p28_roster_') && width <= 390) {
+      const layout = await send('Runtime.evaluate', {
+        expression: `(()=>{const box=s=>document.querySelector(s)?.getBoundingClientRect();const header=box('.students-header');const title=box('.students-header > div:first-child');const action=box('.students-header .header-actions');const toolbar=document.querySelector('.roster-toolbar');const controls=[...toolbar.querySelectorAll('input,select,button')].map(e=>{const r=e.getBoundingClientRect();return {left:r.left,right:r.right}});return {width:innerWidth,height:innerHeight,documentWidth:document.documentElement.scrollWidth,documentClientWidth:document.documentElement.clientWidth,headerWidth:header?.width,headerTitleBottom:title?.bottom,headerActionTop:action?.top,headerActionRight:action?.right,headerRight:header?.right,toolbarWidth:toolbar?.clientWidth,toolbarScrollWidth:toolbar?.scrollWidth,controls}})()`,
+        returnByValue: true,
+      });
+      const measured = layout.result?.value;
+      assert.ok(measured, `${name}: roster layout metrics should be available`);
+      assert.ok(measured.documentWidth <= measured.documentClientWidth, `${name}: page should not overflow horizontally (${JSON.stringify(measured)})`);
+      assert.ok(measured.headerActionTop >= measured.headerTitleBottom, `${name}: invite action should follow the heading (${JSON.stringify(measured)})`);
+      assert.ok(measured.headerActionRight <= measured.headerRight + 1, `${name}: invite action should fit the header (${JSON.stringify(measured)})`);
+      assert.ok(measured.toolbarScrollWidth <= measured.toolbarWidth + 1, `${name}: filters should fit their toolbar (${JSON.stringify(measured)})`);
+      assert.ok(measured.controls.every((control: any) => control.left >= 0 && control.right <= width + 1), `${name}: filter control is outside viewport (${JSON.stringify(measured)})`);
+      rosterLayoutMeasurements.push({ name, theme: name.endsWith('_dark') ? 'dark' : 'light', ...measured });
+    }
     const screenshot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
     fs.writeFileSync(path.join(out, `${name}.png`), Buffer.from(screenshot.data, 'base64'));
   } finally {
@@ -186,8 +205,146 @@ async function capture(name: string, content: string, width: number, height: num
 
 async function captureJourney(name: string, body: string) {
   for (const theme of ['dark', 'light'] as const) {
-    await capture(`${name}_1440x900_${theme}`, body, 1440, 900, theme);
-    await capture(`${name}_390x844_${theme}`, body, 390, 844, theme);
+    const filter = process.env.S4_CAPTURE_JOURNEY_FILTER?.split(',').filter(Boolean);
+    if (!filter || filter.includes(name)) {
+      for (const size of journeySizes) await capture(`${name}_${size.key}_${theme}`, body, size.width, size.height, theme);
+    }
+    if (guiZoomJourneyNames.has(name)) guiZoomTargets.push({ name, theme, content: html(name, body, theme) });
+  }
+}
+
+const journeySizes = [
+  { key: '1440x900', width: 1440, height: 900 },
+  { key: '1024x768', width: 1024, height: 768 },
+  { key: '768x1024', width: 768, height: 1024 },
+  { key: '390x844', width: 390, height: 844 },
+  { key: '320x844', width: 320, height: 844 },
+];
+const guiZoomJourneyNames = new Set([
+  's4_t087_p01_landing',
+  's4_t087_p02_catalog_long_content',
+  's4_t087_p15_python_queued',
+  's4_t087_p22_builder_deep_tree_long_titles',
+  's4_t087_p27_publish_blocked_errors',
+  's4_t087_p28_roster_students_and_invitations',
+  's4_t087_p30_analytics_sparse_activity',
+  's4_t087_p34_admin_course_suspended',
+  's4_t087_p43_token_grant_dialog',
+]);
+
+async function captureGuiBrowserZoom200(fixtures: typeof guiZoomTargets) {
+  if (fixtures.length !== guiZoomJourneyNames.size * 2) throw new Error('Expected dark/light fixtures for all nine GUI zoom journeys');
+  const pages = new Map(fixtures.map((fixture) => [`/${fixture.name}/${fixture.theme}`, fixture.content]));
+  const httpServer = createHttpServer((request, response) => {
+    const content = pages.get(new URL(request.url || '/', 'http://127.0.0.1').pathname);
+    if (!content) { response.writeHead(404); response.end('Not found'); return; }
+    response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+    response.end(content);
+  });
+  await new Promise<void>((resolve) => httpServer.listen(0, '127.0.0.1', resolve));
+  const address = httpServer.address();
+  if (!address || typeof address === 'string') throw new Error('Could not start local GUI zoom fixture server');
+  const debugServer = createServer();
+  await new Promise<void>((resolve) => debugServer.listen(0, '127.0.0.1', resolve));
+  const debugAddress = debugServer.address();
+  if (!debugAddress || typeof debugAddress === 'string') throw new Error('Could not allocate GUI Chrome debugging port');
+  const debugPort = debugAddress.port;
+  await new Promise<void>((resolve, reject) => debugServer.close((error) => error ? reject(error) : resolve()));
+  const profile = path.join(tempDir, 'gui-chrome-zoom200-profile');
+  const chrome = spawn('google-chrome', [
+    '--no-first-run', '--no-default-browser-check', '--disable-sync', '--remote-allow-origins=*',
+    `--remote-debugging-port=${debugPort}`, `--user-data-dir=${profile}`, '--window-size=1200,900',
+    `http://127.0.0.1:${address.port}/${fixtures[0].name}/${fixtures[0].theme}`,
+  ], { stdio: 'ignore' });
+  let socket: WebSocket | undefined;
+  try {
+    let targets: any[] = [];
+    for (let attempt = 0; attempt < 120; attempt++) {
+      if (chrome.exitCode !== null) throw new Error(`GUI Chrome exited before DevTools startup (${chrome.exitCode})`);
+      try {
+        const response = await fetch(`http://127.0.0.1:${debugPort}/json/list`);
+        if (response.ok) targets = await response.json() as any[];
+        if (targets.some((target) => target.type === 'page')) break;
+      } catch { /* GUI Chrome is still starting. */ }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    const page = targets.find((target) => target.type === 'page');
+    if (!page?.webSocketDebuggerUrl) throw new Error('GUI Chrome page target did not start');
+    socket = new WebSocket(page.webSocketDebuggerUrl);
+    await new Promise<void>((resolve, reject) => {
+      socket!.addEventListener('open', () => resolve(), { once: true });
+      socket!.addEventListener('error', () => reject(new Error('Could not connect to GUI Chrome DevTools')), { once: true });
+    });
+    let nextId = 0;
+    const pending = new Map<number, { resolve: (value: any) => void; reject: (error: Error) => void }>();
+    socket.addEventListener('message', (event) => {
+      const message = JSON.parse(String(event.data));
+      if (!message.id) return;
+      const waiter = pending.get(message.id);
+      if (!waiter) return;
+      pending.delete(message.id);
+      if (message.error) waiter.reject(new Error(message.error.message));
+      else waiter.resolve(message.result);
+    });
+    const send = (method: string, params: Record<string, unknown> = {}) => new Promise<any>((resolve, reject) => {
+      const id = ++nextId;
+      pending.set(id, { resolve, reject });
+      socket!.send(JSON.stringify({ id, method, params }));
+    });
+    const navigate = async (url: string) => {
+      await send('Page.navigate', { url });
+      await new Promise((resolve) => setTimeout(resolve, 650));
+    };
+    const metrics = async () => {
+      const result = await send('Runtime.evaluate', {
+        expression: '({innerWidth,innerHeight,outerWidth,outerHeight,devicePixelRatio,visualViewportScale:visualViewport.scale})',
+        returnByValue: true,
+      });
+      return result.result?.value as Record<string, number>;
+    };
+    await send('Page.enable');
+    await send('Runtime.enable');
+    const first = fixtures[0];
+    const firstUrl = `http://127.0.0.1:${address.port}/${first.name}/${first.theme}`;
+    await navigate(firstUrl);
+    const baseline = await metrics();
+    if (!baseline?.innerWidth || !baseline.innerHeight || !baseline.devicePixelRatio) throw new Error('GUI Chrome did not report baseline viewport metrics');
+    await navigate('chrome://settings/appearance');
+    const selected = await send('Runtime.evaluate', {
+      expression: `(()=>{function find(root){for(const e of root.querySelectorAll('*')){if(e.id==='zoomLevel')return e;if(e.shadowRoot){const x=find(e.shadowRoot);if(x)return x}}}const s=find(document);if(!s)throw new Error('Chrome zoom selector not found');const o=[...s.options].find(o=>o.textContent.trim()==='200%');if(!o)throw new Error('Chrome 200% zoom option not found');s.value=o.value;s.dispatchEvent(new Event('change',{bubbles:true}));return {value:s.value,label:o.textContent.trim()}})()`,
+      returnByValue: true,
+    });
+    if (selected.result?.value?.label !== '200%' || selected.result?.value?.value !== '2') throw new Error(`Chrome UI zoom selector did not accept 200%: ${JSON.stringify(selected.result?.value)}`);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const captures: Array<Record<string, unknown>> = [];
+    for (const fixture of fixtures) {
+      const url = `http://127.0.0.1:${address.port}/${fixture.name}/${fixture.theme}`;
+      await navigate(url);
+      const actual = await metrics();
+      if (actual.innerWidth * 2 !== baseline.innerWidth || actual.devicePixelRatio !== baseline.devicePixelRatio * 2 || actual.visualViewportScale !== 1) {
+        throw new Error(`${fixture.name}/${fixture.theme}: GUI 200% zoom metrics mismatched baseline=${JSON.stringify(baseline)} actual=${JSON.stringify(actual)}`);
+      }
+      if (!actual.innerHeight || !actual.outerHeight) throw new Error(`${fixture.name}/${fixture.theme}: Chrome omitted vertical viewport measurements`);
+      const screenshot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+      const file = `screenshots/${fixture.name}_200zoom_${fixture.theme}_gui.png`;
+      fs.writeFileSync(path.join(root, file), Buffer.from(screenshot.data, 'base64'));
+      captures.push({ id: fixture.name, theme: fixture.theme, browserZoomPercent: 200, baseline, actual, screenshot: file });
+    }
+    fs.writeFileSync(path.join(root, 'docs/evidence/s4-m04-gui-zoom-captures.json'), JSON.stringify({
+      method: 'GUI Chrome Appearance Zoom setting selected 200% in an isolated temporary Chrome profile. Chrome CDP was used only to navigate, read browser metrics, and capture PNGs; no Emulation.setDeviceMetricsOverride, setDeviceScaleFactor, setPageScaleFactor, or forced zoom command was used.',
+      chromeVersion: '154.0.8037.57',
+      measuredAt: new Date().toISOString(),
+      baseline,
+      captures,
+    }, null, 2) + '\n');
+  } finally {
+    socket?.close();
+    chrome.kill('SIGTERM');
+    await new Promise<void>((resolve) => {
+      if (chrome.exitCode !== null) resolve();
+      else { chrome.once('exit', () => resolve()); setTimeout(() => { chrome.kill('SIGKILL'); resolve(); }, 1200).unref(); }
+    });
+    httpServer.close();
   }
 }
 
@@ -383,6 +540,18 @@ try {
     analytics: sparseAnalytics, availableVersions: [{ id: 'cv-fixture-v1', versionNumber: 1 }, { id: 'cv-fixture-v2', versionNumber: 2 }],
     filters: { versionId: '2', windowDays: 30 },
   }));
+  await captureJourney('s4_t087_p28_roster_students_and_invitations', renderStudentsAndInvitationsPage({
+    courseId: builderCourseId, courseTitle: 'Python foundations', publicationState: 'published', hasUnpublishedChanges: false,
+    totalStudentsCount: 18,
+    roster: { limit: 20, offset: 0, totalCount: 18, items: [
+      { enrollmentId: 'enr-ada', userId: 'user-student-1', displayName: 'Ada Lovelace', email: 'ada@example.test', versionNumber: 2, versionId: 'cv-fixture-v2', status: 'active', requiredStepsCompleted: 3, totalRequiredSteps: 7, progressPercentage: 42, lastLearningActivityAt: '2026-09-25T13:15:00.000Z', enrolledAt: '2026-08-20T08:30:00.000Z' },
+      { enrollmentId: 'enr-long-name', userId: 'user-student-2', displayName: 'Margaret Hamilton with a Longer Display Name', email: 'margaret.hamilton@example.test', versionNumber: 1, versionId: 'cv-fixture-v1', status: 'active', requiredStepsCompleted: 6, totalRequiredSteps: 7, progressPercentage: 86, lastLearningActivityAt: '2026-09-24T10:00:00.000Z', enrolledAt: '2026-08-22T08:30:00.000Z' },
+      { enrollmentId: 'enr-no-activity', userId: 'user-student-3', displayName: 'Grace Hopper', email: 'grace@example.test', versionNumber: 2, versionId: 'cv-fixture-v2', status: 'active', requiredStepsCompleted: 0, totalRequiredSteps: 7, progressPercentage: 0, lastLearningActivityAt: null, enrolledAt: '2026-09-01T08:30:00.000Z' },
+    ] },
+    invitations: [{ id: 'invitation-fixture-1', courseId: builderCourseId, type: 'email', recipientEmail: 'learner@example.test', expiresAt: '2026-10-03T08:30:00.000Z', maxUses: 1, usesCount: 0, isRevoked: false, emailDeliveryStatus: 'sent', emailSentAt: '2026-09-25T08:30:00.000Z', createdAt: '2026-09-25T08:30:00.000Z' }],
+    availableVersions: [{ id: 'cv-fixture-v1', versionNumber: 1 }, { id: 'cv-fixture-v2', versionNumber: 2 }],
+    currentTab: 'enrolled', filters: { status: 'all', version: 'all' },
+  }));
 
   const settingsUser = { id: 'user-author-fixture', email: 'author@example.test', displayName: 'Grace Hopper', emailVerified: true,
     capabilities: ['student', 'author'] as ('student' | 'author')[], accountStatus: 'active' as const,
@@ -422,6 +591,16 @@ try {
       createdBy: 'Loop course helper', reason: 'Recoverable prior draft content', createdAt: '2026-09-25T12:00:00.000Z' },
     showRestoreConfirmModal: true,
   }));
+  if (process.env.S4_CAPTURE_GUI_ZOOM === '1') {
+    if (!process.env.DISPLAY && !process.env.WAYLAND_DISPLAY) throw new Error('S4_CAPTURE_GUI_ZOOM requires an active desktop display session');
+    await captureGuiBrowserZoom200(guiZoomTargets);
+  }
+  if (rosterLayoutMeasurements.length) {
+    fs.writeFileSync(path.join(root, 'docs/evidence/s4-m04-roster-layout-checks.json'), JSON.stringify({
+      method: 'Headless Chrome CDP captures of the real StudentsAndInvitationsPage renderer at asserted CSS viewports. This report checks document/toolbar scroll widths and invitation button bounds, in addition to saving the corresponding PNGs.',
+      captures: rosterLayoutMeasurements,
+    }, null, 2) + '\n');
+  }
   console.log('Captured S4-M04 operational and Python workspace responsive/adverse fixtures.');
 } finally {
   closeDatabase(dbPath);

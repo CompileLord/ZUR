@@ -467,6 +467,35 @@
   }
 }
 
+@media (max-width: 900px) {
+  .author-header {
+    height: auto;
+    min-height: var(--header-height);
+    padding: var(--space-3) var(--page-gutter);
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+
+  .author-header-left {
+    flex-wrap: wrap;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .author-course-title {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .author-header-right {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
 @media (max-width: 767px) {
   .shell-author {
     height: auto;

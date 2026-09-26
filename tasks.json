@@ -1530,12 +1530,18 @@
                 "screenshots/s4_m04_matrix_python_dpr2_320css_light.png",
                 "screenshots/s4_m04_chrome_ui_zoom200_landing.png",
                 "screenshots/s4_t087_p08_invitation_expired_390x844_light.png",
+                "screenshots/s4_t087_p28_roster_students_and_invitations_320x844_light.png",
+                "docs/evidence/s4-m04-roster-layout-checks.json",
                 "screenshots/s4_t087_p27_publish_blocked_errors_1440x900_dark.png",
+                "screenshots/s4_t087_p22_builder_deep_tree_long_titles_200zoom_dark_gui.png",
+                "screenshots/s4_t087_p28_roster_students_and_invitations_200zoom_light_gui.png",
+                "screenshots/s4_t087_p43_token_grant_dialog_200zoom_dark_gui.png",
+                "docs/evidence/s4-m04-gui-zoom-captures.json",
                 "screenshots/s4_t087_p30_analytics_sparse_activity_390x844_light.png",
                 "screenshots/s4_t087_p43_connections_expired_revocation_review_390x844_dark.png",
                 "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png"
               ],
-              "blocker": "The matrix identifies remaining checks: intermediate widths for expanded journeys, builder inspector-open, client-side waiver confirmation, revoked-token and one-time-secret states (secret excluded), real concurrent-edit conflict, inline image media, and additional error/recovery routes. Actual 200% GUI Chrome browser UI zoom is verified on the landing page. Most captures are component fixtures, not authenticated full-app journeys."
+              "blocker": "All 27 expanded fixtures now have both-theme captures at five CSS widths; P28 roster header/filter fit is verified at 320/390 in both themes, and 18 actual 200% GUI Chrome captures cover nine journeys with measured baseline width/height/DPR assertions. Remaining checks: builder inspector-open, client-side waiver confirmation, responsive P29 student detail, actual zoom on the remaining journeys, revoked-token and one-time-secret states (secret excluded), real concurrent-edit conflict, inline image media, and additional error/recovery routes. Captures are component fixtures, not authenticated full-app journeys."
             },
             {
               "id": "T088",

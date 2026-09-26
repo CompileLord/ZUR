@@ -3,93 +3,1199 @@
   "generatedBy": "node --experimental-strip-types scripts/capture-s4-m04-screenshots.ts",
   "fixtureProvenance": "Deterministic seeded database plus explicit local fixture records. The script server-renders page components into standalone HTML with repository CSS and captures them in headless Chrome; these are component-fixture captures, not authenticated full-app browser routes or production evidence.",
   "viewportMatrix": {
-    "surfaces": ["admin operations overview", "Python learning workspace with offline unsaved edits and public failure"],
-    "themes": ["dark", "light"],
+    "surfaces": [
+      "admin operations overview",
+      "Python learning workspace with offline unsaved edits and public failure"
+    ],
+    "themes": [
+      "dark",
+      "light"
+    ],
     "viewports": [
-      { "label": "1440x900 CSS px", "width": 1440, "height": 900, "files": ["screenshots/s4_m04_matrix_operations_1440x900_{theme}.png", "screenshots/s4_m04_matrix_python_unsaved_1440x900_{theme}.png"] },
-      { "label": "1024x768 CSS px", "width": 1024, "height": 768, "files": ["screenshots/s4_m04_matrix_operations_1024x768_{theme}.png", "screenshots/s4_m04_matrix_python_unsaved_1024x768_{theme}.png"] },
-      { "label": "768x1024 CSS px", "width": 768, "height": 1024, "files": ["screenshots/s4_m04_matrix_operations_768x1024_{theme}.png", "screenshots/s4_m04_matrix_python_unsaved_768x1024_{theme}.png"] },
-      { "label": "390x844 CSS px", "width": 390, "height": 844, "files": ["screenshots/s4_m04_matrix_operations_390x844_{theme}.png", "screenshots/s4_m04_matrix_python_unsaved_390x844_{theme}.png"] },
-      { "label": "320 CSS px reflow", "width": 320, "height": 844, "files": ["screenshots/s4_m04_matrix_operations_320x844_{theme}.png", "screenshots/s4_m04_matrix_python_unsaved_320x844_{theme}.png"] }
+      {
+        "label": "1440x900 CSS px",
+        "width": 1440,
+        "height": 900,
+        "files": [
+          "screenshots/s4_m04_matrix_operations_1440x900_{theme}.png",
+          "screenshots/s4_m04_matrix_python_unsaved_1440x900_{theme}.png"
+        ]
+      },
+      {
+        "label": "1024x768 CSS px",
+        "width": 1024,
+        "height": 768,
+        "files": [
+          "screenshots/s4_m04_matrix_operations_1024x768_{theme}.png",
+          "screenshots/s4_m04_matrix_python_unsaved_1024x768_{theme}.png"
+        ]
+      },
+      {
+        "label": "768x1024 CSS px",
+        "width": 768,
+        "height": 1024,
+        "files": [
+          "screenshots/s4_m04_matrix_operations_768x1024_{theme}.png",
+          "screenshots/s4_m04_matrix_python_unsaved_768x1024_{theme}.png"
+        ]
+      },
+      {
+        "label": "390x844 CSS px",
+        "width": 390,
+        "height": 844,
+        "files": [
+          "screenshots/s4_m04_matrix_operations_390x844_{theme}.png",
+          "screenshots/s4_m04_matrix_python_unsaved_390x844_{theme}.png"
+        ]
+      },
+      {
+        "label": "320 CSS px reflow",
+        "width": 320,
+        "height": 844,
+        "files": [
+          "screenshots/s4_m04_matrix_operations_320x844_{theme}.png",
+          "screenshots/s4_m04_matrix_python_unsaved_320x844_{theme}.png"
+        ]
+      }
     ],
     "zoomProxy": {
       "method": "Chrome DevTools Protocol Emulation.setDeviceMetricsOverride sets and verifies innerWidth=320 and innerHeight=900 at deviceScaleFactor=2 before capture; screenshot is 640x1800 physical pixels. This provides 320 CSS px reflow at 2x capture scale, not actual browser UI zoom or text enlargement. A separate GUI Chrome browser UI 200% zoom measurement is recorded in actualBrowserZoom200 below. The earlier headless chrome.tabs.setZoom extension probe did not activate and is not used as zoom evidence.",
-      "verifiedCssViewport": [320, 900],
+      "verifiedCssViewport": [
+        320,
+        900
+      ],
       "deviceScaleFactor": 2,
-      "files": ["screenshots/s4_m04_matrix_python_dpr2_320css_dark.png", "screenshots/s4_m04_matrix_python_dpr2_320css_light.png"],
-      "physicalDimensions": [640, 1800]
+      "files": [
+        "screenshots/s4_m04_matrix_python_dpr2_320css_dark.png",
+        "screenshots/s4_m04_matrix_python_dpr2_320css_light.png"
+      ],
+      "physicalDimensions": [
+        640,
+        1800
+      ]
     },
     "actualBrowserZoom200": {
       "method": "GUI Chrome 154 in an isolated temporary profile used chrome://settings/appearance → Zoom → 200%; then loaded the local ZUR landing page. This used Chrome's browser UI zoom, not CDP viewport, DPR, or page-scale emulation.",
-      "metrics": { "innerWidth": 768, "outerWidth": 1536, "devicePixelRatio": 2.5, "visualViewportScale": 1 },
+      "metrics": {
+        "innerWidth": 768,
+        "outerWidth": 1536,
+        "devicePixelRatio": 2.5,
+        "visualViewportScale": 1
+      },
       "capture": "screenshots/s4_m04_chrome_ui_zoom200_landing.png",
       "inspection": "The header, two-line hero, paragraph, and actions remain readable within the zoomed CSS viewport; lower content scrolls vertically.",
       "details": "docs/evidence/s4-m04-t086-local-probes.json"
+    },
+    "representativeBrowserZoom200": {
+      "method": "Reproducible GUI Chrome capture: run S4_CAPTURE_GUI_ZOOM=1 node --experimental-strip-types scripts/capture-s4-m04-screenshots.ts. The script uses an isolated headful Chrome profile, selects Zoom → 200% through chrome://settings/appearance, then captures real page-renderer fixtures in both themes. It checks each page innerWidth/innerHeight, outerWidth/outerHeight, DPR, and visualViewport scale against that same session’s 100% baseline before saving. No DevTools viewport/DPR/page-scale override is used for these captures.",
+      "report": "docs/evidence/s4-m04-gui-zoom-captures.json",
+      "journeys": [
+        "s4_t087_p01_landing",
+        "s4_t087_p02_catalog_long_content",
+        "s4_t087_p15_python_queued",
+        "s4_t087_p22_builder_deep_tree_long_titles",
+        "s4_t087_p27_publish_blocked_errors",
+        "s4_t087_p28_roster_students_and_invitations",
+        "s4_t087_p30_analytics_sparse_activity",
+        "s4_t087_p34_admin_course_suspended",
+        "s4_t087_p43_token_grant_dialog"
+      ],
+      "themes": [
+        "dark",
+        "light"
+      ],
+      "captureCount": 18
     }
   },
   "expandedJourneys": {
-    "captureMethod": "Deterministic renderer options and a seeded in-memory database; each case is captured at 1440x900 and 390x844 CSS px in dark and light themes. The harness asserts CSS viewport dimensions and DPR in Chrome before saving each image.",
+    "captureMethod": "Deterministic renderer options and seeded in-memory data; each case is captured at 1440x900, 1024x768, 768x1024, 390x844, and 320x844 CSS px in dark/light themes. CDP Emulation.setDeviceMetricsOverride is used only for these explicit CSS viewport captures, and innerWidth, innerHeight, and DPR are asserted before saving.",
     "cases": [
-      { "id": "P01 landing", "prefix": "s4_t087_p01_landing", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P02 catalog long content", "prefix": "s4_t087_p02_catalog_long_content", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P02 catalog no matches", "prefix": "s4_t087_p02_catalog_no_matches", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P03 suspended course", "prefix": "s4_t087_p03_course_suspended", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P04 sign-in validation error", "prefix": "s4_t087_p04_sign_in_validation", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P08 expired invitation", "prefix": "s4_t087_p08_invitation_expired", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P09 empty dashboard", "prefix": "s4_t087_p09_dashboard_empty", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P09 populated dashboard", "prefix": "s4_t087_p09_dashboard_populated", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P12 theory with code sample", "prefix": "s4_t087_p12_theory_code_example", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P13 unavailable video with transcript", "prefix": "s4_t087_p13_video_unavailable_transcript", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P14 selected incorrect quiz", "prefix": "s4_t087_p14_quiz_selected_incorrect", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P14 passed quiz", "prefix": "s4_t087_p14_quiz_passed", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P15 queued Python attempt", "prefix": "s4_t087_p15_python_queued", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P15 passed Python attempt", "prefix": "s4_t087_p15_python_passed", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P22 builder deep tree and long title", "prefix": "s4_t087_p22_builder_deep_tree_long_titles", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P25 stale Python reference validation", "prefix": "s4_t087_p25_python_reference_stale", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P27 blocked publication", "prefix": "s4_t087_p27_publish_blocked_errors", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P27 publication receipt", "prefix": "s4_t087_p27_publish_receipt", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P30 sparse analytics", "prefix": "s4_t087_p30_analytics_sparse_activity", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P34 admin suspended course", "prefix": "s4_t087_p34_admin_course_suspended", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P43 empty AI connections", "prefix": "s4_t087_p43_connections_empty", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P43 expired token revocation review", "prefix": "s4_t087_p43_connections_expired_revocation_review", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P43 token grant dialog", "prefix": "s4_t087_p43_token_grant_dialog", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P44 generic bearer setup", "prefix": "s4_t087_p44_setup_generic", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P44 OAuth-only incompatibility notice", "prefix": "s4_t087_p44_setup_oauth_client", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] },
-      { "id": "P45 agent diff and recovery confirmation", "prefix": "s4_t087_p45_agent_update_diff_recovery", "viewports": [[1440, 900], [390, 844]], "themes": ["dark", "light"] }
+      {
+        "id": "P01 landing",
+        "prefix": "s4_t087_p01_landing",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P02 catalog long content",
+        "prefix": "s4_t087_p02_catalog_long_content",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P02 catalog no matches",
+        "prefix": "s4_t087_p02_catalog_no_matches",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P03 suspended course",
+        "prefix": "s4_t087_p03_course_suspended",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P04 sign-in validation error",
+        "prefix": "s4_t087_p04_sign_in_validation",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P08 expired invitation",
+        "prefix": "s4_t087_p08_invitation_expired",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P09 empty dashboard",
+        "prefix": "s4_t087_p09_dashboard_empty",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P09 populated dashboard",
+        "prefix": "s4_t087_p09_dashboard_populated",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P12 theory with code sample",
+        "prefix": "s4_t087_p12_theory_code_example",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P13 unavailable video with transcript",
+        "prefix": "s4_t087_p13_video_unavailable_transcript",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P14 selected incorrect quiz",
+        "prefix": "s4_t087_p14_quiz_selected_incorrect",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P14 passed quiz",
+        "prefix": "s4_t087_p14_quiz_passed",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P15 queued Python attempt",
+        "prefix": "s4_t087_p15_python_queued",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P15 passed Python attempt",
+        "prefix": "s4_t087_p15_python_passed",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P22 builder deep tree and long title",
+        "prefix": "s4_t087_p22_builder_deep_tree_long_titles",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P25 stale Python reference validation",
+        "prefix": "s4_t087_p25_python_reference_stale",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P27 blocked publication",
+        "prefix": "s4_t087_p27_publish_blocked_errors",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P27 publication receipt",
+        "prefix": "s4_t087_p27_publish_receipt",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P30 sparse analytics",
+        "prefix": "s4_t087_p30_analytics_sparse_activity",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P34 admin suspended course",
+        "prefix": "s4_t087_p34_admin_course_suspended",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P43 empty AI connections",
+        "prefix": "s4_t087_p43_connections_empty",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P43 expired token revocation review",
+        "prefix": "s4_t087_p43_connections_expired_revocation_review",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P43 token grant dialog",
+        "prefix": "s4_t087_p43_token_grant_dialog",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P44 generic bearer setup",
+        "prefix": "s4_t087_p44_setup_generic",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P44 OAuth-only incompatibility notice",
+        "prefix": "s4_t087_p44_setup_oauth_client",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P45 agent diff and recovery confirmation",
+        "prefix": "s4_t087_p45_agent_update_diff_recovery",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      },
+      {
+        "id": "P28 teacher roster with long learner row and invitation status",
+        "prefix": "s4_t087_p28_roster_students_and_invitations",
+        "viewports": [
+          [
+            1440,
+            900
+          ],
+          [
+            1024,
+            768
+          ],
+          [
+            768,
+            1024
+          ],
+          [
+            390,
+            844
+          ],
+          [
+            320,
+            844
+          ]
+        ],
+        "themes": [
+          "dark",
+          "light"
+        ]
+      }
     ]
   },
   "design17Checkpoints": [
-    { "id": 1, "checkpoint": "Landing/catalog; real-length titles", "coverage": "partial", "evidence": ["screenshots/s4_t087_p01_landing_1440x900_dark.png", "screenshots/s4_t087_p02_catalog_long_content_390x844_light.png"], "gap": "New state captures are at 1440x900 and 390x844 in both themes; 1024x768, 768x1024, and 320 reflow remain untested for these pages. Actual 200% Chrome UI zoom is captured for the landing page only; catalog 200% zoom remains untested." },
-    { "id": 2, "checkpoint": "Sign-in validation and invitation-expired state", "coverage": "partial", "evidence": ["screenshots/s4_t087_p04_sign_in_validation_390x844_light.png", "screenshots/s4_t087_p08_invitation_expired_390x844_light.png"], "gap": "Desktop/mobile dark/light captured; intermediate widths and browser zoom remain outstanding." },
-    { "id": 3, "checkpoint": "Student dashboard empty and populated", "coverage": "partial", "evidence": ["screenshots/s4_t087_p09_dashboard_empty_1440x900_dark.png", "screenshots/s4_t087_p09_dashboard_populated_390x844_light.png"], "gap": "Both states at desktop/mobile in dark/light; intermediate widths and completed-course branch remain outstanding." },
-    { "id": 4, "checkpoint": "Theory with code and video-failed state with transcript", "coverage": "partial", "evidence": ["screenshots/s4_t087_p12_theory_code_example_1440x900_dark.png", "screenshots/s4_t087_p13_video_unavailable_transcript_390x844_light.png"], "gap": "A code sample and failed-video transcript render; actual inline image media and intermediate widths are not captured." },
-    { "id": 5, "checkpoint": "Quiz selected, incorrect, and passed", "coverage": "partial", "evidence": ["screenshots/s4_t087_p14_quiz_selected_incorrect_1440x900_dark.png", "screenshots/s4_t087_p14_quiz_passed_390x844_light.png"], "gap": "Both states render at desktop/mobile in dark/light; multiple-choice and intermediate viewport variants remain outstanding." },
-    { "id": 6, "checkpoint": "Python idle, public/hidden failure, unsaved, queued, passed", "coverage": "partial", "evidence": ["screenshots/s4_m04_matrix_python_unsaved_1440x900_dark.png", "screenshots/s4_m04_python_hidden_failure_1440.png", "screenshots/s4_t087_p15_python_queued_390x844_light.png", "screenshots/s4_t087_p15_python_passed_1440x900_dark.png"], "gap": "Adverse states now render at desktop/mobile in dark/light; hidden failure remains desktop dark only. Browser zoom is not simulated." },
-    { "id": 7, "checkpoint": "Author builder: deep tree, long title, open inspector", "coverage": "partial", "evidence": ["screenshots/s4_t087_p22_builder_deep_tree_long_titles_1440x900_dark.png"], "gap": "Deep tree and long title captured at desktop/mobile in both themes; this fixture does not open the inspector, and intermediate widths remain outstanding." },
-    { "id": 8, "checkpoint": "Python author tests and stale reference validation", "coverage": "partial", "evidence": ["screenshots/s4_t087_p25_python_reference_stale_1440x900_dark.png"], "gap": "Stale validation state captured at desktop/mobile in both themes; explicit test-list/long-test fixture and intermediate widths remain outstanding." },
-    { "id": 9, "checkpoint": "Publication blocked and successful", "coverage": "partial", "evidence": ["screenshots/s4_t087_p27_publish_blocked_errors_1440x900_dark.png", "screenshots/s4_t087_p27_publish_receipt_390x844_light.png"], "gap": "Both outcomes captured at desktop/mobile in dark/light; intermediate widths and confirmation interaction are outstanding." },
-    { "id": 10, "checkpoint": "Roster filters, student detail, and sparse analytics", "coverage": "partial", "evidence": ["screenshots/s4_m02_p28_roster.png", "screenshots/s4_m02_p29_student_detail.png", "screenshots/s4_t087_p30_analytics_sparse_activity_390x844_light.png"], "gap": "Roster/detail retain earlier desktop dark captures; sparse analytics now covers desktop/mobile dark/light. Roster themes and complete viewport matrix remain outstanding." },
-    { "id": 11, "checkpoint": "Admin course suspension and audited waiver review", "coverage": "partial", "evidence": ["screenshots/s4_t087_p34_admin_course_suspended_1440x900_dark.png"], "gap": "Suspended admin detail renders from a seeded service mutation at desktop/mobile in dark/light. Waiver confirmation is not captured because the interaction depends on client-side affected-enrollment review; only the form exists in the current static renderer." },
-    { "id": 12, "checkpoint": "Settings both themes and keyboard-focused modal controls", "coverage": "partial", "evidence": ["screenshots/s4_t087_p43_connections_empty_1440x900_dark.png"], "gap": "Settings captured in both themes at desktop/mobile. Keyboard focus order is not represented by a static screenshot and remains covered by the accessibility/manual verification task." },
-    { "id": 13, "checkpoint": "AI connections empty/populated, token permissions, one-time secret, expired/revoked", "coverage": "partial", "evidence": ["screenshots/s4_t087_p43_connections_empty_390x844_light.png", "screenshots/s4_t087_p43_token_grant_dialog_1440x900_dark.png", "screenshots/s4_t087_p43_connections_expired_revocation_review_390x844_dark.png"], "gap": "Empty, grant, and expired-token revoke-review states captured; revoked status and one-time secret reveal are not captured. Secret reveal is intentionally excluded to prevent exposing credentials." },
-    { "id": 14, "checkpoint": "Agent setup with supported bearer and unsupported OAuth-only client", "coverage": "partial", "evidence": ["screenshots/s4_t087_p44_setup_generic_1440x900_dark.png", "screenshots/s4_t087_p44_setup_oauth_client_390x844_light.png"], "gap": "Generic and OAuth-only setup components captured at desktop/mobile in dark/light; actual external client connections are not claimed." },
-    { "id": 15, "checkpoint": "Remote updates, concurrent-edit conflict, diff, recovery confirmation", "coverage": "partial", "evidence": ["screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png"], "gap": "A deterministic mutation diff and recovery confirmation render at desktop/mobile in dark/light. The concurrent-edit conflict screen is not represented by this fixture." }
+    {
+      "id": 1,
+      "checkpoint": "Landing/catalog; real-length titles",
+      "coverage": "captured",
+      "evidence": [
+        "screenshots/s4_t087_p01_landing_320x844_dark.png",
+        "screenshots/s4_t087_p02_catalog_long_content_320x844_light.png",
+        "screenshots/s4_m04_chrome_ui_zoom200_landing.png",
+        "screenshots/s4_t087_p02_catalog_long_content_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p02_catalog_long_content_200zoom_light_gui.png"
+      ]
+    },
+    {
+      "id": 2,
+      "checkpoint": "Sign-in validation and invitation-expired state",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p04_sign_in_validation_390x844_light.png",
+        "screenshots/s4_t087_p08_invitation_expired_390x844_light.png"
+      ],
+    "gap": "Sign-in validation and expired-invitation states are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom is not captured for these routes."
+    },
+    {
+      "id": 3,
+      "checkpoint": "Student dashboard empty and populated",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p09_dashboard_empty_1440x900_dark.png",
+        "screenshots/s4_t087_p09_dashboard_populated_390x844_light.png"
+      ],
+    "gap": "Empty and populated dashboard states are captured across the five CSS viewports in both themes; the completed-course branch and actual 200% Chrome UI zoom are not represented."
+    },
+    {
+      "id": 4,
+      "checkpoint": "Theory with code and video-failed state with transcript",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p12_theory_code_example_1440x900_dark.png",
+        "screenshots/s4_t087_p13_video_unavailable_transcript_390x844_light.png"
+      ],
+    "gap": "Code and failed-video transcript states are captured across the five CSS viewports in both themes; inline image media and actual 200% Chrome UI zoom for these routes are not represented."
+    },
+    {
+      "id": 5,
+      "checkpoint": "Quiz selected, incorrect, and passed",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p14_quiz_selected_incorrect_1440x900_dark.png",
+        "screenshots/s4_t087_p14_quiz_passed_390x844_light.png"
+      ],
+    "gap": "Selected/incorrect and passed quiz states are captured across the five CSS viewports in both themes; a multiple-choice state and actual 200% Chrome UI zoom for this route are not represented."
+    },
+    {
+      "id": 6,
+      "checkpoint": "Python idle, public/hidden failure, unsaved, queued, passed",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_m04_matrix_python_unsaved_1440x900_dark.png",
+        "screenshots/s4_m04_python_hidden_failure_1440.png",
+        "screenshots/s4_t087_p15_python_queued_390x844_light.png",
+        "screenshots/s4_t087_p15_python_passed_1440x900_dark.png"
+      ],
+    "gap": "Python queued has actual 200% Chrome UI zoom captures in both themes; idle, public/hidden failure, unsaved, and passed states lack actual 200% zoom captures. Hidden failure is represented only in desktop dark."
+    },
+    {
+      "id": 7,
+      "checkpoint": "Author builder: deep tree, long title, open inspector",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p22_builder_deep_tree_long_titles_768x1024_light.png",
+        "screenshots/s4_t087_p22_builder_deep_tree_long_titles_200zoom_dark_gui.png"
+      ],
+      "gap": "Deep course tree and long title are captured at all five CSS viewports in dark/light and actual 200% Chrome UI zoom in both themes. The open-inspector state remains unrepresented because the standalone renderer does not operate the client-side inspector drawer."
+    },
+    {
+      "id": 8,
+      "checkpoint": "Python author tests and stale reference validation",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p25_python_reference_stale_1440x900_dark.png"
+      ],
+    "gap": "Stale reference validation is captured across the five CSS viewports in both themes; an explicit public/hidden test-list or long-test state and actual 200% Chrome UI zoom for P25 are not represented."
+    },
+    {
+      "id": 9,
+      "checkpoint": "Publication blocked and successful",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p27_publish_blocked_errors_320x844_dark.png",
+        "screenshots/s4_t087_p27_publish_blocked_errors_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p27_publish_receipt_768x1024_light.png"
+      ],
+      "gap": "Blocked validation and publication receipt are captured at all five CSS viewports in dark/light; blocked publication also has actual 200% Chrome UI captures in both themes. The publish confirmation interaction is not represented by the static renderer."
+    },
+    {
+      "id": 10,
+      "checkpoint": "Roster filters, student detail, and sparse analytics",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p28_roster_students_and_invitations_390x844_light.png",
+        "screenshots/s4_t087_p28_roster_students_and_invitations_320x844_dark.png",
+        "screenshots/s4_t087_p28_roster_students_and_invitations_200zoom_light_gui.png",
+        "screenshots/s4_t087_p30_analytics_sparse_activity_200zoom_light_gui.png",
+        "screenshots/s4_m02_p29_student_detail.png",
+        "docs/evidence/s4-m04-roster-layout-checks.json"
+      ],
+      "gap": "Roster filters and sparse analytics are captured at all five CSS viewports in dark/light and actual 200% Chrome UI in both themes; P28 title/action and filter-toolbar bounds are measured with no horizontal overflow at 320/390. Student detail has only the earlier desktop dark capture; its responsive/zoom states remain outstanding."
+    },
+    {
+      "id": 11,
+      "checkpoint": "Admin course suspension and audited waiver review",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p34_admin_course_suspended_768x1024_light.png",
+        "screenshots/s4_t087_p34_admin_course_suspended_200zoom_dark_gui.png"
+      ],
+      "gap": "Suspended admin course detail is captured at all five CSS viewports in dark/light and actual 200% Chrome UI in both themes. Waiver confirmation remains unavailable because it requires the client-side affected-enrollment review interaction."
+    },
+    {
+      "id": 12,
+      "checkpoint": "Settings both themes and keyboard-focused modal controls",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p43_connections_empty_1440x900_dark.png"
+      ],
+      "gap": "Settings captured in both themes at desktop/mobile. Keyboard focus order is not represented by a static screenshot and remains covered by the accessibility/manual verification task."
+    },
+    {
+      "id": 13,
+      "checkpoint": "AI connections empty/populated, token permissions, one-time secret, expired/revoked",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p43_token_grant_dialog_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p43_connections_expired_revocation_review_390x844_dark.png"
+      ],
+      "gap": "Token grant and expired-token revocation review are captured at all five CSS viewports in dark/light; grant is also captured under actual 200% Chrome UI in both themes. Revoked status and one-time secret reveal are not captured; secret capture is intentionally excluded to prevent credential exposure."
+    },
+    {
+      "id": 14,
+      "checkpoint": "Agent setup with supported bearer and unsupported OAuth-only client",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p44_setup_generic_1440x900_dark.png",
+        "screenshots/s4_t087_p44_setup_oauth_client_390x844_light.png"
+      ],
+    "gap": "Generic and OAuth-only setup components are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom for P44 and external client connections are not represented."
+    },
+    {
+      "id": 15,
+      "checkpoint": "Remote updates, concurrent-edit conflict, diff, recovery confirmation",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png"
+      ],
+    "gap": "The deterministic mutation diff and recovery confirmation are captured across the five CSS viewports in both themes; actual 200% Chrome UI zoom and the concurrent-edit conflict state are not represented."
+    }
   ],
   "requiredAdverseStates": [
-    { "state": "long content", "coverage": "captured", "evidence": ["screenshots/s4_t087_p02_catalog_long_content_390x844_light.png", "screenshots/s4_t087_p22_builder_deep_tree_long_titles_1440x900_dark.png"] },
-    { "state": "offline/unsaved", "coverage": "captured", "evidence": ["screenshots/s4_m04_matrix_python_unsaved_1440x900_dark.png", "screenshots/s4_m04_matrix_python_unsaved_320x844_light.png"] },
-    { "state": "errors", "coverage": "partial", "evidence": ["screenshots/s4_t087_p04_sign_in_validation_390x844_light.png", "screenshots/s4_t087_p13_video_unavailable_transcript_1440x900_dark.png", "screenshots/s4_m04_python_hidden_failure_1440.png"], "gap": "Several distinct errors are rendered; route-specific recovery and all intermediate widths remain unrepresented." },
-    { "state": "queue", "coverage": "captured", "evidence": ["screenshots/s4_m04_operations_alert_fixture_1440.png", "screenshots/s4_t087_p15_python_queued_390x844_light.png"], "gap": "Deterministic seeded queued/stale-running rows and a queued student attempt; not a live queue load or production observation." },
-    { "state": "blocked publish", "coverage": "captured", "evidence": ["screenshots/s4_t087_p27_publish_blocked_errors_1440x900_dark.png", "screenshots/s4_t087_p27_publish_blocked_errors_390x844_light.png"] },
-    { "state": "expired invites", "coverage": "captured", "evidence": ["screenshots/s4_t087_p08_invitation_expired_1440x900_dark.png", "screenshots/s4_t087_p08_invitation_expired_390x844_light.png"] },
-    { "state": "suspension", "coverage": "captured", "evidence": ["screenshots/s4_t087_p03_course_suspended_390x844_light.png", "screenshots/s4_t087_p34_admin_course_suspended_1440x900_dark.png"] },
-    { "state": "sparse metrics", "coverage": "captured", "evidence": ["screenshots/s4_t087_p30_analytics_sparse_activity_1440x900_dark.png", "screenshots/s4_t087_p30_analytics_sparse_activity_390x844_light.png"] },
-    { "state": "token/recovery", "coverage": "partial", "evidence": ["screenshots/s4_t087_p43_token_grant_dialog_1440x900_dark.png", "screenshots/s4_t087_p43_connections_expired_revocation_review_390x844_dark.png", "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png"], "gap": "Grant/revocation review and draft recovery are captured. One-time secret reveal is intentionally excluded; revoked status and concurrent conflict state remain uncovered." }
+    {
+      "state": "long content",
+      "coverage": "captured",
+      "evidence": [
+        "screenshots/s4_t087_p02_catalog_long_content_390x844_light.png",
+        "screenshots/s4_t087_p22_builder_deep_tree_long_titles_1440x900_dark.png"
+      ]
+    },
+    {
+      "state": "offline/unsaved",
+      "coverage": "captured",
+      "evidence": [
+        "screenshots/s4_m04_matrix_python_unsaved_1440x900_dark.png",
+        "screenshots/s4_m04_matrix_python_unsaved_320x844_light.png"
+      ]
+    },
+    {
+      "state": "errors",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p04_sign_in_validation_390x844_light.png",
+        "screenshots/s4_t087_p13_video_unavailable_transcript_1440x900_dark.png",
+        "screenshots/s4_m04_python_hidden_failure_1440.png"
+      ],
+      "gap": "Several distinct errors are rendered; route-specific recovery and all intermediate widths remain unrepresented."
+    },
+    {
+      "state": "queue",
+      "coverage": "captured",
+      "evidence": [
+        "screenshots/s4_m04_operations_alert_fixture_1440.png",
+        "screenshots/s4_t087_p15_python_queued_390x844_light.png"
+      ],
+      "gap": "Deterministic seeded queued/stale-running rows and a queued student attempt; not a live queue load or production observation."
+    },
+    {
+      "state": "blocked publish",
+      "coverage": "captured",
+      "evidence": [
+        "screenshots/s4_t087_p27_publish_blocked_errors_320x844_dark.png",
+        "screenshots/s4_t087_p27_publish_blocked_errors_200zoom_light_gui.png"
+      ]
+    },
+    {
+      "state": "expired invites",
+      "coverage": "captured",
+      "evidence": [
+        "screenshots/s4_t087_p08_invitation_expired_1440x900_dark.png",
+        "screenshots/s4_t087_p08_invitation_expired_390x844_light.png"
+      ]
+    },
+    {
+      "state": "suspension",
+      "coverage": "captured",
+      "evidence": [
+        "screenshots/s4_t087_p03_course_suspended_390x844_light.png",
+        "screenshots/s4_t087_p34_admin_course_suspended_1440x900_dark.png"
+      ]
+    },
+    {
+      "state": "sparse metrics",
+      "coverage": "captured",
+      "evidence": [
+        "screenshots/s4_t087_p30_analytics_sparse_activity_1024x768_dark.png",
+        "screenshots/s4_t087_p30_analytics_sparse_activity_200zoom_light_gui.png"
+      ]
+    },
+    {
+      "state": "token/recovery",
+      "coverage": "partial",
+      "evidence": [
+        "screenshots/s4_t087_p43_token_grant_dialog_1440x900_dark.png",
+        "screenshots/s4_t087_p43_connections_expired_revocation_review_390x844_dark.png",
+        "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png"
+      ],
+      "gap": "Grant/revocation review and draft recovery are captured. One-time secret reveal is intentionally excluded; revoked status and concurrent conflict state remain uncovered."
+    }
   ],
   "visualInspection": [
-    { "file": "screenshots/s4_m04_matrix_operations_1440x900_dark.png", "result": "Readable hierarchy and labeled queue/runner telemetry; this normal fixture says there are no active alerts." },
-    { "file": "screenshots/s4_m04_matrix_operations_390x844_light.png", "result": "Navigation wraps into two columns and content follows vertically; lower sections require scroll." },
-    { "file": "screenshots/s4_m04_matrix_python_unsaved_320x844_dark.png", "result": "Offline/unsaved state remains visible with desktop guidance and step/footer navigation; exercise result content is vertically scrollable." },
-    { "file": "screenshots/s4_m04_matrix_python_dpr2_320css_light.png", "result": "CDP confirmed a 320x900 CSS viewport at DPR 2; code/result content remains scrollable, and no desktop coding action is implied. The header stacks location and save controls. This is not browser UI zoom or text enlargement." }
-  ]
+    {
+      "file": "screenshots/s4_m04_matrix_operations_1440x900_dark.png",
+      "result": "Readable hierarchy and labeled queue/runner telemetry; this normal fixture says there are no active alerts."
+    },
+    {
+      "file": "screenshots/s4_m04_matrix_operations_390x844_light.png",
+      "result": "Navigation wraps into two columns and content follows vertically; lower sections require scroll."
+    },
+    {
+      "file": "screenshots/s4_m04_matrix_python_unsaved_320x844_dark.png",
+      "result": "Offline/unsaved state remains visible with desktop guidance and step/footer navigation; exercise result content is vertically scrollable."
+    },
+    {
+      "file": "screenshots/s4_m04_matrix_python_dpr2_320css_light.png",
+      "result": "CDP confirmed a 320x900 CSS viewport at DPR 2; code/result content remains scrollable, and no desktop coding action is implied. The header stacks location and save controls. This is not browser UI zoom or text enlargement."
+    },
+    {
+      "file": "screenshots/s4_t087_p02_catalog_long_content_320x844_light.png",
+      "result": "320 CSS px catalog card preserves the long title/description and its action; author, level, and duration wrap into short metadata lines."
+    },
+    {
+      "file": "screenshots/s4_t087_p22_builder_deep_tree_long_titles_200zoom_dark_gui.png",
+      "result": "Actual 200% browser UI zoom wraps the author header into non-overlapping rows. The short available viewport leaves the tree content scrollable inside its pane."
+    },
+    {
+      "file": "screenshots/s4_t087_p28_roster_students_and_invitations_320x844_light.png",
+      "result": "At 320 CSS px, the roster title/description and invite action stack without overlap; search, selects, Filter, and Reset stack inside the card. Learner table remains in its own horizontal scroll wrapper."
+    },
+    {
+      "file": "screenshots/s4_t087_p43_token_grant_dialog_200zoom_dark_gui.png",
+      "result": "The token grant modal remains readable at actual 200% browser zoom and scrolls vertically; credential values are absent."
+    },
+    {
+      "file": "screenshots/s4_t087_p28_roster_students_and_invitations_390x844_light.png",
+      "result": "At 390 CSS px, invite action is below heading/description and all filters fit within their card. The table scrolls horizontally within its own wrapper."
+    }
+  ],
+  "rosterMobileLayoutEvidence": "docs/evidence/s4-m04-roster-layout-checks.json"
 }
