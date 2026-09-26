@@ -65,7 +65,7 @@ export function renderLearningWorkspaceShell(opts: LearningWorkspaceShellOptions
             </div>
 
             <div class="task-footer-right">
-              ${opts.taskActions || ''}
+              ${isPython ? `<div class="python-execution-actions">${opts.taskActions || ''}</div><span class="python-desktop-action-note">Run and Submit are available on a computer.</span>` : (opts.taskActions || '')}
               ${opts.nextStepUrl ? `<a href="${opts.nextStepUrl}" class="btn btn-secondary btn-compact">Next</a>` : ''}
             </div>
           </footer>

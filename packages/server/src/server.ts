@@ -1,4 +1,5 @@
 import http from 'node:http';
+import crypto from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 import { ZURError, AuthenticationError, AuthorizationError, NotFoundError, ValidationError } from 'zur-shared';
 import { IdentityService } from './services/identity-service.ts';
@@ -29,6 +30,7 @@ import { TeacherRosterService } from './services/teacher-roster-service.ts';
 import { ProductAnalyticsService } from './services/product-analytics-service.ts';
 import { EmailDeliveryService } from './services/email-delivery-service.ts';
 import { AdminService } from './services/admin-service.ts';
+import { OperationalMetricsService } from './services/operational-metrics-service.ts';
 
 export function createServer(
   db: DatabaseSync,
@@ -62,6 +64,7 @@ export function createServer(
   const productAnalyticsService = new ProductAnalyticsService(db);
   const emailDeliveryService = dependencies.emailDeliveryService || new EmailDeliveryService();
   const adminService = new AdminService(db);
+  const operationalMetrics = new OperationalMetricsService();
 
   async function deliverCourseInvitation(ownerId: string, invitationId: string, courseId: string, token: string) {
     const invitation = db.prepare(`SELECT i.recipient_email, i.expires_at, c.title, u.display_name
@@ -164,6 +167,14 @@ export function createServer(
   }
 
   return http.createServer(async (req, res) => {
+    const requestStartedAt = performance.now();
+    const requestId = crypto.randomUUID();
+    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
+    const pathname = url.pathname;
+    res.setHeader('X-Request-Id', requestId);
+    res.setHeader('Access-Control-Expose-Headers', 'X-Request-Id');
+    res.once('finish', () => operationalMetrics.recordRequest(req.method || 'GET', pathname, res.statusCode, performance.now() - requestStartedAt));
+
     // Handle CORS preflight
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
@@ -175,8 +186,6 @@ export function createServer(
       return;
     }
 
-    const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
-    const pathname = url.pathname;
     const method = req.method?.toUpperCase();
 
     // Streamable HTTP MCP (T057)
@@ -186,6 +195,12 @@ export function createServer(
     }
 
     try {
+      if (method === 'GET' && pathname === '/healthz') {
+        db.prepare('SELECT 1').get();
+        sendJson(res, 200, { status: 'ok' });
+        return;
+      }
+
       // 1. Sign Up (T013)
       if (method === 'POST' && pathname === '/api/auth/sign-up') {
         const body = await parseJsonBody(req);
@@ -487,7 +502,13 @@ export function createServer(
       const adminPage = (limitName='limit', offsetName='offset') => ({ limit: Number(url.searchParams.get(limitName) || 20), offset: Number(url.searchParams.get(offsetName) || 0) });
       if (method === 'GET' && pathname === '/api/admin/operations') {
         if (!token) throw new AuthenticationError(); const { user } = identityService.authenticateSession(token);
-        sendJson(res,200,adminService.getOperationsOverview(user.id)); return;
+        const overview = adminService.getOperationsOverview(user.id);
+        sendJson(res,200,{...overview,operational:operationalMetrics.snapshot(db)}); return;
+      }
+      if (method === 'GET' && pathname === '/api/admin/operations/metrics') {
+        if (!token) throw new AuthenticationError(); const { user } = identityService.authenticateSession(token);
+        adminService.getOperationsOverview(user.id);
+        sendJson(res,200,operationalMetrics.snapshot(db)); return;
       }
       if (method === 'GET' && pathname === '/api/admin/execution/jobs') {
         if (!token) throw new AuthenticationError(); const { user } = identityService.authenticateSession(token); const page=adminPage();
@@ -1834,10 +1855,12 @@ export function createServer(
       if (err instanceof ZURError) {
         sendJson(res, err.statusCode, err.toJSON());
       } else {
+        console.error(JSON.stringify({ level: 'error', event: 'http.unhandled', requestId }));
         sendJson(res, 500, {
           error: {
             code: 'INFRASTRUCTURE_ERROR',
             message: "This page isn't available.",
+            requestId,
           },
         });
       }

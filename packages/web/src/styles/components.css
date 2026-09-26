@@ -2376,3 +2376,8 @@
 .admin-media-preview-dialog img { display: block; max-width: 100%; max-height: 75vh; object-fit: contain; margin-top: 12px; }
 .admin-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 16px 0; color: var(--text-secondary); }
 @media (max-width: 760px) { .admin-ops-grid { grid-template-columns: 1fr; } .admin-page-content dl { grid-template-columns: 1fr; } }
+
+.ops-alert-list { list-style: none; margin: 12px 0; padding: 0; display: grid; gap: 8px; }
+.ops-alert { padding: 12px 16px; border-left: 3px solid var(--warning); background: var(--warning-bg); color: var(--text-primary); }
+.ops-alert.critical { border-color: var(--danger); background: var(--danger-bg); }
+.ops-alert strong { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .8125rem; }

@@ -1499,33 +1499,61 @@
             {
               "id": "T086",
               "title": "Verify accessibility across core journeys",
-              "status": "not_started",
+              "status": "blocked",
               "priority": "P0",
-              "description": "Test WCAG 2.2 AA contrast, keyboard/screen reader flow, focus, dialogs, tree/splitters/editor escape, live regions, text alternatives, reduced motion, forced colors, 200% zoom, and 320px reflow for enrollment, learning, coding, authoring, admin, and MCP settings."
+              "description": "Test WCAG 2.2 AA contrast, keyboard/screen reader flow, focus, dialogs, tree/splitters/editor escape, live regions, text alternatives, reduced motion, forced colors, 200% zoom, and 320px reflow for enrollment, learning, coding, authoring, admin, and MCP settings.",
+              "evidence": [
+                "docs/evidence/S4-M04-verification.md",
+                "docs/evidence/s4-m04-a11y-smoke.json",
+                "scripts/verify-a11y-core.ts",
+                "packages/web/tests/contrast.test.ts"
+              ],
+              "blocker": "Manual screen-reader and complete live keyboard journey verification require a human assistive-technology session; this environment has no screen-reader application/operator."
             },
             {
               "id": "T087",
               "title": "Verify responsive design and adverse states",
-              "status": "not_started",
+              "status": "in_progress",
               "priority": "P0",
-              "description": "Capture and inspect design checkpoints at 1440×900, 1024×768, 768×1024, 390×844, 320px and 200% zoom; cover both themes, long content, offline/unsaved, errors, queue, blocked publish, expired invites, suspension, sparse metrics, and token/recovery states."
+              "description": "Capture and inspect design checkpoints at 1440×900, 1024×768, 768×1024, 390×844, 320px and 200% zoom; cover both themes, long content, offline/unsaved, errors, queue, blocked publish, expired invites, suspension, sparse metrics, and token/recovery states.",
+              "evidence": [
+                "docs/evidence/S4-M04-verification.md",
+                "scripts/capture-s4-m04-screenshots.ts",
+                "screenshots/s4_m04_operations_1440.png",
+                "screenshots/s4_m04_python_guidance_1024.png",
+                "screenshots/s4_m04_python_guidance_390.png",
+                "screenshots/s4_m04_python_zoom200_640.png"
+              ],
+              "blocker": "Current captures cover representative breakpoints and states; the full page/state/theme matrix remains outstanding."
             },
             {
               "id": "T088",
               "title": "Implement monitoring, alerts, and operational recovery",
-              "status": "not_started",
+              "status": "blocked",
               "priority": "P0",
-              "description": "Monitor queue age/stuck jobs, runner limits/failures, autosave, auth, email, and authorization denials with safe correlation IDs; set alerts, backup/restore, deployment rollback, runner shutdown, and documented incident playbooks."
+              "description": "Monitor queue age/stuck jobs, runner limits/failures, autosave, auth, email, and authorization denials with safe correlation IDs; set alerts, backup/restore, deployment rollback, runner shutdown, and documented incident playbooks.",
+              "evidence": [
+                "docs/evidence/S4-M04-verification.md",
+                "docs/operations/production-readiness.md",
+                "packages/server/src/services/operational-metrics-service.ts",
+                "packages/server/tests/operational-monitoring.test.ts"
+              ],
+              "blocker": "External alert delivery and staging drills for backup restore, rollback, runner shutdown, and incident recovery require deployment infrastructure that is not configured."
             },
             {
               "id": "T089",
               "title": "Validate pilot load and reliability targets",
-              "status": "not_started",
+              "status": "blocked",
               "priority": "P0",
-              "description": "Measure 100 concurrent learners and 20 execution requests/second for five minutes against reference exercises; record hardware/distribution/failures and evaluate p95 page/API/save/queue/grading targets, 99.5% availability plan, RPO/RTO, fair overload, and preservation of acknowledged writes."
+              "description": "Measure 100 concurrent learners and 20 execution requests/second for five minutes against reference exercises; record hardware/distribution/failures and evaluate p95 page/API/save/queue/grading targets, 99.5% availability plan, RPO/RTO, fair overload, and preservation of acknowledged writes.",
+              "evidence": [
+                "docs/evidence/S4-M04-verification.md",
+                "docs/operations/production-readiness.md"
+              ],
+              "blocker": "The required isolated pilot environment, agreed baseline device/network, 100 dedicated sessions, and production-like runner are unavailable; no target load run or reliability claim is recorded."
             }
           ],
-          "status": "not_started"
+          "status": "in_progress"
         }
       ]
     },

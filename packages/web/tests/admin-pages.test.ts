@@ -12,6 +12,12 @@ test('admin operations screens render real empty and unavailable states safely',
   assert.match(free,/Delete unreferenced asset/);
 });
 
+test('operations overview displays escaped real alert and marks request metrics volatile',()=>{
+  const page=renderAdminPage('/admin',{refreshedAt:'today',execution:{paused:true},queue:{queued:0,running:0,oldestQueuedAt:null},workers:{health:'Unavailable',lastObservedAt:null},internalErrors:0,openReports:0,emailDeliveryIssues:0,telemetry:{queue:'available',workerHeartbeat:'not configured',email:'available'},operational:{alerts:[{severity:'critical',code:'execution.stale_running',message:'1 expired lease'}],requestMetrics:{retention:'In-memory; resets on restart',recentByFamily:{auth:{requests:4,failures:2,p95LatencyMs:40}}},execution:{},email:{}}});
+  assert.match(page,/Operational alerts/);assert.match(page,/execution\.stale_running/);assert.match(page,/role="alert"/);
+  assert.match(page,/reset on process restart/);assert.match(page,/p95 latency/);
+});
+
 test('admin pages escape user supplied content and preserve server rendered filters',()=>{
   const page=renderAdminPage('/admin/users?search=%3Cimg%20src=x%3E&status=suspended',{items:[{id:'u1',displayName:'<script>alert(1)</script>',email:'evil@example.test',emailVerified:false,capabilities:['student'],accountStatus:'suspended',createdAt:'today'}]});
   assert.doesNotMatch(page,/<script>alert/);assert.match(page,/&lt;script&gt;/);assert.match(page,/value="&lt;img src=x&gt;"/);assert.match(page,/value="suspended" selected/);

@@ -57,18 +57,17 @@ export class AdminService {
     const count = (sql: string, ...args: any[]) => (this.db.prepare(sql).get(...args) as any)?.count ?? 0;
     const oldest = this.db.prepare(`SELECT created_at FROM execution_jobs WHERE status = 'queued' ORDER BY created_at LIMIT 1`).get() as any;
     const settings = this.db.prepare(`SELECT updated_at FROM system_settings WHERE key = 'execution_paused'`).get() as any;
-    const latestWorker = this.db.prepare(`SELECT MAX(updated_at) as updated_at FROM execution_jobs`).get() as any;
     const mail = this.db.prepare(`SELECT COUNT(*) AS total,SUM(email_delivery_status='sent') AS sent,SUM(email_delivery_status='pending') AS pending,COUNT(*) FILTER (WHERE email_delivery_status IN ('failed','not_configured')) AS issues,MAX(email_sent_at) AS lastSentAt FROM invitations WHERE type='email'`).get() as any;
     return {
       refreshedAt: new Date().toISOString(),
       execution: { paused: ((this.db.prepare(`SELECT value FROM system_settings WHERE key='execution_paused'`).get() as any)?.value === 'true'), updatedAt: settings?.updated_at || null },
       queue: { queued: count("SELECT COUNT(*) count FROM execution_jobs WHERE status='queued'"), running: count("SELECT COUNT(*) count FROM execution_jobs WHERE status='running'"), oldestQueuedAt: oldest?.created_at || null },
-      workers: { lastObservedAt: latestWorker?.updated_at || null, health: latestWorker?.updated_at ? 'Observed job activity' : 'Unavailable' },
+      workers: { lastObservedAt: null, health: 'Unavailable — no separate worker heartbeat configured' },
       internalErrors: count("SELECT COUNT(*) count FROM assessment_attempts WHERE is_infrastructure_failure=1 AND created_at >= ?", new Date(Date.now()-86400000).toISOString()),
       openReports: count("SELECT COUNT(*) count FROM reports WHERE status != 'resolved'"),
       emailDeliveryIssues: mail.issues || 0,
       email: { status: mail.issues ? 'Delivery issues recorded' : mail.pending ? 'Delivery pending' : mail.sent ? 'Recent delivery succeeded' : 'No delivery data', lastSentAt: mail.lastSentAt || null, total:mail.total||0 },
-      telemetry: { queue: 'available', workerHeartbeat: latestWorker?.updated_at ? 'available' : 'unavailable', email: mail.issues ? 'issues recorded' : mail.pending ? 'delivery pending' : mail.sent ? 'recent success' : 'no delivery data' },
+      telemetry: { queue: 'available', workerHeartbeat: 'not configured', email: mail.issues ? 'issues recorded' : mail.pending ? 'delivery pending' : mail.sent ? 'recent success' : 'no delivery data' },
     };
   }
   listExecutionJobs(adminId:string,from?:string,to?:string,limit=50,offset=0){this.requireAdmin(adminId);this.page(limit,offset);const where:string[]=['1=1'],args:any[]=[];if(from){where.push('created_at>=?');args.push(from);}if(to){where.push('created_at<=?');args.push(to);}const total=(this.db.prepare(`SELECT COUNT(*) count FROM execution_jobs WHERE ${where.join(' AND ')}`).get(...args) as any).count;const items=this.db.prepare(`SELECT id,user_id userId,enrollment_id enrollmentId,step_id stepId,job_type jobType,status,worker_id workerId,lease_expires_at leaseExpiresAt,created_at createdAt,updated_at updatedAt FROM execution_jobs WHERE ${where.join(' AND ')} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...args,limit,offset);return {items,total,limit,offset};}

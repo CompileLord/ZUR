@@ -1,0 +1,46 @@
+{
+  "sign-in": {
+    "unnamedControls": 0,
+    "pageHeadings": 1,
+    "initialFocus": "BODY",
+    "tabStops": [
+      "Skip to content",
+      "ZUR",
+      "email",
+      "password"
+    ]
+  },
+  "theory": {
+    "unnamedControls": 0,
+    "pageHeadings": 1,
+    "initialFocus": "BODY",
+    "tabStops": [
+      "Skip to content",
+      "← Python foundations",
+      "Outline",
+      "Report issue"
+    ]
+  },
+  "python": {
+    "unnamedControls": 0,
+    "pageHeadings": 1,
+    "initialFocus": "BODY",
+    "tabStops": [
+      "Skip to content",
+      "← Python foundations",
+      "Outline",
+      "Report an issue with this exercise"
+    ]
+  },
+  "admin": {
+    "unnamedControls": 0,
+    "pageHeadings": 1,
+    "initialFocus": "BODY",
+    "tabStops": [
+      "Skip to content",
+      "Overview",
+      "Users",
+      "Courses"
+    ]
+  }
+}

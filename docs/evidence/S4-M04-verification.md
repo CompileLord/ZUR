@@ -1,0 +1,21 @@
+# S4-M04 accessibility, responsive quality, and operations evidence
+
+## Verified locally
+
+- `npm test`: **445 passed, 0 failed**.
+- `npm run build`: passed.
+- `git diff --check`: passed.
+- `scripts/verify-a11y-core.ts` ran in headless Chrome over sign-in, theory, Python workspace, and admin fixtures. Chrome's accessibility tree reported one page heading and zero unnamed interactive controls on each. Four sequential Tab stops were observed on each page; each sequence began at Skip to content. Raw report: `docs/evidence/s4-m04-a11y-smoke.json`.
+- Existing token contrast tests passed as part of the full suite. A manual screen-reader run was not performed.
+- `scripts/capture-s4-m04-screenshots.ts` generated responsive fixtures for operations and Python workspace states at 1440, 1024, 768, 390, 320, and a 200% scale/320-CSS-pixel-equivalent viewport, including dark and light theme, offline-unsaved edits, a public failure, hidden-test failure, and threshold-alert fixture. Key captures were visually inspected. The mobile admin nav now wraps to two columns; compact Python views hide Run/Submit and show desktop guidance while retaining step navigation.
+- `GET /healthz` performs a database readiness query. HTTP responses include generated `X-Request-Id`; the header is exposed for browser clients. Admin-only operational metrics report coarse request-family counts and p95 latency, queue age/expired leases, recent infrastructure failures, and email-delivery issues. Threshold alerts render in the admin overview. Regression tests cover permissions, alert thresholds, redaction, response IDs, and responsive contracts.
+- `docs/operations/production-readiness.md` documents alert meaning, execution shutdown, response procedures, safe correlation, backup/restore and rollback requirements, and exact load-test evidence to collect.
+
+## Remaining blockers
+
+- **T086:** Automated accessibility-tree and keyboard smoke coverage is not a WCAG conformance audit. No screen-reader application/operator is available in this environment; live dialog focus restoration, editor escape-to-navigation, and complete keyboard/screen-reader journeys still need human verification. Keep blocked until that evidence exists.
+- **T087:** Captures cover representative views, not every design checkpoint, all adverse states, all themes, or all 45 views. Keep in progress for the remaining visual matrix and 200% zoom/manual reflow review.
+- **T088:** The code provides an admin-visible alert summary, not an external paging sink. There is no deployment/staging setup here to exercise database/media restore, deployment rollback, runner drain/shutdown, alert delivery, or the pilot incident drill. The runner heartbeat remains explicitly unavailable because the current app executes synchronously in the API process.
+- **T089:** The 100-learner / 20-execution-RPS / five-minute pilot test was not run. No approved baseline device/network, isolated production-like runner, 100 dedicated learner sessions, or staging target is configured. Local unit tests and screenshots are not substitutes for that measurement. Do not claim the p95, 99.5% availability, RPO, or RTO targets have been demonstrated.
+
+A repo-wide `npx tsc --noEmit` also reports existing type errors in unrelated MCP/server/web files (including `wallDurationMs`, `CourseProgressSummary.isCourseCompleted`, and component prop mismatches). The modified monitoring and capture files had no TypeScript diagnostics in that run; `npm run build` remains green.
