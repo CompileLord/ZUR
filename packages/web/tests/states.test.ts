@@ -50,7 +50,8 @@ test('Universal State Contract (design.md §15, T011)', async (t) => {
 
   await t.test('Offline and save failure alerts communicate truth about persistence', () => {
     const offline = renderOfflineBanner();
-    assert.strictEqual(offline.includes('You are offline. Changes are stored on this device.'), true);
+    assert.strictEqual(offline.includes('Changes have not been confirmed saved.'), true);
+    assert.strictEqual(renderOfflineBanner(true).includes('Changes are stored on this device.'), true);
 
     const saveFail = renderSaveFailureAlert('retry()');
     assert.strictEqual(saveFail.includes('Could not save changes to server. Your edits are held locally.'), true);
@@ -76,6 +77,9 @@ test('Universal State Contract (design.md §15, T011)', async (t) => {
     const infra = renderInfrastructureFailurePanel('job-999');
     assert.strictEqual(infra.includes("We couldn't check this submission."), true);
     assert.strictEqual(infra.includes('A temporary runner issue prevented completion.'), true);
+    assert.strictEqual(infra.includes('not been confirmed saved'), true);
+    assert.strictEqual(renderInfrastructureFailurePanel('job-999', 'retry()', 'server-saved').includes('Your code is saved.'), true);
+    assert.strictEqual(renderInfrastructureFailurePanel('job-999', 'retry()', 'attempt-snapshot').includes('Your submitted code is available in Attempts.'), true);
     assert.strictEqual(infra.includes('Try again'), true);
   });
 

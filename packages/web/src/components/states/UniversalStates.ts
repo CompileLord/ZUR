@@ -69,11 +69,11 @@ export function renderNotFoundState(): string {
   `;
 }
 
-export function renderOfflineBanner(): string {
+export function renderOfflineBanner(localPersistenceConfirmed = false): string {
   return `
     <div class="offline-banner" role="status" aria-live="polite">
       <span class="offline-icon" aria-hidden="true">⚡</span>
-      <span>You are offline. Changes are stored on this device. Reconnect to sync.</span>
+      <span>${localPersistenceConfirmed ? 'You are offline. Changes are stored on this device. Reconnect to sync.' : 'You are offline. Changes have not been confirmed saved. Keep this page open and reconnect to sync.'}</span>
     </div>
   `;
 }
@@ -110,16 +110,17 @@ export function renderJobQueuedState(attemptId: string, status: 'QUEUED' | 'RUNN
   `;
 }
 
-export function renderInfrastructureFailurePanel(attemptId: string, onRetryAction: string = 'retryExecution()'): string {
+export function renderInfrastructureFailurePanel(attemptId: string, onRetryAction: string = 'retryExecution()', persistence: 'server-saved' | 'attempt-snapshot' | 'unconfirmed' = 'unconfirmed'): string {
+  const recoveryText = persistence === 'server-saved' ? 'Your code is saved.' : persistence === 'attempt-snapshot' ? 'Your submitted code is available in Attempts.' : 'Your current edits have not been confirmed saved.';
   return `
     <div class="error-panel infrastructure-failure" role="alert">
       <h3 class="error-panel-title">We couldn't check this submission.</h3>
-      <p class="error-panel-body">A temporary runner issue prevented completion. Your code is saved.</p>
+      <p class="error-panel-body">A temporary runner issue prevented completion. ${recoveryText}</p>
       <div class="error-panel-actions mt-3 flex items-center gap-3">
         <button type="button" class="btn btn-secondary btn-compact" onclick="${onRetryAction}">
           Try again
         </button>
-        <span class="text-muted text-xs">Ref: <code>${attemptId}</code></span>
+        <span class="text-muted text-xs">Ref: <code>${escapeHtml(attemptId)}</code></span>
       </div>
     </div>
   `;
