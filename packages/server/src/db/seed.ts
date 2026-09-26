@@ -324,7 +324,22 @@ export function seedDatabase(dbPath?: string): void {
           ] }] },
           { id: mod2Id, title: 'Conditions', position: 1, lessons: [{ id: les2Id, title: 'Branching', position: 0, steps: [
             { id: step5Id, title: 'Valid conditional expressions', type: 'quiz', position: 0, isRequired: true },
-            { id: step6Id, title: 'Check Even or Odd', type: 'python', position: 1, isRequired: true },
+            { id: step6Id, title: 'Check Even or Odd', type: 'python', position: 1, isRequired: true, content: {
+              kind: 'python',
+              problemStatement: 'Read an integer from input. Print Even if even, Odd if odd. If input is empty, print Empty.',
+              inputFormat: 'An integer or empty string.',
+              outputFormat: 'Even, Odd, or Empty.',
+              constraints: '-10^6 <= N <= 10^6',
+              starterCode: '# Check even or odd\nimport sys\nraw = sys.stdin.read().strip()\nif not raw:\n    print("Empty")\n',
+              referenceSolution: 'import sys\nraw = sys.stdin.read().strip()\nif not raw:\n    print("Empty")\nelse:\n    n = int(raw)\n    print("Even" if n % 2 == 0 else "Odd")\n',
+              hints: ['Check for empty string first.', 'Use the % modulo operator to test evenness.'],
+              solutionExplanation: 'Check empty input before converting it to an integer.',
+              testCases: [
+                { id: 'tc-2-pub1', stdin: '4', expectedStdout: 'Even', position: 0, isHidden: false },
+                { id: 'tc-2-pub-blank', stdin: '', expectedStdout: 'Empty', position: 1, isHidden: false },
+                { id: 'tc-2-hidden', stdin: '-3', expectedStdout: 'Odd', position: 2, isHidden: true },
+              ],
+            } },
           ] }] },
           { id: mod3Id, title: 'Loops', position: 2, lessons: [{ id: les3Id, title: 'For and While', position: 0, steps: [
             { id: step7Id, title: 'Sum of Numbers', type: 'python', position: 0, isRequired: true },
@@ -333,6 +348,33 @@ export function seedDatabase(dbPath?: string): void {
         publishedAt: now,
       })
     );
+
+    for (const versionId of [ver1Id, ver2Id]) {
+      const versionRow = db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(versionId) as any;
+      const snapshot = JSON.parse(versionRow.snapshot_data);
+      for (const module of snapshot.modules || []) {
+        for (const lesson of module.lessons || []) {
+          for (const step of lesson.steps || []) {
+            if (step.type !== 'python') continue;
+            const contentRow = db.prepare('SELECT content_payload FROM step_contents WHERE step_id = ?').get(step.id) as any;
+            const testRows = db.prepare('SELECT id, stdin, expected_stdout, is_hidden, position, created_at FROM test_cases WHERE step_id = ? ORDER BY position ASC').all(step.id) as any[];
+            step.content = {
+              ...(contentRow ? JSON.parse(contentRow.content_payload) : {}),
+              testCases: testRows.map((row) => ({
+                id: row.id,
+                stepId: step.id,
+                stdin: row.stdin || '',
+                expectedStdout: row.expected_stdout || '',
+                isHidden: Boolean(row.is_hidden),
+                position: row.position,
+                createdAt: row.created_at,
+              })),
+            };
+          }
+        }
+      }
+      db.prepare('UPDATE course_versions SET snapshot_data = ? WHERE id = ?').run(JSON.stringify(snapshot), versionId);
+    }
 
     // Update course current_version_id
     db.prepare(`UPDATE courses SET current_version_id = ? WHERE id = ?`).run(ver2Id, course1Id);

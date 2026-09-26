@@ -57,6 +57,11 @@ test('Python Workspace Page P15 (design.md §11 P15, T026)', async (t) => {
     assert.ok(html.includes('Submit solution'));
   });
 
+  await t.test('Attempts action links to the registered history route', () => {
+    const html = renderPythonWorkspacePage(baseOpts);
+    assert.ok(html.includes('href="/learn/enr-1/steps/step-6/attempts"'));
+  });
+
   await t.test('Renders public test failure with diff and received output', () => {
     const htmlWithFailure = renderPythonWorkspacePage({
       ...baseOpts,
@@ -178,7 +183,7 @@ test('Attempt History and Restore P16 (design.md §11 P16, T027)', async (t) => 
       },
     });
 
-    assert.ok(html.includes('print("correct snapshot")'));
+    assert.ok(html.includes('print(&quot;correct snapshot&quot;)'));
     assert.ok(html.includes('Restore to editor'));
     assert.ok(html.includes('Restore code to editor?'));
   });
@@ -199,7 +204,7 @@ test('Attempt History and Restore P16 (design.md §11 P16, T027)', async (t) => 
       },
     });
 
-    assert.ok(html.includes('print("student snapshot")'));
+    assert.ok(html.includes('print(&quot;student snapshot&quot;)'));
     assert.ok(!html.includes('Restore to editor'));
   });
 });

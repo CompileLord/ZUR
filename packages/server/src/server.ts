@@ -394,7 +394,7 @@ export function createServer(
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         const body = await parseJsonBody(req);
-        const result = draftService.resetDraft(user.id, body.enrollmentId, body.stepId);
+        const result = draftService.resetDraft(user.id, body.enrollmentId, body.stepId, body.expectedRevision);
         sendJson(res, 200, result);
         return;
       }
@@ -630,7 +630,7 @@ export function createServer(
       }
 
       // 29. Author: Get Course Details (T030)
-      const authorCourseMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)$/);
+      const authorCourseMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)$/);
       if (method === 'GET' && authorCourseMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -670,7 +670,7 @@ export function createServer(
       }
 
       // 32. Author: Validate Course Draft (T040)
-      const authorCourseValidateMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/validate$/);
+      const authorCourseValidateMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/validate$/);
       if (method === 'POST' && authorCourseValidateMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -1096,7 +1096,7 @@ export function createServer(
 
       // 41. Student: Get Enrolled Step Content (T042)
       const enrolledStepContentMatch = pathname.match(
-        /^\/api\/learn\/([0-9a-fA-F-]+)\/steps\/([0-9a-fA-F-]+)\/content$/
+        /^\/api\/learn\/([a-zA-Z0-9_-]+)\/steps\/([a-zA-Z0-9_-]+)\/content$/
       );
       if (method === 'GET' && enrolledStepContentMatch) {
         if (!token) throw new AuthenticationError();

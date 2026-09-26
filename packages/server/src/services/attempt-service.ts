@@ -31,6 +31,16 @@ export class AttemptService {
     this.draftService = new DraftService(db);
   }
 
+  private attemptHasHiddenFailure(resultPayload: string | null | undefined): boolean {
+    if (!resultPayload) return false;
+    try {
+      const result = JSON.parse(resultPayload);
+      return Array.isArray(result.testResults) && result.testResults.some((test: any) => test?.isHidden === true && test?.passed === false);
+    } catch {
+      return false;
+    }
+  }
+
 
   listAttempts(params: {
     enrollmentId: string;
@@ -67,10 +77,11 @@ export class AttemptService {
     `).get(enrollmentId, stepId) as { total: number };
 
     const rows = this.db.prepare(`
-      SELECT id, attempt_number, verdict, execution_time_ms, is_infrastructure_failure, created_at
-      FROM assessment_attempts
+      SELECT a.id, a.attempt_number, a.verdict, a.execution_time_ms, a.is_infrastructure_failure, a.created_at,
+             (SELECT j.result_payload FROM execution_jobs j WHERE j.attempt_id = a.id AND j.job_type = 'submit' LIMIT 1) result_payload
+      FROM assessment_attempts a
       WHERE enrollment_id = ? AND step_id = ?
-      ORDER BY attempt_number DESC
+      ORDER BY a.attempt_number DESC
       LIMIT ? OFFSET ?
     `).all(enrollmentId, stepId, limit, offset) as any[];
 
@@ -78,7 +89,7 @@ export class AttemptService {
       id: r.id,
       attemptNumber: r.attempt_number,
       verdict: r.verdict,
-      executionTimeMs: r.execution_time_ms,
+      ...(this.attemptHasHiddenFailure(r.result_payload) ? {} : { executionTimeMs: r.execution_time_ms }),
       isInfrastructureFailure: Boolean(r.is_infrastructure_failure),
       createdAt: r.created_at,
     }));
@@ -97,7 +108,8 @@ export class AttemptService {
       SELECT a.id, a.user_id, a.enrollment_id, a.step_id, a.attempt_number,
              a.verdict, a.code_snapshot, a.execution_time_ms,
              a.is_infrastructure_failure, a.created_at,
-             e.course_id
+             e.course_id,
+             (SELECT j.result_payload FROM execution_jobs j WHERE j.attempt_id = a.id AND j.job_type = 'submit' LIMIT 1) result_payload
       FROM assessment_attempts a
       JOIN enrollments e ON a.enrollment_id = e.id
       WHERE a.id = ?
@@ -120,7 +132,7 @@ export class AttemptService {
       attemptNumber: row.attempt_number,
       verdict: row.verdict,
       codeSnapshot: row.code_snapshot || '',
-      executionTimeMs: row.execution_time_ms,
+      ...(this.attemptHasHiddenFailure(row.result_payload) ? {} : { executionTimeMs: row.execution_time_ms }),
       isInfrastructureFailure: Boolean(row.is_infrastructure_failure),
       createdAt: row.created_at,
       canRestore: isOwnerStudent,

@@ -3,6 +3,8 @@ import type { DatabaseSync } from 'node:sqlite';
 import {
   ValidationError,
   ConflictError,
+  NotFoundError,
+  AuthorizationError,
   validatePythonSource,
   type CodeDraftResponse,
 } from 'zur-shared';
@@ -37,21 +39,28 @@ export class DraftService {
     this.db = db;
   }
 
-  private getStarterCode(stepId: string): string {
-    const row = this.db.prepare(`
-      SELECT content_payload FROM step_contents WHERE step_id = ?
-    `).get(stepId) as { content_payload: string } | undefined;
-
-    if (!row) return '';
-    try {
-      const payload = JSON.parse(row.content_payload);
-      return payload.starterCode || '';
-    } catch {
-      return '';
+  private getEditableStep(userId: string, enrollmentId: string, stepId: string): any {
+    const enrollment = this.db.prepare(`
+      SELECT e.user_id, e.status, e.pinned_version_id, c.is_suspended
+      FROM enrollments e JOIN courses c ON c.id=e.course_id WHERE e.id=?
+    `).get(enrollmentId) as any;
+    if (!enrollment || enrollment.user_id !== userId || enrollment.status !== 'active') {
+      throw new NotFoundError("This page isn't available.");
     }
+    if (enrollment.is_suspended) throw new AuthorizationError('Course access is suspended.');
+    const version = this.db.prepare('SELECT snapshot_data FROM course_versions WHERE id=?').get(enrollment.pinned_version_id) as any;
+    if (!version) throw new NotFoundError("This page isn't available.");
+    let snapshot: any;
+    try { snapshot = JSON.parse(version.snapshot_data); }
+    catch { throw new NotFoundError("This page isn't available."); }
+    const step = (snapshot.modules || []).flatMap((module: any) => module.lessons || [])
+      .flatMap((lesson: any) => lesson.steps || []).find((item: any) => item.id === stepId);
+    if (!step || step.type !== 'python') throw new NotFoundError("This page isn't available.");
+    return step;
   }
 
   getDraft(userId: string, enrollmentId: string, stepId: string): CodeDraftResponse {
+    const step = this.getEditableStep(userId, enrollmentId, stepId);
     const row = this.db.prepare(`
       SELECT id, code, revision, updated_at
       FROM code_drafts
@@ -64,7 +73,7 @@ export class DraftService {
     } | undefined;
 
     if (!row) {
-      const starterCode = this.getStarterCode(stepId);
+      const starterCode = step.content?.starterCode || '';
       return {
         enrollmentId,
         stepId,
@@ -93,6 +102,7 @@ export class DraftService {
     code: string,
     baseRevision: number
   ): CodeDraftResponse {
+    this.getEditableStep(userId, enrollmentId, stepId);
     const validation = validatePythonSource(code);
     if (!validation.valid) {
       throw new ValidationError(validation.error || 'Invalid Python source code');
@@ -150,18 +160,28 @@ export class DraftService {
     };
   }
 
-  resetDraft(userId: string, enrollmentId: string, stepId: string): CodeDraftResponse {
-    const starterCode = this.getStarterCode(stepId);
+  resetDraft(userId: string, enrollmentId: string, stepId: string, expectedRevision: number): CodeDraftResponse {
+    const step = this.getEditableStep(userId, enrollmentId, stepId);
+    const starterCode = step.content?.starterCode || '';
     const now = new Date().toISOString();
 
+    if (!Number.isInteger(expectedRevision) || expectedRevision < 0) {
+      throw new ValidationError('A valid expected draft revision is required.');
+    }
+
     const existing = this.db.prepare(`
-      SELECT id, revision
+      SELECT id, code, revision
       FROM code_drafts
       WHERE user_id = ? AND enrollment_id = ? AND step_id = ?
     `).get(userId, enrollmentId, stepId) as {
       id: string;
       revision: number;
     } | undefined;
+
+    const currentRevision = existing?.revision ?? 0;
+    if (currentRevision !== expectedRevision) {
+      throw new DraftConflictError(currentRevision, existing?.code || starterCode);
+    }
 
     if (existing) {
       const nextRevision = existing.revision + 1;

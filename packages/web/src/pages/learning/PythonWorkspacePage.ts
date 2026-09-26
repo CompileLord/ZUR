@@ -20,13 +20,57 @@ export interface PythonWorkspacePageOptions {
   isCompleted?: boolean;
   examples?: Array<{ input: string; output: string }>;
   currentResult?: ExecutionResult | null;
+  resultMode?: 'samples' | 'custom' | 'submit';
+  executionError?: string | null;
   inFlightStatus?: 'queued' | 'running' | null;
   inFlightJobId?: string | null;
   saveStatus?: 'saved' | 'saving' | 'unsaved' | 'conflict';
+  saveNotice?: string;
   previousStepUrl?: string | null;
   nextStepUrl?: string | null;
   activeTab?: 'results' | 'custom_input' | 'attempts';
   customStdin?: string;
+}
+
+function escapeHtml(value: unknown): string {
+  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[char]!));
+}
+
+export function renderPythonExecutionResults(opts: Pick<PythonWorkspacePageOptions, 'currentResult' | 'resultMode' | 'inFlightStatus' | 'inFlightJobId' | 'executionError'>): string {
+  if (opts.executionError) return `<div class="form-error" role="alert">${escapeHtml(opts.executionError)}</div>`;
+  if (opts.inFlightStatus) return `
+    <div class="result-card-banner info" role="status" aria-live="polite">
+      <span>${opts.inFlightStatus === 'queued' ? 'Queued for checking.' : 'Checking your code…'}</span>
+      ${opts.inFlightJobId ? `<span class="text-tertiary font-mono">${escapeHtml(opts.inFlightJobId)}</span>` : ''}
+    </div>`;
+  if (!opts.currentResult) return `<div class="results-empty-notice"><span>No runs yet. Try running against samples first.</span></div>`;
+  const res = opts.currentResult;
+  const isPassed = res.verdict === 'PASSED';
+  const isInfra = res.isInfrastructureFailure;
+  const bannerClass = isPassed ? 'passed' : isInfra ? 'infrastructure' : 'wrong';
+  const headline = isPassed && opts.resultMode === 'samples'
+    ? 'Samples passed. Submit your solution to complete this step.'
+    : isPassed && opts.resultMode === 'submit' ? 'All tests passed.' : `Verdict: ${res.verdict}`;
+  return `
+    <div class="result-card-banner ${bannerClass}" role="status" aria-live="polite">
+      <span>${escapeHtml(headline)}</span>
+      ${res.executionTimeMs ? `<span class="text-secondary">${escapeHtml(res.executionTimeMs)} ms</span>` : ''}
+    </div>
+    ${res.guidance ? `<div class="guidance-notice" style="margin-bottom: var(--space-3); color: var(--text-secondary);">${escapeHtml(res.guidance)}</div>` : ''}
+    ${res.testResults.map((tr) => `
+      <div class="test-comparison-block">
+        <div class="problem-meta-row" style="margin-bottom: var(--space-1);">
+          <span class="status-badge ${tr.passed ? 'status-ready' : 'status-failed'}">${tr.passed ? 'Passed' : 'Failed'}</span>
+          <span>Test #${escapeHtml(tr.position + 1)}</span>
+        </div>
+        ${tr.input !== undefined ? `<span class="comparison-label">Input</span><pre class="comparison-value">${escapeHtml(tr.input || '(empty)')}</pre>` : ''}
+        ${tr.expectedOutput !== undefined ? `<span class="comparison-label">Expected Output</span><pre class="comparison-value">${escapeHtml(tr.expectedOutput)}</pre>` : ''}
+        ${tr.actualOutput !== undefined ? `<span class="comparison-label">Received Output</span><pre class="comparison-value">${escapeHtml(tr.actualOutput)}</pre>` : ''}
+        ${tr.stderr ? `<span class="comparison-label">Stderr</span><pre class="comparison-value text-danger">${escapeHtml(tr.stderr)}</pre>` : ''}
+      </div>`).join('')}
+    ${isInfra ? '<p class="text-secondary">Your code is unchanged. You can try again.</p><button type="button" class="btn btn-secondary btn-compact" id="retry-execution-btn">Retry Execution</button>' : ''}`;
 }
 
 export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): string {
@@ -48,32 +92,32 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
     <div class="problem-pane" role="region" aria-label="Problem Instructions" data-enrollment-id="${opts.enrollmentId}" data-step-id="${opts.stepId}">
       <div class="problem-header">
         <div class="problem-meta-row">
-          <span>${opts.stepOrdinalText}</span>
+          <span>${escapeHtml(opts.stepOrdinalText)}</span>
           <span>·</span>
           <span>Python exercise</span>
         </div>
-        <h1 class="problem-title">${opts.stepTitle}</h1>
+        <h1 class="problem-title">${escapeHtml(opts.stepTitle)}</h1>
       </div>
 
       <div class="problem-section">
         <h2 class="problem-section-title">Problem Statement</h2>
         <div class="problem-section-body">
-          <p>${opts.problemStatement}</p>
+          <p>${escapeHtml(opts.problemStatement)}</p>
         </div>
       </div>
 
       <div class="problem-section">
         <h2 class="problem-section-title">Input & Output Format</h2>
         <div class="problem-section-body">
-          <p><strong>Input:</strong> ${opts.inputFormat}</p>
-          <p><strong>Output:</strong> ${opts.outputFormat}</p>
+          <p><strong>Input:</strong> ${escapeHtml(opts.inputFormat)}</p>
+          <p><strong>Output:</strong> ${escapeHtml(opts.outputFormat)}</p>
         </div>
       </div>
 
       <div class="problem-section">
         <h2 class="problem-section-title">Constraints</h2>
         <div class="problem-section-body">
-          <code>${opts.constraints}</code>
+          <code>${escapeHtml(opts.constraints)}</code>
         </div>
       </div>
 
@@ -102,7 +146,7 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
                   <span class="hint-chevron">▼</span>
                 </button>
                 <div class="hint-content" hidden>
-                  ${hint}
+                ${escapeHtml(hint)}
                 </div>
               </div>
             `).join('')}
@@ -115,14 +159,14 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
           <div class="solution-explanation-card">
             <h2 class="problem-section-title">Solution Explanation</h2>
             <div class="problem-section-body">
-              <p>${opts.solutionExplanation}</p>
+              <p>${escapeHtml(opts.solutionExplanation)}</p>
             </div>
           </div>
         </div>
       ` : ''}
 
       <div class="problem-section">
-        <a href="/help?report=broken_exercise&stepId=${opts.stepId}" class="btn-ghost btn-compact text-secondary">
+            <a href="/help?report=broken_exercise&stepId=${encodeURIComponent(opts.stepId)}" class="btn-ghost btn-compact text-secondary">
           Report an issue with this exercise
         </a>
       </div>
@@ -133,83 +177,14 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
   const lineCount = (opts.currentCode || '').split('\n').length;
   const lineNumbers = Array.from({ length: Math.max(lineCount, 15) }, (_, i) => i + 1).join('\n');
 
-  let resultsBodyHtml = '';
-  if (opts.inFlightStatus) {
-    resultsBodyHtml = `
-      <div class="result-card-banner info" role="status" aria-live="polite">
-        <span>Running tests (${opts.inFlightStatus === 'queued' ? 'Queued' : 'Executing'})...</span>
-        ${opts.inFlightJobId ? `<span class="text-tertiary font-mono">${opts.inFlightJobId}</span>` : ''}
-      </div>
-    `;
-  } else if (!opts.currentResult) {
-    resultsBodyHtml = `
-      <div class="results-empty-notice">
-        <span>No runs yet. Try running against samples first.</span>
-      </div>
-    `;
-  } else {
-    const res = opts.currentResult;
-    const isPassed = res.verdict === 'PASSED';
-    const isInfra = res.isInfrastructureFailure;
-    const bannerClass = isPassed ? 'passed' : isInfra ? 'infrastructure' : 'wrong';
-
-    resultsBodyHtml = `
-      <div class="result-card-banner ${bannerClass}" role="status" aria-live="polite">
-        <span>Verdict: ${res.verdict}</span>
-        ${res.executionTimeMs ? `<span class="text-secondary">${res.executionTimeMs} ms</span>` : ''}
-      </div>
-
-      ${res.guidance ? `
-        <div class="guidance-notice" style="margin-bottom: var(--space-3); color: var(--text-secondary);">
-          ${res.guidance}
-        </div>
-      ` : ''}
-
-      ${res.testResults.map((tr) => `
-        <div class="test-comparison-block">
-          <div class="problem-meta-row" style="margin-bottom: var(--space-1);">
-            <span class="status-badge ${tr.passed ? 'status-ready' : 'status-failed'}">
-              ${tr.passed ? 'Passed' : 'Failed'}
-            </span>
-            <span>Test #${tr.position + 1}</span>
-          </div>
-
-          ${tr.input !== undefined ? `
-            <span class="comparison-label">Input</span>
-            <pre class="comparison-value">${tr.input || '(empty)'}</pre>
-          ` : ''}
-
-          ${tr.expectedOutput !== undefined ? `
-            <span class="comparison-label">Expected Output</span>
-            <pre class="comparison-value">${tr.expectedOutput}</pre>
-          ` : ''}
-
-          ${tr.actualOutput !== undefined ? `
-            <span class="comparison-label">Received Output</span>
-            <pre class="comparison-value">${tr.actualOutput}</pre>
-          ` : ''}
-
-          ${tr.stderr ? `
-            <span class="comparison-label">Stderr</span>
-            <pre class="comparison-value text-danger">${tr.stderr}</pre>
-          ` : ''}
-        </div>
-      `).join('')}
-
-      ${isInfra ? `
-        <button type="button" class="btn btn-secondary btn-compact" id="retry-execution-btn">
-          Retry Execution
-        </button>
-      ` : ''}
-    `;
-  }
+  const resultsBodyHtml = renderPythonExecutionResults(opts);
 
   const rightPanelHtml = `
     <div class="editor-pane" role="region" aria-label="Python Code Editor">
       <div class="editor-toolbar">
         <div class="editor-toolbar-left">
           <span class="runtime-badge">Python 3.14</span>
-          <div class="save-indicator ${opts.saveStatus || 'saved'}" aria-live="polite">
+          <div id="python-save-indicator" class="save-indicator ${opts.saveStatus || 'saved'}" aria-live="polite">
             ${saveLabel}
           </div>
         </div>
@@ -228,7 +203,7 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
           class="code-editor-input"
           spellcheck="false"
           aria-label="Python Source Code"
-        >${opts.currentCode || opts.starterCode || ''}</textarea>
+        >${escapeHtml(opts.currentCode || opts.starterCode || '')}</textarea>
       </div>
 
       <div class="workspace-results-region" role="region" aria-label="Execution Results">
@@ -239,7 +214,7 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
           <button type="button" class="results-tab-button ${activeTab === 'custom_input' ? 'active' : ''}" role="tab" aria-selected="${activeTab === 'custom_input'}">
             Custom input
           </button>
-          <a href="/learn/${opts.enrollmentId}/steps/${opts.stepId}/attempts" class="results-tab-button" role="tab" aria-selected="false">
+          <a href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts" class="results-tab-button" role="tab" aria-selected="false">
             Attempts
           </a>
         </div>
@@ -267,7 +242,12 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
     <button type="button" class="btn btn-primary btn-compact" id="submit-solution-btn" title="Submit solution for grading">
       Submit solution
     </button>
+    ${opts.isCompleted && opts.nextStepUrl ? `<a href="${escapeHtml(opts.nextStepUrl)}" class="btn btn-primary btn-compact">Continue</a>` : ''}
   `;
+
+  const saveNoticeHtml = opts.saveNotice
+    ? `<p id="python-save-notice" class="alert alert-warning" role="status">${escapeHtml(opts.saveNotice)}</p>`
+    : '';
 
   return renderLearningWorkspaceShell({
     courseTitle: opts.courseTitle,
@@ -278,7 +258,7 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
     isPythonWorkspace: true,
     saveStatusText: saveLabel,
     outlineContent: '<nav class="outline-nav"><ul><li>' + opts.stepTitle + '</li></ul></nav>',
-    workspaceContent: leftPanelHtml + rightPanelHtml,
+    workspaceContent: saveNoticeHtml + leftPanelHtml + rightPanelHtml,
     previousStepUrl: opts.previousStepUrl,
     nextStepUrl: opts.nextStepUrl,
     taskActions: taskActionsHtml,

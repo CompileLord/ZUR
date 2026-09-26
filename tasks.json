@@ -1560,9 +1560,25 @@
                 "screenshots/s4_t087_p14_quiz_multiple_choice_200zoom_dark_gui.png",
                 "screenshots/s4_t087_p14_quiz_multiple_choice_200zoom_light_gui.png",
                 "screenshots/s4_t087_p25_python_test_list_200zoom_dark_gui.png",
-                "screenshots/s4_t087_p25_python_test_list_200zoom_light_gui.png"
+                "screenshots/s4_t087_p25_python_test_list_200zoom_light_gui.png",
+                "screenshots/s4_t087_p15_samples_passed_1440x900_dark.png",
+                "screenshots/s4_t087_p15_samples_passed_1440x900_light.png",
+                "screenshots/s4_t087_p15_submit_redacted_failure_1440x900_dark.png",
+                "screenshots/s4_t087_p15_submit_redacted_failure_1440x900_light.png",
+                "screenshots/s4_t087_p15_reset_stale_revision_conflict_1440x900_light.png",
+                "screenshots/s4_t087_p16_hidden_failure_attempt_history_1440x900_light.png",
+                "screenshots/s4_t087_p16_hidden_failure_attempt_detail_1440x900_light.png",
+                "screenshots/s4_t087_p27_publish_confirmation_1440x900_dark.png",
+                "screenshots/s4_t087_p27_publish_confirmation_1440x900_light.png",
+                "screenshots/s4_t087_p27_publish_receipt_1440x900_light.png",
+                "packages/server/tests/learning-publishing-route-integration.test.ts",
+                "packages/server/src/services/attempt-service.ts",
+                "packages/web/tests/s4-m04-visual-matrix.test.ts",
+                "packages/web/tests/draft-save-queue.test.ts",
+                "packages/server/tests/execution-boundary.test.ts",
+                "packages/server/src/db/migrations/008_execution_pinned_assessments.sql"
               ],
-              "blocker": "T087 remains in progress. Actual GUI Chrome 200% captures now cover 14 routes in both themes, including completed dashboard, inline-image component, multiple-choice quiz, and long Python test list. The authenticated waiver preview has a live scope-count/ready-to-confirm capture in both themes; its mutation was not submitted. The live P22 visible inspector panel is captured in both themes and satisfies the open-inspector visual checkpoint. The deep-tree/long-title P22 builder fixture has measured actual 200% captures in both themes; only the live authenticated route at 200% remains unverified. Inspector visibility controls are optional behavior and were not exercised. Live P27 lacks the publication review/confirmation route. Live P15 renders Run samples/Submit controls, but Run caused no API request or result change; live unsaved and hidden-failure states are absent. Other gaps: actual 200% zoom for additional routes/states, revoked-token and one-time-secret states (secret intentionally excluded), real concurrent-edit conflict, course-attached media authorization, and additional error/recovery routes. The inline image is a local illustrative asset. Captures are fixture components except the explicitly labeled local signed-in browser probes; none establish production behavior."
+              "blocker": "T087 remains in progress. Actual GUI Chrome 200% captures cover 14 routes in both themes. Deterministic responsive fixtures cover required viewport/theme/adverse-state combinations. Authenticated local Chrome verifies P15 draft autosave, public sample success, and a hidden-test failure response without timing or hidden payload in both themes at 1440×900; a live stale-reset race returns 409 and preserves local code. P16 Attempts opens the authenticated list and read-only detail routes in light theme; hidden-failure history omits timing, and public-failure timing remains covered by API regression. P27 verifies live validation, explicit confirmation/cancel, publish POST, and receipt in both themes on an isolated disposable database. P22 inspector is visible in the live route in both themes. Remaining gaps include live P15/P16/P27 200% and mobile captures, live offline/unsaved P15 state and hidden-test pass/completion, revoked-token and one-time-secret states (secret intentionally excluded), broader concurrent-editor conflict handling, course-attached media authorization, and additional error/recovery routes. Waiver POST was intentionally not submitted. The inline image remains a local illustrative asset. Captures distinguish component fixtures from local signed-in browser flows and do not establish production behavior."
             },
             {
               "id": "T088",

@@ -58,6 +58,7 @@ export const ROUTES: RouteDefinition[] = [
   createRoute('P13', '/learn/:enrollmentId/steps/:stepId/video', 'S4', 'Video Step', 'student'),
   createRoute('P14', '/learn/:enrollmentId/steps/:stepId/quiz', 'S4', 'Quiz Step', 'student'),
   createRoute('P15', '/learn/:enrollmentId/steps/:stepId/code', 'S4', 'Python Workspace', 'student'),
+  createRoute('P16', '/learn/:enrollmentId/steps/:stepId/attempts', 'S4', 'Submission History', 'student'),
   createRoute('P16', '/learn/:enrollmentId/steps/:stepId/attempts/:attemptId', 'S4', 'Attempt Detail', 'student'),
 
   // Account Settings (P17–P20)

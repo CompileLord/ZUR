@@ -58,7 +58,13 @@ test('Code Draft Persistence and Recovery (T025, AC-11)', async (t) => {
   });
 
   await t.test('Reset draft restores starter code and increments revision', () => {
-    const reset = draftService.resetDraft(userId, enrollmentId, stepId);
+    assert.throws(() => draftService.resetDraft(userId, enrollmentId, stepId, 1), (err: any) => {
+      assert.ok(err instanceof DraftConflictError);
+      assert.equal(err.currentRevision, 2);
+      assert.equal(err.serverCode, 'print("second edit")');
+      return true;
+    }, 'a stale reset cannot erase the latest code');
+    const reset = draftService.resetDraft(userId, enrollmentId, stepId, 2);
     assert.strictEqual(reset.revision, 3);
     assert.strictEqual(reset.isStarter, true);
     assert.ok(reset.code.includes('Check even or odd'));

@@ -3,6 +3,8 @@ import type { DatabaseSync } from 'node:sqlite';
 import {
   ValidationError,
   NotFoundError,
+  AuthorizationError,
+  ConflictError,
   validatePythonSource,
   type ExecutionResult,
   type TerminalVerdict,
@@ -39,6 +41,9 @@ export class ExecutionService {
 
   enqueueJob(params: EnqueueJobParams): { job: ExecutionJob; isDuplicate: boolean } {
     const { userId, enrollmentId, stepId, jobType, code, stdin, idempotencyKey } = params;
+    const pinnedAssessment = jobType === 'author_validation'
+      ? null
+      : this.getPinnedAssessment(userId, enrollmentId, stepId);
 
     // Idempotency check: if request with this idempotency key already exists for this user, return it
     if (idempotencyKey) {
@@ -50,6 +55,10 @@ export class ExecutionService {
       `).get(userId, idempotencyKey) as any;
 
       if (existing) {
+        if (existing.enrollment_id !== (enrollmentId || null) || existing.step_id !== stepId ||
+            existing.job_type !== jobType || existing.code !== code || existing.stdin !== (stdin || null)) {
+          throw new ConflictError('This request key was already used for a different execution.');
+        }
         return {
           job: {
             id: existing.id,
@@ -87,8 +96,8 @@ export class ExecutionService {
     this.db.prepare(`
       INSERT INTO execution_jobs (
         id, user_id, enrollment_id, step_id, job_type, code, stdin,
-        idempotency_key, status, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, ?)
+        idempotency_key, status, course_version_id, assessment_snapshot, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, ?, ?, ?)
     `).run(
       jobId,
       userId,
@@ -98,6 +107,8 @@ export class ExecutionService {
       code,
       stdin || null,
       idempotencyKey || null,
+      pinnedAssessment?.versionId || null,
+      pinnedAssessment ? JSON.stringify(pinnedAssessment.testCases) : null,
       now,
       now
     );
@@ -117,6 +128,74 @@ export class ExecutionService {
     };
 
     return { job, isDuplicate: false };
+  }
+
+  private getPinnedAssessment(userId: string, enrollmentId: string | null | undefined, stepId: string): { versionId: string; testCases: TestCase[] } {
+    if (!enrollmentId) throw new NotFoundError("This page isn't available.");
+    const enrollment = this.db.prepare(`
+      SELECT e.user_id, e.status, e.pinned_version_id, c.is_suspended
+      FROM enrollments e JOIN courses c ON c.id = e.course_id WHERE e.id = ?
+    `).get(enrollmentId) as any;
+    if (!enrollment || enrollment.user_id !== userId || enrollment.status !== 'active') {
+      throw new NotFoundError("This page isn't available.");
+    }
+    if (enrollment.is_suspended) throw new AuthorizationError('Course access is suspended.');
+    const version = this.db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(enrollment.pinned_version_id) as any;
+    if (!version) throw new NotFoundError("This page isn't available.");
+    let snapshot: any;
+    try { snapshot = JSON.parse(version.snapshot_data); }
+    catch { throw new NotFoundError("This page isn't available."); }
+    const step = (snapshot.modules || []).flatMap((module: any) => module.lessons || [])
+      .flatMap((lesson: any) => lesson.steps || []).find((item: any) => item.id === stepId);
+    if (!step || step.type !== 'python' || !Array.isArray(step.content?.testCases)) throw new NotFoundError("This page isn't available.");
+    const testCases = step.content.testCases.map((test: any) => ({
+      id: String(test.id),
+      stepId,
+      stdin: String(test.stdin ?? ''),
+      expectedStdout: String(test.expectedStdout ?? ''),
+      isHidden: Boolean(test.isHidden),
+      position: Number(test.position),
+      createdAt: String(test.createdAt ?? ''),
+    })) as TestCase[];
+    if (testCases.length === 0) throw new NotFoundError("This page isn't available.");
+    return { versionId: enrollment.pinned_version_id, testCases };
+  }
+
+  private readSnapshotTestCases(versionId: string, stepId: string): TestCase[] | null {
+    const version = this.db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(versionId) as any;
+    if (!version?.snapshot_data) return null;
+    try {
+      const snapshot = JSON.parse(version.snapshot_data);
+      const step = (snapshot.modules || []).flatMap((module: any) => module.lessons || [])
+        .flatMap((lesson: any) => lesson.steps || []).find((item: any) => item.id === stepId);
+      if (!step || step.type !== 'python' || !Array.isArray(step.content?.testCases)) return null;
+      return step.content.testCases.map((test: any) => ({
+        id: String(test.id), stepId, stdin: String(test.stdin ?? ''), expectedStdout: String(test.expectedStdout ?? ''),
+        isHidden: Boolean(test.isHidden), position: Number(test.position), createdAt: String(test.createdAt ?? ''),
+      }));
+    } catch { return null; }
+  }
+
+  private getTestCasesForJob(candidate: any): TestCase[] {
+    let testCases: TestCase[] | null = null;
+    if (candidate.assessment_snapshot) {
+      try { testCases = JSON.parse(candidate.assessment_snapshot) as TestCase[]; }
+      catch { throw new NotFoundError('Execution assessment snapshot is unavailable.'); }
+    }
+    let versionId = candidate.course_version_id as string | null;
+    if (!versionId && candidate.enrollment_id) {
+      versionId = (this.db.prepare('SELECT pinned_version_id FROM enrollments WHERE id = ?').get(candidate.enrollment_id) as any)?.pinned_version_id || null;
+    }
+    if (!testCases && versionId) testCases = this.readSnapshotTestCases(versionId, candidate.step_id);
+    if (testCases) return testCases;
+    const rows = this.db.prepare(`
+      SELECT id, step_id, stdin, expected_stdout, is_hidden, position, created_at
+      FROM test_cases WHERE step_id = ? ORDER BY position ASC
+    `).all(candidate.step_id) as any[];
+    return rows.map((tc) => ({
+      id: tc.id, stepId: tc.step_id, stdin: tc.stdin, expectedStdout: tc.expected_stdout,
+      isHidden: Boolean(tc.is_hidden), position: tc.position, createdAt: tc.created_at,
+    }));
   }
 
   getJob(jobId: string, requestingUserId: string): { job: ExecutionJob; result?: ExecutionResult | null } {
@@ -176,7 +255,7 @@ export class ExecutionService {
     const leaseExpires = new Date(Date.now() + leaseDurationMs).toISOString();
 
     const candidate = this.db.prepare(`
-      SELECT id, user_id, enrollment_id, step_id, job_type, code, stdin
+      SELECT id, user_id, enrollment_id, step_id, job_type, code, stdin, course_version_id, assessment_snapshot
       FROM execution_jobs
       WHERE status = 'queued'
          OR (status = 'running' AND lease_expires_at < ?)
@@ -194,23 +273,7 @@ export class ExecutionService {
       WHERE id = ?
     `).run(workerId, leaseExpires, now, candidate.id);
 
-    // Retrieve test cases for this step
-    const testCasesRows = this.db.prepare(`
-      SELECT id, step_id, stdin, expected_stdout, is_hidden, position, created_at
-      FROM test_cases
-      WHERE step_id = ?
-      ORDER BY position ASC
-    `).all(candidate.step_id) as any[];
-
-    const testCases: TestCase[] = testCasesRows.map((tc) => ({
-      id: tc.id,
-      stepId: tc.step_id,
-      stdin: tc.stdin,
-      expectedStdout: tc.expected_stdout,
-      isHidden: Boolean(tc.is_hidden),
-      position: tc.position,
-      createdAt: tc.created_at,
-    }));
+    const testCases = this.getTestCasesForJob(candidate);
 
     return {
       jobId: candidate.id,
@@ -228,7 +291,7 @@ export class ExecutionService {
     const now = new Date().toISOString();
 
     const jobRow = this.db.prepare(`
-      SELECT id, user_id, enrollment_id, step_id, job_type, code
+      SELECT id, user_id, enrollment_id, step_id, job_type, code, course_version_id
       FROM execution_jobs
       WHERE id = ?
     `).get(jobId) as any;
@@ -243,7 +306,7 @@ export class ExecutionService {
         SELECT pinned_version_id FROM enrollments WHERE id = ?
       `).get(jobRow.enrollment_id) as { pinned_version_id: string } | undefined;
 
-      const courseVersionId = enrollmentRow?.pinned_version_id || 'version-default';
+      const courseVersionId = jobRow.course_version_id || enrollmentRow?.pinned_version_id || 'version-default';
 
       // 2. Compute attempt number
       const countRow = this.db.prepare(`
@@ -341,7 +404,7 @@ export class ExecutionService {
     const leaseExpires = new Date(Date.now() + leaseDurationMs).toISOString();
 
     const candidate = this.db.prepare(`
-      SELECT id, user_id, enrollment_id, step_id, job_type, code, stdin
+      SELECT id, user_id, enrollment_id, step_id, job_type, code, stdin, course_version_id, assessment_snapshot
       FROM execution_jobs
       WHERE id = ?
     `).get(jobId) as any;
@@ -356,22 +419,7 @@ export class ExecutionService {
       WHERE id = ?
     `).run(workerId, leaseExpires, now, candidate.id);
 
-    const testCasesRows = this.db.prepare(`
-      SELECT id, step_id, stdin, expected_stdout, is_hidden, position, created_at
-      FROM test_cases
-      WHERE step_id = ?
-      ORDER BY position ASC
-    `).all(candidate.step_id) as any[];
-
-    const testCases: TestCase[] = testCasesRows.map((tc) => ({
-      id: tc.id,
-      stepId: tc.step_id,
-      stdin: tc.stdin,
-      expectedStdout: tc.expected_stdout,
-      isHidden: Boolean(tc.is_hidden),
-      position: tc.position,
-      createdAt: tc.created_at,
-    }));
+    const testCases = this.getTestCasesForJob(candidate);
 
     return {
       jobId: candidate.id,

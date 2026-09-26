@@ -95,7 +95,6 @@ export function redactFullExecutionResultForStudent(
       attemptId: result.attemptId,
       verdict: result.verdict,
       isInfrastructureFailure: result.isInfrastructureFailure,
-      executionTimeMs: result.executionTimeMs,
       testResults: result.testResults
         .filter((t) => !t.isHidden && t.passed)
         .map((t) => ({
@@ -134,4 +133,3 @@ export function redactFullExecutionResultForStudent(
     completedAt: result.completedAt,
   };
 }
-

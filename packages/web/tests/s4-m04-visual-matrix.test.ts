@@ -94,6 +94,43 @@ test('T087 P28 roster header and filters fit the 320px and 390px viewports in bo
   }
 });
 
+test('T087 real P15/P27 browser flows have authenticated API and screenshot evidence', () => {
+  const report = JSON.parse(fs.readFileSync(path.join(root, 'docs/evidence/s4-m04-interactive-browser-flows.json'), 'utf8'));
+  const p15 = report.liveRouteProbes.P15;
+  assert.equal(p15.captures.length, 5);
+  assert.deepEqual([...new Set(p15.captures.map((item: any) => item.theme))].sort(), ['dark', 'light']);
+  assert.ok(p15.apiResponses.some((item: any) => item.url.endsWith('/api/execution/run-samples') && item.status === 200));
+  assert.ok(p15.apiResponses.some((item: any) => item.url.endsWith('/api/execution/submit') && item.status === 200));
+  for (const state of p15.states) {
+    assert.match(state.sampleText, /Samples passed/);
+    assert.match(state.submitText, /did not pass a hidden test/);
+    assert.equal(state.safeHiddenResult.containsSecretInput, false);
+    assert.equal(state.safeHiddenResult.containsHiddenExpectedOutput, false);
+    assert.equal(state.safeHiddenResult.containsExecutionTiming, false);
+    assert.equal(state.safeHiddenResult.continueVisible, false);
+  }
+  assert.equal(p15.staleReset.conflictResponse.status, 409);
+  assert.equal(p15.staleReset.localCodePreserved, true);
+  const p27 = report.liveRouteProbes.P27;
+  assert.ok(p27.initialApiResponses.some((item: any) => item.url.endsWith('/validate') && item.status === 200));
+  assert.ok(p27.captures.some((item: any) => item.state === 'explicit confirmation dialog' && item.theme === 'dark'));
+  assert.ok(p27.captures.some((item: any) => item.state === 'explicit confirmation dialog' && item.theme === 'light'));
+  const receipt = p27.captures.find((item: any) => item.state === 'server-issued receipt after confirmation');
+  assert.equal(receipt.publishResponse.status, 200);
+  assert.match(receipt.receiptText, /Released Version/);
+  for (const item of [...p15.captures, ...p27.captures]) {
+    assert.deepEqual(pngDimensions(item.screenshot), [1440, 900], item.screenshot);
+  }
+  const p16 = report.liveRouteProbes.P16;
+  assert.match(p16.result, /registered authenticated history route/);
+  assert.equal(p16.listHasTiming, false);
+  assert.equal(p16.detailHasTiming, false);
+  assert.equal(p16.listUiHasTiming, false);
+  assert.equal(p16.detailUiHasTiming, false);
+  assert.equal(p16.captures.length, 2);
+  for (const item of p16.captures) assert.deepEqual(pngDimensions(item.screenshot), [1440, 900], item.screenshot);
+});
+
 test('T087 checkpoint gaps are explicit and evidence links resolve', () => {
   assert.equal(matrix.design17Checkpoints.length, 15);
   assert.equal(matrix.requiredAdverseStates.length, 9);
@@ -159,17 +196,16 @@ test('T087 admin waiver review screenshots come from the authenticated client/AP
   }
   const p22 = report.liveRouteProbes.P22;
   assert.match(p22.result, /open-inspector visual checkpoint/);
+  assert.match(p22.result, /visibility controls were not exercised/);
   assert.equal(p22.captures.length, 2);
   for (const capture of p22.captures) {
     assert.equal(capture.inspectorLabel, 'Step Settings');
     assert.deepEqual(pngDimensions(capture.screenshot), [1440, 900]);
   }
-  assert.match(p22.result, /Inspector visibility controls were not exercised/);
-  assert.equal(report.liveRouteProbes.P27.containsPublicationReviewComponent, false);
+  assert.equal(report.liveRouteProbes.P27.containsPublicationReviewComponent, true);
+  assert.ok(report.liveRouteProbes.P27.captures.some((capture: any) => capture.state === 'server-issued receipt after confirmation'));
   const p15 = report.liveRouteProbes.P15;
-  assert.deepEqual(p15.controls, ['Run samples', 'Submit solution']);
-  assert.equal(p15.apiRequestsFromRunClick, 0);
-  assert.equal(p15.resultChangedAfterRunClick, false);
-  assert.equal(p15.hasHiddenFailureText, false);
-  assert.equal(p15.saveIndicator, 'Saved');
+  assert.equal(p15.captures.length, 5);
+  assert.ok(p15.apiResponses.some((item: any) => item.url.endsWith('/api/execution/run-samples') && item.status === 200));
+  assert.ok(p15.apiResponses.some((item: any) => item.url.endsWith('/api/execution/submit') && item.status === 200));
 });

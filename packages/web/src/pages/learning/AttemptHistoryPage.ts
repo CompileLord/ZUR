@@ -32,6 +32,11 @@ export interface AttemptHistoryPageOptions {
   totalAttempts: number;
   currentPage: number;
   pageSize: number;
+  offset?: number;
+}
+
+function escapeHtml(value: unknown): string {
+  return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]!));
 }
 
 export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): string {
@@ -51,9 +56,9 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
             <a href="/learn/${opts.enrollmentId}/steps/${opts.stepId}/attempts" class="btn btn-ghost btn-compact">
               ← All attempts
             </a>
-            <h2>Attempt #${selected.attemptNumber}</h2>
+          <h2>Attempt #${selected.attemptNumber}</h2>
           </div>
-          <span class="status-badge ${badgeClass}">${selected.verdict}</span>
+          <span class="status-badge ${badgeClass}">${escapeHtml(selected.verdict)}</span>
         </div>
 
         <div class="problem-meta-row" style="margin-bottom: var(--space-4);">
@@ -66,7 +71,7 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
         <div style="margin-bottom: var(--space-4);">
           <h3 class="problem-section-title" style="margin-bottom: var(--space-2);">Submitted Code Snapshot</h3>
           <div class="code-block">
-            <pre><code>${selected.codeSnapshot}</code></pre>
+            <pre><code>${escapeHtml(selected.codeSnapshot)}</code></pre>
             <button type="button" class="btn btn-secondary btn-compact code-block-copy" id="copy-code-btn">
               Copy
             </button>
@@ -122,9 +127,9 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
             const isInfra = att.isInfrastructureFailure;
             const badgeClass = isPassed ? 'status-ready' : isInfra ? 'status-draft' : 'status-failed';
             return `
-              <a href="/learn/${opts.enrollmentId}/steps/${opts.stepId}/attempts/${att.id}" class="attempt-row-card">
+              <a href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts/${encodeURIComponent(att.id)}" class="attempt-row-card">
                 <div style="display: flex; align-items: center; gap: var(--space-4);">
-                  <span class="status-badge ${badgeClass}">${att.verdict}</span>
+              <span class="status-badge ${badgeClass}">${escapeHtml(att.verdict)}</span>
                   <span style="font-weight: 500;">Attempt #${att.attemptNumber}</span>
                   <span class="text-secondary" style="font-size: var(--type-metadata-size);">
                     ${new Date(att.createdAt).toLocaleString()}
@@ -139,6 +144,7 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
           }).join('')}
         </div>
       `}
+      ${opts.totalAttempts > opts.pageSize ? `<nav class="attempt-history-pagination" aria-label="Submission history pages"><span>Showing ${Math.min((opts.offset || 0) + 1, opts.totalAttempts)}–${Math.min((opts.offset || 0) + opts.attempts.length, opts.totalAttempts)} of ${opts.totalAttempts}</span><div>${(opts.offset || 0) > 0 ? `<a class="btn btn-secondary btn-compact" href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts?offset=${Math.max(0, (opts.offset || 0) - opts.pageSize)}">Previous</a>` : ''}${(opts.offset || 0) + opts.pageSize < opts.totalAttempts ? `<a class="btn btn-secondary btn-compact" href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts?offset=${(opts.offset || 0) + opts.pageSize}">Next</a>` : ''}</div></nav>` : ''}
     </div>
   `;
 

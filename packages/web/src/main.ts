@@ -41,6 +41,11 @@ import { renderPolicyPage } from './pages/public/PolicyPage.ts';
 import { renderStudentsAndInvitationsPage } from './pages/author/StudentsAndInvitationsPage.ts';
 import { renderStudentDetailPage } from './pages/author/StudentDetailPage.ts';
 import { renderCourseAnalyticsPage } from './pages/author/CourseAnalyticsPage.ts';
+import { renderCoursePublishPage, type CoursePublishPageOptions } from './pages/author/CoursePublishPage.ts';
+import { renderPythonWorkspacePage, renderPythonExecutionResults, type PythonWorkspacePageOptions } from './pages/learning/PythonWorkspacePage.ts';
+import { renderAttemptHistoryPage } from './pages/learning/AttemptHistoryPage.ts';
+import { DraftManager } from './services/draft-manager.ts';
+import { DraftSaveQueue } from './services/draft-save-queue.ts';
 import { renderAdminPage } from './pages/admin/AdminPages.ts';
 import { CourseClient } from './services/course-client.ts';
 
@@ -73,6 +78,429 @@ function initTheme(): void {
 }
 
 let activeCatalogRequestId = 0;
+
+function showRouteLoading(label: string): void {
+  appEl.innerHTML = `<main class="container py-8" aria-busy="true"><h1 class="page-title">${label}</h1><p class="text-secondary" role="status">Loading from your account…</p></main>`;
+}
+
+function showRouteFailure(message: string, retryPath: string): void {
+  appEl.innerHTML = `<main class="container py-8"><section class="state-container" role="alert"><h1 class="page-title">Couldn't load this page</h1><p class="text-secondary">${message}</p><button class="btn btn-secondary" id="route-retry">Try again</button></section></main>`;
+  document.getElementById('route-retry')?.addEventListener('click', () => renderApp(retryPath));
+}
+
+async function loadPythonWorkspace(enrollmentId: string, stepId: string, requestedPath: string): Promise<void> {
+  const isCurrent = () => window.location.pathname + window.location.search === requestedPath;
+  showRouteLoading('Python workspace');
+  try {
+    const [stepData, contentData] = await Promise.all([
+      authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`),
+      authClient.fetchApi(`/api/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}/content`),
+    ]);
+    if (!isCurrent()) return;
+    const content = contentData.content;
+    if (stepData.step?.type !== 'python' || content?.kind !== 'python') {
+      appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+      return;
+    }
+    const draft = await authClient.fetchApi(`/api/drafts?enrollmentId=${encodeURIComponent(enrollmentId)}&stepId=${encodeURIComponent(stepId)}`);
+    if (!isCurrent()) return;
+    const user = authClient.getUser();
+    if (!user) { appEl.innerHTML = renderSafeDenialPage({ type: 'access-denied' }); return; }
+    const localDraft = DraftManager.loadLocalDraft(user.id, enrollmentId, stepId);
+    const hasRecoveredLocal = Boolean(localDraft && localDraft.code !== draft.code && localDraft.revision === draft.revision);
+    const hasRevisionConflict = Boolean(localDraft && localDraft.code !== draft.code && localDraft.revision !== draft.revision);
+    const initialCode = hasRecoveredLocal || hasRevisionConflict ? localDraft!.code : draft.code;
+    const pageOptions: PythonWorkspacePageOptions = {
+      courseTitle: stepData.courseTitle,
+      courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
+      lessonTitle: stepData.stepMeta?.lessonTitle || 'Lesson',
+      stepTitle: stepData.step.title,
+      stepOrdinalText: `Step ${Number(stepData.step.position) + 1}`,
+      enrollmentId,
+      stepId,
+      problemStatement: content.problemStatement,
+      inputFormat: content.inputFormat,
+      outputFormat: content.outputFormat,
+      constraints: content.constraints,
+      starterCode: content.starterCode,
+      currentCode: initialCode,
+      hints: content.hints || [],
+      solutionExplanation: content.solutionExplanation,
+      isCompleted: Boolean(stepData.stepMeta?.isCompleted),
+      currentResult: null,
+      saveStatus: hasRevisionConflict ? 'conflict' : hasRecoveredLocal ? 'unsaved' : 'saved',
+      previousStepUrl: stepData.previousStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepData.previousStepId)}` : null,
+      nextStepUrl: stepData.nextStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepData.nextStepId)}` : `/learn/${encodeURIComponent(enrollmentId)}`,
+    };
+    if (hasRevisionConflict) {
+      pageOptions.saveNotice = 'A newer server draft exists. Your local copy is preserved on this device; reload the saved version before editing further.';
+    } else if (hasRecoveredLocal) {
+      pageOptions.saveNotice = 'Recovered unsynchronized code from this device. Syncing it now.';
+    }
+    const render = (overrides: Partial<PythonWorkspacePageOptions> = {}) => {
+      appEl.innerHTML = renderPythonWorkspacePage({ ...pageOptions, ...overrides });
+      initTheme();
+    };
+    render();
+    attachPythonWorkspaceListeners(pageOptions, draft.revision, user.id, hasRevisionConflict, requestedPath);
+    if (hasRecoveredLocal) {
+      void savePythonDraft(pageOptions.currentCode || '', draft.revision, enrollmentId, stepId).then((saved) => {
+        if (!isCurrent()) return;
+        pageOptions.currentCode = saved.code;
+        DraftManager.saveLocalDraft(user.id, enrollmentId, stepId, saved.code, saved.revision);
+        const indicator = document.getElementById('python-save-indicator');
+        if (indicator) { indicator.className = 'save-indicator saved'; indicator.textContent = 'Saved'; }
+        const notice = document.getElementById('python-save-notice'); notice?.remove();
+      }).catch(() => {
+        const indicator = document.getElementById('python-save-indicator');
+        if (indicator) { indicator.className = 'save-indicator unsaved'; indicator.textContent = 'Unsaved edits (offline)'; }
+      });
+    }
+  } catch (error: any) {
+    if (!isCurrent()) return;
+    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    else showRouteFailure('We could not load the enrolled exercise. Retry when the service is available.', requestedPath);
+  }
+}
+
+async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptId: string | undefined, requestedPath: string): Promise<void> {
+  const isCurrent = () => window.location.pathname + window.location.search === requestedPath;
+  showRouteLoading('Submission history');
+  try {
+    const [step, page] = await Promise.all([
+      authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`),
+      authClient.fetchApi(`/api/attempts?enrollmentId=${encodeURIComponent(enrollmentId)}&stepId=${encodeURIComponent(stepId)}&limit=10&offset=${Math.max(0, Number(new URLSearchParams(requestedPath.split('?')[1] || '').get('offset') || 0))}`),
+    ]);
+    if (!isCurrent()) return;
+    const selected = attemptId ? await authClient.fetchApi(`/api/attempts/${encodeURIComponent(attemptId)}`) : null;
+    if (!isCurrent()) return;
+    appEl.innerHTML = renderAttemptHistoryPage({
+      courseTitle: step.courseTitle || 'Course',
+      courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
+      lessonTitle: step.stepMeta?.lessonTitle || 'Lesson',
+      stepTitle: step.step?.title || 'Exercise',
+      enrollmentId,
+      stepId,
+      workspaceUrl: `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}/code`,
+      attempts: page.items || [],
+      selectedAttempt: selected,
+      totalAttempts: page.total || 0,
+      currentPage: Math.floor((page.offset || 0) / Math.max(1, page.limit || 10)) + 1,
+      pageSize: page.limit || 10,
+      offset: page.offset || 0,
+    });
+    initTheme();
+    document.getElementById('copy-code-btn')?.addEventListener('click', async () => {
+      if (!selected?.codeSnapshot) return;
+      await navigator.clipboard.writeText(selected.codeSnapshot);
+    });
+    document.getElementById('restore-to-editor-btn')?.addEventListener('click', () => {
+      const dialog = document.getElementById('restore-confirm-dialog');
+      if (dialog) dialog.hidden = false;
+    });
+    document.getElementById('cancel-restore-btn')?.addEventListener('click', () => {
+      const dialog = document.getElementById('restore-confirm-dialog');
+      if (dialog) dialog.hidden = true;
+    });
+    document.getElementById('confirm-restore-btn')?.addEventListener('click', async () => {
+      if (!selected) return;
+      const button = document.getElementById('confirm-restore-btn') as HTMLButtonElement;
+      button.disabled = true;
+      try {
+        await authClient.fetchApi(`/api/attempts/${encodeURIComponent(attemptId!)}/restore`, { method: 'POST' });
+        navigateTo(`/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}/code`);
+      } catch {
+        button.disabled = false;
+        showRouteFailure('The saved draft changed or could not be restored. Your current editor content is preserved.', requestedPath);
+      }
+    });
+  } catch (error: any) {
+    if (!isCurrent()) return;
+    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    else showRouteFailure('We could not load submission history. Retry when the service is available.', requestedPath);
+  }
+}
+
+async function savePythonDraft(code: string, baseRevision: number, enrollmentId: string, stepId: string): Promise<any> {
+  const saved = await authClient.fetchApi('/api/drafts', {
+    method: 'PUT',
+    body: JSON.stringify({ enrollmentId, stepId, code, baseRevision }),
+  });
+  return saved;
+}
+
+function attachPythonWorkspaceListeners(
+  initial: PythonWorkspacePageOptions,
+  startingRevision: number,
+  userId: string,
+  isRevisionConflict: boolean,
+  requestedPath: string,
+): void {
+  let code = initial.currentCode || '';
+  let currentResult = initial.currentResult || null;
+  let resultMode = initial.resultMode;
+  let activeTab = initial.activeTab || 'results';
+  const saveQueue = new DraftSaveQueue({
+    revision: startingRevision,
+    save: (snapshot, baseRevision) => savePythonDraft(snapshot, baseRevision, initial.enrollmentId, initial.stepId),
+    onAcknowledged: (saved, _submittedCode, latestCode) => {
+      if (window.location.pathname + window.location.search !== requestedPath) return;
+      const hasUnsavedTail = latestCode !== saved.code;
+      DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, latestCode, saved.revision);
+      setSaveState(hasUnsavedTail ? 'saving' : 'saved', hasUnsavedTail ? 'Saving…' : 'Saved');
+      if (!hasUnsavedTail) document.getElementById('python-save-notice')?.remove();
+    },
+    onFailure: (error, latestCode) => {
+      if (window.location.pathname + window.location.search !== requestedPath) return;
+      DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, latestCode, saveQueue.revision);
+      const isConflict = error?.code === 'STALE_REVISION';
+      setSaveState(isConflict ? 'conflict' : 'unsaved', isConflict ? 'Draft conflict' : 'Unsaved edits (offline)');
+      setDraftNotice(isConflict
+        ? 'A newer server draft exists. Your local code is preserved on this device.'
+        : 'Changes are stored on this device. Reconnect to sync.');
+    },
+  });
+
+  const setSaveState = (status: NonNullable<PythonWorkspacePageOptions['saveStatus']>, text: string) => {
+    document.querySelectorAll<HTMLElement>('.learning-header .save-indicator, #python-save-indicator').forEach((indicator) => {
+      indicator.className = `save-indicator ${status}`;
+      indicator.textContent = text;
+    });
+  };
+  const setDraftNotice = (text: string) => {
+    const main = document.querySelector('.learning-workspace-main');
+    const region = main?.querySelector('.workspace-viewport');
+    if (!main || !region) return;
+    let notice = document.getElementById('python-save-notice');
+    if (!notice) {
+      notice = document.createElement('p');
+      notice.id = 'python-save-notice';
+      notice.className = 'alert alert-warning';
+      notice.setAttribute('role', 'status');
+      main.insertBefore(notice, region);
+    }
+    notice.textContent = text;
+  };
+  const setResults = (overrides: Partial<PythonWorkspacePageOptions> = {}) => {
+    const body = document.querySelector('.results-body');
+    if (!body) return;
+    body.innerHTML = renderPythonExecutionResults({
+      currentResult,
+      resultMode,
+      executionError: null,
+      ...overrides,
+    });
+    body.setAttribute('aria-live', 'polite');
+  };
+  const selectTab = (tabName: 'results' | 'custom_input') => {
+    activeTab = tabName;
+    document.querySelectorAll<HTMLButtonElement>('.results-tab-button[role="tab"]').forEach((tab) => {
+      const selected = tab.textContent?.trim() === (tabName === 'results' ? 'Results' : 'Custom input');
+      tab.classList.toggle('active', Boolean(selected));
+      tab.setAttribute('aria-selected', String(Boolean(selected)));
+    });
+    const body = document.querySelector('.results-body');
+    if (!body) return;
+    if (tabName === 'custom_input') {
+      body.innerHTML = '<div class="custom-input-box"><label for="custom-stdin-input" class="comparison-label">Custom Standard Input</label><textarea id="custom-stdin-input" class="code-editor-input" style="height: 100px; border: 1px solid var(--border-control); border-radius: var(--radius-sm);" placeholder="Enter custom stdin..."></textarea></div>';
+      document.getElementById('custom-stdin-input')?.focus();
+    } else {
+      setResults();
+    }
+  };
+
+  const textarea = document.getElementById('code-editor-input') as HTMLTextAreaElement | null;
+  textarea?.addEventListener('input', () => {
+    code = textarea.value;
+    DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, code, saveQueue.revision);
+    setSaveState(isRevisionConflict ? 'conflict' : 'saving', isRevisionConflict ? 'Draft conflict' : 'Saving…');
+    if (isRevisionConflict) return;
+    saveQueue.update(code);
+  });
+
+  const execute = async (mode: 'samples' | 'custom' | 'submit', stdin?: string) => {
+    code = textarea?.value ?? code;
+    const runButton = document.getElementById(mode === 'submit' ? 'submit-solution-btn' : mode === 'custom' ? 'run-custom-btn' : 'run-samples-btn') as HTMLButtonElement | null;
+    if (runButton) runButton.disabled = true;
+    setResults({ inFlightStatus: 'running' });
+    try {
+      const endpoint = mode === 'samples' ? '/api/execution/run-samples' : mode === 'custom' ? '/api/execution/run-custom' : '/api/execution/submit';
+      const response = await authClient.fetchApi(endpoint, {
+        method: 'POST',
+        body: JSON.stringify({ enrollmentId: initial.enrollmentId, stepId: initial.stepId, code, stdin, idempotencyKey: crypto.randomUUID() }),
+      });
+      currentResult = response.result;
+      resultMode = mode;
+      if (mode === 'submit' && currentResult?.verdict === 'PASSED') initial.isCompleted = true;
+      selectTab('results');
+      setResults();
+      if (mode === 'submit' && currentResult?.verdict === 'PASSED') {
+        const footer = document.querySelector('.learning-task-footer');
+        if (footer && initial.nextStepUrl && !footer.querySelector('[data-python-continue]')) {
+          const link = document.createElement('a'); link.href = initial.nextStepUrl; link.className = 'btn btn-primary btn-compact';
+          link.textContent = 'Continue'; link.dataset.pythonContinue = 'true'; footer.append(link);
+        }
+      }
+    } catch (error: any) {
+      const safeMessage = error.statusCode === 429
+        ? 'Too many execution requests. Your code is unchanged; wait briefly and try again.'
+        : error.statusCode === 503
+          ? 'Code execution is temporarily unavailable. Your code is unchanged; try again later.'
+          : 'We could not check this code. Your code remains in the editor; try again.';
+      selectTab('results');
+      setResults({ executionError: safeMessage });
+    } finally {
+      if (runButton) runButton.disabled = false;
+    }
+  };
+
+  document.getElementById('run-samples-btn')?.addEventListener('click', () => void execute('samples'));
+  document.getElementById('submit-solution-btn')?.addEventListener('click', () => void execute('submit'));
+  document.querySelector('.results-body')?.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement).closest('#retry-execution-btn')) {
+      void execute(resultMode === 'submit' ? 'submit' : resultMode === 'custom' ? 'custom' : 'samples');
+    }
+  });
+  document.getElementById('run-custom-btn')?.addEventListener('click', () => {
+    if (activeTab !== 'custom_input') {
+      selectTab('custom_input');
+      return;
+    }
+    const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
+    void execute('custom', input?.value || '');
+  });
+  document.querySelectorAll<HTMLButtonElement>('.results-tab-button[role="tab"]').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      if (tab.textContent?.trim() === 'Results') {
+        selectTab('results');
+      } else if (tab.textContent?.trim() === 'Custom input') {
+        selectTab('custom_input');
+      }
+    });
+  });
+  textarea?.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      event.preventDefault(); void execute('samples');
+    }
+  });
+  document.getElementById('reset-code-btn')?.addEventListener('click', async () => {
+    if (!window.confirm('Reset your code to the starter version? Your current editor contents will be replaced.')) return;
+    const resetButton = document.getElementById('reset-code-btn') as HTMLButtonElement | null;
+    if (resetButton) resetButton.disabled = true;
+    try {
+      await saveQueue.flush();
+      if (saveQueue.lastError) {
+        setSaveState(saveQueue.lastError?.code === 'STALE_REVISION' ? 'conflict' : 'unsaved', 'Reset unavailable');
+        setDraftNotice('Sync your latest code before resetting. Your local copy is preserved.');
+        return;
+      }
+      const reset = await authClient.fetchApi('/api/drafts/reset', { method: 'POST', body: JSON.stringify({ enrollmentId: initial.enrollmentId, stepId: initial.stepId, expectedRevision: saveQueue.revision }) });
+      saveQueue.setServerState(reset.code, reset.revision);
+      code = reset.code;
+      DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, code, reset.revision);
+      document.getElementById('python-save-notice')?.remove();
+      if (textarea) textarea.value = code;
+      currentResult = null;
+      resultMode = undefined;
+      setResults();
+      setSaveState('saved', 'Saved');
+    } catch (error: any) {
+      const stale = error?.code === 'STALE_REVISION';
+      setSaveState(stale ? 'conflict' : 'unsaved', stale ? 'Draft conflict' : 'Reset failed');
+      setDraftNotice(stale
+        ? 'A newer server draft exists. Your local code is preserved on this device; reload before resetting.'
+        : 'Reset could not be saved. Your code remains in the editor.');
+    } finally {
+      if (resetButton) resetButton.disabled = false;
+    }
+  });
+}
+
+async function loadPublishReview(courseId: string, requestedPath: string, staleRevision = false): Promise<void> {
+  const isCurrent = () => window.location.pathname + window.location.search === requestedPath;
+  const encodedCourseId = encodeURIComponent(courseId);
+  showRouteLoading('Review publication');
+  try {
+    const course = await authClient.fetchApi(`/api/author/courses/${encodedCourseId}`);
+    const validation = await authClient.fetchApi(`/api/author/courses/${encodedCourseId}/validate`, { method: 'POST', body: JSON.stringify({}) });
+    if (!isCurrent()) return;
+    if (validation.draftRevision !== course.draftRevision) {
+      return loadPublishReview(courseId, requestedPath, true);
+    }
+    const options: CoursePublishPageOptions = {
+      courseId,
+      courseTitle: course.title,
+      publicationState: course.publicationStatus,
+      hasUnpublishedChanges: course.hasUnpublishedChanges,
+      draftRevision: course.draftRevision,
+      currentVersionNumber: course.currentVersionNumber,
+      newVersionNumber: (course.currentVersionNumber || 0) + 1,
+      activeEnrolledStudents: course.studentCount,
+      visibility: course.visibility,
+      enrollmentPolicy: course.enrollmentPolicy,
+      validation,
+      staleRevision,
+    };
+    const render = (overrides: Partial<CoursePublishPageOptions> = {}) => {
+      appEl.innerHTML = renderCoursePublishPage({ ...options, ...overrides });
+      initTheme();
+      attachPublishReviewListeners(courseId, requestedPath, options, render);
+    };
+    render();
+  } catch (error: any) {
+    if (!isCurrent()) return;
+    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    else showRouteFailure('We could not validate this saved draft. Retry after the service is available.', requestedPath);
+  }
+}
+
+function attachPublishReviewListeners(
+  courseId: string,
+  requestedPath: string,
+  options: CoursePublishPageOptions,
+  render: (overrides?: Partial<CoursePublishPageOptions>) => void,
+): void {
+  const open = document.getElementById('publish-open-confirm');
+  open?.addEventListener('click', () => {
+    if (!options.validation.isValid) return;
+    render({ showConfirmModal: true });
+    document.getElementById('publish-confirm-submit')?.focus();
+  });
+  const cancel = () => {
+    render({ showConfirmModal: false });
+    document.getElementById('publish-open-confirm')?.focus();
+  };
+  document.getElementById('publish-cancel-confirm')?.addEventListener('click', cancel);
+  const dialog = document.querySelector('[role="dialog"][aria-labelledby="publish-dialog-title"]');
+  dialog?.addEventListener('keydown', (event) => { if ((event as KeyboardEvent).key === 'Escape') cancel(); });
+  document.getElementById('publish-confirm-submit')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget as HTMLButtonElement;
+    if (button.disabled || !options.validation.isValid) return;
+    button.disabled = true;
+    button.textContent = 'Publishing…';
+    try {
+      const receipt = await authClient.fetchApi(`/api/author/courses/${encodeURIComponent(courseId)}/publish`, {
+        method: 'POST',
+        body: JSON.stringify({ expectedRevision: options.draftRevision, idempotencyKey: crypto.randomUUID() }),
+      });
+      if (window.location.pathname + window.location.search !== requestedPath) return;
+      appEl.innerHTML = renderCoursePublishPage({ ...options, publicationState: 'published', hasUnpublishedChanges: false, receipt });
+      initTheme();
+    } catch (error: any) {
+      if (error.code === 'STALE_REVISION' || error.statusCode === 409) {
+        void loadPublishReview(courseId, requestedPath, true);
+      } else if (error.statusCode === 400) {
+        void loadPublishReview(courseId, requestedPath);
+      } else {
+        const currentButton = document.getElementById('publish-confirm-submit') as HTMLButtonElement | null;
+        if (currentButton) { currentButton.disabled = false; currentButton.textContent = options.currentVersionNumber ? `Publish Version ${options.newVersionNumber}` : 'Publish course'; }
+        const warning = document.createElement('p'); warning.className = 'text-danger'; warning.setAttribute('role', 'alert');
+        warning.textContent = 'Publication failed. The course remains on its current released version; retry after checking the draft status.';
+        document.querySelector('[role="dialog"] .dialog-card')?.append(warning);
+      }
+    }
+  });
+}
 
 async function loadAdminPage(path: string, displayName: string, email: string): Promise<void> {
   const headers = { Authorization: `Bearer ${authClient.getToken() || ''}` };
@@ -484,6 +912,14 @@ export function renderApp(path: string = window.location.pathname + window.locat
     }
 
     case 'S4': {
+      if (route.pageId === 'P15') {
+        void loadPythonWorkspace(params.enrollmentId, params.stepId, path);
+        break;
+      }
+      if (route.pageId === 'P16') {
+        void loadAttemptHistory(params.enrollmentId, params.stepId, params.attemptId, path);
+        break;
+      }
       appEl.innerHTML = renderLearningWorkspaceShell({
         courseTitle: 'Python foundations',
         courseOverviewUrl: '/learn/enr-ada',
@@ -533,6 +969,10 @@ print(val * 2)
     }
 
     case 'S5': {
+      if (route.pageId === 'P27') {
+        void loadPublishReview(params.courseId, path);
+        break;
+      }
       if (route.pageId === 'P28') {
         const courseId = params.courseId || 'course-python-foundations';
         const search = searchParams.get('search') || undefined;

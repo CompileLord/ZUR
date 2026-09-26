@@ -1147,9 +1147,17 @@
         "screenshots/s4_m04_matrix_python_unsaved_1440x900_dark.png",
         "screenshots/s4_m04_python_hidden_failure_1440.png",
         "screenshots/s4_t087_p15_python_queued_390x844_light.png",
-        "screenshots/s4_t087_p15_python_passed_1440x900_dark.png"
+        "screenshots/s4_t087_p15_python_passed_1440x900_dark.png",
+        "docs/evidence/s4-m04-interactive-browser-flows.json",
+        "screenshots/s4_t087_p15_samples_passed_1440x900_dark.png",
+        "screenshots/s4_t087_p15_samples_passed_1440x900_light.png",
+        "screenshots/s4_t087_p15_submit_redacted_failure_1440x900_dark.png",
+        "screenshots/s4_t087_p15_submit_redacted_failure_1440x900_light.png",
+        "screenshots/s4_t087_p15_reset_stale_revision_conflict_1440x900_light.png",
+        "screenshots/s4_t087_p16_hidden_failure_attempt_history_1440x900_light.png",
+        "screenshots/s4_t087_p16_hidden_failure_attempt_detail_1440x900_light.png"
       ],
-      "gap": "The component fixtures cover the listed Python adverse states; actual 200% zoom covers queued only. On the live P15 route, Run samples/Submit controls render but clicking Run caused no API request/result update, and live unsaved/hidden-failure states are absent."
+      "gap": "Live P15 autosave, successful public sample execution, and submission with a safely redacted hidden-test failure (including no execution timing) are verified in dark/light at 1440×900 through authenticated APIs. A live stale-reset conflict returns 409 and preserves the local editor text. P16 history/detail routes were exercised in light theme; hidden-failure attempt list and detail omit timing, while public-failure timing is retained by API regression tests. Remaining gaps: live 200% zoom, an actual offline/unsaved route state, hidden-test pass/completion, and representative live mobile captures. The component fixtures separately cover queue, offline, passed, and public failure states."
     },
     {
       "id": 7,
@@ -1185,9 +1193,12 @@
         "screenshots/s4_t087_p27_publish_blocked_errors_320x844_dark.png",
         "screenshots/s4_t087_p27_publish_blocked_errors_200zoom_dark_gui.png",
         "screenshots/s4_t087_p27_publish_receipt_768x1024_light.png",
-        "docs/evidence/s4-m04-interactive-browser-flows.json"
+        "docs/evidence/s4-m04-interactive-browser-flows.json",
+        "screenshots/s4_t087_p27_publish_confirmation_1440x900_dark.png",
+        "screenshots/s4_t087_p27_publish_confirmation_1440x900_light.png",
+        "screenshots/s4_t087_p27_publish_receipt_1440x900_light.png"
       ],
-      "gap": "Blocked validation and receipt component fixtures cover all five widths/themes; blocked validation also has actual 200% zoom in both themes. The live P27 route currently falls through to the generic S5 builder shell, so the P27 review and publish-confirmation flow are not implemented in that route."
+      "gap": "Live authenticated P27 review, explicit confirmation/cancel, successful publish API, and server-issued receipt are verified in dark/light at 1440×900 against an isolated disposable database. Component fixtures cover blocked validation and responsive receipt states at five widths/themes; blocked validation has actual 200% zoom in both themes. Live 200% and mobile confirmation remain unverified."
     },
     {
       "id": 10,

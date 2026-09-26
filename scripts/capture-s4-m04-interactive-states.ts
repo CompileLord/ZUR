@@ -57,7 +57,7 @@ try {
 
   const webPort = await freePort();
   vite = spawn(process.execPath, [path.join(root, 'node_modules/vite/bin/vite.js'), '--host', '127.0.0.1', '--port', String(webPort), '--strictPort'], {
-    cwd: path.join(root, 'packages/web'), stdio: 'ignore',
+    cwd: path.join(root, 'packages/web'), stdio: 'inherit',
   });
   const webOrigin = `http://127.0.0.1:${webPort}`;
   await waitForUrl(webOrigin, vite);
@@ -89,6 +89,7 @@ try {
   const pending = new Map<number, { resolve: (value: any) => void; reject: (error: Error) => void }>();
   const responseHandlers: Array<(message: any) => void> = [];
   const apiRequests: Array<{ url: string; method: string }> = [];
+  const apiResponses: Array<{ url: string; status: number }> = [];
   socket.addEventListener('message', (event) => {
     const message = JSON.parse(String(event.data));
     if (message.id) {
@@ -100,6 +101,9 @@ try {
     } else {
       if (message.method === 'Network.requestWillBeSent' && String(message.params.request.url).includes('/api/')) {
         apiRequests.push({ url: message.params.request.url, method: message.params.request.method });
+      }
+      if (message.method === 'Network.responseReceived' && String(message.params.response.url).includes('/api/')) {
+        apiResponses.push({ url: message.params.response.url, status: message.params.response.status });
       }
       for (const handler of responseHandlers) handler(message);
     }
@@ -120,7 +124,9 @@ try {
   };
   const navigate = async (url: string) => {
     await send('Page.navigate', { url });
-    await waitFor('document.readyState', (value) => value === 'complete' || value === 'interactive', `navigation ${url}`);
+    const expected = new URL(url).pathname + new URL(url).search;
+    await waitFor('location.pathname + location.search', (value) => value === expected, `navigation ${expected}`);
+    await waitFor('document.readyState', (value) => value === 'complete' || value === 'interactive', `document ready ${expected}`);
   };
   const networkStatuses: Array<{ url: string; status: number }> = [];
   responseHandlers.push((message) => {
@@ -162,6 +168,7 @@ try {
     await waitFor('Boolean(document.querySelector("#sign-in-form"))', Boolean, 'interactive sign-in form');
     await evaluate(`(()=>{document.querySelector('#email').value=${JSON.stringify(email)};document.querySelector('#password').value=${JSON.stringify(password)};document.querySelector('#sign-in-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
     await waitFor("localStorage.getItem('zur_session_token')", (value) => typeof value === 'string' && value.length > 20, 'seeded fixture account sign-in');
+    await waitFor("JSON.parse(localStorage.getItem('zur_current_user')||'null')?.email", (value) => value === email, `authenticated user ${email}`);
   };
 
   await signInAs('guido@zur.internal', 'AuthorPass123!');
@@ -179,18 +186,117 @@ try {
     fs.writeFileSync(path.join(root, screenshot), Buffer.from(shot.data, 'base64'));
     authorCaptures.push({ route: '/teach/course-python-foundations/content', theme, viewport: [1440, 900], inspectorLabel: inspector.label, inspectorText: inspector.text, screenshot });
   }
+  const p27Captures: Array<Record<string, unknown>> = [];
+  await evaluate("localStorage.setItem('zur_theme_preference','dark')");
   await navigate(`${webOrigin}/teach/course-python-foundations/publish`);
+  const p27ApiIndex = apiResponses.length;
   const publishProbe = await waitFor('document.body.innerText', (value) => typeof value === 'string' && value.length > 80, 'P27 route client render');
+  await new Promise((resolve) => setTimeout(resolve, 700));
   const publishRouteHasReview = await evaluate('Boolean(document.querySelector(".publish-review-container"))');
+  const p27Body = await evaluate('document.body.innerText');
+  const p27Responses = apiResponses.slice(p27ApiIndex);
+  if (!publishRouteHasReview) throw new Error(`P27 review did not render: ${p27Body}`);
+  for (const theme of ['dark', 'light'] as const) {
+    if (theme === 'light') {
+      await evaluate("localStorage.setItem('zur_theme_preference','light')");
+      await navigate(`${webOrigin}/teach/course-python-foundations/publish`);
+      await waitFor('Boolean(document.querySelector(".publish-review-container"))', Boolean, 'P27 review in light theme');
+    }
+    await evaluate("document.getElementById('publish-open-confirm')?.click()");
+    await waitFor('Boolean(document.querySelector("#publish-confirm-submit"))', Boolean, 'publish confirmation modal');
+    const viewport = await evaluate('({width:innerWidth,height:innerHeight,theme:document.documentElement.getAttribute("data-theme")})');
+    if (viewport.width !== 1440 || viewport.height !== 900 || viewport.theme !== theme) throw new Error(`Unexpected P27 confirmation viewport/theme: ${JSON.stringify(viewport)}`);
+    const modalShot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+    const modalScreenshot = `screenshots/s4_t087_p27_publish_confirmation_1440x900_${theme}.png`;
+    fs.writeFileSync(path.join(root, modalScreenshot), Buffer.from(modalShot.data, 'base64'));
+    p27Captures.push({ theme, state: 'explicit confirmation dialog', viewport: [viewport.width, viewport.height], screenshot: modalScreenshot });
+    if (theme === 'dark') {
+      await evaluate("document.getElementById('publish-cancel-confirm')?.click()");
+    } else {
+      const publishIndex = apiResponses.length;
+      await evaluate("document.getElementById('publish-confirm-submit')?.click()");
+      await waitFor('Boolean(document.querySelector(".receipt-card"))', Boolean, 'server publication receipt');
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const publishResponse = apiResponses.slice(publishIndex).find((item) => item.url.endsWith('/publish'));
+      const viewportReceipt = await evaluate('({width:innerWidth,height:innerHeight,theme:document.documentElement.getAttribute("data-theme")})');
+      const receiptShot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+      const receiptScreenshot = `screenshots/s4_t087_p27_publish_receipt_1440x900_${theme}.png`;
+      fs.writeFileSync(path.join(root, receiptScreenshot), Buffer.from(receiptShot.data, 'base64'));
+      p27Captures.push({ theme, state: 'server-issued receipt after confirmation', viewport: [viewportReceipt.width, viewportReceipt.height], publishResponse, receiptText: await evaluate('document.querySelector(".receipt-card")?.innerText'), screenshot: receiptScreenshot });
+    }
+  }
   await signInAs('ada@zur.internal', 'StudentPass123!');
+  await evaluate("localStorage.setItem('zur_theme_preference','dark')");
   await navigate(`${webOrigin}/learn/enr-ada/steps/step-6-python-evenodd/code`);
+  const p15ApiIndex = apiResponses.length;
   await waitFor('document.body.innerText', (value) => typeof value === 'string' && value.length > 80, 'P15 route client render');
-  const p15Before = await evaluate('document.body.innerText');
-  const p15ApiCount = apiRequests.length;
-  await evaluate(`(()=>{[...document.querySelectorAll('button')].find(b=>b.innerText.trim()==='Run samples')?.click();return true})()`);
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const pythonInteractions = await evaluate(`(()=>({saveControls:[...document.querySelectorAll('button')].map(b=>b.innerText.trim()).filter(t=>/save|run|submit/i.test(t)),hiddenFailureText:document.body.innerText.includes('hidden test'),saveIndicator:document.querySelector('.save-indicator')?.innerText||null,resultText:document.querySelector('.results-pane')?.innerText||null}))()`);
-  const p15After = await evaluate('document.body.innerText');
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  const p15Captures: Array<Record<string, unknown>> = [];
+  const p15States: Array<Record<string, unknown>> = [];
+  let p15RequestsStart = apiRequests.length;
+  for (const theme of ['dark', 'light'] as const) {
+    if (theme === 'light') {
+      await evaluate("localStorage.setItem('zur_theme_preference','light')");
+      await navigate(`${webOrigin}/learn/enr-ada/steps/step-6-python-evenodd/code`);
+      await waitFor('Boolean(document.querySelector("#code-editor-input"))', Boolean, 'P15 in light theme');
+    }
+    const viewport = await evaluate('({width:innerWidth,height:innerHeight,theme:document.documentElement.getAttribute("data-theme")})');
+    if (viewport.width !== 1440 || viewport.height !== 900 || viewport.theme !== theme) throw new Error(`Unexpected P15 viewport/theme: ${JSON.stringify(viewport)}`);
+    const sampleCode = 'import sys\nraw = sys.stdin.read().strip()\nprint("Empty" if not raw else "Even")\n';
+    await evaluate(`(()=>{const e=document.querySelector('#code-editor-input');e.value=${JSON.stringify(sampleCode)};e.dispatchEvent(new Event('input',{bubbles:true}));return e.value})()`);
+    await new Promise((resolve) => setTimeout(resolve, 1300));
+    await evaluate("document.getElementById('run-samples-btn')?.click()");
+    const sampleText = await waitFor('document.querySelector(".results-body")?.innerText', (value) => typeof value === 'string' && (value.includes('Samples passed.') || value.includes('Verdict:') || value.includes('We could not check')), 'real P15 sample run result');
+    if (!sampleText.includes('Samples passed.')) throw new Error(`P15 sample run failed unexpectedly: ${sampleText}`);
+    const sampleShot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+    const sampleScreenshot = `screenshots/s4_t087_p15_samples_passed_1440x900_${theme}.png`;
+    fs.writeFileSync(path.join(root, sampleScreenshot), Buffer.from(sampleShot.data, 'base64'));
+    p15Captures.push({ theme, state: 'samples passed', viewport: [viewport.width, viewport.height], screenshot: sampleScreenshot });
+    await evaluate("document.getElementById('submit-solution-btn')?.click()");
+    const submitText = await waitFor('document.querySelector(".results-body")?.innerText', (value) => typeof value === 'string' && value.includes('Verdict:'), 'real P15 submission with hidden-only failure');
+    const safeHiddenResult = await evaluate(`(()=>({text:document.querySelector('.results-body')?.innerText,containsSecretInput:document.querySelector('.results-body')?.innerText.includes('-3'),containsHiddenExpectedOutput:document.querySelector('.results-body')?.innerText.includes('Odd'),containsExecutionTiming:/\\b\\d+\\s+ms\\b/.test(document.querySelector('.results-body')?.innerText||''),continueVisible:[...document.querySelectorAll('a')].some(a=>a.textContent==='Continue')}))()`);
+    if (safeHiddenResult.containsSecretInput || safeHiddenResult.containsHiddenExpectedOutput || safeHiddenResult.containsExecutionTiming || safeHiddenResult.continueVisible) throw new Error(`P15 result leaked hidden payload/timing or showed false completion: ${JSON.stringify(safeHiddenResult)}`);
+    const submitShot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+    const submitScreenshot = `screenshots/s4_t087_p15_submit_redacted_failure_1440x900_${theme}.png`;
+    fs.writeFileSync(path.join(root, submitScreenshot), Buffer.from(submitShot.data, 'base64'));
+    p15Captures.push({ theme, state: 'submission hidden-test failure safely redacted', viewport: [viewport.width, viewport.height], resultText: submitText, screenshot: submitScreenshot });
+    p15States.push({ theme, sampleText, submitText, safeHiddenResult, saveIndicator: await evaluate('document.querySelector(".save-indicator")?.innerText'), apiRequests: apiRequests.slice(p15RequestsStart) });
+    p15RequestsStart = apiRequests.length;
+  }
+  const remoteEdit = await evaluate(`(async()=>{const token=localStorage.getItem('zur_session_token');const params='?enrollmentId=enr-ada&stepId=step-6-python-evenodd';const current=await fetch('/api/drafts'+params,{headers:{Authorization:'Bearer '+token}}).then(r=>r.json());const response=await fetch('/api/drafts',{method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({enrollmentId:'enr-ada',stepId:'step-6-python-evenodd',code:'print("saved in another tab")',baseRevision:current.revision})});return {status:response.status,revision:(await response.json()).revision}})()`);
+  if (remoteEdit.status !== 200) throw new Error(`Could not prepare an actual concurrent draft revision: ${JSON.stringify(remoteEdit)}`);
+  const localCodeBeforeReset = await evaluate("document.getElementById('code-editor-input')?.value");
+  const resetResponseStart = apiResponses.length;
+  await evaluate("window.confirm=()=>true;document.getElementById('reset-code-btn')?.click();true");
+  await waitFor('document.getElementById("python-save-indicator")?.textContent', (value) => value === 'Draft conflict', 'stale reset conflict status');
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  const staleResetResult = await evaluate(`(()=>({editorCode:document.getElementById('code-editor-input')?.value,notice:document.getElementById('python-save-notice')?.textContent,indicator:document.getElementById('python-save-indicator')?.textContent}))()`);
+  if (staleResetResult.editorCode !== localCodeBeforeReset || !String(staleResetResult.notice).includes('newer server draft')) {
+    throw new Error(`Stale reset did not preserve the local editor: ${JSON.stringify(staleResetResult)}`);
+  }
+  const resetApiResponse = apiResponses.slice(resetResponseStart).find((item) => item.url.endsWith('/api/drafts/reset'));
+  if (resetApiResponse?.status !== 409) throw new Error(`Stale reset endpoint did not return a conflict: ${JSON.stringify(resetApiResponse)}`);
+  const staleResetShot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+  const staleResetScreenshot = 'screenshots/s4_t087_p15_reset_stale_revision_conflict_1440x900_light.png';
+  fs.writeFileSync(path.join(root, staleResetScreenshot), Buffer.from(staleResetShot.data, 'base64'));
+  p15Captures.push({ theme: 'light', state: 'concurrent edit blocks stale reset without replacing local code', viewport: [1440, 900], resetResponse: resetApiResponse, localCodePreserved: true, screenshot: staleResetScreenshot });
+  await navigate(`${webOrigin}/learn/enr-ada/steps/step-6-python-evenodd/attempts`);
+  await waitFor('document.body.innerText', (value) => typeof value === 'string' && value.includes('Submission History'), 'live P16 attempt list route');
+  const historyProbe = await evaluate(`(async()=>{const token=localStorage.getItem('zur_session_token');const response=await fetch('/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd',{headers:{Authorization:'Bearer '+token}});const page=await response.json();const item=page.items.find(x=>x.verdict==='WRONG_ANSWER');if(!item)return {status:response.status,found:false};const detailResponse=await fetch('/api/attempts/'+encodeURIComponent(item.id),{headers:{Authorization:'Bearer '+token}});const detail=await detailResponse.json();return {status:response.status,detailStatus:detailResponse.status,attemptId:item.id,listHasTiming:Object.hasOwn(item,'executionTimeMs'),detailHasTiming:Object.hasOwn(detail,'executionTimeMs'),attemptNumber:item.attemptNumber}})()`);
+  historyProbe.listUiHasTiming = /\b\d+\s+ms\b/.test(await evaluate('document.body.innerText'));
+  if (historyProbe.status !== 200 || historyProbe.detailStatus !== 200 || historyProbe.found === false || historyProbe.listHasTiming || historyProbe.detailHasTiming || historyProbe.listUiHasTiming) throw new Error(`P16 hidden-failure history leaked timing or failed to load: ${JSON.stringify(historyProbe)}`);
+  const historyScreenshot = 'screenshots/s4_t087_p16_hidden_failure_attempt_history_1440x900_light.png';
+  const historyShot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+  fs.writeFileSync(path.join(root, historyScreenshot), Buffer.from(historyShot.data, 'base64'));
+  await navigate(`${webOrigin}/learn/enr-ada/steps/step-6-python-evenodd/attempts/${encodeURIComponent(historyProbe.attemptId)}`);
+  await waitFor('document.body.innerText', (value) => typeof value === 'string' && value.includes('Submitted Code Snapshot'), 'live P16 read-only attempt detail');
+  historyProbe.detailUiHasTiming = /\b\d+\s+ms\b/.test(await evaluate('document.body.innerText'));
+  if (historyProbe.detailUiHasTiming) throw new Error(`P16 hidden-failure detail rendered execution timing: ${JSON.stringify(historyProbe)}`);
+  const detailScreenshot = 'screenshots/s4_t087_p16_hidden_failure_attempt_detail_1440x900_light.png';
+  const detailShot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+  fs.writeFileSync(path.join(root, detailScreenshot), Buffer.from(detailShot.data, 'base64'));
+  const p16Probe = { result: 'P15 Attempts link opens the registered authenticated history route and read-only attempt detail; hidden-test failure timing is omitted from both API responses and rendered history.', ...historyProbe, captures: [ { route: '/learn/enr-ada/steps/step-6-python-evenodd/attempts', theme: 'light', viewport: [1440, 900], screenshot: historyScreenshot }, { route: `/learn/enr-ada/steps/step-6-python-evenodd/attempts/${historyProbe.attemptId}`, theme: 'light', viewport: [1440, 900], screenshot: detailScreenshot } ] };
+  const p15Responses = apiResponses.slice(p15ApiIndex);
   fs.writeFileSync(reportPath, JSON.stringify({
     method: 'Local Vite browser application and in-process ZUR server backed by an isolated temporary SQLite database seeded with repository fixtures. Chrome executed the delivered client JavaScript. Admin signed in through the real sign-in form; the waiver selector change invoked the authenticated GET preview API. No waiver POST was submitted.',
     fixture: 'seedDatabase() in a temporary database; three active Python foundations enrollments; seeded admin login performed in browser and never included in artifacts.',
@@ -198,11 +304,12 @@ try {
     apiPreviewStatus: networkStatuses.at(-1)?.status,
     captures,
     liveRouteProbes: {
-      P22: { result: 'The real client route renders its default selected-exercise settings panel; no user-operated open/close inspector control was found.', captures: authorCaptures },
-      P27: { result: publishRouteHasReview ? 'The route rendered a publication review' : 'The real route currently falls through to the generic S5 builder shell; the P27 review page and publish-confirmation control are absent.', containsPublicationReviewComponent: publishRouteHasReview, visibleTextIncludesSample: String(publishProbe).includes('Exercise Settings') },
-      P15: { result: 'The live student route renders Run samples and Submit solution controls, but clicking Run samples caused no API request or result change; no unsaved or hidden-failure state is wired into this route.', controls: pythonInteractions.saveControls, apiRequestsFromRunClick: apiRequests.length - p15ApiCount, resultChangedAfterRunClick: p15Before !== p15After, hasHiddenFailureText: pythonInteractions.hiddenFailureText, saveIndicator: pythonInteractions.saveIndicator, resultText: pythonInteractions.resultText },
+      P22: { result: 'The open-inspector visual checkpoint is captured on the authenticated route in both themes. Inspector visibility controls were not exercised because the visual checkpoint requires the panel to be visible.', captures: authorCaptures },
+      P27: { result: 'Live authenticated validation, explicit confirmation, and server receipt verified.', containsPublicationReviewComponent: publishRouteHasReview, initialBody: p27Body, initialProbe: publishProbe, initialApiResponses: p27Responses, captures: p27Captures },
+      P15: { result: 'Live authenticated code save, public sample execution, submission with redacted hidden-test failure, and revision-checked reset conflict verified.', captures: p15Captures, states: p15States, staleReset: { remoteEditStatus: remoteEdit.status, remoteRevision: remoteEdit.revision, conflictResponse: resetApiResponse, localCodePreserved: true, notice: staleResetResult.notice, screenshot: staleResetScreenshot }, apiResponses: p15Responses },
+      P16: p16Probe,
     },
-    notCaptured: 'The waiver was not applied; evidence is the real server-reviewed confirmation-ready state. P22 only has a visible default settings panel, not an open/close interaction. P27 has no implemented live review/confirmation route. P15 has no live run/save/hidden-failure interaction. No mock API or fabricated auth state was used.',
+    notCaptured: 'The waiver was not applied; evidence is the real server-reviewed confirmation-ready state. P22 is captured with the inspector visible by default. No mocked API or fabricated auth state was used. P15 captures intentionally stop at a redacted hidden-test failure; passing hidden tests and completion are not asserted.',
   }, null, 2) + '\n');
   console.log(`Captured ${captures.length} real-client waiver review states with authenticated API status ${networkStatuses.at(-1)?.status}.`);
 } finally {

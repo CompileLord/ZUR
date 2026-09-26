@@ -6,6 +6,34 @@ import { seedDatabase } from '../src/db/seed.ts';
 import { ExecutionService } from '../src/services/execution-service.ts';
 import { AttemptService } from '../src/services/attempt-service.ts';
 import { DraftService } from '../src/services/draft-service.ts';
+import { processExecutionJob } from 'zur-worker';
+
+test('Accepted student jobs grade and record the immutable pinned assessment after author edits', async () => {
+  const db = getDatabase(':memory:');
+  runMigrations(':memory:');
+  seedDatabase(':memory:');
+  const service = new ExecutionService(db);
+  const job = service.enqueueJob({
+    userId: 'user-student-1', enrollmentId: 'enr-ada', stepId: 'step-6-python-evenodd',
+    jobType: 'submit', code: 'import sys\nraw=sys.stdin.read().strip()\nprint("Empty" if not raw else ("Even" if int(raw)%2==0 else "Odd"))',
+  }).job;
+
+  db.prepare('UPDATE test_cases SET expected_stdout = ? WHERE step_id = ?')
+    .run('AUTHOR_EDITED_AFTER_ENQUEUE', 'step-6-python-evenodd');
+  db.prepare('UPDATE enrollments SET pinned_version_id = ? WHERE id = ?')
+    .run('version-1-snapshot', 'enr-ada');
+
+  const payload = service.claimJobById(job.id, 'snapshot-worker');
+  assert.ok(payload);
+  assert.equal(payload.testCases.length, 3);
+  assert.deepEqual(payload.testCases.map((row) => row.expectedStdout), ['Even', 'Empty', 'Odd']);
+  const result = await processExecutionJob(payload);
+  service.completeJob(job.id, 'snapshot-worker', result);
+  const completed = service.getJob(job.id, 'user-student-1');
+  assert.equal(completed.result?.verdict, 'PASSED');
+  const attempt = db.prepare('SELECT course_version_id FROM assessment_attempts WHERE id = ?').get(completed.result?.attemptId) as any;
+  assert.equal(attempt.course_version_id, 'version-2-snapshot');
+});
 
 test('Execution Boundary: Run Samples and Custom Input (T022, AC-08)', async (t) => {
   const db = getDatabase(':memory:');
@@ -201,6 +229,7 @@ else:
     });
 
     assert.strictEqual(result.verdict, 'WRONG_ANSWER');
+    assert.equal(result.executionTimeMs, undefined, 'hidden failure responses omit execution timing');
 
     // Redaction must strip hidden inputs, expected output, and actual output
     const serialized = JSON.stringify(result);

@@ -40,6 +40,7 @@ export interface CourseSummary {
   isSuspended: boolean;
   draftRevision: number;
   currentVersionId?: string | null;
+  currentVersionNumber?: number | null;
   studentCount: number;
   hasUnpublishedChanges: boolean;
   lastEditTime: string;
@@ -124,7 +125,8 @@ export class CourseService {
     const rows = this.db
       .prepare(
         `SELECT c.*, cat.name as category_name,
-          (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') as student_count
+          (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') as student_count,
+          (SELECT version_number FROM course_versions v WHERE v.id = c.current_version_id) as current_version_number
         FROM courses c
         LEFT JOIN categories cat ON c.category_id = cat.id
         ${whereClause}
@@ -256,7 +258,8 @@ export class CourseService {
     const row = this.db
       .prepare(
         `SELECT c.*, cat.name as category_name,
-          (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') as student_count
+          (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') as student_count,
+          (SELECT cv.version_number FROM course_versions cv WHERE cv.id = c.current_version_id AND cv.course_id = c.id) as current_version_number
         FROM courses c
         LEFT JOIN categories cat ON c.category_id = cat.id
         WHERE c.id = ?`
@@ -312,6 +315,7 @@ export class CourseService {
       isSuspended: Boolean(row.is_suspended),
       draftRevision: row.draft_revision,
       currentVersionId: row.current_version_id,
+      currentVersionNumber: row.current_version_number ?? null,
       studentCount: row.student_count || 0,
       hasUnpublishedChanges,
       lastEditTime: row.updated_at,

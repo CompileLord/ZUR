@@ -31,7 +31,7 @@
   ],
   "liveRouteProbes": {
     "P22": {
-      "result": "The real client route renders the selected-exercise settings panel in its visible state in both themes, satisfying the P22 open-inspector visual checkpoint. Inspector visibility controls were not exercised.",
+      "result": "The open-inspector visual checkpoint is captured on the authenticated route in both themes. Inspector visibility controls were not exercised because the visual checkpoint requires the panel to be visible.",
       "captures": [
         {
           "route": "/teach/course-python-foundations/content",
@@ -58,22 +58,312 @@
       ]
     },
     "P27": {
-      "result": "The real route currently falls through to the generic S5 builder shell; the P27 review page and publish-confirmation control are absent.",
-      "containsPublicationReviewComponent": false,
-      "visibleTextIncludesSample": true
+      "result": "Live authenticated validation, explicit confirmation, and server receipt verified.",
+      "containsPublicationReviewComponent": true,
+      "initialBody": "Skip to content\n← Courses\n/\nPython foundations\nPublished\nSaved\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\n← Back to Course Builder\nReview publication\n\nValidate the saved draft, review issues and warnings, and confirm the version impact.\n\nDraft Rev 1\n\n✓ Pre-publish checklist passed with 0 blocking errors\n\nCourse Summary\nCOURSE TITLE\n\nPython foundations\n\nDISCOVERABILITY\n\nPublic\n\nENROLLMENT POLICY\n\nOpen\n\nVersion Impact Summary\n\nExisting students will continue on their current version. New enrollments will receive this update.\n\nCurrent published version: Version 2\nNew version to publish: Version 3\nActive enrolled students: 3\nReady to publish immutable release snapshot.\nPublish Version 3",
+      "initialProbe": "Skip to content\n← Courses\n/\nPython foundations\nPublished\nSaved\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\n← Back to Course Builder\nReview publication\n\nValidate the saved draft, review issues and warnings, and confirm the version impact.\n\nDraft Rev 1\n\n✓ Pre-publish checklist passed with 0 blocking errors\n\nCourse Summary\nCOURSE TITLE\n\nPython foundations\n\nDISCOVERABILITY\n\nPublic\n\nENROLLMENT POLICY\n\nOpen\n\nVersion Impact Summary\n\nExisting students will continue on their current version. New enrollments will receive this update.\n\nCurrent published version: Version 2\nNew version to publish: Version 3\nActive enrolled students: 3\nReady to publish immutable release snapshot.\nPublish Version 3",
+      "initialApiResponses": [
+        {
+          "url": "http://127.0.0.1:37439/api/author/courses/course-python-foundations",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/author/courses/course-python-foundations/validate",
+          "status": 200
+        }
+      ],
+      "captures": [
+        {
+          "theme": "dark",
+          "state": "explicit confirmation dialog",
+          "viewport": [
+            1440,
+            900
+          ],
+          "screenshot": "screenshots/s4_t087_p27_publish_confirmation_1440x900_dark.png"
+        },
+        {
+          "theme": "light",
+          "state": "explicit confirmation dialog",
+          "viewport": [
+            1440,
+            900
+          ],
+          "screenshot": "screenshots/s4_t087_p27_publish_confirmation_1440x900_light.png"
+        },
+        {
+          "theme": "light",
+          "state": "server-issued receipt after confirmation",
+          "viewport": [
+            1440,
+            900
+          ],
+          "publishResponse": {
+            "url": "http://127.0.0.1:37439/api/author/courses/course-python-foundations/publish",
+            "status": 200
+          },
+          "receiptText": "Released Version 3\n2026-09-26T08:25:05.913Z\n\nVersion ID: 8f6ca989-c1d7-4945-9dfe-28a72c02bd89\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
+          "screenshot": "screenshots/s4_t087_p27_publish_receipt_1440x900_light.png"
+        }
+      ]
     },
     "P15": {
-      "result": "The live student route renders Run samples and Submit solution controls, but clicking Run samples caused no API request or result change; no unsaved or hidden-failure state is wired into this route.",
-      "controls": [
-        "Run samples",
-        "Submit solution"
+      "result": "Live authenticated code save, public sample execution, submission with redacted hidden-test failure, and revision-checked reset conflict verified.",
+      "captures": [
+        {
+          "theme": "dark",
+          "state": "samples passed",
+          "viewport": [
+            1440,
+            900
+          ],
+          "screenshot": "screenshots/s4_t087_p15_samples_passed_1440x900_dark.png"
+        },
+        {
+          "theme": "dark",
+          "state": "submission hidden-test failure safely redacted",
+          "viewport": [
+            1440,
+            900
+          ],
+          "resultText": "Verdict: WRONG_ANSWER\nYour solution did not pass a hidden test. Review the input limits and edge cases.\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
+          "screenshot": "screenshots/s4_t087_p15_submit_redacted_failure_1440x900_dark.png"
+        },
+        {
+          "theme": "light",
+          "state": "samples passed",
+          "viewport": [
+            1440,
+            900
+          ],
+          "screenshot": "screenshots/s4_t087_p15_samples_passed_1440x900_light.png"
+        },
+        {
+          "theme": "light",
+          "state": "submission hidden-test failure safely redacted",
+          "viewport": [
+            1440,
+            900
+          ],
+          "resultText": "Verdict: WRONG_ANSWER\nYour solution did not pass a hidden test. Review the input limits and edge cases.\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
+          "screenshot": "screenshots/s4_t087_p15_submit_redacted_failure_1440x900_light.png"
+        },
+        {
+          "theme": "light",
+          "state": "concurrent edit blocks stale reset without replacing local code",
+          "viewport": [
+            1440,
+            900
+          ],
+          "resetResponse": {
+            "url": "http://127.0.0.1:37439/api/drafts/reset",
+            "status": 409
+          },
+          "localCodePreserved": true,
+          "screenshot": "screenshots/s4_t087_p15_reset_stale_revision_conflict_1440x900_light.png"
+        }
       ],
-      "apiRequestsFromRunClick": 0,
-      "resultChangedAfterRunClick": false,
-      "hasHiddenFailureText": false,
-      "saveIndicator": "Saved",
-      "resultText": "RESULTS\n\nNo runs yet. Try a sample first."
+      "states": [
+        {
+          "theme": "dark",
+          "sampleText": "Samples passed. Submit your solution to complete this step.\n28 ms\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
+          "submitText": "Verdict: WRONG_ANSWER\nYour solution did not pass a hidden test. Review the input limits and edge cases.\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
+          "safeHiddenResult": {
+            "text": "Verdict: WRONG_ANSWER\nYour solution did not pass a hidden test. Review the input limits and edge cases.\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
+            "containsSecretInput": false,
+            "containsHiddenExpectedOutput": false,
+            "containsExecutionTiming": false,
+            "continueVisible": false
+          },
+          "saveIndicator": "Saved",
+          "apiRequests": [
+            {
+              "url": "http://127.0.0.1:37439/api/drafts",
+              "method": "PUT"
+            },
+            {
+              "url": "http://127.0.0.1:37439/api/execution/run-samples",
+              "method": "POST"
+            },
+            {
+              "url": "http://127.0.0.1:37439/api/execution/submit",
+              "method": "POST"
+            }
+          ]
+        },
+        {
+          "theme": "light",
+          "sampleText": "Samples passed. Submit your solution to complete this step.\n28 ms\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
+          "submitText": "Verdict: WRONG_ANSWER\nYour solution did not pass a hidden test. Review the input limits and edge cases.\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
+          "safeHiddenResult": {
+            "text": "Verdict: WRONG_ANSWER\nYour solution did not pass a hidden test. Review the input limits and edge cases.\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
+            "containsSecretInput": false,
+            "containsHiddenExpectedOutput": false,
+            "containsExecutionTiming": false,
+            "continueVisible": false
+          },
+          "saveIndicator": "Saved",
+          "apiRequests": [
+            {
+              "url": "http://127.0.0.1:37439/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+              "method": "GET"
+            },
+            {
+              "url": "http://127.0.0.1:37439/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+              "method": "GET"
+            },
+            {
+              "url": "http://127.0.0.1:37439/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+              "method": "GET"
+            },
+            {
+              "url": "http://127.0.0.1:37439/api/drafts",
+              "method": "PUT"
+            },
+            {
+              "url": "http://127.0.0.1:37439/api/execution/run-samples",
+              "method": "POST"
+            },
+            {
+              "url": "http://127.0.0.1:37439/api/execution/submit",
+              "method": "POST"
+            }
+          ]
+        }
+      ],
+      "staleReset": {
+        "remoteEditStatus": 200,
+        "remoteRevision": 3,
+        "conflictResponse": {
+          "url": "http://127.0.0.1:37439/api/drafts/reset",
+          "status": 409
+        },
+        "localCodePreserved": true,
+        "notice": "A newer server draft exists. Your local code is preserved on this device; reload before resetting.",
+        "screenshot": "screenshots/s4_t087_p15_reset_stale_revision_conflict_1440x900_light.png"
+      },
+      "apiResponses": [
+        {
+          "url": "http://127.0.0.1:37439/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/drafts",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/execution/run-samples",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/execution/submit",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/drafts",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/execution/run-samples",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/execution/submit",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/drafts",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/drafts/reset",
+          "status": 409
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/attempts/attempt-9aaf4140-48be-4254-9d50-8f9b326ba532",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "status": 200
+        },
+        {
+          "url": "http://127.0.0.1:37439/api/attempts/attempt-9aaf4140-48be-4254-9d50-8f9b326ba532",
+          "status": 200
+        }
+      ]
+    },
+    "P16": {
+      "result": "P15 Attempts link opens the registered authenticated history route and read-only attempt detail; hidden-test failure timing is omitted from both API responses and rendered history.",
+      "status": 200,
+      "detailStatus": 200,
+      "attemptId": "attempt-9aaf4140-48be-4254-9d50-8f9b326ba532",
+      "listHasTiming": false,
+      "detailHasTiming": false,
+      "attemptNumber": 2,
+      "listUiHasTiming": false,
+      "detailUiHasTiming": false,
+      "captures": [
+        {
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts",
+          "theme": "light",
+          "viewport": [
+            1440,
+            900
+          ],
+          "screenshot": "screenshots/s4_t087_p16_hidden_failure_attempt_history_1440x900_light.png"
+        },
+        {
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-9aaf4140-48be-4254-9d50-8f9b326ba532",
+          "theme": "light",
+          "viewport": [
+            1440,
+            900
+          ],
+          "screenshot": "screenshots/s4_t087_p16_hidden_failure_attempt_detail_1440x900_light.png"
+        }
+      ]
     }
   },
-  "notCaptured": "The waiver was not applied; evidence is the real server-reviewed confirmation-ready state. P22 evidence verifies the visible inspector panel; inspector visibility controls were not exercised. P27 has no implemented live review/confirmation route. P15 has no live save/hidden-failure interaction, and Run samples caused no API request or result change. No mock API or fabricated auth state was used."
+  "notCaptured": "The waiver was not applied; evidence is the real server-reviewed confirmation-ready state. P22 is captured with the inspector visible by default. No mocked API or fabricated auth state was used. P15 captures intentionally stop at a redacted hidden-test failure; passing hidden tests and completion are not asserted."
 }
