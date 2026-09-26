@@ -182,6 +182,21 @@ test('Enrollment, Invitation, and Progress HTTP Endpoints (T045-T048)', async (t
     assert.strictEqual(body.courseTitle, 'Python REST API Learning');
   });
 
+  await t.test('An enrolled legacy step without authored content remains readable', async () => {
+    const graceLogin = await fetch(`${baseUrl}/api/auth/sign-in`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'grace@zur.internal', password: 'StudentPass123!' }),
+    });
+    assert.equal(graceLogin.status, 200);
+    const graceSession = await graceLogin.json() as any;
+    const response = await fetch(`${baseUrl}/api/enrollments/enr-grace/steps/step-1-theory`, {
+      headers: { Authorization: `Bearer ${graceSession.token}` },
+    });
+    assert.equal(response.status, 200);
+    assert.equal((await response.json() as any).step.content, null);
+  });
+
   await t.test('POST /api/enrollments/:enrollmentId/steps/:stepId/complete updates progress', async () => {
     const res = await fetch(
       `${baseUrl}/api/enrollments/${studentEnrollmentId}/steps/${stepId}/complete`,
@@ -210,6 +225,14 @@ test('Enrollment, Invitation, and Progress HTTP Endpoints (T045-T048)', async (t
     assert.strictEqual(res.status, 200);
     const body = (await res.json()) as any;
     assert.strictEqual(body.enrollment.status, 'left');
+  });
+
+  await t.test('A left enrollment cannot read its lesson metadata or pinned content', async () => {
+    const res = await fetch(`${baseUrl}/api/enrollments/${studentEnrollmentId}/steps/${stepId}`, {
+      headers: { Authorization: `Bearer ${studentToken}` },
+    });
+    assert.equal(res.status, 404);
+    assert.match((await res.json() as any).error.message, /isn't available/);
   });
 
   await t.test('POST /api/author/courses/:courseId/students/:studentId/revoke and reinstate', async () => {

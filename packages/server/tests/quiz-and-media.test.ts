@@ -106,6 +106,24 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
     assert.throws(() => mediaService.getAssetFile(unreferencedAsset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }), NotFoundError, 'enrolled students cannot fetch unrelated private uploads');
     assert.throws(() => mediaService.getAssetFile(asset.id, { userId: 'user-student-1', capabilities: ['student'], isSuspended: false }), NotFoundError, 'another enrollment cannot authorize access to this course asset');
     assert.throws(() => mediaService.getAssetFile(asset.id, { userId: null, capabilities: ['student'], isSuspended: false }), NotFoundError);
+
+    const currentAsset = mediaService.uploadAsset(authorId, course.id, { buffer: pngBuffer, filename: 'current-version.png', mimeType: 'image/png', altText: 'Current version image' });
+    const currentVersionId = 'version-media-current';
+    db.prepare('INSERT INTO course_versions (id, course_id, version_number, snapshot_data, created_at) VALUES (?, ?, 3, ?, ?)').run(currentVersionId, course.id, JSON.stringify({ modules: [{ lessons: [{ steps: [{ content: { markdown: `![diagram](zur-asset:${currentAsset.id})` } }] }] }] }), now);
+    db.prepare("UPDATE courses SET visibility = 'public', current_version_id = ? WHERE id = ?").run(currentVersionId, course.id);
+    db.prepare("INSERT INTO enrollments (id, user_id, course_id, pinned_version_id, status, created_at, updated_at) VALUES ('enr-media-current', 'user-student-3', ?, ?, 'active', ?, ?)").run(course.id, currentVersionId, now, now);
+    assert.equal(mediaService.getAssetFile(asset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }).mimeType, 'image/png', 'existing learners use references in their pinned version after publication advances');
+    assert.throws(() => mediaService.getAssetFile(asset.id, { userId: 'user-student-3', capabilities: ['student'], isSuspended: false }), NotFoundError, 'new learners cannot use an image referenced only by an older version');
+    assert.equal(mediaService.getAssetFile(currentAsset.id, { userId: 'user-student-3', capabilities: ['student'], isSuspended: false }).mimeType, 'image/png');
+    assert.throws(() => mediaService.getAssetFile(currentAsset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }), NotFoundError, 'existing learners cannot use an image that only exists in the latest version');
+    assert.throws(() => mediaService.getAssetFile(currentAsset.id, { userId: 'user-student-1', capabilities: ['student'], isSuspended: false }), NotFoundError, 'public visibility does not expose course media to non-enrolled visitors');
+    assert.throws(() => mediaService.getAssetFile(currentAsset.id, { userId: null, capabilities: ['student'], isSuspended: false }), NotFoundError, 'public visibility does not expose course media to anonymous visitors');
+
+    const lookalikeVersionId = 'version-media-lookalike';
+    db.prepare('INSERT INTO course_versions (id, course_id, version_number, snapshot_data, created_at) VALUES (?, ?, 4, ?, ?)').run(lookalikeVersionId, course.id, JSON.stringify({ modules: [{ lessons: [{ steps: [{ content: { markdown: `![diagram](zur-asset:${asset.id}abc)` } }] }] }] }), now);
+    db.prepare('UPDATE enrollments SET pinned_version_id = ? WHERE id = ?').run(lookalikeVersionId, 'enr-media-current');
+    assert.throws(() => mediaService.getAssetFile(asset.id, { userId: 'user-student-3', capabilities: ['student'], isSuspended: false }), NotFoundError, 'a longer lookalike media identifier does not reference the asset');
+
     db.prepare("UPDATE enrollments SET status = 'revoked', updated_at = ? WHERE id = 'enr-media-active'").run(now);
     assert.throws(() => mediaService.getAssetFile(asset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }), NotFoundError);
   });

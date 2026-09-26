@@ -135,22 +135,28 @@ export class AuthorizationService {
 
     const courseAccess = this.getCourseAccess(user, asset.course_id);
     if (!courseAccess.allowed) return false;
+    // Public course descriptions do not support image assets. Course bodies remain
+    // enrollment-only even when their syllabus is publicly visible.
+    if (courseAccess.role === 'visitor') return false;
     // Students may only fetch media referenced by the immutable version pinned to
-    // their enrollment. Visitors get references from the current published version.
-    // This prevents a leaked UUID from exposing private, unused uploads.
+    // their enrollment. This prevents a leaked UUID from exposing private uploads.
     if (courseAccess.role === 'owner') return true;
-    if (courseAccess.role === 'visitor' &&
-        (courseAccess.course?.visibility !== 'public' || courseAccess.course?.publication_status !== 'published')) return false;
     const versionId = courseAccess.role === 'student'
       ? courseAccess.pinnedVersionId
-      : courseAccess.course?.current_version_id;
+      : null;
     if (!versionId) return false;
     const row = this.db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ? AND course_id = ?').get(versionId, asset.course_id) as any;
     if (!row) return false;
     let snapshot: any;
     try { snapshot = JSON.parse(row.snapshot_data); } catch { return false; }
     const references = (value: any): boolean => {
-      if (typeof value === 'string') return value.includes(`zur-asset:${assetId}`);
+      if (typeof value === 'string') {
+        const expression = /zur-asset:([0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})(?=$|[)\s])/gi;
+        for (const match of value.matchAll(expression)) {
+          if (match[1].toLowerCase() === assetId.toLowerCase()) return true;
+        }
+        return false;
+      }
       if (Array.isArray(value)) return value.some(references);
       if (!value || typeof value !== 'object') return false;
       if (value.assetId === assetId || value.asset_id === assetId) return true;

@@ -220,6 +220,52 @@ test('T087 real P15/P27 browser flows have authenticated API and screenshot evid
   }
 });
 
+test('T087 live P12/P13 lessons, media authorization, and failure recovery have browser evidence', () => {
+  const report = JSON.parse(fs.readFileSync(path.join(root, 'docs/evidence/s4-t087-live-lessons-browser.json'), 'utf8'));
+  assert.equal(report.fixture.enrollment, 'enr-ada');
+  assert.equal(report.fixture.pinnedVersion, 'version-2-snapshot');
+  assert.equal(report.captures.length, 16);
+  assert.equal(report.captures.filter((item: any) => item.route.endsWith('/video')).length, 8);
+  assert.equal(report.captures.filter((item: any) => item.route.endsWith('/step-1-theory')).length, 8);
+  for (const capture of report.captures) {
+    const [width, height] = capture.viewport;
+    assert.equal(capture.measured.width, width);
+    assert.equal(capture.measured.height, height);
+    assert.equal(capture.horizontalOverflow, false, `${capture.route} ${capture.theme} ${width}`);
+    if (capture.route.endsWith('/step-1-theory')) assert.equal(capture.state.imageLoaded, true);
+    else assert.equal(capture.state.hasTranscript, true);
+    assert.deepEqual(pngDimensions(capture.screenshot), [width, height]);
+  }
+  const auth = report.authorizationProbes;
+  assert.equal(auth.pinnedAssetStatus, 200);
+  assert.match(auth.assetCacheControl, /no-store/);
+  assert.equal(auth.unreferencedAssetStatus, 404);
+  assert.equal(auth.anonymousAssetStatus, 404);
+  assert.equal(auth.otherEnrollmentStepStatus, 404);
+  assert.equal(auth.otherEnrollmentAssetStatus, 404);
+  assert.equal(auth.graceValidOwnStepStatus, 200);
+  assert.deepEqual(report.revokedEnrollmentProbe, { stepStatus: 404, assetStatus: 404 });
+  assert.equal(report.mediaFailureCapture.measured.width, 1440);
+  assert.match(report.mediaFailureCapture.state.fallback, /Retry video/);
+  assert.match(report.mediaFailureCapture.state.transcript, /Welcome to this lesson/);
+  assert.equal(report.mediaFailureCapture.retryAction.fallbackHidden, true);
+  assert.notEqual(report.mediaFailureCapture.retryAction.before, report.mediaFailureCapture.retryAction.after);
+  assert.match(report.mediaFailureCapture.retryAction.after, /zur_retry=/);
+  assert.deepEqual(pngDimensions(report.mediaFailureCapture.screenshot), [1440, 900]);
+  assert.equal(report.completion.status, 200);
+  assert.equal(report.completion.isCompleted, true);
+  assert.deepEqual(pngDimensions(report.completion.screenshot), [1440, 900]);
+  assert.equal(report.trueZoom.captures.length, 4);
+  for (const capture of report.trueZoom.captures) {
+    assert.equal(capture.browserZoomPercent, 200);
+    assert.equal(capture.actual.innerWidth * 2, capture.baseline.innerWidth);
+    assert.equal(capture.actual.dpr, capture.baseline.dpr * 2);
+    assert.equal(capture.actual.scale, 1);
+    assert.equal(capture.horizontalOverflow, false);
+    assert.ok(fs.existsSync(path.join(root, capture.screenshot)));
+  }
+});
+
 test('T087 P43 authenticated token lifecycle captures a masked one-time value and revoked status', () => {
   const report = JSON.parse(fs.readFileSync(path.join(root, 'docs/evidence/s4-m04-interactive-browser-flows.json'), 'utf8'));
   const p43 = report.liveRouteProbes.P43;

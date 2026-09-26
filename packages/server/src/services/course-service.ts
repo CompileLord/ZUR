@@ -629,8 +629,8 @@ export class CourseService {
       throw new NotFoundError("This page isn't available.");
     }
 
-    const content = JSON.parse(JSON.stringify(foundStep.content));
-    if (foundStep.type === 'python') {
+    const content = foundStep.content == null ? null : JSON.parse(JSON.stringify(foundStep.content));
+    if (foundStep.type === 'python' && content) {
       delete content.referenceSolution;
       if (Array.isArray(content.testCases)) {
         content.testCases = content.testCases

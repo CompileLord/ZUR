@@ -1796,6 +1796,9 @@ export function createServer(
         const enrollmentId = enrolledStepMatch[1];
         const stepId = enrolledStepMatch[2];
 
+        // Reuse the strict enrollment-state and pinned-snapshot authorization path
+        // before exposing even step metadata/content to a learner.
+        const enrolledSnapshot = courseService.getEnrolledStepContent(user.id, enrollmentId, stepId);
         const progress = learningProgressService.getCourseProgress(user.id, enrollmentId);
         const stepMeta = progress.steps.find((s) => s.id === stepId);
         if (!stepMeta) throw authService.safeNotFound();
@@ -1821,7 +1824,7 @@ export function createServer(
 
         learningProgressService.recordStepVisit(user.id, enrollmentId, stepId);
 
-        let studentContent = stepSnapshot?.content;
+        let studentContent = enrolledSnapshot.content;
         if (stepMeta.type === 'quiz' && studentContent && !stepMeta.isCompleted) {
           studentContent = {
             ...studentContent,

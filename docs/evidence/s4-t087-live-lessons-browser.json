@@ -1,18 +1,23 @@
 {
-  "method": "Actual headless Chrome against local Vite client and in-process server with an isolated seeded SQLite fixture. Student signed in through the app form; viewport dimensions asserted from window.innerWidth/innerHeight before every capture. Inline image bytes were uploaded to the local fixture and referenced by the immutable version pinned to enr-ada. Video failure state uses CDP Network.setBlockedURLs against the external video provider; the real transcript stays available.",
+  "method": "Actual headless Chrome against local Vite client and in-process server with an isolated seeded SQLite fixture. Student signed in through the app form; viewport dimensions asserted from window.innerWidth/innerHeight before every capture. Inline image bytes were uploaded to the local fixture and referenced by the immutable version pinned to enr-ada. Video failure state uses CDP Network.setBlockedURLs against the external video provider; the real transcript stays available. Actual 200% evidence uses headful Chrome UI zoom selected in chrome://settings/appearance.",
   "fixture": {
     "enrollment": "enr-ada",
     "pinnedVersion": "version-2-snapshot",
-    "attachedAssetId": "c7d5af46-6580-4e3e-a5f4-96758fcf49e6",
-    "unusedAssetId": "5cf66da4-806d-46d7-9357-f90b5d610a4c"
+    "attachedAssetId": "7c2ea521-fdeb-40d0-8670-b69e97df8cb4",
+    "unusedAssetId": "245914e9-2807-42f6-92d7-b62efa273cbd"
   },
   "authorizationProbes": {
     "pinnedAssetStatus": 200,
+    "assetCacheControl": "private, no-store",
     "unreferencedAssetStatus": 404,
     "anonymousAssetStatus": 404,
     "otherEnrollmentStepStatus": 404,
     "otherEnrollmentAssetStatus": 404,
     "graceValidOwnStepStatus": 200
+  },
+  "revokedEnrollmentProbe": {
+    "stepStatus": 404,
+    "assetStatus": 404
   },
   "captures": [
     {
@@ -487,14 +492,134 @@
       "bodyScrollWidth": 1440
     },
     "state": {
-      "fallback": "Video player unavailable\n\nThe player did not load. The lesson transcript remains available below.\n\nRetry video",
+      "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
       "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-      "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+      "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A45727",
       "viewport": {
         "width": 1440,
         "height": 900
       }
     },
+    "retryAction": {
+      "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A45727",
+      "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A45727&zur_retry=1790452497613",
+      "fallbackHidden": true
+    },
     "screenshot": "screenshots/s4_t087_p13_blocked_video_transcript_recovery_1440x900_light.png"
+  },
+  "completion": {
+    "status": 200,
+    "isCompleted": true,
+    "route": "/learn/enr-ada/steps/step-2-video/video",
+    "viewport": [
+      1440,
+      900
+    ],
+    "screenshot": "screenshots/s4_t087_p12_mark_complete_next_step_1440x900_dark.png"
+  },
+  "trueZoom": {
+    "method": "Headful Chrome UI setting selected through chrome://settings/appearance. Actual innerWidth and DPR validated; no CDP page-scale or viewport emulation.",
+    "baseline": {
+      "innerWidth": 1536,
+      "innerHeight": 746,
+      "outerWidth": 1536,
+      "outerHeight": 832,
+      "dpr": 1.25,
+      "scale": 1
+    },
+    "captures": [
+      {
+        "route": "/learn/enr-ada/steps/step-1-theory",
+        "theme": "dark",
+        "browserZoomPercent": 200,
+        "baseline": {
+          "innerWidth": 1536,
+          "innerHeight": 746,
+          "outerWidth": 1536,
+          "outerHeight": 832,
+          "dpr": 1.25,
+          "scale": 1
+        },
+        "actual": {
+          "innerWidth": 768,
+          "innerHeight": 373,
+          "dpr": 2.5,
+          "scale": 1,
+          "scrollWidth": 768,
+          "bodyScrollWidth": 768
+        },
+        "horizontalOverflow": false,
+        "screenshot": "screenshots/s4_t087_p12_actual_200zoom_dark_gui.png"
+      },
+      {
+        "route": "/learn/enr-ada/steps/step-2-video/video",
+        "theme": "dark",
+        "browserZoomPercent": 200,
+        "baseline": {
+          "innerWidth": 1536,
+          "innerHeight": 746,
+          "outerWidth": 1536,
+          "outerHeight": 832,
+          "dpr": 1.25,
+          "scale": 1
+        },
+        "actual": {
+          "innerWidth": 768,
+          "innerHeight": 373,
+          "dpr": 2.5,
+          "scale": 1,
+          "scrollWidth": 768,
+          "bodyScrollWidth": 768
+        },
+        "horizontalOverflow": false,
+        "screenshot": "screenshots/s4_t087_p13_actual_200zoom_dark_gui.png"
+      },
+      {
+        "route": "/learn/enr-ada/steps/step-1-theory",
+        "theme": "light",
+        "browserZoomPercent": 200,
+        "baseline": {
+          "innerWidth": 1536,
+          "innerHeight": 746,
+          "outerWidth": 1536,
+          "outerHeight": 832,
+          "dpr": 1.25,
+          "scale": 1
+        },
+        "actual": {
+          "innerWidth": 768,
+          "innerHeight": 373,
+          "dpr": 2.5,
+          "scale": 1,
+          "scrollWidth": 768,
+          "bodyScrollWidth": 768
+        },
+        "horizontalOverflow": false,
+        "screenshot": "screenshots/s4_t087_p12_actual_200zoom_light_gui.png"
+      },
+      {
+        "route": "/learn/enr-ada/steps/step-2-video/video",
+        "theme": "light",
+        "browserZoomPercent": 200,
+        "baseline": {
+          "innerWidth": 1536,
+          "innerHeight": 746,
+          "outerWidth": 1536,
+          "outerHeight": 832,
+          "dpr": 1.25,
+          "scale": 1
+        },
+        "actual": {
+          "innerWidth": 768,
+          "innerHeight": 373,
+          "dpr": 2.5,
+          "scale": 1,
+          "scrollWidth": 768,
+          "bodyScrollWidth": 768
+        },
+        "horizontalOverflow": false,
+        "screenshot": "screenshots/s4_t087_p13_actual_200zoom_light_gui.png"
+      }
+    ]
   }
 }

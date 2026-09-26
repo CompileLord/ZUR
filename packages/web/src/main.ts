@@ -54,6 +54,18 @@ import { renderVideoStepPage } from './pages/learning/VideoStepPage.ts';
 const appEl = document.getElementById('app')!;
 const authClient = AuthClient.getInstance();
 const courseClient = CourseClient.getInstance();
+const lessonMediaObjectUrls = new Set<string>();
+let lessonVideoLoadTimer: number | undefined;
+let lessonVideoReadyCleanup: (() => void) | undefined;
+
+function releaseLessonMediaObjectUrls(): void {
+  for (const url of lessonMediaObjectUrls) URL.revokeObjectURL(url);
+  lessonMediaObjectUrls.clear();
+  if (lessonVideoLoadTimer) window.clearTimeout(lessonVideoLoadTimer);
+  lessonVideoLoadTimer = undefined;
+  lessonVideoReadyCleanup?.();
+  lessonVideoReadyCleanup = undefined;
+}
 
 export function applyTheme(theme: 'dark' | 'light' | 'system'): void {
   localStorage.setItem('zur_theme_preference', theme);
@@ -256,7 +268,7 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
     const common = {
       courseTitle: data.courseTitle || 'Course',
       courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
-      lessonTitle: data.stepMeta?.lessonTitle || data.stepMeta?.lessonTitle || data.progress?.steps?.find((s: any) => s.id === stepId)?.lessonTitle || 'Lesson',
+      lessonTitle: data.stepMeta?.lessonTitle || progressSteps.find((s: any) => s.id === stepId)?.lessonTitle || 'Lesson',
       stepTitle: data.step.title,
       stepOrdinalText: `Step ${Number(data.step.position) + 1}`,
       isRequired: Boolean(data.step.isRequired),
@@ -276,16 +288,58 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
     const videoFailure = appEl.querySelector<HTMLElement>('[data-video-fallback]');
     let videoLoadTimer: number | undefined;
     if (videoFrame && videoFailure) {
-      videoFrame.dataset.retrySrc = videoFrame.src;
-      const showVideoFailure = () => { videoFailure.hidden = false; };
+      const provider = videoFrame.dataset.provider;
+      const frameUrl = new URL(videoFrame.src);
+      const frameOrigin = frameUrl.origin;
+      if (provider === 'youtube' || provider === 'vimeo') frameUrl.searchParams.set('origin', window.location.origin);
+      videoFrame.dataset.retrySrc = frameUrl.toString();
+      const showVideoFailure = () => {
+        if (videoLoadTimer) window.clearTimeout(videoLoadTimer);
+        lessonVideoLoadTimer = undefined;
+        videoFailure.hidden = false;
+      };
+      const clearVideoLoadTimer = () => {
+        if (videoLoadTimer) window.clearTimeout(videoLoadTimer);
+        lessonVideoLoadTimer = undefined;
+      };
+      const startVideoLoadTimer = () => {
+        if (videoLoadTimer) window.clearTimeout(videoLoadTimer);
+        videoLoadTimer = window.setTimeout(showVideoFailure, 10000);
+        lessonVideoLoadTimer = videoLoadTimer;
+      };
       videoFrame.addEventListener('error', showVideoFailure);
-      videoLoadTimer = window.setTimeout(showVideoFailure, 10000);
+      videoFrame.addEventListener('load', () => {
+        if (provider === 'youtube') {
+          videoFrame.contentWindow?.postMessage(JSON.stringify({ event: 'command', func: 'addEventListener', args: ['onReady'] }), frameOrigin);
+        } else if (provider === 'vimeo') {
+          videoFrame.contentWindow?.postMessage(JSON.stringify({ method: 'addEventListener', value: 'ready', player_id: 'zur-lesson-video' }), frameOrigin);
+        } else {
+          clearVideoLoadTimer();
+        }
+      });
+      if (provider === 'youtube' || provider === 'vimeo') {
+        const onPlayerMessage = (event: MessageEvent) => {
+          if (event.source !== videoFrame.contentWindow || event.origin !== frameOrigin || !isCurrent()) return;
+          let payload = event.data;
+          if (typeof payload === 'string') {
+            try { payload = JSON.parse(payload); } catch { return; }
+          }
+          const ready = provider === 'youtube' ? payload?.event === 'onReady' : payload?.event === 'ready';
+          if (ready) {
+            clearVideoLoadTimer();
+            videoFailure.hidden = true;
+          }
+        };
+        window.addEventListener('message', onPlayerMessage);
+        lessonVideoReadyCleanup = () => window.removeEventListener('message', onPlayerMessage);
+      }
+      startVideoLoadTimer();
+      if (provider === 'youtube' || provider === 'vimeo') videoFrame.src = frameUrl.toString();
       appEl.querySelector('[data-video-retry]')?.addEventListener('click', () => {
         videoFailure.hidden = true;
         const separator = videoFrame.dataset.retrySrc?.includes('?') ? '&' : '?';
         videoFrame.src = `${videoFrame.dataset.retrySrc || videoFrame.src}${separator}zur_retry=${Date.now()}`;
-        if (videoLoadTimer) window.clearTimeout(videoLoadTimer);
-        videoLoadTimer = window.setTimeout(showVideoFailure, 10000);
+        startVideoLoadTimer();
       });
     }
     appEl.querySelectorAll<HTMLFormElement>('.complete-step-form').forEach((form) => form.addEventListener('submit', (event) => {
@@ -303,17 +357,24 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
       const mediaImages = [...appEl.querySelectorAll<HTMLImageElement>('img[src^="about:blank#zur-asset-"]')];
       for (const image of mediaImages) {
         const assetId = image.dataset.authorizedAsset || '';
-        if (!/^[0-9a-f-]{36}$/i.test(assetId)) { image.remove(); continue; }
+        if (!/^[0-9a-f-]{36}$/i.test(assetId)) { if (isCurrent()) image.remove(); continue; }
         try {
           const response = await fetch(`/api/assets/${encodeURIComponent(assetId)}`, { cache: 'no-store', headers: { Authorization: `Bearer ${authClient.getToken() || ''}` } });
           if (!response.ok) throw new Error('media unavailable');
+          if (!isCurrent()) continue;
           const blob = await response.blob();
+          if (!isCurrent()) continue;
           if (!/^image\/(png|jpeg|webp|gif)$/.test(blob.type)) throw new Error('unsupported media');
           const objectUrl = URL.createObjectURL(blob);
+          lessonMediaObjectUrls.add(objectUrl);
           image.src = objectUrl;
-          image.dataset.objectUrl = objectUrl;
-          image.addEventListener('error', () => { URL.revokeObjectURL(objectUrl); image.replaceWith(document.createTextNode('Image unavailable. Retry loading the lesson to try again.')); }, { once: true });
+          image.addEventListener('error', () => {
+            URL.revokeObjectURL(objectUrl);
+            lessonMediaObjectUrls.delete(objectUrl);
+            image.replaceWith(document.createTextNode('Image unavailable. Retry loading the lesson to try again.'));
+          }, { once: true });
         } catch {
+          if (!isCurrent()) continue;
           const fallback = document.createElement('span');
           fallback.className = 'lesson-media-fallback';
           fallback.setAttribute('role', 'status');
@@ -768,6 +829,7 @@ export function navigateTo(path: string): void {
 }
 
 export function renderApp(path: string = window.location.pathname + window.location.search): void {
+  releaseLessonMediaObjectUrls();
   workspaceResizeController?.abort();
   workspaceResizeController = null;
   const match = matchRoute(path);

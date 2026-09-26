@@ -20,6 +20,13 @@ export interface TheoryStepPageOptions {
 
 export function renderTheoryStepPage(opts: TheoryStepPageOptions): string {
   const renderedBodyHtml = renderMarkdownToHtml(opts.markdownContent);
+  const continueUrl = opts.nextStepUrl || opts.courseOverviewUrl;
+  const taskActions = `
+    <a href="/help/report?stepId=${encodeURIComponent(opts.stepId)}&amp;enrollmentId=${encodeURIComponent(opts.enrollmentId)}" class="report-issue-link">Report issue</a>
+    ${opts.isCompleted
+      ? `<a href="${escapeHtml(continueUrl)}" class="btn btn-primary btn-compact">Continue</a>`
+      : `<form method="POST" action="/api/enrollments/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/complete" class="complete-step-form"><button type="submit" class="btn btn-primary">Mark complete and continue</button></form>`}
+  `;
 
   const workspaceContent = `
     <article class="theory-step-content" role="region" aria-label="Theory Reading">
@@ -39,42 +46,6 @@ export function renderTheoryStepPage(opts: TheoryStepPageOptions): string {
         ${renderedBodyHtml}
       </div>
 
-      <footer class="step-navigation-footer">
-        <div class="footer-left">
-          ${
-            opts.previousStepUrl
-              ? `<a href="${opts.previousStepUrl}" class="btn btn-secondary btn-compact">Previous</a>`
-              : ''
-          }
-        </div>
-
-        <div class="footer-center">
-            <a href="/help/report?stepId=${encodeURIComponent(opts.stepId)}&amp;enrollmentId=${encodeURIComponent(opts.enrollmentId)}" class="report-issue-link">
-            Report issue
-          </a>
-        </div>
-
-        <div class="footer-right">
-          ${
-            opts.isCompleted
-              ? `
-                <span class="status-badge success">Completed ✓</span>
-                ${
-                  opts.nextStepUrl
-                    ? `<a href="${opts.nextStepUrl}" class="btn btn-primary btn-compact">Next step →</a>`
-                    : `<a href="${opts.courseOverviewUrl}" class="btn btn-secondary btn-compact">Course overview</a>`
-                }
-              `
-              : `
-                <form method="POST" action="/api/enrollments/${opts.enrollmentId}/steps/${opts.stepId}/complete" class="complete-step-form">
-                  <button type="submit" class="btn btn-primary">
-                    Mark complete and continue
-                  </button>
-                </form>
-              `
-          }
-        </div>
-      </footer>
     </article>
   `;
 
@@ -88,6 +59,6 @@ export function renderTheoryStepPage(opts: TheoryStepPageOptions): string {
     outlineContent: opts.outlineContent || '<p class="outline-empty">Outline available</p>',
     workspaceContent,
     previousStepUrl: opts.previousStepUrl,
-    nextStepUrl: opts.nextStepUrl,
+    taskActions,
   });
 }

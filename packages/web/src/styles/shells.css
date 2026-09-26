@@ -759,6 +759,12 @@
   .task-footer-left, .task-footer-right { min-width: 0; flex-wrap: wrap; gap: 8px; }
   .task-footer-left .step-ordinal-meta { max-width: 125px; overflow-wrap: anywhere; }
   .task-footer-right { justify-content: flex-end; }
+  .reading-workspace .learning-task-footer { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .reading-workspace .task-footer-left { flex-wrap: nowrap; }
+  .reading-workspace .task-footer-left .step-ordinal-meta { max-width: none; overflow-wrap: normal; }
+  .reading-workspace .task-footer-right { width: 100%; flex-wrap: nowrap; justify-content: space-between; }
+  .reading-workspace .task-footer-right .complete-step-form { min-width: 0; flex: 1 1 0; }
+  .reading-workspace .task-footer-right .complete-step-form .btn { width: 100%; min-height: 44px; height: auto; padding-block: 8px; white-space: normal; }
   .python-desktop-action-note { max-width: 160px; text-align: right; }
 }
 @media (max-width: 767px) {

@@ -1122,9 +1122,18 @@
         "screenshots/s4_t087_p13_video_unavailable_transcript_390x844_light.png",
         "screenshots/s4_t087_p12_theory_inline_image_1440x900_light.png",
         "screenshots/s4_t087_p12_theory_inline_image_200zoom_dark_gui.png",
-        "screenshots/s4_t087_p12_theory_inline_image_200zoom_light_gui.png"
+        "screenshots/s4_t087_p12_theory_inline_image_200zoom_light_gui.png",
+        "docs/evidence/s4-t087-live-lessons-browser.json",
+        "screenshots/s4_t087_p12_theory_authorized_image_320x844_dark.png",
+        "screenshots/s4_t087_p13_video_transcript_390x844_light.png",
+        "screenshots/s4_t087_p13_blocked_video_transcript_recovery_1440x900_light.png",
+        "screenshots/s4_t087_p12_actual_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p12_actual_200zoom_light_gui.png",
+        "screenshots/s4_t087_p13_actual_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p13_actual_200zoom_light_gui.png",
+        "screenshots/s4_t087_p12_mark_complete_next_step_1440x900_dark.png"
       ],
-      "gap": "Theory code, video transcript failure, and inline-image rendering have five-width/two-theme component captures. Actual 200% zoom covers only the inline-image fixture; code/video states remain unzoomed. MediaService authorization regression verifies course owner and active enrollment access and denies anonymous/revoked enrollment, but the P12 authenticated inline lesson/media request remains unavailable because that route is not implemented. The image is local illustrative content, not a course-authorized media asset."
+      "gap": "Authenticated live P12 theory and P13 video routes render the pinned enrollment snapshot, with real course-attached image delivery and transcript. Both routes have actual captures at 320/390/768/1440 CSS px in both themes and actual Chrome UI 200% captures in both themes. Browser checks confirm pinned referenced media succeeds; unreferenced private media, anonymous access, another learner's enrollment, and revoked enrollment receive safe 404s. A provider-blocked P13 failure capture in light theme at 1440×900 confirms the retry action and transcript remain available. Provider-failure screenshots at the other sizes/themes and screen-reader captions remain unrepresented."
     },
     {
       "id": 5,

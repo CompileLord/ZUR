@@ -248,6 +248,21 @@ test('Learning Pages & Shell Workspaces (P08–P14, S2–S4)', async (t) => {
     assert.ok(html.includes('<code class="language-python">x = 42'));
     assert.ok(html.includes('Mark complete and continue'));
     assert.ok(html.includes('Report issue'));
+    assert.equal((html.match(/>Previous<\/a>/g) || []).length, 0);
+    assert.equal((html.match(/>Next<\/a>/g) || []).length, 0, 'the reading view has one task footer, without duplicate Previous/Next controls');
+    assert.equal((html.match(/class="learning-task-footer"/g) || []).length, 1);
+  });
+
+  await t.test('P12 canonical media remains deferred for authenticated browser loading', () => {
+    const assetId = '12345678-1234-4234-8234-123456789abc';
+    const html = renderTheoryStepPage({
+      courseTitle: 'Course', courseOverviewUrl: '/learn/enr-1', lessonTitle: 'Lesson',
+      stepTitle: 'Inline image', stepOrdinalText: 'Step 1', isRequired: true,
+      estimatedDurationMinutes: 2, markdownContent: `![Diagram](zur-asset:${assetId})`,
+      enrollmentId: 'enr-1', stepId: 'step-1', isCompleted: false,
+    });
+    assert.ok(html.includes(`data-authorized-asset="${assetId}"`));
+    assert.ok(html.includes(`src="about:blank#zur-asset-${assetId}"`));
   });
 
   // --- P13: Video Step Page ---
@@ -273,6 +288,11 @@ test('Learning Pages & Shell Workspaces (P08–P14, S2–S4)', async (t) => {
     assert.ok(html.includes('Welcome to this lesson on function definitions.'));
     assert.ok(html.includes('Verified'));
     assert.ok(html.includes('Mark complete and continue'));
+    assert.ok(html.includes('data-video-fallback'));
+    assert.ok(html.includes('data-video-retry'));
+    assert.equal((html.match(/>Previous<\/a>/g) || []).length, 0);
+    assert.equal((html.match(/>Next<\/a>/g) || []).length, 0, 'the video view has one task footer, without duplicate Previous/Next controls');
+    assert.equal((html.match(/class="learning-task-footer"/g) || []).length, 1);
   });
 
   // --- P14: Quiz Step Page ---

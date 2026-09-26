@@ -910,7 +910,14 @@
                 "packages/web/src/pages/learning/VideoStepPage.ts",
                 "packages/shared/src/video.ts",
                 "packages/shared/src/markdown.ts",
-                "packages/web/tests/learning-pages.test.ts"
+                "packages/web/tests/learning-pages.test.ts",
+                "packages/web/src/main.ts",
+                "packages/server/src/services/auth-service.ts",
+                "packages/server/tests/quiz-and-media.test.ts",
+                "scripts/capture-s4-t087-live-lessons.ts",
+                "docs/evidence/s4-t087-live-lessons-browser.json",
+                "packages/server/src/services/course-service.ts",
+                "packages/server/tests/enrollment-endpoints.test.ts"
               ]
             },
             {
@@ -1541,6 +1548,12 @@
                 "screenshots/s4_t087_p43_connections_expired_revocation_review_390x844_dark.png",
                 "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png",
                 "docs/evidence/s4-m04-student-detail-layout-checks.json",
+                "scripts/capture-s4-t087-live-lessons.ts",
+                "docs/evidence/s4-t087-live-lessons-browser.json",
+                "screenshots/s4_t087_p12_theory_authorized_image_320x844_dark.png",
+                "screenshots/s4_t087_p13_blocked_video_transcript_recovery_1440x900_light.png",
+                "screenshots/s4_t087_p12_actual_200zoom_dark_gui.png",
+                "screenshots/s4_t087_p13_actual_200zoom_light_gui.png",
                 "screenshots/s4_t087_p09_dashboard_completed_course_390x844_dark.png",
                 "screenshots/s4_t087_p12_theory_inline_image_1440x900_light.png",
                 "screenshots/s4_t087_p14_quiz_multiple_choice_390x844_light.png",
@@ -1631,9 +1644,16 @@
                 "screenshots/s4_t087_p43_reauth_error_320x844_light.png",
                 "packages/web/src/pages/settings/AiConnectionsPage.ts",
                 "packages/web/tests/mcp-settings-page.test.ts",
-                "packages/server/tests/quiz-and-media.test.ts"
+                "packages/server/tests/quiz-and-media.test.ts",
+                "screenshots/s4_t087_p12_actual_200zoom_light_gui.png",
+                "screenshots/s4_t087_p13_actual_200zoom_dark_gui.png",
+                "screenshots/s4_t087_p12_mark_complete_next_step_1440x900_dark.png",
+                "packages/server/src/services/auth-service.ts",
+                "packages/server/src/services/course-service.ts",
+                "packages/server/tests/enrollment-endpoints.test.ts",
+                "packages/web/tests/learning-pages.test.ts"
               ],
-              "blocker": "T087 remains in progress. Authenticated live P15/P16/P27 flows and responsive matrix are verified as recorded in the visual matrix. P43 has a real verified-author invalid-password denial with no token creation, retry, scoped token creation, password-masked one-time reveal with no secret in screenshots/reports, confirmed revocation, and authorized revoked status; 1440px/320px dark/light captures have no document overflow. P43 live 200% and intermediate viewport coverage remain unverified; its 200% grant capture is a component fixture. MediaService tests owner/active-enrollment access and anonymous/revoked denial, but course-attached inline media remains unverified because the authenticated P12 lesson renderer is not implemented; current image screens use a local illustrative asset. Additional error/recovery combinations also remain. Keep T087 in progress until remaining states and view/zoom combinations are verified; all browser mutations used disposable local SQLite fixtures."
+              "blocker": "T087 remains in progress. Authenticated live P12/P13 routes render pinned lesson content and deliver course-attached images through authorization tied to the active enrollment’s pinned immutable version. Both routes have actual captures at 320×844, 390×844, 768×1024, and 1440×900 in both themes, plus genuine Chrome UI 200% captures for each route/theme; no horizontal overflow was measured. Browser probes return safe 404 for unreferenced assets, anonymous requests, another learner’s enrollment, and revoked enrollment; the pinned image returns 200 with private no-store caching. P13 provider-blocked recovery keeps the transcript available and retries the real embed, captured at 1440×900 light. The live capture also confirms server completion and next-step navigation. Remaining T087 gaps include 1024×768 and broader adverse-state/view combinations, blocked-video coverage at other viewports/themes, and P43 live 200%/intermediate viewport coverage. T086’s human screen-reader and native forced-colors review remains blocked. Keep T087 in progress; all browser mutations used disposable local SQLite fixtures."
             },
             {
               "id": "T088",
