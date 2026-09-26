@@ -1,3 +1,5 @@
+import { escapeHtml } from '../escape-html.ts';
+
 export interface AppShellOptions {
   activePath: string;
   user: {
@@ -87,7 +89,7 @@ export function renderAppShell(opts: AppShellOptions): string {
             <span class="nav-label">Help</span>
           </a>
           <div class="user-account-menu" role="region" aria-label="Account Menu">
-            <span class="user-display-name">${opts.user.displayName}</span>
+            <span class="user-display-name">${escapeHtml(opts.user.displayName)}</span>
             <div class="user-menu-links">
               <a href="/settings/profile" class="user-menu-link">Settings</a>
               <a href="/sign-out" class="user-menu-link text-danger">Sign out</a>
@@ -98,7 +100,7 @@ export function renderAppShell(opts: AppShellOptions): string {
 
       <div class="app-main-area">
         <header class="app-location-header" role="banner">
-          <h1 class="location-title">${opts.headerTitle}</h1>
+          <h1 class="location-title">${escapeHtml(opts.headerTitle)}</h1>
           <div class="location-actions">
             ${opts.headerActions || ''}
           </div>

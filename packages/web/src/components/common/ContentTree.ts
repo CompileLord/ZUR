@@ -1,3 +1,5 @@
+import { escapeHtml } from '../escape-html.ts';
+
 export interface TreeStepNode {
   id: string;
   title: string;
@@ -40,15 +42,15 @@ export function renderContentTree(props: ContentTreeProps): string {
                   class="tree-node step-node ${isSelected ? 'selected' : ''}"
                   role="treeitem"
                   aria-selected="${Boolean(isSelected)}"
-                  data-id="${step.id}"
+                  data-id="${escapeHtml(step.id)}"
                   data-type="step"
                   tabindex="${isSelected ? 0 : -1}"
                 >
                   <div class="tree-node-row indent-2">
                     <span class="tree-type-tag">${step.type}</span>
-                    <span class="tree-node-title">${step.title}</span>
+                    <span class="tree-node-title">${escapeHtml(step.title)}</span>
                     <div class="tree-node-actions">
-                      <button type="button" class="btn-icon btn-compact" aria-label="Move ${step.title}">⋮</button>
+                      <button type="button" class="btn-icon btn-compact" aria-label="Move ${escapeHtml(step.title)}">⋮</button>
                     </div>
                   </div>
                 </li>
@@ -63,15 +65,15 @@ export function renderContentTree(props: ContentTreeProps): string {
               role="treeitem"
               aria-expanded="${les.isExpanded !== false}"
               aria-selected="${Boolean(isLesSelected)}"
-              data-id="${les.id}"
+              data-id="${escapeHtml(les.id)}"
               data-type="lesson"
             >
               <div class="tree-node-row indent-1">
-                <button type="button" class="tree-disclosure-btn" aria-label="Toggle lesson ${les.title}">▼</button>
-                <span class="tree-node-title">${les.title}</span>
+                <button type="button" class="tree-disclosure-btn" aria-label="Toggle lesson ${escapeHtml(les.title)}">▼</button>
+                <span class="tree-node-title">${escapeHtml(les.title)}</span>
                 <span class="tree-node-count">(${les.steps.length})</span>
                 <div class="tree-node-actions">
-                  <button type="button" class="btn-icon btn-compact" aria-label="Move ${les.title}">⋮</button>
+                  <button type="button" class="btn-icon btn-compact" aria-label="Move ${escapeHtml(les.title)}">⋮</button>
                 </div>
               </div>
               <ul class="tree-children" role="group">
@@ -89,12 +91,12 @@ export function renderContentTree(props: ContentTreeProps): string {
           role="treeitem"
           aria-expanded="${mod.isExpanded !== false}"
           aria-selected="${Boolean(isModSelected)}"
-          data-id="${mod.id}"
+            data-id="${escapeHtml(mod.id)}"
           data-type="module"
         >
           <div class="tree-node-row indent-0">
-            <button type="button" class="tree-disclosure-btn" aria-label="Toggle module ${mod.title}">▼</button>
-            <span class="tree-node-title font-semibold">${mod.title}</span>
+            <button type="button" class="tree-disclosure-btn" aria-label="Toggle module ${escapeHtml(mod.title)}">▼</button>
+            <span class="tree-node-title font-semibold">${escapeHtml(mod.title)}</span>
             <div class="tree-node-actions">
               <button type="button" class="btn-icon btn-compact" aria-label="Module options">⋮</button>
             </div>
@@ -110,9 +112,9 @@ export function renderContentTree(props: ContentTreeProps): string {
   return `
     <div class="content-tree-container" role="region" aria-label="Course Structure Tree">
       <div class="tree-header">
-        <span class="tree-course-heading">${props.courseTitle}</span>
+        <span class="tree-course-heading">${escapeHtml(props.courseTitle)}</span>
       </div>
-      <ul class="content-tree-root" role="tree" aria-label="${props.courseTitle} outline">
+      <ul class="content-tree-root" role="tree" aria-label="${escapeHtml(props.courseTitle)} outline">
         ${modulesHtml}
       </ul>
       <div class="tree-footer">

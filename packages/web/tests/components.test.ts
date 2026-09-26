@@ -13,6 +13,13 @@ import {
 } from '../src/components/common/index.ts';
 
 test('Accessible Shared Components (design.md §6, T010)', async (t) => {
+  await t.test('ContentTree escapes titles and attribute values', () => {
+    const hostile = '" onmouseover="alert(1)<svg/onload=alert(1)>';
+    const html = renderContentTree({ courseTitle: hostile, modules: [{ id: hostile, title: hostile, lessons: [{ id: hostile, title: hostile, steps: [{ id: hostile, title: hostile, type: 'theory' }] }] }] });
+    assert.ok(html.includes('&quot; onmouseover=&quot;alert(1)&lt;svg/onload=alert(1)&gt;'));
+    assert.ok(!html.includes('<svg'));
+    assert.ok(!html.includes('data-id="" onmouseover'));
+  });
   await t.test('Button variants, accessible names, and disabled states', () => {
     const primary = renderButton({ label: 'Submit solution', variant: 'primary' });
     assert.strictEqual(primary.includes('btn-primary'), true);

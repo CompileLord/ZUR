@@ -61,6 +61,14 @@ test('Reusable Layout Shells S1–S6 (design.md §5, T009)', async (t) => {
     assert.strictEqual(html.includes('Continue learning'), true);
   });
 
+  await t.test('S3 treats account names as text', () => {
+    const html = renderAppShell({ activePath: '/learn', user: { displayName: '<img src=x onerror="alert(1)">', email: 'x@example.test', capabilities: ['student'] }, headerTitle: '<script>alert(1)</script>', content: '' });
+    assert.ok(html.includes('&lt;img src=x onerror=&quot;alert(1)&quot;&gt;'));
+    assert.ok(html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
+    assert.ok(!html.includes('<img src=x'));
+    assert.ok(!html.includes('<script>alert(1)</script>'));
+  });
+
   await t.test('S4 Learning Workspace paired layout & compact guidance for Python', () => {
     const html = renderLearningWorkspaceShell({
       courseTitle: 'Python foundations',
