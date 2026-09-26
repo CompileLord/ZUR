@@ -6,7 +6,7 @@ const instances = new Map<string, DatabaseSync>();
 
 export function getDatabase(dbPath?: string): DatabaseSync {
   const targetPath = dbPath || process.env.DATABASE_URL || 'data/zur.sqlite';
-  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(targetPath) || process.env.NODE_ENV === 'production' && targetPath === 'data/zur.sqlite') {
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(targetPath) || process.env.NODE_ENV === 'production') {
     throw new Error('This build supports SQLite file paths only. Configure a database adapter before staging or production deployment.');
   }
 
