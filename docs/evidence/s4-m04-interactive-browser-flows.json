@@ -64,11 +64,11 @@
       "initialProbe": "Skip to content\n← Courses\n/\nPython foundations\nPublished\nSaved\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\n← Back to Course Builder\nReview publication\n\nValidate the saved draft, review issues and warnings, and confirm the version impact.\n\nDraft Rev 1\n\n✓ Pre-publish checklist passed with 0 blocking errors\n\nCourse Summary\nCOURSE TITLE\n\nPython foundations\n\nDISCOVERABILITY\n\nPublic\n\nENROLLMENT POLICY\n\nOpen\n\nVersion Impact Summary\n\nExisting students will continue on their current version. New enrollments will receive this update.\n\nCurrent published version: Version 2\nNew version to publish: Version 3\nActive enrolled students: 3\nReady to publish immutable release snapshot.\nPublish Version 3",
       "initialApiResponses": [
         {
-          "url": "http://127.0.0.1:42237/api/author/courses/course-python-foundations",
+          "url": "http://127.0.0.1:33603/api/author/courses/course-python-foundations",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/courses/course-python-foundations/validate",
+          "url": "http://127.0.0.1:33603/api/author/courses/course-python-foundations/validate",
           "status": 200
         }
       ],
@@ -99,10 +99,10 @@
             900
           ],
           "publishResponse": {
-            "url": "http://127.0.0.1:42237/api/author/courses/course-python-foundations/publish",
+            "url": "http://127.0.0.1:33603/api/author/courses/course-python-foundations/publish",
             "status": 200
           },
-          "receiptText": "Released Version 3\n2026-09-26T18:48:09.163Z\n\nVersion ID: fe4632a2-9ef1-4bc1-8a37-14175fef988b\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
+          "receiptText": "Released Version 3\n2026-09-26T20:15:48.270Z\n\nVersion ID: f4bcb8b6-e3bc-49f9-8757-8e4171069900\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
           "screenshot": "screenshots/s4_t087_p27_publish_receipt_1440x900_light.png"
         }
       ],
@@ -122,9 +122,9 @@
             "bodyScrollWidth": 390
           },
           "horizontalOverflow": false,
-          "receiptText": "Released Version 3\n2026-09-26T18:48:09.163Z\n\nVersion ID: fe4632a2-9ef1-4bc1-8a37-14175fef988b\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
+          "receiptText": "Released Version 3\n2026-09-26T20:15:48.270Z\n\nVersion ID: f4bcb8b6-e3bc-49f9-8757-8e4171069900\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
           "publishResponse": {
-            "url": "http://127.0.0.1:42237/api/author/courses/course-python-foundations/publish",
+            "url": "http://127.0.0.1:33603/api/author/courses/course-python-foundations/publish",
             "status": 200
           },
           "screenshot": "screenshots/s4_t087_p27_publish_receipt_390x844_dark.png"
@@ -144,9 +144,9 @@
             "bodyScrollWidth": 320
           },
           "horizontalOverflow": false,
-          "receiptText": "Released Version 3\n2026-09-26T18:48:09.163Z\n\nVersion ID: fe4632a2-9ef1-4bc1-8a37-14175fef988b\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
+          "receiptText": "Released Version 3\n2026-09-26T20:15:48.270Z\n\nVersion ID: f4bcb8b6-e3bc-49f9-8757-8e4171069900\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
           "publishResponse": {
-            "url": "http://127.0.0.1:42237/api/author/courses/course-python-foundations/publish",
+            "url": "http://127.0.0.1:33603/api/author/courses/course-python-foundations/publish",
             "status": 200
           },
           "screenshot": "screenshots/s4_t087_p27_publish_receipt_320x844_dark.png"
@@ -166,9 +166,9 @@
             "bodyScrollWidth": 390
           },
           "horizontalOverflow": false,
-          "receiptText": "Released Version 3\n2026-09-26T18:48:09.163Z\n\nVersion ID: fe4632a2-9ef1-4bc1-8a37-14175fef988b\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
+          "receiptText": "Released Version 3\n2026-09-26T20:15:48.270Z\n\nVersion ID: f4bcb8b6-e3bc-49f9-8757-8e4171069900\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
           "publishResponse": {
-            "url": "http://127.0.0.1:42237/api/author/courses/course-python-foundations/publish",
+            "url": "http://127.0.0.1:33603/api/author/courses/course-python-foundations/publish",
             "status": 200
           },
           "screenshot": "screenshots/s4_t087_p27_publish_receipt_390x844_light.png"
@@ -188,9 +188,9 @@
             "bodyScrollWidth": 320
           },
           "horizontalOverflow": false,
-          "receiptText": "Released Version 3\n2026-09-26T18:48:09.163Z\n\nVersion ID: fe4632a2-9ef1-4bc1-8a37-14175fef988b\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
+          "receiptText": "Released Version 3\n2026-09-26T20:15:48.270Z\n\nVersion ID: f4bcb8b6-e3bc-49f9-8757-8e4171069900\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
           "publishResponse": {
-            "url": "http://127.0.0.1:42237/api/author/courses/course-python-foundations/publish",
+            "url": "http://127.0.0.1:33603/api/author/courses/course-python-foundations/publish",
             "status": 200
           },
           "screenshot": "screenshots/s4_t087_p27_publish_receipt_320x844_light.png"
@@ -384,7 +384,7 @@
             900
           ],
           "resetResponse": {
-            "url": "http://127.0.0.1:42237/api/drafts/reset",
+            "url": "http://127.0.0.1:33603/api/drafts/reset",
             "status": 409
           },
           "localCodePreserved": true,
@@ -394,7 +394,7 @@
       "states": [
         {
           "theme": "dark",
-          "sampleText": "Samples passed. Submit your solution to complete this step.\n31 ms\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
+          "sampleText": "Samples passed. Submit your solution to complete this step.\n30 ms\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
           "submitText": "Verdict: WRONG_ANSWER\nYour solution did not pass a hidden test. Review the input limits and edge cases.\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
           "safeHiddenResult": {
             "text": "Verdict: WRONG_ANSWER\nYour solution did not pass a hidden test. Review the input limits and edge cases.\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
@@ -406,22 +406,22 @@
           "saveIndicator": "Saved",
           "apiRequests": [
             {
-              "url": "http://127.0.0.1:42237/api/drafts",
+              "url": "http://127.0.0.1:33603/api/drafts",
               "method": "PUT"
             },
             {
-              "url": "http://127.0.0.1:42237/api/execution/run-samples",
+              "url": "http://127.0.0.1:33603/api/execution/run-samples",
               "method": "POST"
             },
             {
-              "url": "http://127.0.0.1:42237/api/execution/submit",
+              "url": "http://127.0.0.1:33603/api/execution/submit",
               "method": "POST"
             }
           ]
         },
         {
           "theme": "light",
-          "sampleText": "Samples passed. Submit your solution to complete this step.\n34 ms\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
+          "sampleText": "Samples passed. Submit your solution to complete this step.\n29 ms\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
           "submitText": "Verdict: WRONG_ANSWER\nYour solution did not pass a hidden test. Review the input limits and edge cases.\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
           "safeHiddenResult": {
             "text": "Verdict: WRONG_ANSWER\nYour solution did not pass a hidden test. Review the input limits and edge cases.\nPassed\nTest #1\nInput\n4\nExpected Output\nEven\nReceived Output\nEven\n\nPassed\nTest #2\nInput\n(empty)\nExpected Output\nEmpty\nReceived Output\nEmpty\n",
@@ -433,27 +433,27 @@
           "saveIndicator": "Saved",
           "apiRequests": [
             {
-              "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+              "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
               "method": "GET"
             },
             {
-              "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+              "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
               "method": "GET"
             },
             {
-              "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+              "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
               "method": "GET"
             },
             {
-              "url": "http://127.0.0.1:42237/api/drafts",
+              "url": "http://127.0.0.1:33603/api/drafts",
               "method": "PUT"
             },
             {
-              "url": "http://127.0.0.1:42237/api/execution/run-samples",
+              "url": "http://127.0.0.1:33603/api/execution/run-samples",
               "method": "POST"
             },
             {
-              "url": "http://127.0.0.1:42237/api/execution/submit",
+              "url": "http://127.0.0.1:33603/api/execution/submit",
               "method": "POST"
             }
           ]
@@ -462,7 +462,7 @@
       "passingCompletion": {
         "state": "actual learner submission passed against enrollment-pinned immutable tests; step completion persisted",
         "submitResponse": {
-          "url": "http://127.0.0.1:42237/api/execution/submit",
+          "url": "http://127.0.0.1:33603/api/execution/submit",
           "status": 200
         },
         "stepId": "step-6-python-evenodd",
@@ -475,7 +475,7 @@
       "twoTabConflict": {
         "firstTabSavedAcknowledged": true,
         "secondTabConflictStatus": {
-          "url": "http://127.0.0.1:42237/api/drafts",
+          "url": "http://127.0.0.1:33603/api/drafts",
           "status": 409
         },
         "serverRevisionBeforeChoice": 5,
@@ -484,7 +484,7 @@
         "explicitConflictNotice": "A newer server draft exists. Your local code is preserved on this device.Keep my local codeUse saved server code",
         "keepLocalChoice": "Keep my local code",
         "keepLocalResolutionSaveResponse": {
-          "url": "http://127.0.0.1:42237/api/drafts",
+          "url": "http://127.0.0.1:33603/api/drafts",
           "status": 200
         },
         "resolvedRevision": 6,
@@ -494,7 +494,7 @@
         "keepLocalConflictScreenshot": "screenshots/s4_t087_p15_two_tab_draft_conflict_recovery_1440x900_dark.png",
         "keepLocalResolvedScreenshot": "screenshots/s4_t087_p15_two_tab_draft_conflict_resolved_1440x900_dark.png",
         "useServerConflictResponse": {
-          "url": "http://127.0.0.1:42237/api/drafts",
+          "url": "http://127.0.0.1:33603/api/drafts",
           "status": 409
         },
         "useServerChoice": "Use saved server code",
@@ -760,7 +760,7 @@
         "remoteEditStatus": 200,
         "remoteRevision": 8,
         "conflictResponse": {
-          "url": "http://127.0.0.1:42237/api/drafts/reset",
+          "url": "http://127.0.0.1:33603/api/drafts/reset",
           "status": 409
         },
         "localCodePreserved": true,
@@ -769,487 +769,487 @@
       },
       "apiResponses": [
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts",
+          "url": "http://127.0.0.1:33603/api/drafts",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/execution/run-samples",
+          "url": "http://127.0.0.1:33603/api/execution/run-samples",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/execution/submit",
+          "url": "http://127.0.0.1:33603/api/execution/submit",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts",
+          "url": "http://127.0.0.1:33603/api/drafts",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/execution/run-samples",
+          "url": "http://127.0.0.1:33603/api/execution/run-samples",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/execution/submit",
+          "url": "http://127.0.0.1:33603/api/execution/submit",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts",
+          "url": "http://127.0.0.1:33603/api/drafts",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts",
+          "url": "http://127.0.0.1:33603/api/drafts",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/execution/submit",
+          "url": "http://127.0.0.1:33603/api/execution/submit",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/student/dashboard",
+          "url": "http://127.0.0.1:33603/api/student/dashboard",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts",
+          "url": "http://127.0.0.1:33603/api/drafts",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts",
+          "url": "http://127.0.0.1:33603/api/drafts",
           "status": 409
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/learn/enr-ada/steps/step-6-python-evenodd/content",
+          "url": "http://127.0.0.1:33603/api/learn/enr-ada/steps/step-6-python-evenodd/content",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts",
+          "url": "http://127.0.0.1:33603/api/drafts",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/drafts/reset",
+          "url": "http://127.0.0.1:33603/api/drafts/reset",
           "status": 409
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "url": "http://127.0.0.1:33603/api/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "url": "http://127.0.0.1:33603/api/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "url": "http://127.0.0.1:33603/api/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "url": "http://127.0.0.1:33603/api/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "url": "http://127.0.0.1:33603/api/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "url": "http://127.0.0.1:33603/api/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "url": "http://127.0.0.1:33603/api/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "url": "http://127.0.0.1:33603/api/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "url": "http://127.0.0.1:33603/api/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/enrollments/enr-ada/steps/step-6-python-evenodd",
+          "url": "http://127.0.0.1:33603/api/enrollments/enr-ada/steps/step-6-python-evenodd",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
+          "url": "http://127.0.0.1:33603/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd&limit=10&offset=0",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "url": "http://127.0.0.1:33603/api/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/auth/sign-in",
+          "url": "http://127.0.0.1:33603/api/auth/sign-in",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens?status=all",
+          "url": "http://127.0.0.1:33603/api/author/tokens?status=all",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens",
+          "url": "http://127.0.0.1:33603/api/author/tokens",
           "status": 401
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens?status=all",
+          "url": "http://127.0.0.1:33603/api/author/tokens?status=all",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens?status=all",
+          "url": "http://127.0.0.1:33603/api/author/tokens?status=all",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens",
+          "url": "http://127.0.0.1:33603/api/author/tokens",
           "status": 201
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens?status=all",
+          "url": "http://127.0.0.1:33603/api/author/tokens?status=all",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens?status=all",
+          "url": "http://127.0.0.1:33603/api/author/tokens?status=all",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens?status=all",
+          "url": "http://127.0.0.1:33603/api/author/tokens?status=all",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens/tok-cf280cfa-9f02-4160-9791-7223504166b5",
+          "url": "http://127.0.0.1:33603/api/author/tokens/tok-bf805954-977f-48e3-89d0-d67bf937db1f",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens?status=revoked",
+          "url": "http://127.0.0.1:33603/api/author/tokens?status=revoked",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens?status=all",
+          "url": "http://127.0.0.1:33603/api/author/tokens?status=all",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens?status=revoked",
+          "url": "http://127.0.0.1:33603/api/author/tokens?status=revoked",
           "status": 200
         },
         {
-          "url": "http://127.0.0.1:42237/api/author/tokens?status=revoked",
+          "url": "http://127.0.0.1:33603/api/author/tokens?status=revoked",
           "status": 200
         }
       ]
@@ -1258,7 +1258,7 @@
       "result": "P15 Attempts link opens the registered authenticated history route and read-only attempt detail; hidden-test failure timing is omitted from both API responses and rendered history.",
       "status": 200,
       "detailStatus": 200,
-      "attemptId": "attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+      "attemptId": "attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
       "listHasTiming": false,
       "detailHasTiming": false,
       "attemptNumber": 2,
@@ -1280,7 +1280,7 @@
           "screenshot": "screenshots/s4_t087_p16_hidden_failure_attempt_history_1440x900_light.png"
         },
         {
-          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "theme": "light",
           "viewport": [
             1440,
@@ -1365,7 +1365,7 @@
         {
           "theme": "dark",
           "view": "detail",
-          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "viewport": [
             390,
             844
@@ -1384,7 +1384,7 @@
         {
           "theme": "dark",
           "view": "detail",
-          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "viewport": [
             320,
             844
@@ -1409,7 +1409,7 @@
         {
           "theme": "dark",
           "view": "detail",
-          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "viewport": [
             768,
             1024
@@ -1428,7 +1428,7 @@
         {
           "theme": "dark",
           "view": "detail",
-          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "viewport": [
             1440,
             900
@@ -1525,7 +1525,7 @@
         {
           "theme": "light",
           "view": "detail",
-          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "viewport": [
             390,
             844
@@ -1544,7 +1544,7 @@
         {
           "theme": "light",
           "view": "detail",
-          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "viewport": [
             320,
             844
@@ -1569,7 +1569,7 @@
         {
           "theme": "light",
           "view": "detail",
-          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "viewport": [
             768,
             1024
@@ -1588,7 +1588,7 @@
         {
           "theme": "light",
           "view": "detail",
-          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "viewport": [
             1440,
             900
@@ -1644,6 +1644,57 @@
           "state": "reauth_error",
           "theme": "dark",
           "viewport": [
+            1024,
+            768
+          ],
+          "measured": {
+            "width": 1024,
+            "height": 768,
+            "dpr": 1,
+            "scrollWidth": 1024,
+            "bodyScrollWidth": 1024
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_reauth_error_1024x768_dark.png"
+        },
+        {
+          "state": "reauth_error",
+          "theme": "dark",
+          "viewport": [
+            768,
+            1024
+          ],
+          "measured": {
+            "width": 768,
+            "height": 1024,
+            "dpr": 1,
+            "scrollWidth": 768,
+            "bodyScrollWidth": 768
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_reauth_error_768x1024_dark.png"
+        },
+        {
+          "state": "reauth_error",
+          "theme": "dark",
+          "viewport": [
+            390,
+            844
+          ],
+          "measured": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1,
+            "scrollWidth": 390,
+            "bodyScrollWidth": 390
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_reauth_error_390x844_dark.png"
+        },
+        {
+          "state": "reauth_error",
+          "theme": "dark",
+          "viewport": [
             320,
             844
           ],
@@ -1673,6 +1724,57 @@
           },
           "horizontalOverflow": false,
           "screenshot": "screenshots/s4_t087_p43_reauth_error_1440x900_light.png"
+        },
+        {
+          "state": "reauth_error",
+          "theme": "light",
+          "viewport": [
+            1024,
+            768
+          ],
+          "measured": {
+            "width": 1024,
+            "height": 768,
+            "dpr": 1,
+            "scrollWidth": 1024,
+            "bodyScrollWidth": 1024
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_reauth_error_1024x768_light.png"
+        },
+        {
+          "state": "reauth_error",
+          "theme": "light",
+          "viewport": [
+            768,
+            1024
+          ],
+          "measured": {
+            "width": 768,
+            "height": 1024,
+            "dpr": 1,
+            "scrollWidth": 768,
+            "bodyScrollWidth": 768
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_reauth_error_768x1024_light.png"
+        },
+        {
+          "state": "reauth_error",
+          "theme": "light",
+          "viewport": [
+            390,
+            844
+          ],
+          "measured": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1,
+            "scrollWidth": 390,
+            "bodyScrollWidth": 390
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_reauth_error_390x844_light.png"
         },
         {
           "state": "reauth_error",
@@ -1713,6 +1815,60 @@
           "state": "one_time_secret",
           "theme": "dark",
           "viewport": [
+            1024,
+            768
+          ],
+          "measured": {
+            "width": 1024,
+            "height": 768,
+            "dpr": 1,
+            "scrollWidth": 1024,
+            "bodyScrollWidth": 1024
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_one_time_secret_1024x768_dark.png",
+          "secretMasked": true
+        },
+        {
+          "state": "one_time_secret",
+          "theme": "dark",
+          "viewport": [
+            768,
+            1024
+          ],
+          "measured": {
+            "width": 768,
+            "height": 1024,
+            "dpr": 1,
+            "scrollWidth": 768,
+            "bodyScrollWidth": 768
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_one_time_secret_768x1024_dark.png",
+          "secretMasked": true
+        },
+        {
+          "state": "one_time_secret",
+          "theme": "dark",
+          "viewport": [
+            390,
+            844
+          ],
+          "measured": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1,
+            "scrollWidth": 390,
+            "bodyScrollWidth": 390
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_one_time_secret_390x844_dark.png",
+          "secretMasked": true
+        },
+        {
+          "state": "one_time_secret",
+          "theme": "dark",
+          "viewport": [
             320,
             844
           ],
@@ -1743,6 +1899,60 @@
           },
           "horizontalOverflow": false,
           "screenshot": "screenshots/s4_t087_p43_one_time_secret_1440x900_light.png",
+          "secretMasked": true
+        },
+        {
+          "state": "one_time_secret",
+          "theme": "light",
+          "viewport": [
+            1024,
+            768
+          ],
+          "measured": {
+            "width": 1024,
+            "height": 768,
+            "dpr": 1,
+            "scrollWidth": 1024,
+            "bodyScrollWidth": 1024
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_one_time_secret_1024x768_light.png",
+          "secretMasked": true
+        },
+        {
+          "state": "one_time_secret",
+          "theme": "light",
+          "viewport": [
+            768,
+            1024
+          ],
+          "measured": {
+            "width": 768,
+            "height": 1024,
+            "dpr": 1,
+            "scrollWidth": 768,
+            "bodyScrollWidth": 768
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_one_time_secret_768x1024_light.png",
+          "secretMasked": true
+        },
+        {
+          "state": "one_time_secret",
+          "theme": "light",
+          "viewport": [
+            390,
+            844
+          ],
+          "measured": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1,
+            "scrollWidth": 390,
+            "bodyScrollWidth": 390
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_one_time_secret_390x844_light.png",
           "secretMasked": true
         },
         {
@@ -1801,6 +2011,57 @@
           "state": "revoked_status",
           "theme": "dark",
           "viewport": [
+            1024,
+            768
+          ],
+          "measured": {
+            "width": 1024,
+            "height": 768,
+            "dpr": 1,
+            "scrollWidth": 1024,
+            "bodyScrollWidth": 1024
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_revoked_status_1024x768_dark.png"
+        },
+        {
+          "state": "revoked_status",
+          "theme": "dark",
+          "viewport": [
+            768,
+            1024
+          ],
+          "measured": {
+            "width": 768,
+            "height": 1024,
+            "dpr": 1,
+            "scrollWidth": 768,
+            "bodyScrollWidth": 768
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_revoked_status_768x1024_dark.png"
+        },
+        {
+          "state": "revoked_status",
+          "theme": "dark",
+          "viewport": [
+            390,
+            844
+          ],
+          "measured": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1,
+            "scrollWidth": 390,
+            "bodyScrollWidth": 390
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_revoked_status_390x844_dark.png"
+        },
+        {
+          "state": "revoked_status",
+          "theme": "dark",
+          "viewport": [
             320,
             844
           ],
@@ -1830,6 +2091,57 @@
           },
           "horizontalOverflow": false,
           "screenshot": "screenshots/s4_t087_p43_revoked_status_1440x900_light.png"
+        },
+        {
+          "state": "revoked_status",
+          "theme": "light",
+          "viewport": [
+            1024,
+            768
+          ],
+          "measured": {
+            "width": 1024,
+            "height": 768,
+            "dpr": 1,
+            "scrollWidth": 1024,
+            "bodyScrollWidth": 1024
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_revoked_status_1024x768_light.png"
+        },
+        {
+          "state": "revoked_status",
+          "theme": "light",
+          "viewport": [
+            768,
+            1024
+          ],
+          "measured": {
+            "width": 768,
+            "height": 1024,
+            "dpr": 1,
+            "scrollWidth": 768,
+            "bodyScrollWidth": 768
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_revoked_status_768x1024_light.png"
+        },
+        {
+          "state": "revoked_status",
+          "theme": "light",
+          "viewport": [
+            390,
+            844
+          ],
+          "measured": {
+            "width": 390,
+            "height": 844,
+            "dpr": 1,
+            "scrollWidth": 390,
+            "bodyScrollWidth": 390
+          },
+          "horizontalOverflow": false,
+          "screenshot": "screenshots/s4_t087_p43_revoked_status_390x844_light.png"
         },
         {
           "state": "revoked_status",
@@ -1967,7 +2279,7 @@
         },
         {
           "id": "s4_t087_p16_live_detail",
-          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "theme": "dark",
           "browserZoomPercent": 200,
           "baseline": {
@@ -2045,7 +2357,7 @@
         },
         {
           "id": "s4_t087_p16_live_detail",
-          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-faa2114b-c4cf-44e8-9518-40572cefd531",
+          "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts/attempt-7d295a80-25a3-4c3c-a5f7-9192e5b864ec",
           "theme": "light",
           "browserZoomPercent": 200,
           "baseline": {
@@ -2095,7 +2407,7 @@
             "bodyScrollWidth": 768
           },
           "horizontalOverflow": false,
-          "receiptText": "Released Version 4\n2026-09-26T18:48:50.019Z\n\nVersion ID: cddcf989-9ca6-451f-854f-0dd74483fd7e\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
+          "receiptText": "Released Version 4\n2026-09-26T20:16:27.229Z\n\nVersion ID: 028243b7-9219-4d1e-8c3f-522a6b8e43a1\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
           "screenshot": "screenshots/s4_t087_p27_publish_receipt_200zoom_dark_gui.png"
         },
         {
@@ -2122,7 +2434,7 @@
             "bodyScrollWidth": 768
           },
           "horizontalOverflow": false,
-          "receiptText": "Released Version 4\n2026-09-26T18:48:50.019Z\n\nVersion ID: cddcf989-9ca6-451f-854f-0dd74483fd7e\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
+          "receiptText": "Released Version 4\n2026-09-26T20:16:27.229Z\n\nVersion ID: 028243b7-9219-4d1e-8c3f-522a6b8e43a1\n\nActive enrolled students continuing on earlier releases: 3\n\nBack to editor\nView course\nInvite students",
           "screenshot": "screenshots/s4_t087_p27_publish_receipt_200zoom_light_gui.png"
         }
       ]

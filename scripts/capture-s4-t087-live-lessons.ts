@@ -144,24 +144,29 @@ try {
     if(kind==='p13_video_transcript'&&!state.hasTranscript)throw new Error('P13 transcript missing');
     captures.push({route,theme,viewport:[width,height],measured,horizontalOverflow:measured.scrollWidth>width||measured.bodyScrollWidth>width||state.contentScrollWidth>width,state,screenshot:file});
   };
-  for(const theme of ['dark','light'] as const)for(const [width,height] of [[320,844],[390,844],[768,1024],[1440,900]] as const){
+  for(const theme of ['dark','light'] as const)for(const [width,height] of [[320,844],[390,844],[768,1024],[1024,768],[1440,900]] as const){
     await capture('p12_theory_authorized_image',theme,width,height);
     await capture('p13_video_transcript',theme,width,height);
   }
   await send('Network.setBlockedURLs',{urls:['*youtube-nocookie.com/*']});
-  await evaluate("localStorage.setItem('zur_theme_preference','light');document.documentElement.setAttribute('data-theme','light')");
-  await navigate(`${origin}/learn/enr-ada/steps/step-2-video/video`);
-  await wait('Boolean(document.querySelector(".video-step-content .transcript-content"))',Boolean,'P13 failure-state transcript');
-  await wait('document.querySelector("[data-video-fallback]")?.hidden===false',Boolean,'P13 blocked-video failure recovery').catch(async()=>{throw new Error(String(await evaluate("JSON.stringify({url:location.href,body:document.body.innerText.slice(-500),fallback:document.querySelector('[data-video-fallback]')?.outerHTML,frames:[...document.querySelectorAll('iframe')].map(x=>x.src)})")))});
-  const failureMeasured=await viewport(1440,900);
-  const failureShot=await send('Page.captureScreenshot',{format:'png',fromSurface:true});
-  const failureScreenshot='screenshots/s4_t087_p13_blocked_video_transcript_recovery_1440x900_light.png';
-  fs.writeFileSync(path.join(root,failureScreenshot),Buffer.from(failureShot.data,'base64'));
-  const failureState=await evaluate("(()=>({fallback:document.querySelector('[data-video-fallback]')?.innerText,transcript:document.querySelector('.transcript-content')?.innerText,iframeSrc:document.querySelector('.video-embed-iframe')?.src,viewport:{width:innerWidth,height:innerHeight}}))()");
-  if(!String(failureState.fallback).includes('Retry video')||!String(failureState.transcript).includes('Welcome to this lesson'))throw new Error('P13 failed-player retry/transcript recovery state is incomplete');
-  const retryAction=await evaluate("(()=>{const before=document.querySelector('.video-embed-iframe')?.src;document.querySelector('[data-video-retry]')?.click();return {before,after:document.querySelector('.video-embed-iframe')?.src,fallbackHidden:document.querySelector('[data-video-fallback]')?.hidden}})()");
-  if(!retryAction.fallbackHidden||retryAction.before===retryAction.after||!String(retryAction.after).includes('zur_retry='))throw new Error(`P13 retry control did not reload the authorized provider: ${JSON.stringify(retryAction)}`);
-  const mediaFailureCapture={route:'/learn/enr-ada/steps/step-2-video/video',theme:'light',viewport:[1440,900],measured:failureMeasured,state:failureState,retryAction,screenshot:failureScreenshot};
+  const mediaFailureCaptures:Array<Record<string,unknown>>=[];
+  for(const theme of ['dark','light'] as const)for(const [width,height] of [[320,844],[390,844],[768,1024],[1024,768],[1440,900]] as const){
+    await evaluate(`localStorage.setItem('zur_theme_preference','${theme}');document.documentElement.setAttribute('data-theme','${theme}')`);
+    await navigate(`${origin}/learn/enr-ada/steps/step-2-video/video`);
+    await wait('Boolean(document.querySelector(".video-step-content .transcript-content"))',Boolean,'P13 failure-state transcript');
+    await wait('document.querySelector("[data-video-fallback]")?.hidden===false',Boolean,'P13 blocked-video failure recovery').catch(async()=>{throw new Error(String(await evaluate("JSON.stringify({url:location.href,body:document.body.innerText.slice(-500),fallback:document.querySelector('[data-video-fallback]')?.outerHTML,frames:[...document.querySelectorAll('iframe')].map(x=>x.src)})")))});
+    const failureMeasured=await viewport(width,height);
+    if(failureMeasured.width!==width||failureMeasured.height!==height)throw new Error(`P13 failure viewport assertion failed: ${JSON.stringify(failureMeasured)}`);
+    const failureShot=await send('Page.captureScreenshot',{format:'png',fromSurface:true});
+    const failureScreenshot=`screenshots/s4_t087_p13_blocked_video_transcript_recovery_${width}x${height}_${theme}.png`;
+    fs.writeFileSync(path.join(root,failureScreenshot),Buffer.from(failureShot.data,'base64'));
+    const failureState=await evaluate("(()=>({fallback:document.querySelector('[data-video-fallback]')?.innerText,transcript:document.querySelector('.transcript-content')?.innerText,iframeSrc:document.querySelector('.video-embed-iframe')?.src,viewport:{width:innerWidth,height:innerHeight},scrollWidth:document.documentElement.scrollWidth,bodyScrollWidth:document.body.scrollWidth}))()");
+    if(!String(failureState.fallback).includes('Retry video')||!String(failureState.transcript).includes('Welcome to this lesson'))throw new Error('P13 failed-player retry/transcript recovery state is incomplete');
+    const retryAction=await evaluate("(()=>{const before=document.querySelector('.video-embed-iframe')?.src;document.querySelector('[data-video-retry]')?.click();return {before,after:document.querySelector('.video-embed-iframe')?.src,fallbackHidden:document.querySelector('[data-video-fallback]')?.hidden}})()");
+    if(!retryAction.fallbackHidden||retryAction.before===retryAction.after||!String(retryAction.after).includes('zur_retry='))throw new Error(`P13 retry control did not reload the authorized provider: ${JSON.stringify(retryAction)}`);
+    mediaFailureCaptures.push({route:'/learn/enr-ada/steps/step-2-video/video',theme,viewport:[width,height],measured:failureMeasured,state:failureState,retryAction,horizontalOverflow:failureMeasured.scrollWidth>width||failureMeasured.bodyScrollWidth>width||failureState.scrollWidth>width||failureState.bodyScrollWidth>width,screenshot:failureScreenshot});
+  }
+  const mediaFailureCapture=mediaFailureCaptures.find(x=>x.theme==='light'&&JSON.stringify(x.viewport)==='[1440,900]');
   await send('Network.setBlockedURLs',{urls:[]});
   await evaluate("localStorage.setItem('zur_theme_preference','dark')");
   await navigate(`${origin}/learn/enr-ada/steps/step-1-theory`);
@@ -181,9 +186,9 @@ try {
   db.prepare("UPDATE enrollments SET status='revoked' WHERE id='enr-ada'").run();
   const revoked=await evaluate(`(async()=>{const h={Authorization:'Bearer '+localStorage.getItem('zur_session_token')};const step=await fetch('/api/enrollments/enr-ada/steps/step-1-theory',{headers:h});const file=await fetch('/api/assets/${asset.id}',{headers:h,cache:'no-store'});return {stepStatus:step.status,assetStatus:file.status}})()`);
   if(revoked.stepStatus!==404||revoked.assetStatus!==404)throw new Error(`revoked enrollment still had lesson/media access: ${JSON.stringify(revoked)}`);
-  const report={method:'Actual headless Chrome against local Vite client and in-process server with an isolated seeded SQLite fixture. Student signed in through the app form; viewport dimensions asserted from window.innerWidth/innerHeight before every capture. Inline image bytes were uploaded to the local fixture and referenced by the immutable version pinned to enr-ada. Video failure state uses CDP Network.setBlockedURLs against the external video provider; the real transcript stays available. Actual 200% evidence uses headful Chrome UI zoom selected in chrome://settings/appearance.',fixture:{enrollment:'enr-ada',pinnedVersion:'version-2-snapshot',attachedAssetId:asset.id,unusedAssetId:privateUnused.id},authorizationProbes:probes,revokedEnrollmentProbe:revoked,captures,mediaFailureCapture,completion:{...completion,viewport:[completionViewport.width,completionViewport.height],screenshot:completionScreenshot},trueZoom};
+  const report={method:'Actual headless Chrome against local Vite client and in-process server with an isolated seeded SQLite fixture. Student signed in through the app form; viewport dimensions asserted by window.innerWidth/innerHeight before every capture. Inline image bytes were uploaded to the local fixture and referenced by the immutable version pinned to enr-ada. Video failure state uses CDP Network.setBlockedURLs against the external video provider; the real transcript stays available. Actual 200% evidence uses headful Chrome UI zoom selected in chrome://settings/appearance.',fixture:{enrollment:'enr-ada',pinnedVersion:'version-2-snapshot',attachedAssetId:asset.id,unusedAssetId:privateUnused.id},authorizationProbes:probes,revokedEnrollmentProbe:revoked,captures,mediaFailureCapture,mediaFailureCaptures,completion:{...completion,viewport:[completionViewport.width,completionViewport.height],screenshot:completionScreenshot},trueZoom};
   fs.writeFileSync(path.join(root,'docs/evidence/s4-t087-live-lessons-browser.json'),JSON.stringify(report,null,2)+'\n');
-  console.log(`Captured ${captures.length} P12/P13 actual-route states; media probes: ${JSON.stringify(probes)}`);
+  console.log(`Captured ${captures.length} P12/P13 actual-route states and ${mediaFailureCaptures.length} blocked-video recovery states; media probes: ${JSON.stringify(probes)}`);
 }finally{
   socket?.close();await stop(chrome);await stop(vite);await new Promise<void>(r=>api.close(()=>r()));closeDatabase(dbPath);fs.rmSync(tmp,{recursive:true,force:true,maxRetries:8,retryDelay:100});
 }

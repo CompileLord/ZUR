@@ -224,9 +224,9 @@ test('T087 live P12/P13 lessons, media authorization, and failure recovery have 
   const report = JSON.parse(fs.readFileSync(path.join(root, 'docs/evidence/s4-t087-live-lessons-browser.json'), 'utf8'));
   assert.equal(report.fixture.enrollment, 'enr-ada');
   assert.equal(report.fixture.pinnedVersion, 'version-2-snapshot');
-  assert.equal(report.captures.length, 16);
-  assert.equal(report.captures.filter((item: any) => item.route.endsWith('/video')).length, 8);
-  assert.equal(report.captures.filter((item: any) => item.route.endsWith('/step-1-theory')).length, 8);
+  assert.equal(report.captures.length, 20);
+  assert.equal(report.captures.filter((item: any) => item.route.endsWith('/video')).length, 10);
+  assert.equal(report.captures.filter((item: any) => item.route.endsWith('/step-1-theory')).length, 10);
   for (const capture of report.captures) {
     const [width, height] = capture.viewport;
     assert.equal(capture.measured.width, width);
@@ -245,6 +245,23 @@ test('T087 live P12/P13 lessons, media authorization, and failure recovery have 
   assert.equal(auth.otherEnrollmentAssetStatus, 404);
   assert.equal(auth.graceValidOwnStepStatus, 200);
   assert.deepEqual(report.revokedEnrollmentProbe, { stepStatus: 404, assetStatus: 404 });
+  assert.equal(report.mediaFailureCaptures.length, 10);
+  assert.deepEqual(report.mediaFailureCaptures.map((item: any) => `${item.viewport.join('x')}:${item.theme}`).sort(), [
+    '1024x768:dark', '1024x768:light', '1440x900:dark', '1440x900:light',
+    '320x844:dark', '320x844:light', '390x844:dark', '390x844:light',
+    '768x1024:dark', '768x1024:light',
+  ]);
+  for (const capture of report.mediaFailureCaptures) {
+    const [width, height] = capture.viewport;
+    assert.equal(capture.measured.width, width);
+    assert.equal(capture.measured.height, height);
+    assert.equal(capture.horizontalOverflow, false);
+    assert.match(capture.state.fallback, /Retry video/);
+    assert.match(capture.state.transcript, /Welcome to this lesson/);
+    assert.equal(capture.retryAction.fallbackHidden, true);
+    assert.notEqual(capture.retryAction.before, capture.retryAction.after);
+    assert.deepEqual(pngDimensions(capture.screenshot), [width, height]);
+  }
   assert.equal(report.mediaFailureCapture.measured.width, 1440);
   assert.match(report.mediaFailureCapture.state.fallback, /Retry video/);
   assert.match(report.mediaFailureCapture.state.transcript, /Welcome to this lesson/);
@@ -280,14 +297,21 @@ test('T087 P43 authenticated token lifecycle captures a masked one-time value an
   const reveal = p43.captures.filter((item: any) => item.state === 'one_time_secret');
   const reauthError = p43.captures.filter((item: any) => item.state === 'reauth_error');
   const revoked = p43.captures.filter((item: any) => item.state === 'revoked_status');
-  assert.equal(reveal.length, 4);
-  assert.equal(reauthError.length, 4);
-  assert.equal(revoked.length, 4);
+  assert.equal(reveal.length, 10);
+  assert.equal(reauthError.length, 10);
+  assert.equal(revoked.length, 10);
   for (const item of [...reauthError, ...reveal, ...revoked]) {
     assert.equal(item.horizontalOverflow, false, `${item.screenshot} must reflow without document overflow`);
     assert.deepEqual(pngDimensions(item.screenshot), item.viewport);
     assert.ok(['dark', 'light'].includes(item.theme));
     if (item.state === 'one_time_secret') assert.equal(item.secretMasked, true);
+  }
+  for (const state of [reauthError, reveal, revoked]) {
+    assert.deepEqual(state.map((item: any) => `${item.viewport.join('x')}:${item.theme}`).sort(), [
+      '1024x768:dark', '1024x768:light', '1440x900:dark', '1440x900:light',
+      '320x844:dark', '320x844:light', '390x844:dark', '390x844:light',
+      '768x1024:dark', '768x1024:light',
+    ]);
   }
 });
 

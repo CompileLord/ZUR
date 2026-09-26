@@ -755,8 +755,7 @@ try {
   const rejectedTokenState = await evaluate(`(async()=>{const response=await fetch('/api/author/tokens?status=all',{headers:{Authorization:'Bearer '+localStorage.getItem('zur_session_token')}});const data=await response.json();return {status:response.status,createdTokenCount:data.tokens.filter(t=>t.label==='T087 Local Evidence Connection').length,errorText:document.getElementById('connections-error')?.innerText}})()`);
   if (rejectedTokenState.status !== 200 || rejectedTokenState.createdTokenCount !== 0 || !String(rejectedTokenState.errorText).includes('Invalid password')) throw new Error('P43 invalid reauthentication did not fail safely.');
   for (const theme of ['dark', 'light'] as const) {
-    await captureP43('reauth_error', theme, 1440, 900);
-    await captureP43('reauth_error', theme, 320, 844);
+    for (const [width,height] of [[1440,900],[1024,768],[768,1024],[390,844],[320,844]] as const) await captureP43('reauth_error', theme, width, height);
   }
   await evaluate("document.querySelector('#create-token-modal [data-dialog-action=cancel]')?.click()");
   await waitFor('!Boolean(document.getElementById("create-token-form"))', Boolean, 'P43 dismissed invalid reauthentication form');
@@ -768,8 +767,7 @@ try {
   const secretSafeState = await evaluate(`(()=>{const field=document.getElementById('revealed-token-value');return {modalVisible:Boolean(document.getElementById('token-reveal-modal')),secretPresent:Boolean(field?.value),secretMasked:field?.type==='password',revealControlPresent:Boolean(document.getElementById('btn-toggle-secret-visibility'))}})()`);
   if (!secretSafeState.modalVisible || !secretSafeState.secretPresent || !secretSafeState.secretMasked || !secretSafeState.revealControlPresent) throw new Error('P43 one-time token reveal did not remain in the masked in-memory state.');
   for (const theme of ['dark', 'light'] as const) {
-    await captureP43('one_time_secret', theme, 1440, 900);
-    await captureP43('one_time_secret', theme, 320, 844);
+    for (const [width,height] of [[1440,900],[1024,768],[768,1024],[390,844],[320,844]] as const) await captureP43('one_time_secret', theme, width, height);
   }
   await evaluate("document.getElementById('btn-view-setup')?.click()");
   await navigate(`${webOrigin}/settings/ai-connections`);
@@ -786,8 +784,7 @@ try {
   for (const theme of ['dark', 'light'] as const) {
     await navigate(`${webOrigin}/settings/ai-connections?filter=revoked`);
     await waitFor("document.body.innerText.includes('T087 Local Evidence Connection') && document.body.innerText.includes('Revoked')", Boolean, 'P43 revoked row render');
-    await captureP43('revoked_status', theme, 1440, 900);
-    await captureP43('revoked_status', theme, 320, 844);
+    for (const [width,height] of [[1440,900],[1024,768],[768,1024],[390,844],[320,844]] as const) await captureP43('revoked_status', theme, width, height);
   }
   const p15Responses = apiResponses.slice(p15ApiIndex);
   fs.writeFileSync(reportPath, JSON.stringify({
