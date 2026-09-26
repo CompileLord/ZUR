@@ -62,6 +62,11 @@ test('Python Workspace Page P15 (design.md §11 P15, T026)', async (t) => {
     assert.ok(html.includes('href="/learn/enr-1/steps/step-6/attempts"'));
   });
 
+  await t.test('Compact Python view renders a read-only existing editor snapshot', () => {
+    const html = renderPythonWorkspacePage({ ...baseOpts, isCompact: true });
+    assert.match(html, /<textarea[\s\S]*?id="code-editor-input"[\s\S]*?readonly/);
+  });
+
   await t.test('Renders public test failure with diff and received output', () => {
     const htmlWithFailure = renderPythonWorkspacePage({
       ...baseOpts,
@@ -205,6 +210,19 @@ test('Attempt History and Restore P16 (design.md §11 P16, T027)', async (t) => 
     });
 
     assert.ok(html.includes('print(&quot;student snapshot&quot;)'));
+    assert.ok(!html.includes('Restore to editor'));
+  });
+
+  await t.test('Compact student attempt detail omits desktop-only Restore action', () => {
+    const html = renderAttemptHistoryPage({
+      ...baseHistoryOpts,
+      isCompact: true,
+      selectedAttempt: {
+        id: 'att-2', attemptNumber: 2, verdict: 'PASSED', codeSnapshot: 'print(2)',
+        isInfrastructureFailure: false, createdAt: '2026-09-24T02:00:00.000Z',
+        canRestore: true, runtimeVersion: 'Python 3.14',
+      },
+    });
     assert.ok(!html.includes('Restore to editor'));
   });
 });

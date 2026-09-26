@@ -129,6 +129,50 @@ test('T087 real P15/P27 browser flows have authenticated API and screenshot evid
   assert.equal(p16.detailUiHasTiming, false);
   assert.equal(p16.captures.length, 2);
   for (const item of p16.captures) assert.deepEqual(pngDimensions(item.screenshot), [1440, 900], item.screenshot);
+  for (const [page, count] of [['P15', 8], ['P16', 16], ['P27', 8]] as const) {
+    const responsive = report.liveRouteProbes[page].responsiveCaptures;
+    assert.equal(responsive.length, count, `${page} live responsive captures`);
+    assert.deepEqual([...new Set(responsive.map((item: any) => item.theme))].sort(), ['dark', 'light']);
+    for (const capture of responsive) {
+      const [width, height] = capture.viewport;
+      assert.equal(capture.measured.width, width);
+      assert.equal(capture.measured.height, height);
+      assert.equal(capture.horizontalOverflow, false, `${page}/${capture.theme}/${width}`);
+      assert.deepEqual(pngDimensions(capture.screenshot), [width, height], capture.screenshot);
+      if (page === 'P15' && width < 1024) {
+        assert.equal(capture.editorReadOnly, true, `${page}/${capture.theme}/${width} is compact and read-only`);
+        assert.ok(capture.editorRect.height >= 40, `${page}/${capture.theme}/${width} keeps a visible saved-code snapshot`);
+        assert.equal(capture.resetControl.visible, false, `${page}/${capture.theme}/${width} hides desktop reset control`);
+      }
+      if (page === 'P15' && width >= 1024) assert.equal(capture.resetControl.visible, true, `${page}/${capture.theme}/${width} keeps desktop reset control`);
+      if (page === 'P15' && width === 320) {
+        assert.equal(capture.compactResizePreserved, true);
+        assert.equal(capture.compactResetGuard.noResetRequest, true);
+        assert.equal(capture.compactResetGuard.codePreserved, true);
+      }
+      if (page === 'P16' && capture.view === 'detail') {
+        assert.equal(capture.restoreVisible, width >= 1024, `${page}/${capture.theme}/${width} restore action breakpoint`);
+        if (width === 320) {
+          assert.equal(capture.compactRestoreGuard.noRestoreRequest, true);
+          assert.equal(capture.compactRestoreGuard.dialogStayedClosed, true);
+        }
+        if (width === 1440) assert.equal(capture.compactRestoreGuard.noRestoreRequest, true, 'P16 restore remains blocked when a desktop detail is resized to compact');
+      }
+    }
+  }
+  assert.equal(report.liveRouteProbes.P15.offline.localDraftPreserved, true);
+  assert.equal(report.liveRouteProbes.P15.offline.indicator, 'Unsaved edits (offline)');
+  const liveZoom = report.liveRouteProbes.liveGuiZoom;
+  assert.match(liveZoom.method, /Headful Chrome Appearance/);
+  assert.equal(liveZoom.captures.length, 8);
+  for (const capture of liveZoom.captures) {
+    assert.equal(capture.browserZoomPercent, 200);
+    assert.equal(capture.actual.innerWidth * 2, capture.baseline.innerWidth);
+    assert.equal(capture.actual.devicePixelRatio, capture.baseline.devicePixelRatio * 2);
+    assert.equal(capture.actual.visualViewportScale, 1);
+    assert.equal(capture.horizontalOverflow, false);
+    assert.equal(pngDimensions(capture.screenshot)[0], Math.round(capture.actual.innerWidth * capture.actual.devicePixelRatio));
+  }
 });
 
 test('T087 checkpoint gaps are explicit and evidence links resolve', () => {

@@ -375,9 +375,19 @@
   .paired-workspace .desktop-guidance-banner {
     display: flex;
   }
+  .paired-workspace #reset-code-btn,
+  .attempt-detail-view #restore-to-editor-btn {
+    display: none;
+  }
   .paired-workspace .workspace-viewport {
     grid-template-columns: 1fr;
     overflow-y: auto;
+  }
+  .paired-workspace .editor-pane {
+    min-height: 430px;
+  }
+  .paired-workspace .code-editor-area {
+    min-height: 160px;
   }
 }
 
@@ -552,6 +562,20 @@
   .author-editor-pane {
     overflow: visible;
     padding: var(--space-4) var(--page-gutter);
+  }
+}
+@media (max-width: 480px) {
+  .author-tabs-bar .tabs-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+  .author-tabs-bar .tab-link {
+    justify-content: center;
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
+    overflow-wrap: anywhere;
   }
 }
 

@@ -29,6 +29,7 @@ export interface PythonWorkspacePageOptions {
   previousStepUrl?: string | null;
   nextStepUrl?: string | null;
   activeTab?: 'results' | 'custom_input' | 'attempts';
+  isCompact?: boolean;
   customStdin?: string;
 }
 
@@ -202,6 +203,7 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
           id="code-editor-input"
           class="code-editor-input"
           spellcheck="false"
+          ${opts.isCompact ? 'readonly' : ''}
           aria-label="Python Source Code"
         >${escapeHtml(opts.currentCode || opts.starterCode || '')}</textarea>
       </div>

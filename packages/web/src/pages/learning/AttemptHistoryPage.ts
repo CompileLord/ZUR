@@ -33,6 +33,7 @@ export interface AttemptHistoryPageOptions {
   currentPage: number;
   pageSize: number;
   offset?: number;
+  isCompact?: boolean;
 }
 
 function escapeHtml(value: unknown): string {
@@ -78,7 +79,7 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
           </div>
         </div>
 
-        ${selected.canRestore ? `
+        ${selected.canRestore && !opts.isCompact ? `
           <div style="margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--border-subtle);">
             <button type="button" class="btn btn-primary" id="restore-to-editor-btn">
               Restore to editor

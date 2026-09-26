@@ -5,7 +5,7 @@ export default defineConfig({
     port: 5173,
     host: true,
     proxy: {
-      '/api': 'http://localhost:3001',
+      '/api': process.env.ZUR_API_PROXY_TARGET || 'http://localhost:3001',
     },
   },
   build: {

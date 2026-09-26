@@ -75,7 +75,7 @@
       ]
     },
     "actualBrowserZoom200": {
-      "method": "GUI Chrome 154 in an isolated temporary profile used chrome://settings/appearance → Zoom → 200%; then loaded the local ZUR landing page. This used Chrome's browser UI zoom, not CDP viewport, DPR, or page-scale emulation.",
+      "method": "GUI Chrome 154 in an isolated temporary profile used chrome://settings/appearance \u2192 Zoom \u2192 200%; then loaded the local ZUR landing page. This used Chrome's browser UI zoom, not CDP viewport, DPR, or page-scale emulation.",
       "metrics": {
         "innerWidth": 768,
         "outerWidth": 1536,
@@ -87,7 +87,7 @@
       "details": "docs/evidence/s4-m04-t086-local-probes.json"
     },
     "representativeBrowserZoom200": {
-      "method": "Reproducible GUI Chrome capture: run S4_CAPTURE_GUI_ZOOM=1 node --experimental-strip-types scripts/capture-s4-m04-screenshots.ts. The script uses an isolated headful Chrome profile, selects Zoom → 200% through chrome://settings/appearance, then captures real page-renderer fixtures in both themes. It checks each page innerWidth/innerHeight, outerWidth/outerHeight, DPR, and visualViewport scale against that same session’s 100% baseline before saving. No DevTools viewport/DPR/page-scale override is used for these captures.",
+      "method": "Reproducible GUI Chrome capture: run S4_CAPTURE_GUI_ZOOM=1 node --experimental-strip-types scripts/capture-s4-m04-screenshots.ts. The script uses an isolated headful Chrome profile, selects Zoom \u2192 200% through chrome://settings/appearance, then captures real page-renderer fixtures in both themes. It checks each page innerWidth/innerHeight, outerWidth/outerHeight, DPR, and visualViewport scale against that same session\u2019s 100% baseline before saving. No DevTools viewport/DPR/page-scale override is used for these captures.",
       "report": "docs/evidence/s4-m04-gui-zoom-captures.json",
       "journeys": [
         "s4_t087_p01_landing",
@@ -1155,9 +1155,31 @@
         "screenshots/s4_t087_p15_submit_redacted_failure_1440x900_light.png",
         "screenshots/s4_t087_p15_reset_stale_revision_conflict_1440x900_light.png",
         "screenshots/s4_t087_p16_hidden_failure_attempt_history_1440x900_light.png",
-        "screenshots/s4_t087_p16_hidden_failure_attempt_detail_1440x900_light.png"
+        "screenshots/s4_t087_p16_hidden_failure_attempt_detail_1440x900_light.png",
+        "screenshots/s4_t087_p15_live_workspace_320x844_dark.png",
+        "screenshots/s4_t087_p15_live_workspace_390x844_light.png",
+        "screenshots/s4_t087_p15_live_workspace_768x1024_dark.png",
+        "screenshots/s4_t087_p15_live_workspace_1440x900_light.png",
+        "screenshots/s4_t087_p15_live_offline_unsaved_1440x900_light.png",
+        "screenshots/s4_t087_p15_live_workspace_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p15_live_workspace_200zoom_light_gui.png",
+        "screenshots/s4_t087_p16_live_list_320x844_dark.png",
+        "screenshots/s4_t087_p16_live_detail_390x844_light.png",
+        "screenshots/s4_t087_p16_live_list_768x1024_dark.png",
+        "screenshots/s4_t087_p16_live_detail_1440x900_light.png",
+        "screenshots/s4_t087_p16_live_list_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p16_live_detail_200zoom_light_gui.png",
+        "screenshots/s4_t087_p27_live_review_320x844_dark.png",
+        "screenshots/s4_t087_p27_live_review_390x844_light.png",
+        "screenshots/s4_t087_p27_live_review_768x1024_dark.png",
+        "screenshots/s4_t087_p27_live_review_1440x900_light.png",
+        "screenshots/s4_t087_p27_live_review_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p27_live_review_200zoom_light_gui.png",
+        "screenshots/s4_t087_p15_live_workspace_320x844_light.png",
+        "screenshots/s4_t087_p16_live_detail_320x844_dark.png",
+        "screenshots/s4_t087_p16_live_detail_320x844_light.png"
       ],
-      "gap": "Live P15 autosave, successful public sample execution, and submission with a safely redacted hidden-test failure (including no execution timing) are verified in dark/light at 1440×900 through authenticated APIs. A live stale-reset conflict returns 409 and preserves the local editor text. P16 history/detail routes were exercised in light theme; hidden-failure attempt list and detail omit timing, while public-failure timing is retained by API regression tests. Remaining gaps: live 200% zoom, an actual offline/unsaved route state, hidden-test pass/completion, and representative live mobile captures. The component fixtures separately cover queue, offline, passed, and public failure states."
+      "gap": "Authenticated live P15 workspace captures cover 320\u00d7844, 390\u00d7844, 768\u00d71024, and 1440\u00d7900 in both themes, plus genuine headful Chrome UI 200% captures in both themes. The real offline/unsaved state is captured after browser network disconnect and confirms the local recovery copy. P16 list/detail and P27 publication-review routes have the same four responsive viewports in both themes and actual Chrome UI 200% captures in both themes. No horizontal document overflow was measured on these combinations. Remaining gaps include a live hidden-test pass/completion, P27 receipt at 200%/mobile, and other unrelated adverse routes. P15 stale-reset conflict and P16 hidden-failure timing redaction are also captured; API regressions retain timing for public-test failures. P15 Reset code is hidden below 1024px; browser programmatic-click checks at 320px verify no reset API request and unchanged code. P16 omits Restore to editor at compact render, hides it after desktop-to-compact resize, and browser checks verify compact clicks do not open confirmation or call restore."
     },
     {
       "id": 7,
@@ -1198,7 +1220,7 @@
         "screenshots/s4_t087_p27_publish_confirmation_1440x900_light.png",
         "screenshots/s4_t087_p27_publish_receipt_1440x900_light.png"
       ],
-      "gap": "Live authenticated P27 review, explicit confirmation/cancel, successful publish API, and server-issued receipt are verified in dark/light at 1440×900 against an isolated disposable database. Component fixtures cover blocked validation and responsive receipt states at five widths/themes; blocked validation has actual 200% zoom in both themes. Live 200% and mobile confirmation remain unverified."
+      "gap": "Live authenticated P27 review, explicit confirmation/cancel, successful publish API, and server-issued receipt are verified in dark/light at 1440\u00d7900 against an isolated disposable database. Component fixtures cover blocked validation and responsive receipt states at five widths/themes; blocked validation has actual 200% zoom in both themes. Live 200% and mobile confirmation remain unverified."
     },
     {
       "id": 10,
@@ -1283,7 +1305,9 @@
       "coverage": "captured",
       "evidence": [
         "screenshots/s4_m04_matrix_python_unsaved_1440x900_dark.png",
-        "screenshots/s4_m04_matrix_python_unsaved_320x844_light.png"
+        "screenshots/s4_m04_matrix_python_unsaved_320x844_light.png",
+        "screenshots/s4_t087_p15_live_offline_unsaved_1440x900_light.png",
+        "docs/evidence/s4-m04-interactive-browser-flows.json"
       ]
     },
     {

@@ -78,6 +78,7 @@ function initTheme(): void {
 }
 
 let activeCatalogRequestId = 0;
+let workspaceResizeController: AbortController | null = null;
 
 function showRouteLoading(label: string): void {
   appEl.innerHTML = `<main class="container py-8" aria-busy="true"><h1 class="page-title">${label}</h1><p class="text-secondary" role="status">Loading from your account…</p></main>`;
@@ -124,6 +125,7 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
       constraints: content.constraints,
       starterCode: content.starterCode,
       currentCode: initialCode,
+      isCompact: window.innerWidth < 1024,
       hints: content.hints || [],
       solutionExplanation: content.solutionExplanation,
       isCompleted: Boolean(stepData.stepMeta?.isCompleted),
@@ -188,6 +190,7 @@ async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptI
       currentPage: Math.floor((page.offset || 0) / Math.max(1, page.limit || 10)) + 1,
       pageSize: page.limit || 10,
       offset: page.offset || 0,
+      isCompact: window.innerWidth < 1024,
     });
     initTheme();
     document.getElementById('copy-code-btn')?.addEventListener('click', async () => {
@@ -195,6 +198,7 @@ async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptI
       await navigator.clipboard.writeText(selected.codeSnapshot);
     });
     document.getElementById('restore-to-editor-btn')?.addEventListener('click', () => {
+      if (window.innerWidth < 1024) return;
       const dialog = document.getElementById('restore-confirm-dialog');
       if (dialog) dialog.hidden = false;
     });
@@ -203,7 +207,7 @@ async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptI
       if (dialog) dialog.hidden = true;
     });
     document.getElementById('confirm-restore-btn')?.addEventListener('click', async () => {
-      if (!selected) return;
+      if (!selected || window.innerWidth < 1024) return;
       const button = document.getElementById('confirm-restore-btn') as HTMLButtonElement;
       button.disabled = true;
       try {
@@ -310,6 +314,13 @@ function attachPythonWorkspaceListeners(
   };
 
   const textarea = document.getElementById('code-editor-input') as HTMLTextAreaElement | null;
+  if (textarea) {
+    workspaceResizeController?.abort();
+    workspaceResizeController = new AbortController();
+    const updateCompactMode = () => { textarea.readOnly = window.innerWidth < 1024; };
+    updateCompactMode();
+    window.addEventListener('resize', updateCompactMode, { signal: workspaceResizeController.signal });
+  }
   textarea?.addEventListener('input', () => {
     code = textarea.value;
     DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, code, saveQueue.revision);
@@ -384,6 +395,7 @@ function attachPythonWorkspaceListeners(
     }
   });
   document.getElementById('reset-code-btn')?.addEventListener('click', async () => {
+    if (window.innerWidth < 1024) return;
     if (!window.confirm('Reset your code to the starter version? Your current editor contents will be replaced.')) return;
     const resetButton = document.getElementById('reset-code-btn') as HTMLButtonElement | null;
     if (resetButton) resetButton.disabled = true;
@@ -539,6 +551,8 @@ export function navigateTo(path: string): void {
 }
 
 export function renderApp(path: string = window.location.pathname + window.location.search): void {
+  workspaceResizeController?.abort();
+  workspaceResizeController = null;
   const match = matchRoute(path);
 
   if (!match) {
