@@ -1,4 +1,5 @@
 import { renderLearningWorkspaceShell } from '../../components/shells/LearningWorkspaceShell.ts';
+import { escapeHtml } from '../../components/escape-html.ts';
 
 export interface QuizOptionItem {
   id: string;
@@ -50,7 +51,7 @@ export function renderQuizStepPage(opts: QuizStepPageOptions): string {
           </div>
           ${
             opts.feedback.explanation
-              ? `<div class="feedback-explanation"><p>${opts.feedback.explanation}</p></div>`
+              ? `<div class="feedback-explanation"><p>${escapeHtml(opts.feedback.explanation)}</p></div>`
               : ''
           }
         </div>
@@ -88,12 +89,12 @@ export function renderQuizStepPage(opts: QuizStepPageOptions): string {
         <span>~${opts.estimatedDurationMinutes}m</span>
       </div>
 
-      <h1 class="quiz-title">${opts.stepTitle}</h1>
+      <h1 class="quiz-title">${escapeHtml(opts.stepTitle)}</h1>
 
       ${practiceBannerHtml}
 
       <div class="quiz-prompt-block">
-        <p class="quiz-prompt-text">${opts.prompt}</p>
+        <p class="quiz-prompt-text">${escapeHtml(opts.prompt)}</p>
         ${
           isMultiple
             ? '<span class="multi-select-hint">Select all correct answers</span>'
@@ -103,11 +104,11 @@ export function renderQuizStepPage(opts: QuizStepPageOptions): string {
 
       <form
         method="POST"
-        action="/api/steps/${opts.stepId}/quiz/submit"
+        action="/api/steps/${encodeURIComponent(opts.stepId)}/quiz/submit"
         class="quiz-form"
-        data-enrollment-id="${opts.enrollmentId}"
+        data-enrollment-id="${escapeHtml(opts.enrollmentId)}"
       >
-        <input type="hidden" name="enrollmentId" value="${opts.enrollmentId}" />
+        <input type="hidden" name="enrollmentId" value="${escapeHtml(opts.enrollmentId)}" />
         <div class="quiz-options-group" role="group" aria-label="Answer options">
           ${opts.options.map((opt, idx) => {
             const isSelected = selectedSet.has(opt.id);
@@ -122,12 +123,12 @@ export function renderQuizStepPage(opts: QuizStepPageOptions): string {
                 <input
                   type="${inputType}"
                   name="selectedOptionIds"
-                  value="${opt.id}"
+                  value="${escapeHtml(opt.id)}"
                   ${isSelected ? 'checked' : ''}
                   class="quiz-input-control"
                 />
                 <span class="option-indicator" aria-hidden="true"></span>
-                <span class="option-text">${opt.text}</span>
+                <span class="option-text">${escapeHtml(opt.text)}</span>
               </label>
             `;
           }).join('')}
@@ -145,7 +146,7 @@ export function renderQuizStepPage(opts: QuizStepPageOptions): string {
           </div>
 
           <div class="footer-center">
-            <a href="/help/report?stepId=${opts.stepId}&enrollmentId=${opts.enrollmentId}" class="report-issue-link">
+            <a href="/help" class="report-issue-link">
               Report issue
             </a>
           </div>

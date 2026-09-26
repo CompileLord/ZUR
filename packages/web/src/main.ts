@@ -50,6 +50,7 @@ import { renderAdminPage } from './pages/admin/AdminPages.ts';
 import { CourseClient } from './services/course-client.ts';
 import { renderTheoryStepPage } from './pages/learning/TheoryStepPage.ts';
 import { renderVideoStepPage } from './pages/learning/VideoStepPage.ts';
+import { renderQuizStepPage } from './pages/learning/QuizStepPage.ts';
 
 const appEl = document.getElementById('app')!;
 const authClient = AuthClient.getInstance();
@@ -246,6 +247,65 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
   }
 }
 
+async function loadEnrolledStep(enrollmentId: string, stepId: string, requestedPath: string): Promise<void> {
+  showRouteLoading('Learning step');
+  try {
+    const data = await authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`);
+    if (window.location.pathname + window.location.search !== requestedPath) return;
+    if (data.step?.type === 'theory' || data.step?.type === 'video') {
+      void loadLessonStep(enrollmentId, stepId, data.step.type, requestedPath);
+    } else if (data.step?.type === 'python') {
+      void loadPythonWorkspace(enrollmentId, stepId, requestedPath);
+    } else if (data.step?.type === 'quiz') {
+      renderEnrolledQuiz(data, enrollmentId, stepId, requestedPath);
+    } else {
+      appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    }
+  } catch (error: any) {
+    if (window.location.pathname + window.location.search !== requestedPath) return;
+    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    else showRouteFailure('We could not load this lesson. Retry when the service is available.', requestedPath);
+  }
+}
+
+function renderEnrolledQuiz(data: any, enrollmentId: string, stepId: string, requestedPath: string, selectedOptionIds: string[] = [], feedback: any = null): void {
+  const progressSteps = data.progress?.steps || [];
+  const content = data.step.content || {};
+  appEl.innerHTML = renderQuizStepPage({
+    courseTitle: data.courseTitle || 'Course',
+    courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
+    lessonTitle: data.stepMeta?.lessonTitle || 'Lesson',
+    stepTitle: data.step.title,
+    stepOrdinalText: `Step ${Number(data.step.position) + 1}`,
+    isRequired: Boolean(data.step.isRequired),
+    estimatedDurationMinutes: Number(data.step.estimatedDurationMinutes || 1),
+    quizType: content.quizType,
+    prompt: content.prompt || '',
+    options: (content.options || []).map((option: any) => ({ id: option.id, text: option.text })),
+    enrollmentId, stepId,
+    isCompleted: Boolean(data.stepMeta?.isCompleted) || Boolean(feedback?.isPassed),
+    selectedOptionIds, feedback,
+    outlineContent: renderLessonRail({ steps: progressSteps.map((step: any, index: number) => ({
+      id: step.id, ordinal: index + 1, title: step.title, type: step.type,
+      isCurrent: step.id === stepId, isCompleted: Boolean(step.isCompleted), isWaived: Boolean(step.isWaived), isRequired: Boolean(step.isRequired),
+      href: `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(step.id)}`,
+    })) }),
+    previousStepUrl: data.previousStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.previousStepId)}` : null,
+    nextStepUrl: data.nextStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.nextStepId)}` : null,
+  });
+  const form = appEl.querySelector<HTMLFormElement>('.quiz-form');
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const selected = [...form.querySelectorAll<HTMLInputElement>('input[name="selectedOptionIds"]:checked')].map((input) => input.value);
+    if (!selected.length) return;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (button) button.disabled = true;
+    void authClient.fetchApi(`/api/steps/${encodeURIComponent(stepId)}/quiz/submit`, { method: 'POST', body: JSON.stringify({ enrollmentId, selectedOptionIds: selected }) })
+      .then((result) => { if (window.location.pathname + window.location.search === requestedPath) renderEnrolledQuiz(data, enrollmentId, stepId, requestedPath, selected, result); })
+      .catch(() => { if (button) button.disabled = false; const message = document.createElement('p'); message.setAttribute('role', 'alert'); message.textContent = 'Could not check your answer. Your selection is still here. Try again.'; form.prepend(message); });
+  });
+}
+
 async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theory' | 'video', requestedPath: string): Promise<void> {
   const isCurrent = () => window.location.pathname + window.location.search === requestedPath;
   showRouteLoading(kind === 'video' ? 'Video lesson' : 'Theory lesson');
@@ -262,7 +322,7 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
         id: step.id, ordinal: index + 1, title: step.title, type: step.type,
         isCurrent: step.id === stepId, isCompleted: Boolean(step.isCompleted),
         isWaived: Boolean(step.isWaived), isRequired: Boolean(step.isRequired),
-        href: `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(step.id)}${step.type === 'video' ? '/video' : ''}`,
+        href: `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(step.id)}`,
       })),
     });
     const common = {
@@ -276,8 +336,8 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
       enrollmentId, stepId,
       isCompleted: Boolean(data.stepMeta?.isCompleted),
       outlineContent,
-      previousStepUrl: data.previousStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.previousStepId)}${progressSteps.find((s: any) => s.id === data.previousStepId)?.type === 'video' ? '/video' : ''}` : null,
-      nextStepUrl: data.nextStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.nextStepId)}${progressSteps.find((s: any) => s.id === data.nextStepId)?.type === 'video' ? '/video' : ''}` : null,
+      previousStepUrl: data.previousStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.previousStepId)}` : null,
+      nextStepUrl: data.nextStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.nextStepId)}` : null,
     };
     const content = data.step.content || {};
     appEl.innerHTML = kind === 'theory'
@@ -413,7 +473,7 @@ async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptI
       stepTitle: step.step?.title || 'Exercise',
       enrollmentId,
       stepId,
-      workspaceUrl: `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}/code`,
+      workspaceUrl: `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`,
       attempts: page.items || [],
       selectedAttempt: selected,
       totalAttempts: page.total || 0,
@@ -442,7 +502,7 @@ async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptI
       button.disabled = true;
       try {
         await authClient.fetchApi(`/api/attempts/${encodeURIComponent(attemptId!)}/restore`, { method: 'POST' });
-        navigateTo(`/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}/code`);
+        navigateTo(`/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`);
       } catch {
         button.disabled = false;
         showRouteFailure('The saved draft changed or could not be restored. Your current editor content is preserved.', requestedPath);
@@ -1184,7 +1244,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
             <div class="mb-4">
               ${renderProgressLine({ satisfiedRequiredCount: 3, totalRequiredCount: 4 })}
             </div>
-            <a href="/learn/enr-ada/steps/step-4-python-echo/code" class="btn btn-primary">Resume step</a>
+            <a href="/learn/enr-ada/steps/step-4-python-echo" class="btn btn-primary">Resume step</a>
           </div>
         `;
 
@@ -1201,15 +1261,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
 
     case 'S4': {
       if (route.pageId === 'P12') {
-        void loadLessonStep(params.enrollmentId, params.stepId, 'theory', path);
-        break;
-      }
-      if (route.pageId === 'P13') {
-        void loadLessonStep(params.enrollmentId, params.stepId, 'video', path);
-        break;
-      }
-      if (route.pageId === 'P15') {
-        void loadPythonWorkspace(params.enrollmentId, params.stepId, path);
+        void loadEnrolledStep(params.enrollmentId, params.stepId, path);
         break;
       }
       if (route.pageId === 'P16') {

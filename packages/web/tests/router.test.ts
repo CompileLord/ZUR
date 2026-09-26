@@ -27,11 +27,14 @@ test('P01–P45 Route Contracts and URL Safety (design.md §9, §14, T012)', asy
     assert.strictEqual(match?.route.pageId, 'P03');
     assert.strictEqual(match?.params.courseId, 'course-python-101');
 
-    const stepMatch = matchRoute('/learn/enr-1/steps/step-42/code');
+    const stepMatch = matchRoute('/learn/enr-1/steps/step-42');
     assert.strictEqual(Boolean(stepMatch), true);
-    assert.strictEqual(stepMatch?.route.pageId, 'P15');
+    assert.strictEqual(stepMatch?.route.pageId, 'P12');
     assert.strictEqual(stepMatch?.params.enrollmentId, 'enr-1');
     assert.strictEqual(stepMatch?.params.stepId, 'step-42');
+    assert.equal(matchRoute('/learn/enr-1/steps/step-42/video'), null);
+    assert.equal(matchRoute('/learn/enr-1/steps/step-42/quiz'), null);
+    assert.equal(matchRoute('/learn/enr-1/steps/step-42/code'), null);
     const historyMatch = matchRoute('/learn/enr-1/steps/step-42/attempts');
     assert.equal(historyMatch?.route.pageId, 'P16');
     assert.equal(historyMatch?.params.stepId, 'step-42');
