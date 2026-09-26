@@ -134,6 +134,28 @@ export class AuthorizationService {
     }
 
     const courseAccess = this.getCourseAccess(user, asset.course_id);
-    return courseAccess.allowed;
+    if (!courseAccess.allowed) return false;
+    // Students may only fetch media referenced by the immutable version pinned to
+    // their enrollment. Visitors get references from the current published version.
+    // This prevents a leaked UUID from exposing private, unused uploads.
+    if (courseAccess.role === 'owner') return true;
+    if (courseAccess.role === 'visitor' &&
+        (courseAccess.course?.visibility !== 'public' || courseAccess.course?.publication_status !== 'published')) return false;
+    const versionId = courseAccess.role === 'student'
+      ? courseAccess.pinnedVersionId
+      : courseAccess.course?.current_version_id;
+    if (!versionId) return false;
+    const row = this.db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ? AND course_id = ?').get(versionId, asset.course_id) as any;
+    if (!row) return false;
+    let snapshot: any;
+    try { snapshot = JSON.parse(row.snapshot_data); } catch { return false; }
+    const references = (value: any): boolean => {
+      if (typeof value === 'string') return value.includes(`zur-asset:${assetId}`);
+      if (Array.isArray(value)) return value.some(references);
+      if (!value || typeof value !== 'object') return false;
+      if (value.assetId === assetId || value.asset_id === assetId) return true;
+      return Object.values(value).some(references);
+    };
+    return references(snapshot);
   }
 }

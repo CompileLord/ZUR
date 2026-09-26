@@ -20,11 +20,11 @@ export function renderLearningWorkspaceShell(opts: LearningWorkspaceShellOptions
     <div class="shell-learning ${isPython ? 'paired-workspace' : 'reading-workspace'}">
       <header class="learning-header" role="banner">
         <div class="learning-header-left">
-          <a href="${opts.courseOverviewUrl}" class="back-link" aria-label="Back to course overview">
-            ← ${opts.courseTitle}
+          <a href="${escapeHtml(opts.courseOverviewUrl)}" class="back-link" aria-label="Back to course overview">
+            ← ${escapeHtml(opts.courseTitle)}
           </a>
           <span class="header-divider">/</span>
-          <span class="header-lesson-context">${opts.lessonTitle}</span>
+          <span class="header-lesson-context">${escapeHtml(opts.lessonTitle)}</span>
         </div>
 
         <div class="learning-header-right">
@@ -60,13 +60,13 @@ export function renderLearningWorkspaceShell(opts: LearningWorkspaceShellOptions
 
           <footer class="learning-task-footer" role="region" aria-label="Step Navigation">
             <div class="task-footer-left">
-              ${opts.previousStepUrl ? `<a href="${opts.previousStepUrl}" class="btn btn-secondary btn-compact">Previous</a>` : ''}
-              <span class="step-ordinal-meta">${opts.stepOrdinalText}</span>
+              ${opts.previousStepUrl ? `<a href="${escapeHtml(opts.previousStepUrl)}" class="btn btn-secondary btn-compact">Previous</a>` : ''}
+              <span class="step-ordinal-meta">${escapeHtml(opts.stepOrdinalText)}</span>
             </div>
 
             <div class="task-footer-right">
               ${isPython ? `<div class="python-execution-actions">${opts.taskActions || ''}</div><span class="python-desktop-action-note">Run and Submit are available on a computer.</span>` : (opts.taskActions || '')}
-              ${opts.nextStepUrl ? `<a href="${opts.nextStepUrl}" class="btn btn-secondary btn-compact">Next</a>` : ''}
+              ${opts.nextStepUrl ? `<a href="${escapeHtml(opts.nextStepUrl)}" class="btn btn-secondary btn-compact">Next</a>` : ''}
             </div>
           </footer>
         </main>
@@ -74,3 +74,4 @@ export function renderLearningWorkspaceShell(opts: LearningWorkspaceShellOptions
     </div>
   `;
 }
+import { escapeHtml } from 'zur-shared';

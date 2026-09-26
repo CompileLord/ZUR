@@ -1,0 +1,500 @@
+{
+  "method": "Actual headless Chrome against local Vite client and in-process server with an isolated seeded SQLite fixture. Student signed in through the app form; viewport dimensions asserted from window.innerWidth/innerHeight before every capture. Inline image bytes were uploaded to the local fixture and referenced by the immutable version pinned to enr-ada. Video failure state uses CDP Network.setBlockedURLs against the external video provider; the real transcript stays available.",
+  "fixture": {
+    "enrollment": "enr-ada",
+    "pinnedVersion": "version-2-snapshot",
+    "attachedAssetId": "c7d5af46-6580-4e3e-a5f4-96758fcf49e6",
+    "unusedAssetId": "5cf66da4-806d-46d7-9357-f90b5d610a4c"
+  },
+  "authorizationProbes": {
+    "pinnedAssetStatus": 200,
+    "unreferencedAssetStatus": 404,
+    "anonymousAssetStatus": 404,
+    "otherEnrollmentStepStatus": 404,
+    "otherEnrollmentAssetStatus": 404,
+    "graceValidOwnStepStatus": 200
+  },
+  "captures": [
+    {
+      "route": "/learn/enr-ada/steps/step-1-theory",
+      "theme": "dark",
+      "viewport": [
+        320,
+        844
+      ],
+      "measured": {
+        "width": 320,
+        "height": 844,
+        "dpr": 1,
+        "scrollWidth": 320,
+        "bodyScrollWidth": 320
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "What is a variable?",
+        "hasTranscript": false,
+        "imageLoaded": true,
+        "imageAlt": "Diagram of a Python variable binding a name to a value",
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "contentScrollWidth": 320
+      },
+      "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_320x844_dark.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "theme": "dark",
+      "viewport": [
+        320,
+        844
+      ],
+      "measured": {
+        "width": 320,
+        "height": 844,
+        "dpr": 1,
+        "scrollWidth": 320,
+        "bodyScrollWidth": 320
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "Variables in Memory",
+        "hasTranscript": true,
+        "imageLoaded": false,
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "contentScrollWidth": 320
+      },
+      "screenshot": "screenshots/s4_t087_p13_video_transcript_320x844_dark.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-1-theory",
+      "theme": "dark",
+      "viewport": [
+        390,
+        844
+      ],
+      "measured": {
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "scrollWidth": 390,
+        "bodyScrollWidth": 390
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "What is a variable?",
+        "hasTranscript": false,
+        "imageLoaded": true,
+        "imageAlt": "Diagram of a Python variable binding a name to a value",
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "contentScrollWidth": 390
+      },
+      "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_390x844_dark.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "theme": "dark",
+      "viewport": [
+        390,
+        844
+      ],
+      "measured": {
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "scrollWidth": 390,
+        "bodyScrollWidth": 390
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "Variables in Memory",
+        "hasTranscript": true,
+        "imageLoaded": false,
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "contentScrollWidth": 390
+      },
+      "screenshot": "screenshots/s4_t087_p13_video_transcript_390x844_dark.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-1-theory",
+      "theme": "dark",
+      "viewport": [
+        768,
+        1024
+      ],
+      "measured": {
+        "width": 768,
+        "height": 1024,
+        "dpr": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "What is a variable?",
+        "hasTranscript": false,
+        "imageLoaded": true,
+        "imageAlt": "Diagram of a Python variable binding a name to a value",
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "contentScrollWidth": 768
+      },
+      "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_768x1024_dark.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "theme": "dark",
+      "viewport": [
+        768,
+        1024
+      ],
+      "measured": {
+        "width": 768,
+        "height": 1024,
+        "dpr": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "Variables in Memory",
+        "hasTranscript": true,
+        "imageLoaded": false,
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "contentScrollWidth": 768
+      },
+      "screenshot": "screenshots/s4_t087_p13_video_transcript_768x1024_dark.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-1-theory",
+      "theme": "dark",
+      "viewport": [
+        1440,
+        900
+      ],
+      "measured": {
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "scrollWidth": 1440,
+        "bodyScrollWidth": 1440
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "What is a variable?",
+        "hasTranscript": false,
+        "imageLoaded": true,
+        "imageAlt": "Diagram of a Python variable binding a name to a value",
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "contentScrollWidth": 1440
+      },
+      "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_1440x900_dark.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "theme": "dark",
+      "viewport": [
+        1440,
+        900
+      ],
+      "measured": {
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "scrollWidth": 1440,
+        "bodyScrollWidth": 1440
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "Variables in Memory",
+        "hasTranscript": true,
+        "imageLoaded": false,
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "contentScrollWidth": 1440
+      },
+      "screenshot": "screenshots/s4_t087_p13_video_transcript_1440x900_dark.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-1-theory",
+      "theme": "light",
+      "viewport": [
+        320,
+        844
+      ],
+      "measured": {
+        "width": 320,
+        "height": 844,
+        "dpr": 1,
+        "scrollWidth": 320,
+        "bodyScrollWidth": 320
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "What is a variable?",
+        "hasTranscript": false,
+        "imageLoaded": true,
+        "imageAlt": "Diagram of a Python variable binding a name to a value",
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "contentScrollWidth": 320
+      },
+      "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_320x844_light.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "theme": "light",
+      "viewport": [
+        320,
+        844
+      ],
+      "measured": {
+        "width": 320,
+        "height": 844,
+        "dpr": 1,
+        "scrollWidth": 320,
+        "bodyScrollWidth": 320
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "Variables in Memory",
+        "hasTranscript": true,
+        "imageLoaded": false,
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "contentScrollWidth": 320
+      },
+      "screenshot": "screenshots/s4_t087_p13_video_transcript_320x844_light.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-1-theory",
+      "theme": "light",
+      "viewport": [
+        390,
+        844
+      ],
+      "measured": {
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "scrollWidth": 390,
+        "bodyScrollWidth": 390
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "What is a variable?",
+        "hasTranscript": false,
+        "imageLoaded": true,
+        "imageAlt": "Diagram of a Python variable binding a name to a value",
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "contentScrollWidth": 390
+      },
+      "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_390x844_light.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "theme": "light",
+      "viewport": [
+        390,
+        844
+      ],
+      "measured": {
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "scrollWidth": 390,
+        "bodyScrollWidth": 390
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "Variables in Memory",
+        "hasTranscript": true,
+        "imageLoaded": false,
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "contentScrollWidth": 390
+      },
+      "screenshot": "screenshots/s4_t087_p13_video_transcript_390x844_light.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-1-theory",
+      "theme": "light",
+      "viewport": [
+        768,
+        1024
+      ],
+      "measured": {
+        "width": 768,
+        "height": 1024,
+        "dpr": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "What is a variable?",
+        "hasTranscript": false,
+        "imageLoaded": true,
+        "imageAlt": "Diagram of a Python variable binding a name to a value",
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "contentScrollWidth": 768
+      },
+      "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_768x1024_light.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "theme": "light",
+      "viewport": [
+        768,
+        1024
+      ],
+      "measured": {
+        "width": 768,
+        "height": 1024,
+        "dpr": 1,
+        "scrollWidth": 768,
+        "bodyScrollWidth": 768
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "Variables in Memory",
+        "hasTranscript": true,
+        "imageLoaded": false,
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 768,
+          "height": 1024
+        },
+        "contentScrollWidth": 768
+      },
+      "screenshot": "screenshots/s4_t087_p13_video_transcript_768x1024_light.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-1-theory",
+      "theme": "light",
+      "viewport": [
+        1440,
+        900
+      ],
+      "measured": {
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "scrollWidth": 1440,
+        "bodyScrollWidth": 1440
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "What is a variable?",
+        "hasTranscript": false,
+        "imageLoaded": true,
+        "imageAlt": "Diagram of a Python variable binding a name to a value",
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "contentScrollWidth": 1440
+      },
+      "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_1440x900_light.png"
+    },
+    {
+      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "theme": "light",
+      "viewport": [
+        1440,
+        900
+      ],
+      "measured": {
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "scrollWidth": 1440,
+        "bodyScrollWidth": 1440
+      },
+      "horizontalOverflow": false,
+      "state": {
+        "title": "Variables in Memory",
+        "hasTranscript": true,
+        "imageLoaded": false,
+        "playerFallbackVisible": false,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "contentScrollWidth": 1440
+      },
+      "screenshot": "screenshots/s4_t087_p13_video_transcript_1440x900_light.png"
+    }
+  ],
+  "mediaFailureCapture": {
+    "route": "/learn/enr-ada/steps/step-2-video/video",
+    "theme": "light",
+    "viewport": [
+      1440,
+      900
+    ],
+    "measured": {
+      "width": 1440,
+      "height": 900,
+      "dpr": 1,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440
+    },
+    "state": {
+      "fallback": "Video player unavailable\n\nThe player did not load. The lesson transcript remains available below.\n\nRetry video",
+      "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
+      "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    },
+    "screenshot": "screenshots/s4_t087_p13_blocked_video_transcript_recovery_1440x900_light.png"
+  }
+}

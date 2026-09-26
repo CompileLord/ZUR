@@ -1,5 +1,5 @@
 import { renderLearningWorkspaceShell } from '../../components/shells/LearningWorkspaceShell.ts';
-import { renderMarkdownToHtml } from 'zur-shared';
+import { escapeHtml, renderMarkdownToHtml } from 'zur-shared';
 
 export interface TheoryStepPageOptions {
   courseTitle: string;
@@ -33,7 +33,7 @@ export function renderTheoryStepPage(opts: TheoryStepPageOptions): string {
         <span>~${opts.estimatedDurationMinutes}m</span>
       </div>
 
-      <h1 class="theory-title">${opts.stepTitle}</h1>
+      <h1 class="theory-title">${escapeHtml(opts.stepTitle)}</h1>
 
       <div class="reading-body markdown-prose">
         ${renderedBodyHtml}
@@ -49,7 +49,7 @@ export function renderTheoryStepPage(opts: TheoryStepPageOptions): string {
         </div>
 
         <div class="footer-center">
-          <a href="/help/report?stepId=${opts.stepId}&enrollmentId=${opts.enrollmentId}" class="report-issue-link">
+            <a href="/help/report?stepId=${encodeURIComponent(opts.stepId)}&amp;enrollmentId=${encodeURIComponent(opts.enrollmentId)}" class="report-issue-link">
             Report issue
           </a>
         </div>

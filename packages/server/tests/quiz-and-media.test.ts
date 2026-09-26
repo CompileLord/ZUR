@@ -96,12 +96,15 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
 
     const now = new Date().toISOString();
     const mediaVersionId = 'version-media-access';
-    db.prepare('INSERT INTO course_versions (id, course_id, version_number, snapshot_data, created_at) VALUES (?, ?, 2, ?, ?)').run(mediaVersionId, course.id, JSON.stringify({ modules: [] }), now);
+    db.prepare('INSERT INTO course_versions (id, course_id, version_number, snapshot_data, created_at) VALUES (?, ?, 2, ?, ?)').run(mediaVersionId, course.id, JSON.stringify({ modules: [{ lessons: [{ steps: [{ content: { markdownContent: `![diagram](zur-asset:${asset.id})` } }] }] }] }), now);
     db.prepare("UPDATE courses SET visibility = 'private', publication_status = 'published', current_version_id = ? WHERE id = ?").run(mediaVersionId, course.id);
     db.prepare("INSERT INTO enrollments (id, user_id, course_id, pinned_version_id, status, created_at, updated_at) VALUES ('enr-media-active', ?, ?, ?, 'active', ?, ?)").run('user-student-2', course.id, mediaVersionId, now, now);
 
     assert.equal(mediaService.getAssetFile(asset.id, { userId: authorId, capabilities: ['student', 'author'], isSuspended: false }).mimeType, 'image/png');
     assert.equal(mediaService.getAssetFile(asset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }).mimeType, 'image/png');
+    const unreferencedAsset = mediaService.uploadAsset(authorId, course.id, { buffer: pngBuffer, filename: 'private-unused.png', mimeType: 'image/png', altText: 'Private unused image' });
+    assert.throws(() => mediaService.getAssetFile(unreferencedAsset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }), NotFoundError, 'enrolled students cannot fetch unrelated private uploads');
+    assert.throws(() => mediaService.getAssetFile(asset.id, { userId: 'user-student-1', capabilities: ['student'], isSuspended: false }), NotFoundError, 'another enrollment cannot authorize access to this course asset');
     assert.throws(() => mediaService.getAssetFile(asset.id, { userId: null, capabilities: ['student'], isSuspended: false }), NotFoundError);
     db.prepare("UPDATE enrollments SET status = 'revoked', updated_at = ? WHERE id = 'enr-media-active'").run(now);
     assert.throws(() => mediaService.getAssetFile(asset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }), NotFoundError);

@@ -34,7 +34,7 @@ export function renderLessonRail(props: LessonRailProps): string {
       const ariaCurrent = step.isCurrent ? 'aria-current="step"' : '';
       const typeLabel = step.type.charAt(0).toUpperCase() + step.type.slice(1);
       const contentInner = `
-        <span class="rail-title">${step.title}</span>
+        <span class="rail-title">${escapeHtml(step.title)}</span>
         <span class="rail-step-meta">
           <span class="sr-only">${stateAccessibleText}. </span>
           ${typeLabel} ${step.isRequired ? '· Required' : '· Optional'}
@@ -50,7 +50,7 @@ export function renderLessonRail(props: LessonRailProps): string {
           <div class="rail-content">
             ${
               step.href
-                ? `<a href="${step.href}" class="rail-step-link">${contentInner}</a>`
+                ? `<a href="${escapeHtml(step.href)}" class="rail-step-link">${contentInner}</a>`
                 : `<div class="rail-step-body">${contentInner}</div>`
             }
           </div>
@@ -67,3 +67,4 @@ export function renderLessonRail(props: LessonRailProps): string {
     </nav>
   `;
 }
+import { escapeHtml } from 'zur-shared';

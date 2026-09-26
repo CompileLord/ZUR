@@ -466,12 +466,16 @@ export function renderMarkdownToHtml(markdown: string): string {
       }
       case 'image': {
         let safeUrl = block.url;
+        const zurAssetId = safeUrl.match(/^zur-asset:([0-9a-f-]{36})$/i)?.[1];
         if (DANGEROUS_PROTOCOLS.test(safeUrl.trim())) {
           safeUrl = '';
         }
         const altAttr = block.isDecorative ? 'alt="" aria-hidden="true"' : `alt="${escapeHtml(block.alt)}"`;
         const captionHtml = block.caption ? `<figcaption>${escapeHtml(block.caption)}</figcaption>` : '';
-        htmlParts.push(`<figure class="rich-image"><img src="${escapeHtml(safeUrl)}" ${altAttr} />${captionHtml}</figure>`);
+        const sourceAttr = zurAssetId
+          ? `src="about:blank#zur-asset-${escapeHtml(zurAssetId)}" data-authorized-asset="${escapeHtml(zurAssetId)}"`
+          : `src="${escapeHtml(safeUrl)}"`;
+        htmlParts.push(`<figure class="rich-image"><img ${sourceAttr} ${altAttr} />${captionHtml}</figure>`);
         break;
       }
     }

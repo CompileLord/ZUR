@@ -48,6 +48,8 @@ import { DraftManager } from './services/draft-manager.ts';
 import { DraftSaveQueue } from './services/draft-save-queue.ts';
 import { renderAdminPage } from './pages/admin/AdminPages.ts';
 import { CourseClient } from './services/course-client.ts';
+import { renderTheoryStepPage } from './pages/learning/TheoryStepPage.ts';
+import { renderVideoStepPage } from './pages/learning/VideoStepPage.ts';
 
 const appEl = document.getElementById('app')!;
 const authClient = AuthClient.getInstance();
@@ -229,6 +231,106 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
     if (!isCurrent()) return;
     if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
     else showRouteFailure('We could not load the enrolled exercise. Retry when the service is available.', requestedPath);
+  }
+}
+
+async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theory' | 'video', requestedPath: string): Promise<void> {
+  const isCurrent = () => window.location.pathname + window.location.search === requestedPath;
+  showRouteLoading(kind === 'video' ? 'Video lesson' : 'Theory lesson');
+  try {
+    const data = await authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`);
+    if (!isCurrent()) return;
+    if (data.step?.type !== kind) {
+      appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+      return;
+    }
+    const progressSteps = data.progress?.steps || [];
+    const outlineContent = renderLessonRail({
+      steps: progressSteps.map((step: any, index: number) => ({
+        id: step.id, ordinal: index + 1, title: step.title, type: step.type,
+        isCurrent: step.id === stepId, isCompleted: Boolean(step.isCompleted),
+        isWaived: Boolean(step.isWaived), isRequired: Boolean(step.isRequired),
+        href: `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(step.id)}${step.type === 'video' ? '/video' : ''}`,
+      })),
+    });
+    const common = {
+      courseTitle: data.courseTitle || 'Course',
+      courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
+      lessonTitle: data.stepMeta?.lessonTitle || data.stepMeta?.lessonTitle || data.progress?.steps?.find((s: any) => s.id === stepId)?.lessonTitle || 'Lesson',
+      stepTitle: data.step.title,
+      stepOrdinalText: `Step ${Number(data.step.position) + 1}`,
+      isRequired: Boolean(data.step.isRequired),
+      estimatedDurationMinutes: Number(data.step.estimatedDurationMinutes || 1),
+      enrollmentId, stepId,
+      isCompleted: Boolean(data.stepMeta?.isCompleted),
+      outlineContent,
+      previousStepUrl: data.previousStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.previousStepId)}${progressSteps.find((s: any) => s.id === data.previousStepId)?.type === 'video' ? '/video' : ''}` : null,
+      nextStepUrl: data.nextStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.nextStepId)}${progressSteps.find((s: any) => s.id === data.nextStepId)?.type === 'video' ? '/video' : ''}` : null,
+    };
+    const content = data.step.content || {};
+    appEl.innerHTML = kind === 'theory'
+      ? renderTheoryStepPage({ ...common, markdownContent: String(content.markdown || content.markdownContent || content.body || content.content || '') })
+      : renderVideoStepPage({ ...common, videoUrl: String(content.videoUrl || ''), transcript: content.transcript, captionVerified: Boolean(content.captionVerified) });
+    initTheme();
+    const videoFrame = appEl.querySelector<HTMLIFrameElement>('.video-embed-iframe');
+    const videoFailure = appEl.querySelector<HTMLElement>('[data-video-fallback]');
+    let videoLoadTimer: number | undefined;
+    if (videoFrame && videoFailure) {
+      videoFrame.dataset.retrySrc = videoFrame.src;
+      const showVideoFailure = () => { videoFailure.hidden = false; };
+      videoFrame.addEventListener('error', showVideoFailure);
+      videoLoadTimer = window.setTimeout(showVideoFailure, 10000);
+      appEl.querySelector('[data-video-retry]')?.addEventListener('click', () => {
+        videoFailure.hidden = true;
+        const separator = videoFrame.dataset.retrySrc?.includes('?') ? '&' : '?';
+        videoFrame.src = `${videoFrame.dataset.retrySrc || videoFrame.src}${separator}zur_retry=${Date.now()}`;
+        if (videoLoadTimer) window.clearTimeout(videoLoadTimer);
+        videoLoadTimer = window.setTimeout(showVideoFailure, 10000);
+      });
+    }
+    appEl.querySelectorAll<HTMLFormElement>('.complete-step-form').forEach((form) => form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const button = form.querySelector<HTMLButtonElement>('button');
+      if (!button) return;
+      button.disabled = true;
+      void authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}/complete`, { method: 'POST', body: '{}' })
+        .then(() => { if (isCurrent()) window.location.assign(common.nextStepUrl || common.courseOverviewUrl); })
+        .catch(() => { if (!isCurrent()) return; button.disabled = false; const alert = document.createElement('p'); alert.setAttribute('role','alert'); alert.className='text-danger'; alert.textContent='Could not save completion. Check your connection and try again.'; form.prepend(alert); });
+    }));
+    if (kind === 'theory') {
+      // Canonical media references are never loaded directly by the browser. Fetch with
+      // the authenticated session, then replace with an object URL only after authorization.
+      const mediaImages = [...appEl.querySelectorAll<HTMLImageElement>('img[src^="about:blank#zur-asset-"]')];
+      for (const image of mediaImages) {
+        const assetId = image.dataset.authorizedAsset || '';
+        if (!/^[0-9a-f-]{36}$/i.test(assetId)) { image.remove(); continue; }
+        try {
+          const response = await fetch(`/api/assets/${encodeURIComponent(assetId)}`, { cache: 'no-store', headers: { Authorization: `Bearer ${authClient.getToken() || ''}` } });
+          if (!response.ok) throw new Error('media unavailable');
+          const blob = await response.blob();
+          if (!/^image\/(png|jpeg|webp|gif)$/.test(blob.type)) throw new Error('unsupported media');
+          const objectUrl = URL.createObjectURL(blob);
+          image.src = objectUrl;
+          image.dataset.objectUrl = objectUrl;
+          image.addEventListener('error', () => { URL.revokeObjectURL(objectUrl); image.replaceWith(document.createTextNode('Image unavailable. Retry loading the lesson to try again.')); }, { once: true });
+        } catch {
+          const fallback = document.createElement('span');
+          fallback.className = 'lesson-media-fallback';
+          fallback.setAttribute('role', 'status');
+          fallback.textContent = image.alt ? `Image unavailable: ${image.alt}. Retry loading the lesson to try again.` : 'Image unavailable. Retry loading the lesson to try again.';
+          image.replaceWith(fallback);
+        }
+      }
+    }
+    appEl.querySelectorAll<HTMLAnchorElement>('.lesson-rail a').forEach((link) => link.addEventListener('click', (event) => {
+      if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+        event.preventDefault(); navigateTo(link.getAttribute('href') || link.href);
+      }
+    }));
+  } catch (error: any) {
+    if (!isCurrent()) return;
+    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    else showRouteFailure('We could not load this lesson. Retry when the service is available.', requestedPath);
   }
 }
 
@@ -1036,6 +1138,14 @@ export function renderApp(path: string = window.location.pathname + window.locat
     }
 
     case 'S4': {
+      if (route.pageId === 'P12') {
+        void loadLessonStep(params.enrollmentId, params.stepId, 'theory', path);
+        break;
+      }
+      if (route.pageId === 'P13') {
+        void loadLessonStep(params.enrollmentId, params.stepId, 'video', path);
+        break;
+      }
       if (route.pageId === 'P15') {
         void loadPythonWorkspace(params.enrollmentId, params.stepId, path);
         break;

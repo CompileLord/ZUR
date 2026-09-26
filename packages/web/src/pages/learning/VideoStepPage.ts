@@ -1,5 +1,5 @@
 import { renderLearningWorkspaceShell } from '../../components/shells/LearningWorkspaceShell.ts';
-import { deriveEmbedUrl } from 'zur-shared';
+import { deriveEmbedUrl, escapeHtml } from 'zur-shared';
 
 export interface VideoStepPageOptions {
   courseTitle: string;
@@ -31,12 +31,17 @@ export function renderVideoStepPage(opts: VideoStepPageOptions): string {
           <iframe
             src="${derived.embedUrl}"
             class="video-embed-iframe"
-            title="${opts.stepTitle}"
+            title="${escapeHtml(opts.stepTitle)}"
             loading="lazy"
             allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen
           ></iframe>
         </div>
+      </div>
+      <div class="video-fallback-banner" data-video-fallback hidden role="status">
+        <p class="fallback-title">Video player unavailable</p>
+        <p class="fallback-message">The player did not load. The lesson transcript remains available below.</p>
+        <button type="button" class="btn btn-secondary" data-video-retry>Retry video</button>
       </div>
     `;
   } else {
@@ -59,7 +64,7 @@ export function renderVideoStepPage(opts: VideoStepPageOptions): string {
           ${opts.captionVerified ? '<span class="status-badge success">Verified</span>' : ''}
         </summary>
         <div class="transcript-content">
-          <p>${opts.transcript}</p>
+          <p>${escapeHtml(opts.transcript)}</p>
         </div>
       </details>
     `;
@@ -77,7 +82,7 @@ export function renderVideoStepPage(opts: VideoStepPageOptions): string {
         <span>~${opts.estimatedDurationMinutes}m</span>
       </div>
 
-      <h1 class="video-title">${opts.stepTitle}</h1>
+      <h1 class="video-title">${escapeHtml(opts.stepTitle)}</h1>
 
       ${videoPlayerHtml}
       ${transcriptHtml}
@@ -92,7 +97,7 @@ export function renderVideoStepPage(opts: VideoStepPageOptions): string {
         </div>
 
         <div class="footer-center">
-          <a href="/help/report?stepId=${opts.stepId}&enrollmentId=${opts.enrollmentId}" class="report-issue-link">
+            <a href="/help/report?stepId=${encodeURIComponent(opts.stepId)}&amp;enrollmentId=${encodeURIComponent(opts.enrollmentId)}" class="report-issue-link">
             Report issue
           </a>
         </div>

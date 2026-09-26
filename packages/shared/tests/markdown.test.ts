@@ -132,4 +132,12 @@ test('Markdown AST, Sanitization & Round-Trip (T032, MCP-03)', async (t) => {
     assert.ok(html.includes('<img src="/images/loop.png" alt="Diagram of loop"'));
     assert.ok(html.includes('<figcaption>A diagram illustrating while loops</figcaption>'));
   });
+
+  await t.test('Canonical course media references render as deferred authenticated assets', () => {
+    const assetId = '12345678-1234-4234-8234-123456789abc';
+    const html = renderMarkdownToHtml(`![Circuit diagram](zur-asset:${assetId})`);
+    assert.ok(html.includes(`data-authorized-asset="${assetId}"`));
+    assert.ok(html.includes(`src="about:blank#zur-asset-${assetId}"`));
+    assert.ok(!html.includes(`src="zur-asset:${assetId}"`));
+  });
 });

@@ -1344,7 +1344,8 @@ export function createServer(
         res.writeHead(200, {
           'Content-Type': file.mimeType,
           'Content-Length': file.buffer.length,
-          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'private, no-store',
+          'X-Content-Type-Options': 'nosniff',
         });
         res.end(file.buffer);
         return;
