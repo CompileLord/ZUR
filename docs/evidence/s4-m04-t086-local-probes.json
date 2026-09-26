@@ -1,0 +1,47 @@
+{
+  "recordedAt": "2026-09-26",
+  "browserUiZoom": {
+    "status": "verified",
+    "method": "Installed GUI Chrome 154 in an isolated temporary profile. Opened chrome://settings/appearance, selected the browser UI Zoom menu item 200%, then loaded the local ZUR landing page in that profile. No CDP device-metrics or page-scale emulation was applied.",
+    "metrics": {
+      "innerWidth": 768,
+      "outerWidth": 1536,
+      "devicePixelRatio": 2.5,
+      "visualViewportScale": 1,
+      "screenWidth": 1536,
+      "bodyScrollWidth": 760,
+      "bodyClientWidth": 760
+    },
+    "interpretation": "Chrome browser zoom halves the CSS layout width against the 1536 CSS-pixel outer window. DPR 2.5 includes the session's 1.25 display scale multiplied by 200% browser zoom; visualViewport scale remains 1, distinguishing browser zoom from pinch zoom.",
+    "capture": "screenshots/s4_m04_chrome_ui_zoom200_landing.png",
+    "visualInspection": "At the measured 200% browser zoom, the landing page's header, two-line hero, paragraph, and primary/secondary actions remain readable and fit the viewport width; lower content scrolls vertically."
+  },
+  "orcaAtSpi": {
+    "orcaVersion": "50.2",
+    "atSpiVersion": "2.60.7",
+    "session": "GNOME Wayland; DISPLAY=:0; AT-SPI bus reachable; Orca launched with --replace --debug.",
+    "desktopAppsEnumerated": 7,
+    "chromeExposedAsAtSpiApplication": false,
+    "chromeLaunchOptions": ["--force-renderer-accessibility"],
+    "observed": "Orca debug output received GNOME Terminal events; the Chrome window never appeared in pyatspi.Registry.getDesktop(0) or `orca --list-apps`, even after enabling the GNOME screen-reader setting and CDP Accessibility.enable. Therefore no Orca utterance or real AT-SPI interaction with ZUR could be observed.",
+    "humanVerificationStillRequired": ["Screen-reader announcement order and live-region announcements in ZUR", "Keyboard focus restoration on real dialogs", "Tree and splitter navigation", "Editor escape and return-to-navigation flow", "Enrollment, learning, coding, authoring, admin, and MCP screen-reader journeys"]
+  },
+  "browserMediaEmulation": {
+    "method": "Chrome DevTools Protocol Emulation.setEmulatedMedia on the GUI Chrome ZUR landing page; this is browser media emulation, not an OS accessibility preference session.",
+    "reducedMotion": {
+      "mediaQueryMatched": true,
+      "buttonTransitionDuration": "1e-05s",
+      "rootScrollBehavior": "auto"
+    },
+    "forcedColors": {
+      "mediaQueryMatched": true,
+      "bodyBackground": "rgb(0, 0, 0)",
+      "note": "The browser media query was emulated, but no native high-contrast theme or assistive-technology interaction was verified."
+    }
+  },
+  "contrast": {
+    "command": "node --experimental-strip-types --test packages/web/tests/contrast.test.ts",
+    "result": "3 tests passed, 0 failed; canonical dark and light token pairings meet the asserted text/control contrast thresholds.",
+    "scope": "Token pair checks only; not a whole-page or user-customized color audit."
+  }
+}

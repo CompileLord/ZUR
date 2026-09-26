@@ -1504,11 +1504,12 @@
               "description": "Test WCAG 2.2 AA contrast, keyboard/screen reader flow, focus, dialogs, tree/splitters/editor escape, live regions, text alternatives, reduced motion, forced colors, 200% zoom, and 320px reflow for enrollment, learning, coding, authoring, admin, and MCP settings.",
               "evidence": [
                 "docs/evidence/S4-M04-verification.md",
+                "docs/evidence/s4-m04-t086-local-probes.json",
                 "docs/evidence/s4-m04-a11y-smoke.json",
                 "scripts/verify-a11y-core.ts",
                 "packages/web/tests/contrast.test.ts"
               ],
-              "blocker": "Manual screen-reader and complete live keyboard journey verification require a human assistive-technology session; this environment has no screen-reader application/operator."
+              "blocker": "Orca is installed and ran, but this GNOME Wayland session did not expose the Chrome window over AT-SPI, including with renderer accessibility forced and Chrome Accessibility enabled through DevTools. No spoken ZUR interaction could be verified. A human AT session is still required for announcements/live regions, real focus restoration, tree/splitter and editor flows, and full enrollment, learning, coding, authoring, admin, and MCP journeys; DevTools emulation does not replace native forced-colors verification."
             },
             {
               "id": "T087",
@@ -1527,13 +1528,14 @@
                 "screenshots/s4_m04_matrix_operations_1440x900_dark.png",
                 "screenshots/s4_m04_matrix_python_unsaved_320x844_light.png",
                 "screenshots/s4_m04_matrix_python_dpr2_320css_light.png",
+                "screenshots/s4_m04_chrome_ui_zoom200_landing.png",
                 "screenshots/s4_t087_p08_invitation_expired_390x844_light.png",
                 "screenshots/s4_t087_p27_publish_blocked_errors_1440x900_dark.png",
                 "screenshots/s4_t087_p30_analytics_sparse_activity_390x844_light.png",
                 "screenshots/s4_t087_p43_connections_expired_revocation_review_390x844_dark.png",
                 "screenshots/s4_t087_p45_agent_update_diff_recovery_1440x900_light.png"
               ],
-              "blocker": "The matrix identifies remaining checks: intermediate widths for expanded journeys, builder inspector-open, client-side waiver confirmation, actual browser UI zoom/text enlargement (current headless CDP only controls viewport/DPR), revoked-token and one-time-secret states (secret excluded), real concurrent-edit conflict, inline image media, and additional error/recovery routes. Captures are component fixtures, not authenticated full-app journeys."
+              "blocker": "The matrix identifies remaining checks: intermediate widths for expanded journeys, builder inspector-open, client-side waiver confirmation, revoked-token and one-time-secret states (secret excluded), real concurrent-edit conflict, inline image media, and additional error/recovery routes. Actual 200% GUI Chrome browser UI zoom is verified on the landing page. Most captures are component fixtures, not authenticated full-app journeys."
             },
             {
               "id": "T088",

@@ -13,11 +13,18 @@
       { "label": "320 CSS px reflow", "width": 320, "height": 844, "files": ["screenshots/s4_m04_matrix_operations_320x844_{theme}.png", "screenshots/s4_m04_matrix_python_unsaved_320x844_{theme}.png"] }
     ],
     "zoomProxy": {
-      "method": "Chrome DevTools Protocol Emulation.setDeviceMetricsOverride sets and verifies innerWidth=320 and innerHeight=900 at deviceScaleFactor=2 before capture; screenshot is 640x1800 physical pixels. This provides 320 CSS px reflow at 2x capture scale, not actual browser UI zoom or text enlargement. A headless extension probe using chrome.tabs.setZoom did not activate in this google-chrome --headless=new harness; the page remained at innerWidth=1440, so 200% browser zoom is unverified.",
+      "method": "Chrome DevTools Protocol Emulation.setDeviceMetricsOverride sets and verifies innerWidth=320 and innerHeight=900 at deviceScaleFactor=2 before capture; screenshot is 640x1800 physical pixels. This provides 320 CSS px reflow at 2x capture scale, not actual browser UI zoom or text enlargement. A separate GUI Chrome browser UI 200% zoom measurement is recorded in actualBrowserZoom200 below. The earlier headless chrome.tabs.setZoom extension probe did not activate and is not used as zoom evidence.",
       "verifiedCssViewport": [320, 900],
       "deviceScaleFactor": 2,
       "files": ["screenshots/s4_m04_matrix_python_dpr2_320css_dark.png", "screenshots/s4_m04_matrix_python_dpr2_320css_light.png"],
       "physicalDimensions": [640, 1800]
+    },
+    "actualBrowserZoom200": {
+      "method": "GUI Chrome 154 in an isolated temporary profile used chrome://settings/appearance → Zoom → 200%; then loaded the local ZUR landing page. This used Chrome's browser UI zoom, not CDP viewport, DPR, or page-scale emulation.",
+      "metrics": { "innerWidth": 768, "outerWidth": 1536, "devicePixelRatio": 2.5, "visualViewportScale": 1 },
+      "capture": "screenshots/s4_m04_chrome_ui_zoom200_landing.png",
+      "inspection": "The header, two-line hero, paragraph, and actions remain readable within the zoomed CSS viewport; lower content scrolls vertically.",
+      "details": "docs/evidence/s4-m04-t086-local-probes.json"
     }
   },
   "expandedJourneys": {
@@ -52,7 +59,7 @@
     ]
   },
   "design17Checkpoints": [
-    { "id": 1, "checkpoint": "Landing/catalog; real-length titles", "coverage": "partial", "evidence": ["screenshots/s4_t087_p01_landing_1440x900_dark.png", "screenshots/s4_t087_p02_catalog_long_content_390x844_light.png"], "gap": "New state captures are at 1440x900 and 390x844 in both themes; 1024x768, 768x1024, 320 reflow, and zoom have not been exercised for these pages." },
+    { "id": 1, "checkpoint": "Landing/catalog; real-length titles", "coverage": "partial", "evidence": ["screenshots/s4_t087_p01_landing_1440x900_dark.png", "screenshots/s4_t087_p02_catalog_long_content_390x844_light.png"], "gap": "New state captures are at 1440x900 and 390x844 in both themes; 1024x768, 768x1024, and 320 reflow remain untested for these pages. Actual 200% Chrome UI zoom is captured for the landing page only; catalog 200% zoom remains untested." },
     { "id": 2, "checkpoint": "Sign-in validation and invitation-expired state", "coverage": "partial", "evidence": ["screenshots/s4_t087_p04_sign_in_validation_390x844_light.png", "screenshots/s4_t087_p08_invitation_expired_390x844_light.png"], "gap": "Desktop/mobile dark/light captured; intermediate widths and browser zoom remain outstanding." },
     { "id": 3, "checkpoint": "Student dashboard empty and populated", "coverage": "partial", "evidence": ["screenshots/s4_t087_p09_dashboard_empty_1440x900_dark.png", "screenshots/s4_t087_p09_dashboard_populated_390x844_light.png"], "gap": "Both states at desktop/mobile in dark/light; intermediate widths and completed-course branch remain outstanding." },
     { "id": 4, "checkpoint": "Theory with code and video-failed state with transcript", "coverage": "partial", "evidence": ["screenshots/s4_t087_p12_theory_code_example_1440x900_dark.png", "screenshots/s4_t087_p13_video_unavailable_transcript_390x844_light.png"], "gap": "A code sample and failed-video transcript render; actual inline image media and intermediate widths are not captured." },

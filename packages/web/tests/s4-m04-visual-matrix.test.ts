@@ -34,6 +34,17 @@ test('T087 high-DPR reflow proxy declares and matches its verified viewport dime
   assert.match(matrix.viewportMatrix.zoomProxy.method, /not actual browser UI zoom or text enlargement/);
 });
 
+test('T087 actual Chrome 200% UI zoom has separately captured browser metrics and evidence', () => {
+  const zoom = matrix.viewportMatrix.actualBrowserZoom200;
+  assert.match(zoom.method, /chrome:\/\/settings\/appearance.*200%/);
+  assert.match(zoom.method, /not CDP viewport, DPR, or page-scale emulation/);
+  assert.equal(zoom.metrics.innerWidth * 2, zoom.metrics.outerWidth);
+  assert.equal(zoom.metrics.visualViewportScale, 1);
+  const [width, height] = pngDimensions(zoom.capture);
+  assert.ok(width > 0 && height > 0);
+  assert.ok(fs.existsSync(path.join(root, zoom.details)));
+});
+
 test('T087 checkpoint gaps are explicit and evidence links resolve', () => {
   assert.equal(matrix.design17Checkpoints.length, 15);
   assert.equal(matrix.requiredAdverseStates.length, 9);
