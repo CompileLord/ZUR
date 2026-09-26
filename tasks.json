@@ -1518,13 +1518,17 @@
               "description": "Capture and inspect design checkpoints at 1440×900, 1024×768, 768×1024, 390×844, 320px and 200% zoom; cover both themes, long content, offline/unsaved, errors, queue, blocked publish, expired invites, suspension, sparse metrics, and token/recovery states.",
               "evidence": [
                 "docs/evidence/S4-M04-verification.md",
+                "docs/evidence/S4-M04-visual-matrix.json",
                 "scripts/capture-s4-m04-screenshots.ts",
+                "packages/web/tests/s4-m04-visual-matrix.test.ts",
                 "screenshots/s4_m04_operations_1440.png",
                 "screenshots/s4_m04_python_guidance_1024.png",
                 "screenshots/s4_m04_python_guidance_390.png",
-                "screenshots/s4_m04_python_zoom200_640.png"
+                "screenshots/s4_m04_matrix_operations_1440x900_dark.png",
+                "screenshots/s4_m04_matrix_python_unsaved_320x844_light.png",
+                "screenshots/s4_m04_matrix_python_dpr2_320css_light.png"
               ],
-              "blocker": "Current captures cover representative breakpoints and states; the full page/state/theme matrix remains outstanding."
+              "blocker": "The auditable matrix records missing fixtures for long content, expired invitations, empty/populated dashboard, theory/video, quiz variants, author builder/validation/publication, suspension/waiver, sparse metrics, token/recovery, and agent update/conflict states. Current captures are standalone component fixtures rather than full authenticated routes; browser UI zoom and manual reflow inspection also remain outstanding."
             },
             {
               "id": "T088",

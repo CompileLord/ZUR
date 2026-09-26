@@ -697,9 +697,11 @@
 }
 @media (max-width: 767px) {
   .shell-learning { min-height: 100vh; min-height: 100dvh; }
-  .learning-header { min-height: 56px; height: auto; padding: 8px 12px; gap: 8px; }
+  .learning-header { min-height: 56px; height: auto; padding: 8px 12px; gap: 8px; align-items: stretch; flex-direction: column; }
   .learning-header-left { min-width: 0; flex-wrap: wrap; gap: 6px; }
-  .learning-header-right { flex-shrink: 0; }
+  .learning-header-left .header-divider { display: none; }
+  .learning-header-left .header-lesson-context { overflow-wrap: anywhere; }
+  .learning-header-right { flex-shrink: 0; justify-content: space-between; }
   .learning-task-footer { min-height: 56px; height: auto; padding: 8px 12px; gap: 8px; }
   .task-footer-left, .task-footer-right { min-width: 0; flex-wrap: wrap; gap: 8px; }
   .task-footer-left .step-ordinal-meta { max-width: 125px; overflow-wrap: anywhere; }

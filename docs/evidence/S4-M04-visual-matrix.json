@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "node --experimental-strip-types scripts/capture-s4-m04-screenshots.ts",
+  "fixtureProvenance": "Deterministic seeded database plus explicit local fixture records. The script server-renders page components into standalone HTML with repository CSS and captures them in headless Chrome; these are component-fixture captures, not authenticated full-app browser routes or production evidence.",
+  "viewportMatrix": {
+    "surfaces": ["admin operations overview", "Python learning workspace with offline unsaved edits and public failure"],
+    "themes": ["dark", "light"],
+    "viewports": [
+      { "label": "1440x900 CSS px", "width": 1440, "height": 900, "files": ["screenshots/s4_m04_matrix_operations_1440x900_{theme}.png", "screenshots/s4_m04_matrix_python_unsaved_1440x900_{theme}.png"] },
+      { "label": "1024x768 CSS px", "width": 1024, "height": 768, "files": ["screenshots/s4_m04_matrix_operations_1024x768_{theme}.png", "screenshots/s4_m04_matrix_python_unsaved_1024x768_{theme}.png"] },
+      { "label": "768x1024 CSS px", "width": 768, "height": 1024, "files": ["screenshots/s4_m04_matrix_operations_768x1024_{theme}.png", "screenshots/s4_m04_matrix_python_unsaved_768x1024_{theme}.png"] },
+      { "label": "390x844 CSS px", "width": 390, "height": 844, "files": ["screenshots/s4_m04_matrix_operations_390x844_{theme}.png", "screenshots/s4_m04_matrix_python_unsaved_390x844_{theme}.png"] },
+      { "label": "320 CSS px reflow", "width": 320, "height": 844, "files": ["screenshots/s4_m04_matrix_operations_320x844_{theme}.png", "screenshots/s4_m04_matrix_python_unsaved_320x844_{theme}.png"] }
+    ],
+    "zoomProxy": {
+      "method": "Chrome DevTools Protocol Emulation.setDeviceMetricsOverride sets and verifies innerWidth=320 and innerHeight=900 at deviceScaleFactor=2 before capture; screenshot is 640x1800 physical pixels. This provides 320 CSS px reflow at 2x capture scale, not actual browser UI zoom or text enlargement.",
+      "verifiedCssViewport": [320, 900],
+      "deviceScaleFactor": 2,
+      "files": ["screenshots/s4_m04_matrix_python_dpr2_320css_dark.png", "screenshots/s4_m04_matrix_python_dpr2_320css_light.png"],
+      "physicalDimensions": [640, 1800]
+    }
+  },
+  "design17Checkpoints": [
+    { "id": 1, "checkpoint": "Landing/catalog; real-length titles", "coverage": "partial", "evidence": ["screenshots/s4_m01_p01_landing.png", "screenshots/s4_m01_p02_catalog.png"], "gap": "Not captured across requested viewport/theme matrix; long-title fixture not confirmed." },
+    { "id": 2, "checkpoint": "Sign-in validation and expired invitation", "coverage": "partial", "evidence": [], "gap": "Expired invitation has no current capture fixture; sign-in validation capture is not in the checked-in screenshot set." },
+    { "id": 3, "checkpoint": "Student dashboard empty and populated", "coverage": "unavailable", "evidence": [], "gap": "No deterministic empty/populated dashboard visual fixture in the existing capture scripts." },
+    { "id": 4, "checkpoint": "Theory with code/image and failed video", "coverage": "partial", "evidence": [], "gap": "No current screenshot fixture for this checkpoint." },
+    { "id": 5, "checkpoint": "Quiz selected, incorrect, passed", "coverage": "unavailable", "evidence": [], "gap": "No current screenshot fixture for quiz state variants." },
+    { "id": 6, "checkpoint": "Python idle, public/hidden failure, unsaved, queued, passed", "coverage": "partial", "evidence": ["screenshots/s4_m04_matrix_python_unsaved_1440x900_dark.png", "screenshots/s4_m04_python_hidden_failure_1440.png", "screenshots/s4_m04_matrix_python_dpr2_320css_light.png"], "gap": "Idle, queued, passed and hidden-failure variants are not covered across the matrix themes/viewports; small-screen fixture warns that Run/Submit require a computer." },
+    { "id": 7, "checkpoint": "Author builder: deep tree, long title, inspector", "coverage": "unavailable", "evidence": [], "gap": "No current screenshot fixture." },
+    { "id": 8, "checkpoint": "Python author tests and stale reference validation", "coverage": "unavailable", "evidence": [], "gap": "No current screenshot fixture." },
+    { "id": 9, "checkpoint": "Publication blocked and successful", "coverage": "unavailable", "evidence": [], "gap": "No current screenshot fixture." },
+    { "id": 10, "checkpoint": "Roster filters, student detail, sparse analytics", "coverage": "partial", "evidence": ["screenshots/s4_m02_p28_roster.png", "screenshots/s4_m02_p29_student_detail.png", "screenshots/s4_m02_p30_analytics_mobile.png"], "gap": "Existing captures are dark-theme and do not establish sparse metrics or full viewport coverage." },
+    { "id": 11, "checkpoint": "Admin suspension and audited waiver confirmation", "coverage": "partial", "evidence": ["screenshots/s4_m03_courses_course_python_foundations.png", "screenshots/s4_m03_overview.png"], "gap": "Suspension and waiver confirmation states are not captured." },
+    { "id": 12, "checkpoint": "Settings both themes and keyboard-focused modal controls", "coverage": "unavailable", "evidence": [], "gap": "No current screenshot fixture; screenshots cannot certify keyboard operation." },
+    { "id": 13, "checkpoint": "AI connections empty/populated, token permissions, one-time secret, expired/revoked", "coverage": "unavailable", "evidence": [], "gap": "No current screenshot fixture. Secret reveal must not be included in generic capture instrumentation." },
+    { "id": 14, "checkpoint": "Agent setup supported bearer and unsupported OAuth clients", "coverage": "unavailable", "evidence": [], "gap": "No current screenshot fixture." },
+    { "id": 15, "checkpoint": "Remote updates, conflict, diff, recovery confirmation", "coverage": "unavailable", "evidence": [], "gap": "No current screenshot fixture." }
+  ],
+  "requiredAdverseStates": [
+    { "state": "long content", "coverage": "unavailable", "evidence": [], "gap": "No explicitly long-content capture fixture." },
+    { "state": "offline/unsaved", "coverage": "captured", "evidence": ["screenshots/s4_m04_matrix_python_unsaved_1440x900_dark.png", "screenshots/s4_m04_matrix_python_unsaved_320x844_light.png"] },
+    { "state": "errors", "coverage": "partial", "evidence": ["screenshots/s4_m04_python_unsaved_public_failure_1440.png", "screenshots/s4_m04_python_hidden_failure_1440.png"], "gap": "Only Python public/hidden failure examples; route-specific error states remain unrepresented." },
+    { "state": "queue", "coverage": "captured", "evidence": ["screenshots/s4_m04_operations_alert_fixture_1440.png"], "gap": "Local seeded queued/stale-running execution rows; not a live queue load or production observation." },
+    { "state": "blocked publish", "coverage": "unavailable", "evidence": [], "gap": "No current renderer fixture." },
+    { "state": "expired invites", "coverage": "unavailable", "evidence": [], "gap": "Existing invitation capture contains active invitation records only." },
+    { "state": "suspension", "coverage": "unavailable", "evidence": [], "gap": "No current suspended-course/user state capture." },
+    { "state": "sparse metrics", "coverage": "partial", "evidence": ["screenshots/s4_m02_p30_analytics.png"], "gap": "Seeded analytics are not an explicit zero/low-activity fixture." },
+    { "state": "token/recovery", "coverage": "unavailable", "evidence": [], "gap": "No current token permission/recovery fixture; one-time secrets are excluded." }
+  ],
+  "visualInspection": [
+    { "file": "screenshots/s4_m04_matrix_operations_1440x900_dark.png", "result": "Readable hierarchy and labeled queue/runner telemetry; this normal fixture says there are no active alerts." },
+    { "file": "screenshots/s4_m04_matrix_operations_390x844_light.png", "result": "Navigation wraps into two columns and content follows vertically; lower sections require scroll." },
+    { "file": "screenshots/s4_m04_matrix_python_unsaved_320x844_dark.png", "result": "Offline/unsaved state remains visible with desktop guidance and step/footer navigation; exercise result content is vertically scrollable." },
+    { "file": "screenshots/s4_m04_matrix_python_dpr2_320css_light.png", "result": "CDP confirmed a 320x900 CSS viewport at DPR 2; code/result content remains scrollable, and no desktop coding action is implied. The header stacks location and save controls. This is not browser UI zoom or text enlargement." }
+  ]
+}
