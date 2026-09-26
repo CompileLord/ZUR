@@ -169,6 +169,16 @@ test('Enrollment, Invitation, and Progress HTTP Endpoints (T045-T048)', async (t
   });
 
   await t.test('GET /api/enrollments/:enrollmentId/steps/:stepId returns enrolled step view', async () => {
+    const enrollment = db.prepare('SELECT pinned_version_id FROM enrollments WHERE id = ?').get(studentEnrollmentId) as any;
+    const version = db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(enrollment.pinned_version_id) as any;
+    const snapshot = JSON.parse(version.snapshot_data);
+    const pinnedStep = snapshot.modules.flatMap((module: any) => module.lessons)
+      .flatMap((lesson: any) => lesson.steps).find((step: any) => step.id === stepId);
+    assert.ok(pinnedStep, 'the pinned fixture contains the requested student step');
+    pinnedStep.internalAnswerKey = { correctOptionIds: ['must-not-reach-student'] };
+    pinnedStep.privateAuthorNotes = 'must not be exposed';
+    db.prepare('UPDATE course_versions SET snapshot_data = ? WHERE id = ?').run(JSON.stringify(snapshot), enrollment.pinned_version_id);
+
     const res = await fetch(`${baseUrl}/api/enrollments/${studentEnrollmentId}/steps/${stepId}`, {
       headers: {
         Authorization: `Bearer ${studentToken}`,
@@ -178,6 +188,9 @@ test('Enrollment, Invitation, and Progress HTTP Endpoints (T045-T048)', async (t
     assert.strictEqual(res.status, 200);
     const body = (await res.json()) as any;
     assert.ok(body.step);
+    assert.deepEqual(Object.keys(body.step).sort(), ['content', 'estimatedDurationMinutes', 'id', 'isRequired', 'position', 'title', 'type']);
+    assert.equal(body.step.internalAnswerKey, undefined);
+    assert.equal(body.step.privateAuthorNotes, undefined);
     assert.ok(body.progress);
     assert.strictEqual(body.courseTitle, 'Python REST API Learning');
   });

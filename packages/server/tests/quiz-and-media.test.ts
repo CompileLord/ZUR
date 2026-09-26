@@ -94,9 +94,27 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
     });
     assert.equal(updated.altText, 'Updated ALU diagram');
 
+    const privateExerciseAsset = mediaService.uploadAsset(authorId, course.id, {
+      buffer: pngBuffer, filename: 'private-exercise-only.png', mimeType: 'image/png', altText: 'Private exercise fixture',
+    });
+    const snapshotMetadataAsset = mediaService.uploadAsset(authorId, course.id, {
+      buffer: pngBuffer, filename: 'snapshot-metadata-only.png', mimeType: 'image/png', altText: 'Private snapshot metadata fixture',
+    });
     const now = new Date().toISOString();
     const mediaVersionId = 'version-media-access';
-    db.prepare('INSERT INTO course_versions (id, course_id, version_number, snapshot_data, created_at) VALUES (?, ?, 2, ?, ?)').run(mediaVersionId, course.id, JSON.stringify({ modules: [{ lessons: [{ steps: [{ content: { markdownContent: `![diagram](zur-asset:${asset.id})` } }] }] }] }), now);
+    const mediaSnapshot = {
+      internalMediaMetadata: `zur-asset:${snapshotMetadataAsset.id}`,
+      modules: [{ lessons: [{ steps: [{
+        id: 'step-media-visible',
+        type: 'python',
+        content: {
+          markdownContent: `![diagram](zur-asset:${asset.id})`,
+          referenceSolution: `print('zur-asset:${privateExerciseAsset.id}')`,
+          testCases: [{ id: 'hidden-case', isHidden: true, expectedStdout: `zur-asset:${privateExerciseAsset.id}` }],
+        },
+      }] }] }],
+    };
+    db.prepare('INSERT INTO course_versions (id, course_id, version_number, snapshot_data, created_at) VALUES (?, ?, 2, ?, ?)').run(mediaVersionId, course.id, JSON.stringify(mediaSnapshot), now);
     db.prepare("UPDATE courses SET visibility = 'private', publication_status = 'published', current_version_id = ? WHERE id = ?").run(mediaVersionId, course.id);
     db.prepare("INSERT INTO enrollments (id, user_id, course_id, pinned_version_id, status, created_at, updated_at) VALUES ('enr-media-active', ?, ?, ?, 'active', ?, ?)").run('user-student-2', course.id, mediaVersionId, now, now);
 
@@ -104,6 +122,8 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
     assert.equal(mediaService.getAssetFile(asset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }).mimeType, 'image/png');
     const unreferencedAsset = mediaService.uploadAsset(authorId, course.id, { buffer: pngBuffer, filename: 'private-unused.png', mimeType: 'image/png', altText: 'Private unused image' });
     assert.throws(() => mediaService.getAssetFile(unreferencedAsset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }), NotFoundError, 'enrolled students cannot fetch unrelated private uploads');
+    assert.throws(() => mediaService.getAssetFile(privateExerciseAsset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }), NotFoundError, 'hidden Python solution/test data and step metadata do not authorize student media access');
+    assert.throws(() => mediaService.getAssetFile(snapshotMetadataAsset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }), NotFoundError, 'snapshot-level metadata does not authorize student media access');
     assert.throws(() => mediaService.getAssetFile(asset.id, { userId: 'user-student-1', capabilities: ['student'], isSuspended: false }), NotFoundError, 'another enrollment cannot authorize access to this course asset');
     assert.throws(() => mediaService.getAssetFile(asset.id, { userId: null, capabilities: ['student'], isSuspended: false }), NotFoundError);
 
@@ -118,6 +138,10 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
     assert.throws(() => mediaService.getAssetFile(currentAsset.id, { userId: 'user-student-2', capabilities: ['student'], isSuspended: false }), NotFoundError, 'existing learners cannot use an image that only exists in the latest version');
     assert.throws(() => mediaService.getAssetFile(currentAsset.id, { userId: 'user-student-1', capabilities: ['student'], isSuspended: false }), NotFoundError, 'public visibility does not expose course media to non-enrolled visitors');
     assert.throws(() => mediaService.getAssetFile(currentAsset.id, { userId: null, capabilities: ['student'], isSuspended: false }), NotFoundError, 'public visibility does not expose course media to anonymous visitors');
+
+    const processingAsset = mediaService.uploadAsset(authorId, course.id, { buffer: pngBuffer, filename: 'processing.png', mimeType: 'image/png', altText: 'Not ready yet' });
+    db.prepare("UPDATE media_assets SET processing_status='processing' WHERE id=?").run(processingAsset.id);
+    assert.throws(() => mediaService.getAssetFile(processingAsset.id, { userId: authorId, capabilities: ['author'], isSuspended: false }), NotFoundError, 'course owners cannot fetch a media asset before it is ready');
 
     const lookalikeVersionId = 'version-media-lookalike';
     db.prepare('INSERT INTO course_versions (id, course_id, version_number, snapshot_data, created_at) VALUES (?, ?, 4, ?, ?)').run(lookalikeVersionId, course.id, JSON.stringify({ modules: [{ lessons: [{ steps: [{ content: { markdown: `![diagram](zur-asset:${asset.id}abc)` } }] }] }] }), now);

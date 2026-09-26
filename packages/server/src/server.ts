@@ -1803,21 +1803,6 @@ export function createServer(
         const stepMeta = progress.steps.find((s) => s.id === stepId);
         if (!stepMeta) throw authService.safeNotFound();
 
-        const enr = db.prepare('SELECT pinned_version_id FROM enrollments WHERE id = ?').get(enrollmentId) as any;
-        const ver = db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(enr.pinned_version_id) as any;
-        const snapshot = JSON.parse(ver.snapshot_data);
-        let stepSnapshot: any = null;
-        for (const m of snapshot.modules || []) {
-          for (const l of m.lessons || []) {
-            for (const s of l.steps || []) {
-              if (s.id === stepId) {
-                stepSnapshot = s;
-                break;
-              }
-            }
-          }
-        }
-
         const stepIdx = progress.steps.findIndex((s) => s.id === stepId);
         const previousStepId = stepIdx > 0 ? progress.steps[stepIdx - 1].id : null;
         const nextStepId = stepIdx < progress.steps.length - 1 ? progress.steps[stepIdx + 1].id : null;
@@ -1838,7 +1823,12 @@ export function createServer(
 
         sendJson(res, 200, {
           step: {
-            ...(stepSnapshot || stepMeta),
+            id: enrolledSnapshot.step.id,
+            type: enrolledSnapshot.step.type,
+            title: enrolledSnapshot.step.title,
+            position: enrolledSnapshot.step.position,
+            isRequired: enrolledSnapshot.step.isRequired,
+            estimatedDurationMinutes: enrolledSnapshot.step.estimatedDurationMinutes,
             content: studentContent,
           },
           stepMeta,

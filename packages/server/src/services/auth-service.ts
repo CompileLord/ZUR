@@ -129,7 +129,7 @@ export class AuthorizationService {
       SELECT id, course_id, processing_status FROM media_assets WHERE id = ?
     `).get(assetId) as any;
 
-    if (!asset || asset.processing_status === 'quarantined') {
+    if (!asset || asset.processing_status !== 'ready') {
       return false;
     }
 
@@ -162,6 +162,50 @@ export class AuthorizationService {
       if (value.assetId === assetId || value.asset_id === assetId) return true;
       return Object.values(value).some(references);
     };
-    return references(snapshot);
+    const enrollment = this.db.prepare(`
+      SELECT id FROM enrollments
+      WHERE user_id = ? AND course_id = ? AND pinned_version_id = ? AND status = 'active'
+    `).get(user.userId, asset.course_id, versionId) as any;
+    if (!enrollment) return false;
+
+    for (const module of snapshot.modules || []) {
+      for (const lesson of module.lessons || []) {
+        for (const step of lesson.steps || []) {
+          if (!step || typeof step !== 'object') continue;
+          let content = step.content == null ? null : JSON.parse(JSON.stringify(step.content));
+          if (!content || typeof content !== 'object') continue;
+
+          if (step.type === 'python') {
+            delete content.referenceSolution;
+            if (Array.isArray(content.testCases)) {
+              content.testCases = content.testCases
+                .filter((testCase: any) => !testCase.isHidden)
+                .map((testCase: any) => ({
+                  id: testCase.id,
+                  stdin: testCase.stdin,
+                  expectedStdout: testCase.expectedStdout,
+                  position: testCase.position,
+                }));
+            }
+          } else if (step.type === 'quiz') {
+            const progress = this.db.prepare(`
+              SELECT is_completed, is_waived FROM step_progress
+              WHERE enrollment_id = ? AND step_id = ?
+            `).get(enrollment.id, step.id) as any;
+            const isCompleted = Boolean(progress?.is_completed || progress?.is_waived);
+            if (!isCompleted) {
+              content = {
+                ...content,
+                options: (content.options || []).map((option: any) => ({ id: option.id, text: option.text })),
+                explanation: undefined,
+              };
+            }
+          }
+
+          if (references(content)) return true;
+        }
+      }
+    }
+    return false;
   }
 }

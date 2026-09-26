@@ -131,14 +131,14 @@
     {
       "id": "S0",
       "name": "Product decisions and technical foundation",
-      "phase": "Before and across phases A\u2013C",
+      "phase": "Before and across phases A–C",
       "status": "done",
       "modules": [
         {
           "id": "S0-M01",
           "name": "Scope, decisions, and architecture",
           "source": [
-            "PRD 4, 17, 20, 22\u201323",
+            "PRD 4, 17, 20, 22–23",
             "design 1, 17"
           ],
           "tasks": [
@@ -147,7 +147,7 @@
               "title": "Record P0 scope and acceptance map",
               "status": "done",
               "priority": "P0",
-              "description": "Create a requirements trace linking each PRD section, AC-01\u2013AC-20, MCP-01\u2013MCP-12, and design P01\u2013P45 to implementation and verification. Keep excluded features out of P0.",
+              "description": "Create a requirements trace linking each PRD section, AC-01–AC-20, MCP-01–MCP-12, and design P01–P45 to implementation and verification. Keep excluded features out of P0.",
               "evidence": [
                 "REQUIREMENTS_TRACE.md",
                 "tasks.json acceptance_coverage and module coverage"
@@ -232,10 +232,10 @@
           "id": "S0-M02",
           "name": "Shared interface system",
           "source": [
-            "design 2\u20139, 14\u201318"
+            "design 2–9, 14–18"
           ],
           "coverage": [
-            "S1\u2013S6",
+            "S1–S6",
             "shared overlays",
             "universal states"
           ],
@@ -293,7 +293,7 @@
               "title": "Implement safe routes and overlay transitions",
               "status": "done",
               "priority": "P0",
-              "description": "Define P01\u2013P45 route contracts and reusable routing/overlay behavior for safe URL filters, Back navigation, focus-managed confirmations, conflict comparison, and account-scoped return destinations; keep secrets and code out of URLs and analytics.",
+              "description": "Define P01–P45 route contracts and reusable routing/overlay behavior for safe URL filters, Back navigation, focus-managed confirmations, conflict comparison, and account-scoped return destinations; keep secrets and code out of URLs and analytics.",
               "evidence": [
                 "packages/web/src/router/routes.ts",
                 "packages/web/src/main.ts",
@@ -307,7 +307,7 @@
     },
     {
       "id": "S1",
-      "name": "Phase A \u2014 prove safe practice",
+      "name": "Phase A — prove safe practice",
       "phase": "A",
       "status": "done",
       "gate": "Isolated Run/Submit, hidden-output protection, idempotency, reconnect, malicious-code tests, and code recovery pass.",
@@ -316,8 +316,8 @@
           "id": "S1-M01",
           "name": "Identity, account, and access",
           "source": [
-            "PRD 6\u20137, 15",
-            "design P04\u2013P08, P17\u2013P20, P42"
+            "PRD 6–7, 15",
+            "design P04–P08, P17–P20, P42"
           ],
           "coverage": [
             "P04",
@@ -337,7 +337,7 @@
               "title": "Implement sign-up and email verification",
               "status": "done",
               "priority": "P0",
-              "description": "Build verified-email account creation, resend/cooldown, expired-link recovery, restricted-pilot eligibility, safe invitation context, and P05\u2013P06 states; enrollment and authoring require verification.",
+              "description": "Build verified-email account creation, resend/cooldown, expired-link recovery, restricted-pilot eligibility, safe invitation context, and P05–P06 states; enrollment and authoring require verification.",
               "evidence": [
                 "packages/server/src/services/identity-service.ts",
                 "packages/server/src/services/password-service.ts",
@@ -427,8 +427,8 @@
           "id": "S1-M02",
           "name": "Python assessment and execution boundary",
           "source": [
-            "PRD 11\u201313, 17\u201318",
-            "design P15\u2013P16, P25, P38"
+            "PRD 11–13, 17–18",
+            "design P15–P16, P25, P38"
           ],
           "coverage": [
             "P15",
@@ -515,7 +515,7 @@
               "title": "Build code draft persistence and recovery",
               "status": "done",
               "priority": "P0",
-              "description": "Autosave code after 1\u20132 seconds by student/enrollment/version/step; acknowledge revision, preserve account-scoped local edits offline, resolve cross-tab conflicts, clear local cache on sign-out, and restore acknowledged code across devices.",
+              "description": "Autosave code after 1–2 seconds by student/enrollment/version/step; acknowledge revision, preserve account-scoped local edits offline, resolve cross-tab conflicts, clear local cache on sign-out, and restore acknowledged code across devices.",
               "evidence": [
                 "packages/server/src/services/draft-service.ts",
                 "packages/web/src/services/draft-manager.ts",
@@ -568,7 +568,7 @@
     },
     {
       "id": "S2",
-      "name": "Phase B \u2014 author-to-student delivery",
+      "name": "Phase B — author-to-student delivery",
       "phase": "B",
       "status": "done",
       "gate": "An author creates, validates, previews, and publishes a mixed lesson; an invited learner enrolls, completes it, and resumes without staff database changes.",
@@ -577,8 +577,8 @@
           "id": "S2-M01",
           "name": "Course structure, authoring, and media",
           "source": [
-            "PRD 5, 8, 11\u201312",
-            "design P21\u2013P26, P31"
+            "PRD 5, 8, 11–12",
+            "design P21–P26, P31"
           ],
           "coverage": [
             "P21",
@@ -623,7 +623,7 @@
               "title": "Build builder tree and structure operations",
               "status": "done",
               "priority": "P0",
-              "description": "Build P22 course/module/lesson/step selection, add/rename/duplicate/delete/collapse/reorder/move, drag and keyboard controls, 1\u201320 published steps per lesson, stable IDs, child-scope confirmation, and replacement instead of published step type mutation.",
+              "description": "Build P22 course/module/lesson/step selection, add/rename/duplicate/delete/collapse/reorder/move, drag and keyboard controls, 1–20 published steps per lesson, stable IDs, child-scope confirmation, and replacement instead of published step type mutation.",
               "evidence": [
                 "packages/server/src/services/course-structure-service.ts",
                 "packages/server/src/server.ts",
@@ -686,7 +686,7 @@
               "title": "Build Quiz author editor and server assessment",
               "status": "done",
               "priority": "P0",
-              "description": "Implement P24 rich prompt, 2\u20138 options, single/multiple choice answer-key constraints, safe type conversion, post-pass explanation, server-side exact-set grading, unlimited abuse-bounded attempts, and no pre-pass answer-key payload.",
+              "description": "Implement P24 rich prompt, 2–8 options, single/multiple choice answer-key constraints, safe type conversion, post-pass explanation, server-side exact-set grading, unlimited abuse-bounded attempts, and no pre-pass answer-key payload.",
               "evidence": [
                 "packages/server/src/services/quiz-service.ts",
                 "packages/server/src/server.ts",
@@ -700,7 +700,7 @@
               "title": "Build Python exercise author editor",
               "status": "done",
               "priority": "P0",
-              "description": "Implement P25 Problem/Code/Tests/Validation tabs for input/output format, constraints, starter, private reference, public/hidden tests, 0\u20133 hints, post-pass explanation, runtime and limit bounds, and protected author diagnostics.",
+              "description": "Implement P25 Problem/Code/Tests/Validation tabs for input/output format, constraints, starter, private reference, public/hidden tests, 0–3 hints, post-pass explanation, runtime and limit bounds, and protected author diagnostics.",
               "evidence": [
                 "packages/server/src/services/exercise-authoring-service.ts",
                 "packages/server/src/server.ts",
@@ -741,7 +741,7 @@
           "id": "S2-M02",
           "name": "Validation, immutable publication, and lifecycle",
           "source": [
-            "PRD 7\u20139, 19",
+            "PRD 7–9, 19",
             "design P27, P31"
           ],
           "coverage": [
@@ -816,8 +816,8 @@
           "id": "S2-M03",
           "name": "Enrollment, learning, and completion",
           "source": [
-            "PRD 7, 10\u201312",
-            "design P08\u2013P16"
+            "PRD 7, 10–12",
+            "design P08–P16"
           ],
           "coverage": [
             "P08",
@@ -950,17 +950,17 @@
     },
     {
       "id": "S3",
-      "name": "P0 extension \u2014 external AI authoring through MCP",
-      "phase": "B\u2013C",
+      "name": "P0 extension — external AI authoring through MCP",
+      "phase": "B–C",
       "status": "done",
-      "gate": "A real SDK client creates and edits a course with Markdown, an uploaded image, quiz, and validated Python exercise, resolves a builder conflict, and publishes using an explicitly granted token; MCP-01\u2013MCP-12 pass.",
+      "gate": "A real SDK client creates and edits a course with Markdown, an uploaded image, quiz, and validated Python exercise, resolves a builder conflict, and publishes using an explicitly granted token; MCP-01–MCP-12 pass.",
       "modules": [
         {
           "id": "S3-M01",
           "name": "Credentials, grants, and connection experience",
           "source": [
-            "PRD 23.1\u201323.3, 23.8",
-            "design 19, P43\u2013P44"
+            "PRD 23.1–23.3, 23.8",
+            "design 19, P43–P44"
           ],
           "coverage": [
             "P43",
@@ -972,7 +972,7 @@
               "title": "Implement scoped author token lifecycle",
               "status": "done",
               "priority": "P0",
-              "description": "Issue tokens only to reauthenticated active verified authors; use at least 256-bit secrets stored as digest plus lookup ID, one-time reveal, 1\u201390-day expiry, immediate revocation, last use, and access loss on suspension/capability/ownership change.",
+              "description": "Issue tokens only to reauthenticated active verified authors; use at least 256-bit secrets stored as digest plus lookup ID, one-time reveal, 1–90-day expiry, immediate revocation, last use, and access loss on suspension/capability/ownership change.",
               "evidence": [
                 "packages/server/src/services/mcp-token-service.ts",
                 "packages/server/src/server.ts",
@@ -1021,7 +1021,7 @@
           "id": "S3-M02",
           "name": "MCP protocol and authoring tools",
           "source": [
-            "PRD 23.2, 23.4\u201323.7"
+            "PRD 23.2, 23.4–23.7"
           ],
           "tasks": [
             {
@@ -1137,8 +1137,8 @@
           "id": "S3-M03",
           "name": "Agent activity, concurrency, and recovery",
           "source": [
-            "PRD 23.6, 23.8\u201323.9",
-            "design P45, 19.2\u201319.4"
+            "PRD 23.6, 23.8–23.9",
+            "design P45, 19.2–19.4"
           ],
           "coverage": [
             "P45",
@@ -1194,7 +1194,7 @@
               "title": "Verify MCP end to end and adversarial cases",
               "status": "done",
               "priority": "P0",
-              "description": "Run MCP-01\u2013MCP-12 with a real SDK client, including cross-author IDs, restricted scopes, pending-write revocation, stale/repeated batches, unsafe Markdown/images, UI/MCP round trips, recovery, invalid reference, and unsupported OAuth-only client messaging.",
+              "description": "Run MCP-01–MCP-12 with a real SDK client, including cross-author IDs, restricted scopes, pending-write revocation, stale/repeated batches, unsafe Markdown/images, UI/MCP round trips, recovery, invalid reference, and unsupported OAuth-only client messaging.",
               "evidence": [
                 "packages/server/tests/mcp-adversarial-and-e2e.test.ts"
               ]
@@ -1206,7 +1206,7 @@
     },
     {
       "id": "S4",
-      "name": "Phase C \u2014 discovery, teaching, and operations",
+      "name": "Phase C — discovery, teaching, and operations",
       "phase": "C",
       "status": "in_progress",
       "gate": "All P0 acceptance criteria, accessible core journeys, privacy decisions, load targets, monitoring, and backup/rollback exercises pass in a controlled pilot.",
@@ -1215,8 +1215,8 @@
           "id": "S4-M01",
           "name": "Public discovery and help",
           "source": [
-            "PRD 3\u20134, 7, 15\u201316",
-            "design P01\u2013P03, P40\u2013P42"
+            "PRD 3–4, 7, 15–16",
+            "design P01–P03, P40–P42"
           ],
           "coverage": [
             "P01",
@@ -1232,7 +1232,7 @@
               "title": "Build landing page",
               "status": "done",
               "priority": "P0",
-              "description": "Implement P01 public shell, accurate example workspace, Explore/authoring links, Read\u2013Try\u2013Check explanation, responsive layout, and signed-in Continue action without fabricated metrics or unsupported claims.",
+              "description": "Implement P01 public shell, accurate example workspace, Explore/authoring links, Read–Try–Check explanation, responsive layout, and signed-in Continue action without fabricated metrics or unsupported claims.",
               "evidence": [
                 "packages/web/src/pages/public/LandingPage.ts",
                 "packages/web/src/main.ts",
@@ -1292,7 +1292,7 @@
           "name": "Teacher roster and analytics",
           "source": [
             "PRD 14",
-            "design P28\u2013P30"
+            "design P28–P30"
           ],
           "coverage": [
             "P28",
@@ -1368,7 +1368,7 @@
           "name": "Administration and private support",
           "source": [
             "PRD 9, 15, 17",
-            "design P32\u2013P39"
+            "design P32–P39"
           ],
           "coverage": [
             "P32",
@@ -1499,8 +1499,8 @@
           "id": "S4-M04",
           "name": "Accessibility, quality, and operations",
           "source": [
-            "PRD 16, 18\u201320",
-            "design 15\u201318"
+            "PRD 16, 18–20",
+            "design 15–18"
           ],
           "tasks": [
             {
@@ -1523,7 +1523,7 @@
               "title": "Verify responsive design and adverse states",
               "status": "in_progress",
               "priority": "P0",
-              "description": "Capture and inspect design checkpoints at 1440\u00d7900, 1024\u00d7768, 768\u00d71024, 390\u00d7844, 320px and 200% zoom; cover both themes, long content, offline/unsaved, errors, queue, blocked publish, expired invites, suspension, sparse metrics, and token/recovery states.",
+              "description": "Capture and inspect design checkpoints at 1440×900, 1024×768, 768×1024, 390×844, 320px and 200% zoom; cover both themes, long content, offline/unsaved, errors, queue, blocked publish, expired invites, suspension, sparse metrics, and token/recovery states.",
               "evidence": [
                 "docs/evidence/S4-M04-verification.md",
                 "docs/evidence/S4-M04-visual-matrix.json",
@@ -1684,7 +1684,7 @@
                 "screenshots/s4_t087_p43_revoked_status_390x844_dark.png",
                 "screenshots/s4_t087_p43_revoked_status_390x844_light.png"
               ],
-              "blocker": "T087 remains in progress. Authenticated live P12/P13 routes render pinned lesson content and deliver course-attached images through authorization tied to the active enrollment\u2019s pinned immutable version. Both routes have actual captures at 320\u00d7844, 390\u00d7844, 768\u00d71024, 1024\u00d7768, and 1440\u00d7900 in both themes, plus genuine Chrome UI 200% captures for each route/theme; no horizontal overflow was measured. All ten P13 provider-blocked recovery combinations keep the transcript and Retry video control available, with no measured horizontal overflow. Browser probes return safe 404 for unreferenced assets, anonymous requests, another learner\u2019s enrollment, and revoked enrollment; the pinned image returns 200 with private no-store caching. The live capture also confirms server completion and next-step navigation. Broader adverse-state combinations and live P43 actual 200% evidence remain; live P43 reauthentication, masked secret, and revoked-status states now have responsive captures at all five required CSS viewports in both themes. T086 human screen-reader and native forced-colors review remains blocked. Keep T087 in progress; local browser mutations used disposable SQLite fixtures."
+              "blocker": "T087 remains in progress. Authenticated live P12/P13 routes render pinned lesson content and deliver course-attached images through authorization tied to the active enrollment’s pinned immutable version. Both routes have actual captures at 320×844, 390×844, 768×1024, 1024×768, and 1440×900 in both themes, plus genuine Chrome UI 200% captures for each route/theme; no horizontal overflow was measured. All ten P13 provider-blocked recovery combinations keep the transcript and Retry video control available, with no measured horizontal overflow. Browser probes return safe 404 for unreferenced assets, anonymous requests, another learner’s enrollment, and revoked enrollment; the pinned image returns 200 with private no-store caching. The live capture also confirms server completion and next-step navigation. Broader adverse-state combinations and live P43 actual 200% evidence remain; live P43 reauthentication, masked secret, and revoked-status states now have responsive captures at all five required CSS viewports in both themes. T086 human screen-reader and native forced-colors review remains blocked. Keep T087 in progress; local browser mutations used disposable SQLite fixtures."
             },
             {
               "id": "T088",
@@ -1727,8 +1727,8 @@
           "id": "S5-M01",
           "name": "Acceptance, evidence, and launch readiness",
           "source": [
-            "PRD 3, 18\u201320, 22\u201323",
-            "design 17\u201318"
+            "PRD 3, 18–20, 22–23",
+            "design 17–18"
           ],
           "tasks": [
             {
@@ -1736,14 +1736,14 @@
               "title": "Execute PRD acceptance matrix",
               "status": "not_started",
               "priority": "P0",
-              "description": "Verify AC-01\u2013AC-20 and MCP-01\u2013MCP-12 with reproducible evidence covering private access, autosave, publication, invitations, Run/Submit, hidden data, code recovery, version pinning, progress, runner safety, accessibility, waivers, deletion, and agent authoring."
+              "description": "Verify AC-01–AC-20 and MCP-01–MCP-12 with reproducible evidence covering private access, autosave, publication, invitations, Run/Submit, hidden data, code recovery, version pinning, progress, runner safety, accessibility, waivers, deletion, and agent authoring."
             },
             {
               "id": "T091",
               "title": "Audit page and state completeness",
               "status": "not_started",
               "priority": "P0",
-              "description": "Verify design P01\u2013P45 and S1\u2013S6 are implemented or explicitly recorded as incomplete; inspect shared overlays, all universal states, dark/light themes, no dead controls, and no excluded promotional placeholders."
+              "description": "Verify design P01–P45 and S1–S6 are implemented or explicitly recorded as incomplete; inspect shared overlays, all universal states, dark/light themes, no dead controls, and no excluded promotional placeholders."
             },
             {
               "id": "T092",
@@ -1766,7 +1766,7 @@
     },
     {
       "id": "S6",
-      "name": "Post-pilot candidates \u2014 outside initial release",
+      "name": "Post-pilot candidates — outside initial release",
       "phase": "D and later",
       "status": "deferred",
       "modules": [
