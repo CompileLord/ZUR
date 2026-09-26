@@ -261,7 +261,7 @@ function attachPythonWorkspaceListeners(
       setSaveState(isConflict ? 'conflict' : 'unsaved', isConflict ? 'Draft conflict' : 'Unsaved edits (offline)');
       setDraftNotice(isConflict
         ? 'A newer server draft exists. Your local code is preserved on this device.'
-        : 'Changes are stored on this device. Reconnect to sync.');
+        : 'Changes are stored on this device. Reconnect to sync.', isConflict);
     },
   });
 
@@ -271,7 +271,7 @@ function attachPythonWorkspaceListeners(
       indicator.textContent = text;
     });
   };
-  const setDraftNotice = (text: string) => {
+  const setDraftNotice = (text: string, canResolveConflict = false) => {
     const main = document.querySelector('.learning-workspace-main');
     const region = main?.querySelector('.workspace-viewport');
     if (!main || !region) return;
@@ -284,6 +284,22 @@ function attachPythonWorkspaceListeners(
       main.insertBefore(notice, region);
     }
     notice.textContent = text;
+    notice.querySelector('.draft-conflict-actions')?.remove();
+    if (canResolveConflict) {
+      const actions = document.createElement('span');
+      actions.className = 'draft-conflict-actions';
+      for (const [id, label] of [['keep-local-draft-btn', 'Keep my local code'], ['use-server-draft-btn', 'Use saved server code']]) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.id = id;
+        button.className = 'btn btn-secondary btn-compact';
+        button.textContent = label;
+        actions.append(button);
+      }
+      notice.append(actions);
+      actions.querySelector('#keep-local-draft-btn')?.addEventListener('click', () => { void resolveDraftConflict('local'); });
+      actions.querySelector('#use-server-draft-btn')?.addEventListener('click', () => { void resolveDraftConflict('server'); });
+    }
   };
   const setResults = (overrides: Partial<PythonWorkspacePageOptions> = {}) => {
     const body = document.querySelector('.results-body');
@@ -314,6 +330,38 @@ function attachPythonWorkspaceListeners(
   };
 
   const textarea = document.getElementById('code-editor-input') as HTMLTextAreaElement | null;
+  const resolveDraftConflict = async (choice: 'local' | 'server') => {
+    if (!textarea) return;
+    const localCode = textarea.value;
+    const actionButtons = document.querySelectorAll<HTMLButtonElement>('.draft-conflict-actions button');
+    actionButtons.forEach((button) => { button.disabled = true; });
+    try {
+      const serverDraft = await authClient.fetchApi(`/api/drafts?enrollmentId=${encodeURIComponent(initial.enrollmentId)}&stepId=${encodeURIComponent(initial.stepId)}`);
+      if (choice === 'server') {
+        code = serverDraft.code;
+        textarea.value = serverDraft.code;
+        saveQueue.setServerState(serverDraft.code, serverDraft.revision);
+        DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, serverDraft.code, serverDraft.revision);
+        isRevisionConflict = false;
+        setSaveState('saved', 'Saved');
+        document.getElementById('python-save-notice')?.remove();
+        return;
+      }
+      code = localCode;
+      isRevisionConflict = false;
+      saveQueue.setServerState(serverDraft.code, serverDraft.revision);
+      DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, localCode, serverDraft.revision);
+      saveQueue.update(localCode);
+      setSaveState('saving', 'Saving…');
+      await saveQueue.flush();
+      if (saveQueue.lastError) throw saveQueue.lastError;
+    } catch {
+      actionButtons.forEach((button) => { button.disabled = false; });
+      setSaveState('conflict', 'Draft conflict');
+      setDraftNotice('Your local code is preserved. The conflict could not be resolved; retry either choice.', true);
+    }
+  };
+  if (isRevisionConflict) setDraftNotice(initial.saveNotice || 'A newer server draft exists. Choose which copy to keep.', true);
   if (textarea) {
     workspaceResizeController?.abort();
     workspaceResizeController = new AbortController();

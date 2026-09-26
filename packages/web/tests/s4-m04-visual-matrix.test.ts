@@ -118,6 +118,51 @@ test('T087 real P15/P27 browser flows have authenticated API and screenshot evid
   const receipt = p27.captures.find((item: any) => item.state === 'server-issued receipt after confirmation');
   assert.equal(receipt.publishResponse.status, 200);
   assert.match(receipt.receiptText, /Released Version/);
+  const responsiveReceipt = p27.receiptResponsiveCaptures;
+  assert.equal(responsiveReceipt.length, 4, 'real publication receipt at two compact widths and themes');
+  for (const capture of responsiveReceipt) {
+    assert.ok([320, 390].includes(capture.viewport[0]));
+    assert.deepEqual(capture.viewport.slice(1), [844]);
+    assert.equal(capture.publishResponse.status, 200);
+    assert.equal(capture.horizontalOverflow, false);
+    assert.match(capture.receiptText, /Released Version/);
+    assert.deepEqual(pngDimensions(capture.screenshot), capture.viewport);
+  }
+  const receiptZoom = report.liveRouteProbes.liveGuiZoom.receiptZoomCaptures;
+  assert.equal(receiptZoom.length, 2, 'real publication receipt at actual Chrome UI zoom in both themes');
+  for (const capture of receiptZoom) {
+    assert.equal(capture.browserZoomPercent, 200);
+    assert.equal(capture.actual.innerWidth * 2, capture.baseline.innerWidth);
+    assert.equal(capture.actual.devicePixelRatio, capture.baseline.devicePixelRatio * 2);
+    assert.equal(capture.actual.visualViewportScale, 1);
+    assert.equal(capture.horizontalOverflow, false);
+    assert.match(capture.receiptText, /Released Version/);
+  }
+  const p15Pass = report.liveRouteProbes.P15.passingCompletion;
+  assert.equal(p15Pass.submitResponse.status, 200);
+  assert.equal(p15Pass.pinnedVersionNumber, 2);
+  assert.equal(p15Pass.isCompleted, true);
+  assert.equal(p15Pass.continueVisible, true);
+  assert.match(p15Pass.resultSummary, /All tests passed/i);
+  assert.deepEqual(pngDimensions(p15Pass.screenshot), [1440, 900]);
+  const twoTabConflict = report.liveRouteProbes.P15.twoTabConflict;
+  assert.equal(twoTabConflict.secondTabConflictStatus.status, 409);
+  assert.equal(twoTabConflict.firstTabSavedAcknowledged, true);
+  assert.equal(twoTabConflict.localTextPreserved, true);
+  assert.equal(twoTabConflict.keepLocalChoice, 'Keep my local code');
+  assert.equal(twoTabConflict.keepLocalResolutionSaveResponse.status, 200);
+  assert.equal(twoTabConflict.serverCodeMatchesSelectedLocal, true);
+  assert.equal(twoTabConflict.reloadRestoredCode, true);
+  assert.equal(twoTabConflict.reloadIndicator, 'Saved');
+  assert.equal(twoTabConflict.useServerConflictResponse.status, 409);
+  assert.equal(twoTabConflict.useServerChoice, 'Use saved server code');
+  assert.equal(twoTabConflict.useServerEditorMatchedServerCopy, true);
+  assert.equal(twoTabConflict.useServerReloadMatchesServerCopy, true);
+  assert.equal(twoTabConflict.useServerReloadIndicator, 'Saved');
+  assert.equal(twoTabConflict.useServerReloadHasConflictNotice, false);
+  assert.deepEqual(pngDimensions(twoTabConflict.keepLocalConflictScreenshot), [1440, 900]);
+  assert.deepEqual(pngDimensions(twoTabConflict.keepLocalResolvedScreenshot), [1440, 900]);
+  assert.deepEqual(pngDimensions(twoTabConflict.useServerScreenshot), [1440, 900]);
   for (const item of [...p15.captures, ...p27.captures]) {
     assert.deepEqual(pngDimensions(item.screenshot), [1440, 900], item.screenshot);
   }

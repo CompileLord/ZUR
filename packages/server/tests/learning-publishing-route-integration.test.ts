@@ -88,12 +88,19 @@ test('Live P15 content and P27 review APIs accept seeded opaque IDs and preserve
   const course = await courseResponse.json() as any;
   assert.equal(course.currentVersionNumber, 2);
 
+  const metadataUpdateResponse = await fetch(`${origin}/api/author/courses/course-python-foundations/metadata`, {
+    method: 'PUT', headers: { Authorization: `Bearer ${authorToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ expectedRevision: course.draftRevision, metadata: { description: `${course.description} Responsive receipt fixture.` } }),
+  });
+  assert.equal(metadataUpdateResponse.status, 200, 'metadata route accepts seeded opaque course IDs');
+  const updatedCourse = await metadataUpdateResponse.json() as any;
+
   const validationResponse = await fetch(`${origin}/api/author/courses/course-python-foundations/validate`, {
     method: 'POST', headers: { Authorization: `Bearer ${authorToken}`, 'Content-Type': 'application/json' }, body: '{}',
   });
   assert.equal(validationResponse.status, 200);
   const validation = await validationResponse.json() as any;
-  assert.equal(validation.draftRevision, course.draftRevision);
+  assert.equal(validation.draftRevision, updatedCourse.draftRevision);
   assert.equal(Array.isArray(validation.errors), true);
 
   const resetWithoutRevision = await fetch(`${origin}/api/drafts/reset`, {

@@ -15,6 +15,7 @@ const databasePath = path.join(temp, 'interactive-fixture.sqlite');
 const output = path.join(root, 'screenshots');
 const reportPath = path.join(root, 'docs/evidence/s4-m04-interactive-browser-flows.json');
 let apiPort = 0;
+let chromeDebugPort = 0;
 const db = (runMigrations(databasePath), seedDatabase(databasePath), getDatabase(databasePath));
 const api = createServer(db);
 let vite: ReturnType<typeof spawn> | undefined;
@@ -47,6 +48,56 @@ async function stopChild(child?: ReturnType<typeof spawn>): Promise<void> {
     child.once('exit', () => { clearTimeout(timeout); resolve(); });
     child.kill('SIGTERM');
   });
+}
+
+async function openBrowserTab(url: string): Promise<{ evaluate: (expression: string) => Promise<any>; screenshot: () => Promise<string>; responses: Array<{ url: string; status: number }>; close: () => Promise<void> }> {
+  const response = await fetch(`http://127.0.0.1:${chromeDebugPort}/json/new?${encodeURIComponent(url)}`, { method: 'PUT' });
+  if (!response.ok) throw new Error(`Could not create a second browser tab (${response.status})`);
+  const target = await response.json() as any;
+  const tabSocket = new WebSocket(target.webSocketDebuggerUrl);
+  await new Promise<void>((resolve, reject) => {
+    tabSocket.addEventListener('open', () => resolve(), { once: true });
+    tabSocket.addEventListener('error', () => reject(new Error('Could not connect to second browser tab')), { once: true });
+  });
+  let commandId = 0;
+  const pending = new Map<number, { resolve: (value: any) => void; reject: (error: Error) => void }>();
+  const responses: Array<{ url: string; status: number }> = [];
+  tabSocket.addEventListener('message', (event) => {
+    const message = JSON.parse(String(event.data));
+    if (message.id) {
+      const waiter = pending.get(message.id);
+      if (!waiter) return;
+      pending.delete(message.id);
+      if (message.error) waiter.reject(new Error(message.error.message)); else waiter.resolve(message.result);
+    } else if (message.method === 'Network.responseReceived' && String(message.params.response.url).includes('/api/')) {
+      responses.push({ url: message.params.response.url, status: message.params.response.status });
+    }
+  });
+  const command = (method: string, params: Record<string, unknown> = {}) => new Promise<any>((resolve, reject) => {
+    const id = ++commandId;
+    pending.set(id, { resolve, reject });
+    tabSocket.send(JSON.stringify({ id, method, params }));
+  });
+  const evaluate = async (expression: string) => (await command('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true })).result?.value;
+  const wait = async (expression: string, accept: (value: any) => boolean, label: string) => {
+    for (let i = 0; i < 120; i++) {
+      const value = await evaluate(expression);
+      if (accept(value)) return value;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    throw new Error(`Second browser tab timed out waiting for ${label}`);
+  };
+  await command('Page.enable');
+  await command('Runtime.enable');
+  await command('Network.enable');
+  await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  await wait('Boolean(document.querySelector("#code-editor-input"))', Boolean, 'Python editor route');
+  return {
+    evaluate,
+    responses,
+    screenshot: async () => (await command('Page.captureScreenshot', { format: 'png', fromSurface: true })).data,
+    close: async () => { await command('Page.close'); tabSocket.close(); },
+  };
 }
 
 async function captureLiveGuiZoom(webOrigin: string, attemptId: string): Promise<Record<string, unknown>> {
@@ -141,13 +192,32 @@ async function captureLiveGuiZoom(webOrigin: string, attemptId: string): Promise
     };
     await signIn('guido@zur.internal', 'AuthorPass123!');
     for (const theme of ['dark', 'light'] as const) await capture('s4_t087_p27_live_review', '/teach/course-python-foundations/publish', theme, 'Boolean(document.querySelector(".publish-review-container"))', Boolean);
+    const receiptZoomCaptures: Array<Record<string, unknown>> = [];
+    const releaseForZoom = await evalPage(`(async()=>{const token=localStorage.getItem('zur_session_token');const headers={Authorization:'Bearer '+token,'Content-Type':'application/json'};const course=await fetch('/api/author/courses/course-python-foundations',{headers}).then(r=>r.json());const update=await fetch('/api/author/courses/'+course.id+'/metadata',{method:'PUT',headers,body:JSON.stringify({expectedRevision:course.draftRevision,metadata:{description:course.description+' Verified publish receipt at actual browser zoom.'}})});if(!update.ok)return {stage:'draft update',status:update.status};return {status:update.status,revision:(await update.json()).draftRevision}})()`);
+    if (releaseForZoom.status !== 200) throw new Error(`Could not prepare disposable draft for the actual 200% publication receipt: ${JSON.stringify(releaseForZoom)}`);
+    await go(`${webOrigin}/teach/course-python-foundations/publish`);
+    await wait('Boolean(document.querySelector("#publish-open-confirm"))', Boolean, '200% receipt publication review');
+    await evalPage("document.getElementById('publish-open-confirm')?.click()");
+    await wait('Boolean(document.querySelector("#publish-confirm-submit"))', Boolean, '200% receipt confirmation');
+    await evalPage("document.getElementById('publish-confirm-submit')?.click()");
+    await wait('Boolean(document.querySelector(".receipt-card"))', Boolean, 'real publish receipt at actual 200%');
+    for (const theme of ['dark', 'light'] as const) {
+      await evalPage(`localStorage.setItem('zur_theme_preference','${theme}');document.documentElement.setAttribute('data-theme','${theme}')`);
+      const actual = await evalPage('({innerWidth,innerHeight,outerWidth,outerHeight,devicePixelRatio,visualViewportScale:visualViewport.scale,scrollWidth:document.documentElement.scrollWidth,bodyScrollWidth:document.body.scrollWidth})');
+      if (actual.innerWidth * 2 !== baseline.innerWidth || actual.devicePixelRatio !== baseline.devicePixelRatio * 2 || actual.visualViewportScale !== 1) throw new Error(`P27 receipt/${theme}: actual browser zoom metrics changed: ${JSON.stringify(actual)}`);
+      if (!(await evalPage('Boolean(document.querySelector(".receipt-card"))'))) throw new Error(`P27 receipt missing in ${theme} theme`);
+      const shot = await command('Page.captureScreenshot', { format: 'png', fromSurface: true });
+      const screenshot = `screenshots/s4_t087_p27_publish_receipt_200zoom_${theme}_gui.png`;
+      fs.writeFileSync(path.join(root, screenshot), Buffer.from(shot.data, 'base64'));
+      receiptZoomCaptures.push({ theme, route: '/teach/course-python-foundations/publish', state: 'authenticated publication receipt from committed release', browserZoomPercent: 200, baseline, actual, horizontalOverflow: actual.scrollWidth > actual.innerWidth || actual.bodyScrollWidth > actual.innerWidth, receiptText: await evalPage('document.querySelector(".receipt-card")?.innerText'), screenshot });
+    }
     await signIn('ada@zur.internal', 'StudentPass123!');
     for (const theme of ['dark', 'light'] as const) {
       await capture('s4_t087_p15_live_workspace', '/learn/enr-ada/steps/step-6-python-evenodd/code', theme, 'Boolean(document.querySelector("#code-editor-input"))', Boolean);
       await capture('s4_t087_p16_live_list', '/learn/enr-ada/steps/step-6-python-evenodd/attempts', theme, 'document.body.innerText', (value) => typeof value === 'string' && value.includes('Submission History'));
       await capture('s4_t087_p16_live_detail', `/learn/enr-ada/steps/step-6-python-evenodd/attempts/${encodeURIComponent(attemptId)}`, theme, 'document.body.innerText', (value) => typeof value === 'string' && value.includes('Submitted Code Snapshot'));
     }
-    return { method: 'Headful Chrome Appearance > Page zoom set to 200% in isolated profile; UI setting was selected in chrome://settings/appearance. CDP used to navigate, read actual browser metrics, and capture. No viewport/device/page-scale emulation.', baseline, captures };
+    return { method: 'Headful Chrome Appearance > Page zoom set to 200% in isolated profile; UI setting was selected in chrome://settings/appearance. CDP used to navigate, read actual browser metrics, and capture. No viewport/device/page-scale emulation.', baseline, captures, receiptZoomCaptures };
   } finally {
     guiSocket?.close();
     await stopChild(browser);
@@ -168,7 +238,7 @@ try {
   const webOrigin = `http://127.0.0.1:${webPort}`;
   await waitForUrl(webOrigin, vite);
 
-  const debugPort = await freePort();
+  const debugPort = chromeDebugPort = await freePort();
   chrome = spawn('google-chrome', [
     '--headless=new', '--disable-gpu', '--no-sandbox', '--hide-scrollbars', '--remote-allow-origins=*',
     `--remote-debugging-port=${debugPort}`, `--user-data-dir=${path.join(temp, 'chrome-profile')}`,
@@ -297,6 +367,7 @@ try {
     authorCaptures.push({ route: '/teach/course-python-foundations/content', theme, viewport: [1440, 900], inspectorLabel: inspector.label, inspectorText: inspector.text, screenshot });
   }
   const p27Captures: Array<Record<string, unknown>> = [];
+  const p27ReceiptCaptures: Array<Record<string, unknown>> = [];
   const p27Responsive: Array<Record<string, unknown>> = [];
   await evaluate("localStorage.setItem('zur_theme_preference','dark')");
   await navigate(`${webOrigin}/teach/course-python-foundations/publish`);
@@ -346,6 +417,23 @@ try {
       const receiptScreenshot = `screenshots/s4_t087_p27_publish_receipt_1440x900_${theme}.png`;
       fs.writeFileSync(path.join(root, receiptScreenshot), Buffer.from(receiptShot.data, 'base64'));
       p27Captures.push({ theme, state: 'server-issued receipt after confirmation', viewport: [viewportReceipt.width, viewportReceipt.height], publishResponse, receiptText: await evaluate('document.querySelector(".receipt-card")?.innerText'), screenshot: receiptScreenshot });
+      if (publishResponse?.status !== 200 || !String(await evaluate('document.querySelector(".receipt-card")?.innerText')).includes('Released Version')) throw new Error(`Publication receipt was not backed by successful API response: ${JSON.stringify(publishResponse)}`);
+      const stableReceiptText = await evaluate('document.querySelector(".receipt-card")?.innerText');
+      for (const receiptTheme of ['dark', 'light'] as const) {
+        await evaluate(`localStorage.setItem('zur_theme_preference','${receiptTheme}');document.documentElement.setAttribute('data-theme','${receiptTheme}')`);
+        for (const [width, height] of [[390, 844], [320, 844]] as const) {
+          const metrics = await setViewport(width, height);
+          if (!String(await evaluate('document.querySelector(".receipt-card")?.innerText')).includes('Released Version')) throw new Error(`Responsive P27 receipt disappeared at ${width}px`);
+          const screenshot = `screenshots/s4_t087_p27_publish_receipt_${width}x${height}_${receiptTheme}.png`;
+          const responsiveShot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+          fs.writeFileSync(path.join(root, screenshot), Buffer.from(responsiveShot.data, 'base64'));
+          const capture = { theme: receiptTheme, state: 'server-issued publication receipt', viewport: [width, height], measured: metrics, horizontalOverflow: metrics.scrollWidth > width || metrics.bodyScrollWidth > width, receiptText: stableReceiptText, publishResponse, screenshot };
+          if (capture.horizontalOverflow) throw new Error(`P27 publication receipt overflows at ${width}px/${receiptTheme}: ${JSON.stringify(metrics)}`);
+          p27ReceiptCaptures.push(capture);
+        }
+      }
+      await setViewport(1440, 900);
+      await evaluate(`localStorage.setItem('zur_theme_preference','${theme}');document.documentElement.setAttribute('data-theme','${theme}')`);
     }
   }
   await signInAs('ada@zur.internal', 'StudentPass123!');
@@ -448,6 +536,113 @@ try {
   const restoredCode = await evaluate(`(()=>{const e=document.querySelector('#code-editor-input');e.value=e.value+'\\n# reconnect sync';e.dispatchEvent(new Event('input',{bubbles:true}));return true})()`);
   if (!restoredCode) throw new Error('Could not trigger P15 draft synchronization after reconnect');
   await waitFor('document.getElementById("python-save-indicator")?.textContent', (value) => value === 'Saved', 'P15 draft sync after reconnect');
+  await setViewport(1440, 900);
+  await evaluate("localStorage.setItem('zur_theme_preference','dark')");
+  await navigate(`${webOrigin}/learn/enr-ada/steps/step-6-python-evenodd/code`);
+  await waitFor('Boolean(document.querySelector("#code-editor-input"))', Boolean, 'P15 pass submission route');
+  const passingCode = 'import sys\nraw = sys.stdin.read().strip()\nif not raw:\n    print("Empty")\nelse:\n    number = int(raw)\n    print("Even" if number % 2 == 0 else "Odd")\n';
+  await evaluate(`(()=>{const e=document.querySelector('#code-editor-input');e.value=${JSON.stringify(passingCode)};e.dispatchEvent(new Event('input',{bubbles:true}));return true})()`);
+  await waitFor('document.getElementById("python-save-indicator")?.textContent', (value) => value === 'Saved', 'pinned-version passing code save');
+  const passResponseStart = apiResponses.length;
+  await evaluate("document.getElementById('submit-solution-btn')?.click()");
+  await new Promise((resolve) => setTimeout(resolve, 2500));
+  const passDiagnostic = await evaluate(`({text:document.querySelector('.results-body')?.innerText,body:document.body.innerText.slice(-1000),submitPresent:Boolean(document.getElementById('submit-solution-btn')),submitDisabled:document.getElementById('submit-solution-btn')?.disabled,editor:document.querySelector('#code-editor-input')?.value})`);
+  if (!passDiagnostic.text || (!passDiagnostic.text.toLowerCase().includes('passed') && !passDiagnostic.text.includes('WRONG_ANSWER') && !passDiagnostic.text.includes('could not check'))) throw new Error(`P15 submit did not display a terminal assessment result: ${JSON.stringify({ passDiagnostic, recentApiResponses: apiResponses.slice(passResponseStart), recentApiRequests: apiRequests.slice(-5) })}`);
+  const passText = await waitFor('document.querySelector(".results-body")?.innerText', (value) => typeof value === 'string' && (value.toLowerCase().includes('passed') || value.includes('WRONG_ANSWER') || value.includes('could not check')), 'actual pinned-version submission terminal result');
+  if (!passText.toLowerCase().includes('all tests passed')) throw new Error(`P15 candidate did not pass the pinned assessment: ${passText}`);
+  const passStepState = await evaluate(`(async()=>{const token=localStorage.getItem('zur_session_token');const headers={Authorization:'Bearer '+token};const response=await fetch('/api/enrollments/enr-ada/steps/step-6-python-evenodd',{headers});const dashboard=await fetch('/api/student/dashboard',{headers});return {status:response.status,data:await response.json(),dashboard:await dashboard.json()}})()`);
+  const passSubmitResponse = apiResponses.slice(passResponseStart).find((item) => item.url.endsWith('/api/execution/submit'));
+  const passContinueVisible = await evaluate('[...document.querySelectorAll("a,button")].some(e=>e.textContent?.trim()==="Continue")');
+  if (passSubmitResponse?.status !== 200 || passStepState.status !== 200 || passStepState.data.stepMeta?.isCompleted !== true || !passContinueVisible) throw new Error(`P15 real passing submission did not persist completion: ${JSON.stringify({ passSubmitResponse, stepMeta: passStepState.data.stepMeta, passContinueVisible })}`);
+  const passScreenshot = 'screenshots/s4_t087_p15_live_pinned_tests_passed_completion_1440x900_dark.png';
+  const passShot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+  fs.writeFileSync(path.join(root, passScreenshot), Buffer.from(passShot.data, 'base64'));
+  const p15PassEvidence = { state: 'actual learner submission passed against enrollment-pinned immutable tests; step completion persisted', submitResponse: passSubmitResponse, stepId: passStepState.data.step?.id, pinnedVersionNumber: passStepState.dashboard.continueCourse?.pinnedVersionNumber, isCompleted: passStepState.data.stepMeta?.isCompleted, continueVisible: passContinueVisible, resultSummary: 'All tests passed.', screenshot: passScreenshot };
+  const secondTab = await openBrowserTab(`${webOrigin}/learn/enr-ada/steps/step-6-python-evenodd/code`);
+  const secondTabOriginalCode = await secondTab.evaluate('document.querySelector("#code-editor-input")?.value');
+  const tabOneCode = `${String(await evaluate('document.querySelector("#code-editor-input")?.value'))}\n# first tab acknowledged revision`;
+  await evaluate(`(()=>{const e=document.querySelector('#code-editor-input');e.value=${JSON.stringify(tabOneCode)};e.dispatchEvent(new Event('input',{bubbles:true}));return true})()`);
+  await waitFor('document.getElementById("python-save-indicator")?.textContent', (value) => value === 'Saved', 'first tab draft save');
+  const tabTwoCode = `${String(secondTabOriginalCode)}\n# second tab recovery candidate`;
+  await secondTab.evaluate(`(()=>{const e=document.querySelector('#code-editor-input');e.value=${JSON.stringify(tabTwoCode)};e.dispatchEvent(new Event('input',{bubbles:true}));return true})()`);
+  for (let attempt = 0; attempt < 120; attempt++) {
+    if (await secondTab.evaluate('document.getElementById("python-save-indicator")?.textContent') === 'Draft conflict') break;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  const tabTwoConflict = await secondTab.evaluate(`(async()=>{const token=localStorage.getItem('zur_session_token');const current=await fetch('/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd',{headers:{Authorization:'Bearer '+token}}).then(r=>r.json());const editor=document.querySelector('#code-editor-input');const localKey=Object.keys(localStorage).find(k=>k.startsWith('zur_draft_')&&k.includes('enr-ada')&&k.includes('step-6-python-evenodd'));const local=localKey?JSON.parse(localStorage.getItem(localKey)):null;return {indicator:document.getElementById('python-save-indicator')?.textContent,notice:document.getElementById('python-save-notice')?.textContent,editorCode:editor?.value,serverCode:current.code,serverRevision:current.revision,localRevision:local?.revision,localCode:local?.code}})()`);
+  const conflictStatus = secondTab.responses.find((item) => item.url.endsWith('/api/drafts') && item.status === 409);
+  if (tabTwoConflict.indicator !== 'Draft conflict' || tabTwoConflict.editorCode !== tabTwoCode || tabTwoConflict.localCode !== tabTwoCode || tabTwoConflict.serverCode !== tabOneCode || !String(tabTwoConflict.notice).includes('newer server draft') || !conflictStatus) {
+    await secondTab.close();
+    throw new Error(`Two-tab draft conflict failed safe-recovery assertions: ${JSON.stringify({ tabTwoConflict, conflictStatus })}`);
+  }
+  const conflictScreenshot = 'screenshots/s4_t087_p15_two_tab_draft_conflict_recovery_1440x900_dark.png';
+  fs.writeFileSync(path.join(root, conflictScreenshot), Buffer.from(await secondTab.screenshot(), 'base64'));
+  await secondTab.evaluate("document.getElementById('keep-local-draft-btn')?.click()");
+  for (let attempt = 0; attempt < 120; attempt++) {
+    if (await secondTab.evaluate('document.getElementById("python-save-indicator")?.textContent') === 'Saved') break;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  const resolvedConflict = await secondTab.evaluate(`(async()=>{const token=localStorage.getItem('zur_session_token');const saved=await fetch('/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd',{headers:{Authorization:'Bearer '+token}}).then(r=>r.json());return {indicator:document.getElementById('python-save-indicator')?.textContent,notice:document.getElementById('python-save-notice')?.textContent,editorCode:document.querySelector('#code-editor-input')?.value,serverCode:saved.code,revision:saved.revision}})()`);
+  const localResolutionResponse = [...secondTab.responses].reverse().find((item) => item.url.endsWith('/api/drafts') && item.status === 200);
+  if (resolvedConflict.indicator !== 'Saved' || resolvedConflict.notice || resolvedConflict.editorCode !== tabTwoCode || resolvedConflict.serverCode !== tabTwoCode || !localResolutionResponse) {
+    await secondTab.close();
+    throw new Error(`Explicit keep-local conflict resolution did not save the selected recovery copy: ${JSON.stringify({ resolvedConflict, localResolutionResponse })}`);
+  }
+  const resolvedScreenshot = 'screenshots/s4_t087_p15_two_tab_draft_conflict_resolved_1440x900_dark.png';
+  fs.writeFileSync(path.join(root, resolvedScreenshot), Buffer.from(await secondTab.screenshot(), 'base64'));
+  await secondTab.evaluate('location.reload()');
+  for (let attempt = 0; attempt < 120; attempt++) {
+    const state = await secondTab.evaluate(`({code:document.querySelector('#code-editor-input')?.value,notice:document.getElementById('python-save-notice')?.textContent,indicator:document.getElementById('python-save-indicator')?.textContent})`);
+    if (state.code === tabTwoCode && String(state.indicator).trim() === 'Saved' && !state.notice) break;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  const conflictRecovery = await secondTab.evaluate(`({code:document.querySelector('#code-editor-input')?.value,notice:document.getElementById('python-save-notice')?.textContent,indicator:document.getElementById('python-save-indicator')?.textContent})`);
+  if (conflictRecovery.code !== tabTwoCode || String(conflictRecovery.indicator).trim() !== 'Saved' || conflictRecovery.notice) {
+    await secondTab.close();
+    throw new Error(`Reload did not preserve the explicitly resolved draft: ${JSON.stringify(conflictRecovery)}`);
+  }
+  const selectedServerCode = `${tabTwoCode}\n# saved server copy selected explicitly`;
+  await secondTab.evaluate(`(()=>{const e=document.querySelector('#code-editor-input');e.value=${JSON.stringify(selectedServerCode)};e.dispatchEvent(new Event('input',{bubbles:true}));return true})()`);
+  for (let attempt = 0; attempt < 120; attempt++) {
+    if (String(await secondTab.evaluate('document.getElementById("python-save-indicator")?.textContent')).trim() === 'Saved') break;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  const mainUnsavedChoice = `${tabOneCode}\n# discard only after explicit server choice`;
+  await evaluate(`(()=>{const e=document.querySelector('#code-editor-input');e.value=${JSON.stringify(mainUnsavedChoice)};e.dispatchEvent(new Event('input',{bubbles:true}));return true})()`);
+  for (let attempt = 0; attempt < 120; attempt++) {
+    if (await evaluate('document.getElementById("python-save-indicator")?.textContent') === 'Draft conflict') break;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  const useServerConflictResponse = apiResponses.slice(-8).find((item) => item.url.endsWith('/api/drafts') && item.status === 409);
+  if (!useServerConflictResponse || !(await evaluate('Boolean(document.getElementById("use-server-draft-btn"))'))) {
+    await secondTab.close();
+    throw new Error(`P15 use-server conflict choice was not presented after an actual second-tab revision: ${JSON.stringify(useServerConflictResponse)}`);
+  }
+  await evaluate("document.getElementById('use-server-draft-btn')?.click()");
+  for (let attempt = 0; attempt < 120; attempt++) {
+    if (String(await evaluate('document.getElementById("python-save-indicator")?.textContent')).trim() === 'Saved') break;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  const useServerResolution = await evaluate(`(async()=>{const token=localStorage.getItem('zur_session_token');const saved=await fetch('/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd',{headers:{Authorization:'Bearer '+token}}).then(r=>r.json());return {indicator:document.getElementById('python-save-indicator')?.textContent?.trim(),notice:document.getElementById('python-save-notice')?.textContent,editorCode:document.querySelector('#code-editor-input')?.value,serverCode:saved.code}})()`);
+  if (useServerResolution.indicator !== 'Saved' || useServerResolution.notice || useServerResolution.editorCode !== selectedServerCode || useServerResolution.serverCode !== selectedServerCode) {
+    await secondTab.close();
+    throw new Error(`Explicit use-server choice did not restore the server copy: ${JSON.stringify(useServerResolution)}`);
+  }
+  await evaluate('location.reload()');
+  for (let attempt = 0; attempt < 120; attempt++) {
+    const state = await evaluate(`(async()=>{const token=localStorage.getItem('zur_session_token');const saved=await fetch('/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd',{headers:{Authorization:'Bearer '+token}}).then(r=>r.json());return {indicator:document.getElementById('python-save-indicator')?.textContent?.trim(),notice:document.getElementById('python-save-notice')?.textContent,editorCode:document.querySelector('#code-editor-input')?.value,serverCode:saved.code}})()`);
+    if (state.editorCode === selectedServerCode && state.serverCode === selectedServerCode && state.indicator === 'Saved' && !state.notice) break;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  const useServerReload = await evaluate(`(async()=>{const token=localStorage.getItem('zur_session_token');const saved=await fetch('/api/drafts?enrollmentId=enr-ada&stepId=step-6-python-evenodd',{headers:{Authorization:'Bearer '+token}}).then(r=>r.json());return {indicator:document.getElementById('python-save-indicator')?.textContent?.trim(),notice:document.getElementById('python-save-notice')?.textContent,editorCode:document.querySelector('#code-editor-input')?.value,serverCode:saved.code}})()`);
+  if (useServerReload.indicator !== 'Saved' || useServerReload.notice || useServerReload.editorCode !== selectedServerCode || useServerReload.serverCode !== selectedServerCode) {
+    await secondTab.close();
+    throw new Error(`Reload did not preserve the explicitly selected server copy: ${JSON.stringify(useServerReload)}`);
+  }
+  const useServerScreenshot = 'screenshots/s4_t087_p15_two_tab_draft_use_server_resolution_1440x900_dark.png';
+  fs.writeFileSync(path.join(root, useServerScreenshot), Buffer.from((await send('Page.captureScreenshot', { format: 'png', fromSurface: true })).data, 'base64'));
+  await secondTab.close();
+  const twoTabConflictEvidence = { firstTabSavedAcknowledged: true, secondTabConflictStatus: conflictStatus, serverRevisionBeforeChoice: tabTwoConflict.serverRevision, localRecoveryRevisionBeforeChoice: tabTwoConflict.localRevision, localTextPreserved: tabTwoConflict.localCode === tabTwoCode, explicitConflictNotice: tabTwoConflict.notice, keepLocalChoice: 'Keep my local code', keepLocalResolutionSaveResponse: localResolutionResponse, resolvedRevision: resolvedConflict.revision, serverCodeMatchesSelectedLocal: resolvedConflict.serverCode === tabTwoCode, reloadRestoredCode: conflictRecovery.code === tabTwoCode, reloadIndicator: String(conflictRecovery.indicator).trim(), keepLocalConflictScreenshot: conflictScreenshot, keepLocalResolvedScreenshot: resolvedScreenshot, useServerConflictResponse, useServerChoice: 'Use saved server code', useServerEditorMatchedServerCopy: useServerResolution.editorCode === selectedServerCode && useServerResolution.serverCode === selectedServerCode, useServerReloadMatchesServerCopy: useServerReload.editorCode === selectedServerCode && useServerReload.serverCode === selectedServerCode, useServerReloadIndicator: useServerReload.indicator, useServerReloadHasConflictNotice: Boolean(useServerReload.notice), useServerScreenshot };
   const remoteEdit = await evaluate(`(async()=>{const token=localStorage.getItem('zur_session_token');const params='?enrollmentId=enr-ada&stepId=step-6-python-evenodd';const current=await fetch('/api/drafts'+params,{headers:{Authorization:'Bearer '+token}}).then(r=>r.json());const response=await fetch('/api/drafts',{method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({enrollmentId:'enr-ada',stepId:'step-6-python-evenodd',code:'print("saved in another tab")',baseRevision:current.revision})});return {status:response.status,revision:(await response.json()).revision}})()`);
   if (remoteEdit.status !== 200) throw new Error(`Could not prepare an actual concurrent draft revision: ${JSON.stringify(remoteEdit)}`);
   const localCodeBeforeReset = await evaluate("document.getElementById('code-editor-input')?.value");
@@ -468,7 +663,9 @@ try {
   await navigate(`${webOrigin}/learn/enr-ada/steps/step-6-python-evenodd/attempts`);
   await waitFor('document.body.innerText', (value) => typeof value === 'string' && value.includes('Submission History'), 'live P16 attempt list route');
   const historyProbe = await evaluate(`(async()=>{const token=localStorage.getItem('zur_session_token');const response=await fetch('/api/attempts?enrollmentId=enr-ada&stepId=step-6-python-evenodd',{headers:{Authorization:'Bearer '+token}});const page=await response.json();const item=page.items.find(x=>x.verdict==='WRONG_ANSWER');if(!item)return {status:response.status,found:false};const detailResponse=await fetch('/api/attempts/'+encodeURIComponent(item.id),{headers:{Authorization:'Bearer '+token}});const detail=await detailResponse.json();return {status:response.status,detailStatus:detailResponse.status,attemptId:item.id,listHasTiming:Object.hasOwn(item,'executionTimeMs'),detailHasTiming:Object.hasOwn(detail,'executionTimeMs'),attemptNumber:item.attemptNumber}})()`);
-  historyProbe.listUiHasTiming = /\b\d+\s+ms\b/.test(await evaluate('document.body.innerText'));
+  const listTimingProbe = await evaluate(`(()=>{const row=[...document.querySelectorAll('.attempt-row-card')].find(e=>e.innerText.includes('Attempt #${historyProbe.attemptNumber}'));return {rowFound:Boolean(row),hiddenFailureRowHasTiming:/\\b\\d+\\s+ms\\b/.test(row?.innerText||''),otherRowsWithTiming:[...document.querySelectorAll('.attempt-row-card')].filter(e=>!e.innerText.includes('Attempt #${historyProbe.attemptNumber}')&&/\\b\\d+\\s+ms\\b/.test(e.innerText)).length}})()`);
+  historyProbe.listUiHasTiming = listTimingProbe.hiddenFailureRowHasTiming;
+  historyProbe.listTimingProbe = listTimingProbe;
   if (historyProbe.status !== 200 || historyProbe.detailStatus !== 200 || historyProbe.found === false || historyProbe.listHasTiming || historyProbe.detailHasTiming || historyProbe.listUiHasTiming) throw new Error(`P16 hidden-failure history leaked timing or failed to load: ${JSON.stringify(historyProbe)}`);
   const historyScreenshot = 'screenshots/s4_t087_p16_hidden_failure_attempt_history_1440x900_light.png';
   const historyShot = await send('Page.captureScreenshot', { format: 'png', fromSurface: true });
@@ -534,12 +731,12 @@ try {
     captures,
     liveRouteProbes: {
       P22: { result: 'The open-inspector visual checkpoint is captured on the authenticated route in both themes. Inspector visibility controls were not exercised because the visual checkpoint requires the panel to be visible.', captures: authorCaptures },
-      P27: { result: 'Live authenticated validation, explicit confirmation, and server receipt verified.', containsPublicationReviewComponent: publishRouteHasReview, initialBody: p27Body, initialProbe: publishProbe, initialApiResponses: p27Responses, captures: p27Captures, responsiveCaptures: p27Responsive },
-      P15: { result: 'Live authenticated code save, public sample execution, submission with redacted hidden-test failure, and revision-checked reset conflict verified.', captures: p15Captures, states: p15States, responsiveCaptures: p15Responsive, offline: p15Offline, staleReset: { remoteEditStatus: remoteEdit.status, remoteRevision: remoteEdit.revision, conflictResponse: resetApiResponse, localCodePreserved: true, notice: staleResetResult.notice, screenshot: staleResetScreenshot }, apiResponses: p15Responses },
+      P27: { result: 'Live authenticated validation and explicit confirmation verified. A successful publish response produced a receipt captured at 320px/390px in both themes and at actual GUI Chrome 200% zoom in both themes.', containsPublicationReviewComponent: publishRouteHasReview, initialBody: p27Body, initialProbe: publishProbe, initialApiResponses: p27Responses, captures: p27Captures, receiptResponsiveCaptures: p27ReceiptCaptures, responsiveCaptures: p27Responsive },
+      P15: { result: 'Live authenticated samples, redacted hidden-test failure, actual pinned-version pass/completion, offline recovery, revision-checked reset conflict, and actual two-tab draft conflict/reload recovery verified.', captures: p15Captures, states: p15States, passingCompletion: p15PassEvidence, twoTabConflict: twoTabConflictEvidence, responsiveCaptures: p15Responsive, offline: p15Offline, staleReset: { remoteEditStatus: remoteEdit.status, remoteRevision: remoteEdit.revision, conflictResponse: resetApiResponse, localCodePreserved: true, notice: staleResetResult.notice, screenshot: staleResetScreenshot }, apiResponses: p15Responses },
       P16: { ...p16Probe, responsiveCaptures: p16Responsive },
       liveGuiZoom,
     },
-    notCaptured: 'The waiver was not applied; evidence is the real server-reviewed confirmation-ready state. P22 is captured with the inspector visible by default. No mocked API or fabricated auth state was used. P15 includes a real disconnected-network save failure and reconnect sync, but its submission evidence intentionally stops at a safely redacted hidden-test failure; passing hidden tests and completion are not asserted.',
+    notCaptured: 'The waiver was not applied; evidence is the real server-reviewed confirmation-ready state. P22 is captured with the inspector visible by default. No mocked API or fabricated auth state was used. All publish mutations and P15 learner runs/submissions occurred against a disposable local SQLite fixture; no external course or learner data was changed.',
   }, null, 2) + '\n');
   console.log(`Captured ${captures.length} real-client waiver review states with authenticated API status ${networkStatuses.at(-1)?.status}.`);
 } finally {

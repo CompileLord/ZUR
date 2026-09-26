@@ -1177,9 +1177,19 @@
         "screenshots/s4_t087_p27_live_review_200zoom_light_gui.png",
         "screenshots/s4_t087_p15_live_workspace_320x844_light.png",
         "screenshots/s4_t087_p16_live_detail_320x844_dark.png",
-        "screenshots/s4_t087_p16_live_detail_320x844_light.png"
+        "screenshots/s4_t087_p16_live_detail_320x844_light.png",
+        "screenshots/s4_t087_p15_live_pinned_tests_passed_completion_1440x900_dark.png",
+        "screenshots/s4_t087_p15_two_tab_draft_conflict_recovery_1440x900_dark.png",
+        "screenshots/s4_t087_p15_two_tab_draft_conflict_resolved_1440x900_dark.png",
+        "screenshots/s4_t087_p15_two_tab_draft_use_server_resolution_1440x900_dark.png",
+        "screenshots/s4_t087_p27_publish_receipt_320x844_dark.png",
+        "screenshots/s4_t087_p27_publish_receipt_320x844_light.png",
+        "screenshots/s4_t087_p27_publish_receipt_390x844_dark.png",
+        "screenshots/s4_t087_p27_publish_receipt_390x844_light.png",
+        "screenshots/s4_t087_p27_publish_receipt_200zoom_dark_gui.png",
+        "screenshots/s4_t087_p27_publish_receipt_200zoom_light_gui.png"
       ],
-      "gap": "Authenticated live P15 workspace captures cover 320\u00d7844, 390\u00d7844, 768\u00d71024, and 1440\u00d7900 in both themes, plus genuine headful Chrome UI 200% captures in both themes. The real offline/unsaved state is captured after browser network disconnect and confirms the local recovery copy. P16 list/detail and P27 publication-review routes have the same four responsive viewports in both themes and actual Chrome UI 200% captures in both themes. No horizontal document overflow was measured on these combinations. Remaining gaps include a live hidden-test pass/completion, P27 receipt at 200%/mobile, and other unrelated adverse routes. P15 stale-reset conflict and P16 hidden-failure timing redaction are also captured; API regressions retain timing for public-test failures. P15 Reset code is hidden below 1024px; browser programmatic-click checks at 320px verify no reset API request and unchanged code. P16 omits Restore to editor at compact render, hides it after desktop-to-compact resize, and browser checks verify compact clicks do not open confirmation or call restore."
+      "gap": "Authenticated live P15 workspace captures cover 320\u00d7844, 390\u00d7844, 768\u00d71024, and 1440\u00d7900 in both themes, plus genuine headful Chrome UI 200% captures in both themes. The real offline/unsaved state is captured after browser network disconnect and confirms the local recovery copy. P16 list/detail and P27 publication-review routes have the same four responsive viewports in both themes and actual Chrome UI 200% captures in both themes. No horizontal document overflow was measured on these combinations. Remaining gaps include unrelated adverse routes, revoked-token states, and course-attached media authorization. P15 stale-reset conflict and P16 hidden-failure timing redaction are captured; API regressions retain timing for public-test failures. A genuine pinned-version hidden-test pass records completion, and two live browser tabs exercise both explicit draft-conflict resolutions. P15 Reset code is hidden below 1024px; browser programmatic-click checks at 320px verify no reset API request and unchanged code. P16 omits Restore to editor at compact render, hides it after desktop-to-compact resize, and browser checks verify compact clicks do not open confirmation or call restore. P27\u2019s real server receipt is captured at 320px/390px and actual Chrome UI 200% in both themes, with no horizontal overflow."
     },
     {
       "id": 7,

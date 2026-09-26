@@ -641,7 +641,7 @@ export function createServer(
       }
 
       // 30. Author: Update Course Metadata (T030)
-      const authorCourseMetaMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/metadata$/);
+      const authorCourseMetaMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/metadata$/);
       if (method === 'PUT' && authorCourseMetaMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
