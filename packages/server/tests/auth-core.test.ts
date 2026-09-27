@@ -219,6 +219,17 @@ test('Authentication Core & Identity Lifecycle (S1-M01, T013-T018)', async (t) =
     assert.equal(alanAfter.account_status, 'pending_deletion');
   });
 
+  await t.test('T017: Failed deletion intake leaves account and sessions active', () => {
+    const user = identityService.signUp({ email: 'deletion-rollback@zur.internal',
+      displayName: 'Rollback Learner', password: 'SecurePassword123!' }).user;
+    db.exec(`CREATE TRIGGER reject_deletion_intake BEFORE INSERT ON privacy_requests
+      WHEN NEW.user_id='${user.id}' BEGIN SELECT RAISE(ABORT, 'simulated intake failure'); END`);
+    assert.throws(() => identityService.requestAccountDeletion(user.id, true), /simulated intake failure/);
+    db.exec('DROP TRIGGER reject_deletion_intake');
+    assert.equal((db.prepare('SELECT account_status FROM users WHERE id=?').get(user.id) as any).account_status, 'active');
+    assert.equal((db.prepare('SELECT COUNT(*) count FROM privacy_requests WHERE user_id=?').get(user.id) as any).count, 0);
+  });
+
   await t.test('T018: P42 Safe Denial prevents leaking private object existence', () => {
     const err = authService.safeNotFound();
     assert.equal(err.statusCode, 404);

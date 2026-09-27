@@ -402,7 +402,7 @@
             {
               "id": "T017",
               "title": "Implement privacy request intake",
-              "status": "in_progress",
+              "status": "done",
               "priority": "P0",
               "description": "Build P20 export/deletion request submission, status, consequence dialog, and sole-owner blocker; route requests to an audited manual support process until completion automation exists.",
               "evidence": [
@@ -410,9 +410,10 @@
                 "packages/server/src/services/identity-service.ts",
                 "packages/web/src/pages/settings/PrivacySettingsPage.ts",
                 "packages/server/tests/auth-core.test.ts",
-                "packages/web/tests/auth-pages.test.ts"
-              ],
-              "status_note": "Privacy request and sole-owner paths have unit coverage, but audited manual support intake and status completion require verification."
+                "packages/web/tests/auth-pages.test.ts",
+                "packages/server/src/services/admin-service.ts",
+                "packages/server/tests/admin-operations.test.ts"
+              ]
             },
             {
               "id": "T018",

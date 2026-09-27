@@ -572,49 +572,65 @@ export class IdentityService {
     }
 
     // Sole-Owner Course Check (PRD §15, tasks.json T017, POLICY-001 §4)
-    const ownedCourses = this.db.prepare(`
-      SELECT id, title, publication_status FROM courses WHERE owner_id = ? AND publication_status != 'archived'
-    `).all(userId) as Array<{ id: string; title: string; publication_status: string }>;
+    let committed = false;
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      const ownedCourses = this.db.prepare(`
+        SELECT id, title, publication_status FROM courses WHERE owner_id = ? AND publication_status != 'archived'
+      `).all(userId) as Array<{ id: string; title: string; publication_status: string }>;
 
-    if (ownedCourses.length > 0) {
-      const courseTitles = ownedCourses.map((c) => `“${c.title}”`).join(', ');
-      const blockerReason = `User is sole owner of active courses (${courseTitles}). Ownership must be transferred or course archived before deletion.`;
+      if (ownedCourses.length > 0) {
+        const courseTitles = ownedCourses.map((c) => `“${c.title}”`).join(', ');
+        const blockerReason = `User is sole owner of active courses (${courseTitles}). Ownership must be transferred or course archived before deletion.`;
 
-      const reqId = `priv-${crypto.randomUUID()}`;
+        const reqId = `priv-${crypto.randomUUID()}`;
+        const now = new Date().toISOString();
+        this.db.prepare(`
+          INSERT INTO privacy_requests (id, user_id, request_type, status, consequence_acknowledged, blocker_reason, created_at, updated_at)
+          VALUES (?, ?, 'deletion', 'failed', 1, ?, ?, ?)
+        `).run(reqId, userId, blockerReason, now, now);
+
+        this.db.prepare(`INSERT INTO audit_events (id, actor_id, action, target_type, target_id, reason, metadata, created_at)
+          VALUES (?, ?, 'request_account_deletion_blocked', 'user', ?, ?, ?, ?)`).run(
+          `aud-${crypto.randomUUID()}`, userId, userId, 'Sole-owner course blocks deletion',
+          JSON.stringify({ requestId: reqId, courseIds: ownedCourses.map((course) => course.id) }), now);
+        this.db.exec('COMMIT');
+        committed = true;
+
+        throw new ConflictError(
+          `Cannot delete account: You are the sole owner of course(s): ${courseTitles}. You must transfer ownership or archive them before deletion.`
+        );
+      }
+
       const now = new Date().toISOString();
+      const requestId = `priv-${crypto.randomUUID()}`;
+
+      // Mark account pending_deletion and invalidate active sessions
+      this.db.prepare(`
+        UPDATE users SET account_status = 'pending_deletion', updated_at = ? WHERE id = ?
+      `).run(now, userId);
+
+      this.db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
+      this.db.prepare('UPDATE author_access_tokens SET is_revoked = 1 WHERE author_id = ?').run(userId);
+
       this.db.prepare(`
         INSERT INTO privacy_requests (id, user_id, request_type, status, consequence_acknowledged, blocker_reason, created_at, updated_at)
-        VALUES (?, ?, 'deletion', 'failed', 1, ?, ?, ?)
-      `).run(reqId, userId, blockerReason, now, now);
+        VALUES (?, ?, 'deletion', 'pending', 1, NULL, ?, ?)
+      `).run(requestId, userId, now, now);
 
-      throw new ConflictError(
-        `Cannot delete account: You are the sole owner of course(s): ${courseTitles}. You must transfer ownership or archive them before deletion.`
-      );
+      // Audit event
+      this.db.prepare(`
+        INSERT INTO audit_events (id, actor_id, action, target_type, target_id, reason, created_at)
+        VALUES (?, ?, 'request_account_deletion', 'user', ?, 'User self-service privacy deletion request', ?)
+      `).run(`aud-${crypto.randomUUID()}`, userId, userId, now);
+
+      this.db.exec('COMMIT');
+      committed = true;
+      return { success: true, requestId };
+    } catch (error) {
+      if (!committed) this.db.exec('ROLLBACK');
+      throw error;
     }
-
-    const now = new Date().toISOString();
-    const requestId = `priv-${crypto.randomUUID()}`;
-
-    // Mark account pending_deletion and invalidate active sessions
-    this.db.prepare(`
-      UPDATE users SET account_status = 'pending_deletion', updated_at = ? WHERE id = ?
-    `).run(now, userId);
-
-    this.db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
-    this.db.prepare('UPDATE author_access_tokens SET is_revoked = 1 WHERE author_id = ?').run(userId);
-
-    this.db.prepare(`
-      INSERT INTO privacy_requests (id, user_id, request_type, status, consequence_acknowledged, blocker_reason, created_at, updated_at)
-      VALUES (?, ?, 'deletion', 'pending', 1, NULL, ?, ?)
-    `).run(requestId, userId, now, now);
-
-    // Audit event
-    this.db.prepare(`
-      INSERT INTO audit_events (id, actor_id, action, target_type, target_id, reason, created_at)
-      VALUES (?, ?, 'request_account_deletion', 'user', ?, 'User self-service privacy deletion request', ?)
-    `).run(`aud-${crypto.randomUUID()}`, userId, userId, now);
-
-    return { success: true, requestId };
   }
 
   getPrivacyStatus(userId: string): { requests: PrivacyRequest[]; ownedCourseCount: number } {
