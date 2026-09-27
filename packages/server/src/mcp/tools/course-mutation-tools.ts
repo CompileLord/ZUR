@@ -4,6 +4,7 @@ import {
   ValidationError,
   NotFoundError,
   AuthorizationError,
+  StaleRevisionError,
 } from 'zur-shared';
 import type { ValidatedMcpToken } from '../../services/mcp-token-service.ts';
 import type { McpAuthService } from '../../services/mcp-auth-service.ts';
@@ -264,6 +265,45 @@ export function createCourseMutationTools(): McpTool[] {
           step_id: { type: 'string', description: 'Step ID to duplicate' },
         },
         required: ['course_id', 'step_id'],
+      },
+      annotations: {
+        readOnly: false,
+      },
+      requiredScope: 'content:write',
+    },
+    {
+      name: 'move_content',
+      description: 'Reorders or moves a module, lesson, or step within the course hierarchy using stable parent IDs, with cycle prevention.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          course_id: { type: 'string', description: 'Course ID' },
+          content_type: { type: 'string', enum: ['module', 'lesson', 'step'], description: 'Type of content node' },
+          id: { type: 'string', description: 'ID of the node to move' },
+          target_parent_id: { type: 'string', description: 'Target parent ID (module_id for lesson, lesson_id for step)' },
+          position: { type: 'integer', description: 'Zero-based target position among siblings' },
+          expected_revision: { type: 'integer', description: 'Expected draft_revision for conflict prevention' },
+        },
+        required: ['course_id', 'content_type', 'id'],
+      },
+      annotations: {
+        readOnly: false,
+      },
+      requiredScope: 'content:write',
+    },
+    {
+      name: 'duplicate_content',
+      description: 'Duplicates a module, lesson, or step with fresh IDs, without learner records.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          course_id: { type: 'string', description: 'Course ID' },
+          content_type: { type: 'string', enum: ['module', 'lesson', 'step'], description: 'Type of content node to duplicate' },
+          id: { type: 'string', description: 'ID of the node to duplicate' },
+          target_parent_id: { type: 'string', description: 'Optional target parent ID' },
+          expected_revision: { type: 'integer', description: 'Expected draft_revision for conflict prevention' },
+        },
+        required: ['course_id', 'content_type', 'id'],
       },
       annotations: {
         readOnly: false,
@@ -760,6 +800,7 @@ export async function executeCourseMutationTool(
 
       const priorCourse = courseService.getCourse(token.authorId, courseId);
       const result = structureService.duplicateStep(token.authorId, courseId, stepId);
+      authService.verifyMcpPermission(token, 'content:write', courseId);
       const newCourse = courseService.getCourse(token.authorId, courseId);
 
       actService.recordMutation({
@@ -777,6 +818,115 @@ export async function executeCourseMutationTool(
 
       return {
         content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    }
+
+    case 'move_content': {
+      const courseId = args?.course_id?.trim();
+      const contentType = args?.content_type?.trim();
+      const id = args?.id?.trim();
+      const targetParentId = args?.target_parent_id?.trim() || undefined;
+      const position = args?.position !== undefined ? Number(args.position) : undefined;
+      const expectedRevision = args?.expected_revision !== undefined ? Number(args.expected_revision) : undefined;
+
+      if (!courseId) throw new ValidationError('course_id is required');
+      if (!contentType) throw new ValidationError('content_type is required');
+      if (!id) throw new ValidationError('id is required');
+
+      authService.verifyMcpPermission(token, 'content:write', courseId);
+
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
+      if (expectedRevision !== undefined && priorCourse.draftRevision !== expectedRevision) {
+        throw new StaleRevisionError(
+          'Course revision conflict',
+          priorCourse.draftRevision,
+          { courseId, currentRevision: priorCourse.draftRevision }
+        );
+      }
+
+      recService.createSnapshot(token.authorId, courseId, `Auto-backup before moving ${contentType} ${id}`);
+      const result = structureService.moveContent(token.authorId, courseId, contentType as any, id, targetParentId, position);
+      authService.verifyMcpPermission(token, 'content:write', courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'move_content',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: result.newRevision,
+        affectedEntities: [id],
+        newContent: { contentType, id, targetParentId, position },
+        outcome: 'success',
+      });
+
+      const response = {
+        ...result,
+        content_type: contentType,
+        id,
+        new_parent_id: targetParentId,
+        new_position: position,
+        draft_revision: result.newRevision,
+        new_revision: result.newRevision,
+      };
+
+      return {
+        content: [{ type: 'text', text: JSON.stringify(response, null, 2) }],
+      };
+    }
+
+    case 'duplicate_content': {
+      const courseId = args?.course_id?.trim();
+      const contentType = args?.content_type?.trim();
+      const id = args?.id?.trim();
+      const targetParentId = args?.target_parent_id?.trim() || undefined;
+      const expectedRevision = args?.expected_revision !== undefined ? Number(args.expected_revision) : undefined;
+
+      if (!courseId) throw new ValidationError('course_id is required');
+      if (!contentType) throw new ValidationError('content_type is required');
+      if (!id) throw new ValidationError('id is required');
+
+      authService.verifyMcpPermission(token, 'content:write', courseId);
+
+      const priorCourse = courseService.getCourse(token.authorId, courseId);
+      if (expectedRevision !== undefined && priorCourse.draftRevision !== expectedRevision) {
+        throw new StaleRevisionError(
+          'Course revision conflict',
+          priorCourse.draftRevision,
+          { courseId, currentRevision: priorCourse.draftRevision }
+        );
+      }
+
+      recService.createSnapshot(token.authorId, courseId, `Auto-backup before duplicating ${contentType} ${id}`);
+      const result = structureService.duplicateContent(token.authorId, courseId, contentType as any, id, targetParentId);
+      authService.verifyMcpPermission(token, 'content:write', courseId);
+
+      actService.recordMutation({
+        tokenId: token.id,
+        authorId: token.authorId,
+        courseId,
+        toolName: 'duplicate_content',
+        idempotencyKey: args?.idempotency_key,
+        baseRevision: priorCourse.draftRevision,
+        newRevision: result.newRevision,
+        affectedEntities: [result.createdId],
+        newContent: result.createdSummary,
+        outcome: 'success',
+      });
+
+      const response = {
+        ...result,
+        content_type: contentType,
+        id,
+        duplicate_id: result.createdId,
+        created_id: result.createdId,
+        draft_revision: result.newRevision,
+        new_revision: result.newRevision,
+      };
+
+      return {
+        content: [{ type: 'text', text: JSON.stringify(response, null, 2) }],
       };
     }
 

@@ -39,6 +39,9 @@ export class MediaService {
       if (!fs.existsSync(this.uploadDir)) {
         fs.mkdirSync(this.uploadDir, { recursive: true });
       }
+      const testFile = path.join(this.uploadDir, `.write-test-${process.pid}`);
+      fs.writeFileSync(testFile, '1');
+      fs.unlinkSync(testFile);
     } catch {
       const fallback = path.join(os.tmpdir(), 'zur-uploads');
       if (!fs.existsSync(fallback)) {
@@ -266,21 +269,22 @@ export class MediaService {
     if (actualMime === 'image/webp') ext = 'webp';
 
     let courseDir = path.join(this.uploadDir, courseId);
+    const filename = `${assetId}.${ext}`;
+    let filePath = path.join(courseDir, filename);
     try {
       if (!fs.existsSync(courseDir)) {
         fs.mkdirSync(courseDir, { recursive: true });
       }
+      fs.writeFileSync(filePath, input.buffer);
     } catch {
       this.uploadDir = path.join(os.tmpdir(), 'zur-uploads');
       courseDir = path.join(this.uploadDir, courseId);
       if (!fs.existsSync(courseDir)) {
         fs.mkdirSync(courseDir, { recursive: true });
       }
+      filePath = path.join(courseDir, filename);
+      fs.writeFileSync(filePath, input.buffer);
     }
-
-    const filename = `${assetId}.${ext}`;
-    const filePath = path.join(courseDir, filename);
-    fs.writeFileSync(filePath, input.buffer);
 
     if (!fs.existsSync(filePath) || fs.statSync(filePath).size !== input.buffer.length) {
       throw new ValidationError('Failed to write and verify uploaded image asset on disk.');

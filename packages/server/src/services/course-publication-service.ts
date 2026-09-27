@@ -22,6 +22,7 @@ export interface PublishCourseOptions {
   expectedRevision: number;
   changeSummary?: string;
   idempotencyKey?: string;
+  beforeCommit?: () => void;
 }
 
 export class CoursePublicationService {
@@ -348,6 +349,10 @@ export class CoursePublicationService {
             JSON.stringify(receipt),
             now
           );
+      }
+
+      if (options.beforeCommit) {
+        options.beforeCommit();
       }
 
       this.db.exec('COMMIT');

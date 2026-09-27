@@ -39,17 +39,24 @@ test('MCP Streamable HTTP Server & Protocol (T057, T064)', async (t) => {
   const address = server.address() as any;
   const port = address.port;
 
+  const rawSessions = new Map<string, string>();
   async function request(
     path: string,
     options: http.RequestOptions = {},
     body?: any,
     rawBody?: string | Buffer
   ): Promise<{ status: number; headers: http.IncomingHttpHeaders; body: any }> {
+    const auth = (options.headers as any)?.Authorization || '';
+    if (body?.method && body.method !== 'initialize' && auth && !rawSessions.has(auth) && !String(auth).includes('fake')) {
+      await request('/mcp', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: auth } }, { jsonrpc: '2.0', id: 0, method: 'initialize', params: { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'test-client', version: '1' } } });
+    }
     return new Promise((resolve, reject) => {
       const payload = rawBody !== undefined ? rawBody : body !== undefined ? JSON.stringify(body) : undefined;
       const headers: Record<string, string> = {
         Host: `127.0.0.1:${port}`,
         ...(options.headers as any),
+        Accept: 'application/json, text/event-stream',
+        ...(auth && rawSessions.has(auth) && body?.method !== 'initialize' ? { 'mcp-session-id': rawSessions.get(auth)!, 'mcp-protocol-version': '2025-11-25' } : {}),
       };
 
       if (payload !== undefined && !headers['Content-Length'] && !headers['content-length']) {
@@ -68,11 +75,12 @@ test('MCP Streamable HTTP Server & Protocol (T057, T064)', async (t) => {
           let data = '';
           res.on('data', (chunk) => (data += chunk));
           res.on('end', () => {
+            if (res.headers['mcp-session-id'] && auth) rawSessions.set(auth, String(res.headers['mcp-session-id']));
             try {
               resolve({
                 status: res.statusCode || 500,
                 headers: res.headers,
-                body: data ? JSON.parse(data) : null,
+                body: data ? JSON.parse(data.startsWith('event:') ? data.split('\n').find((line) => line.startsWith('data: '))!.slice(6) : data) : null,
               });
             } catch {
               resolve({
@@ -97,11 +105,10 @@ test('MCP Streamable HTTP Server & Protocol (T057, T064)', async (t) => {
     server.close();
   });
 
-  await t.test('T057: Rejects non-POST HTTP methods on /mcp', async () => {
+  await t.test('T057: GET requires bearer authentication on /mcp', async () => {
     const res = await request('/mcp', { method: 'GET' });
-    assert.equal(res.status, 405);
-    assert.equal(res.body.error.code, -32600);
-    assert.ok(res.body.error.message.includes('POST'));
+    assert.equal(res.status, 401);
+    assert.equal(res.body.error.code, -32001);
   });
 
   await t.test('T057: Rejects missing Host header', async () => {
@@ -136,7 +143,7 @@ test('MCP Streamable HTTP Server & Protocol (T057, T064)', async (t) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Origin: 'http://localhost:3000',
+        Origin: `http://127.0.0.1:${port}`,
         Authorization: `Bearer ${validRawToken}`,
       },
     }, { jsonrpc: '2.0', id: 1, method: 'ping' });
@@ -250,6 +257,7 @@ test('MCP Streamable HTTP Server & Protocol (T057, T064)', async (t) => {
         params: {
           protocolVersion: '2024-11-05',
           capabilities: {},
+          clientInfo: { name: 'test-client', version: '1' },
         },
       }
     );
@@ -279,7 +287,7 @@ test('MCP Streamable HTTP Server & Protocol (T057, T064)', async (t) => {
         params: {},
       }
     );
-    assert.equal(res.status, 204);
+    assert.equal(res.status, 202);
   });
 
   await t.test('T057: Protocol method ping', async () => {
@@ -428,10 +436,7 @@ test('MCP Streamable HTTP Server & Protocol (T057, T064)', async (t) => {
     );
 
     assert.equal(res.status, 200);
-    assert.ok(Array.isArray(res.body));
-    assert.equal(res.body.length, 2);
-    assert.equal(res.body[0].id, 'b1');
-    assert.equal(res.body[1].id, 'b2');
+    assert.equal(res.body.id, 'b1');
   });
 
   await t.test('T064: Rate limit enforcement (60 calls/minute per token)', async () => {
@@ -444,8 +449,9 @@ test('MCP Streamable HTTP Server & Protocol (T057, T064)', async (t) => {
     });
     const rlBearer = `Bearer ${rlToken.rawToken}`;
 
-    // Send 60 requests (allowed)
-    for (let i = 0; i < 60; i++) {
+    // Initialization consumes one request from the token's 60/minute budget.
+    await request('/mcp', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: rlBearer } }, { jsonrpc: '2.0', id: -1, method: 'initialize', params: { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'rate-test', version: '1' } } });
+    for (let i = 0; i < 59; i++) {
       const res = await request(
         '/mcp',
         {

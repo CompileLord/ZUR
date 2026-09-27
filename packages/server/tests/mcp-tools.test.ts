@@ -46,7 +46,26 @@ test('MCP Authoring Tools Suite (T058–T064)', async (t) => {
   const address = server.address() as any;
   const port = address.port;
 
+  const mcpSessions = new Map<string, string>();
+  async function initializeMcpSession(bearer: string): Promise<string> {
+    const existing = mcpSessions.get(bearer);
+    if (existing) return existing;
+    const response = await fetch(`http://127.0.0.1:${port}/mcp`, {
+      method: 'POST',
+      headers: { Authorization: bearer, 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 0, method: 'initialize', params: {
+        protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'test-client', version: '1' },
+      }}),
+    });
+    if (!response.ok) throw new Error(`MCP initialize failed: ${response.status}`);
+    const id = response.headers.get('mcp-session-id');
+    if (!id) throw new Error('MCP session ID missing');
+    mcpSessions.set(bearer, id);
+    return id;
+  }
+
   async function callTool(toolName: string, toolArgs: any, bearer: string = fullBearer): Promise<any> {
+    const sessionId = await initializeMcpSession(bearer);
     return new Promise((resolve, reject) => {
       const payload = JSON.stringify({
         jsonrpc: '2.0',
@@ -69,6 +88,9 @@ test('MCP Authoring Tools Suite (T058–T064)', async (t) => {
             'Content-Type': 'application/json',
             'Content-Length': String(Buffer.byteLength(payload)),
             Authorization: bearer,
+            Accept: 'application/json, text/event-stream',
+            'mcp-session-id': sessionId,
+            'mcp-protocol-version': '2025-11-25',
           },
         },
         (res) => {
@@ -76,7 +98,7 @@ test('MCP Authoring Tools Suite (T058–T064)', async (t) => {
           res.on('data', (c) => (data += c));
           res.on('end', () => {
             try {
-              const parsed = JSON.parse(data);
+              const parsed = JSON.parse(data.startsWith('event:') ? data.split('\n').find((line) => line.startsWith('data: '))!.slice(6) : data);
               resolve({ status: res.statusCode, body: parsed });
             } catch (err) {
               reject(err);
@@ -352,15 +374,15 @@ test('MCP Authoring Tools Suite (T058–T064)', async (t) => {
     assert.equal(svgRes.body.result.isError, true);
     assert.ok(svgRes.body.result.content[0].text.includes('Unsupported image type'));
 
-    // Rejects oversized file (> 5 MiB)
+    // Rejects oversized file (> 10 MB)
     const overRes = await callTool('create_image_upload', {
       course_id: createdCourseId,
       filename: 'huge.png',
       mime_type: 'image/png',
-      file_size: 6 * 1024 * 1024,
+      file_size: 11 * 1024 * 1024,
     });
     assert.equal(overRes.body.result.isError, true);
-    assert.ok(overRes.body.result.content[0].text.includes('5 MiB limit'));
+    assert.ok(overRes.body.result.content[0].text.includes('10 MB limit'));
 
     // Accepts valid PNG upload request
     const validRes = await callTool('create_image_upload', {
@@ -373,7 +395,7 @@ test('MCP Authoring Tools Suite (T058–T064)', async (t) => {
     const uploadSession = JSON.parse(validRes.body.result.content[0].text);
     assert.ok(uploadSession.upload_id);
     assert.ok(uploadSession.upload_url);
-    assert.equal(uploadSession.max_bytes, 5242880);
+    assert.equal(uploadSession.max_bytes, 10485760);
   });
 
   await t.test('T060: complete_image_upload handles base64 image and returns canonical markdown reference', async () => {
@@ -413,6 +435,8 @@ test('MCP Authoring Tools Suite (T058–T064)', async (t) => {
       asset_id: uploadedAssetId,
       alt_text: 'Updated flowchart diagram',
       caption: 'Figure 1: Python Flowchart',
+      expected_revision: (db.prepare('SELECT draft_revision FROM courses WHERE id = ?').get(createdCourseId) as any).draft_revision,
+      idempotency_key: 'update-image-metadata-test-1',
     });
     assert.equal(updateRes.status, 200);
     const updatedImg = JSON.parse(updateRes.body.result.content[0].text);

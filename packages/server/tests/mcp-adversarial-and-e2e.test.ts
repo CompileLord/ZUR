@@ -85,7 +85,26 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
     server.close();
   });
 
+  const mcpSessions = new Map<string, string>();
+  async function initializeMcpSession(bearer: string): Promise<string> {
+    const existing = mcpSessions.get(bearer);
+    if (existing) return existing;
+    const response = await fetch(`http://127.0.0.1:${port}/mcp`, {
+      method: 'POST',
+      headers: { Authorization: bearer, 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 0, method: 'initialize', params: {
+        protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'test-client', version: '1' },
+      }}),
+    });
+    if (!response.ok) throw new Error(`MCP initialize failed: ${response.status}`);
+    const id = response.headers.get('mcp-session-id');
+    if (!id) throw new Error('MCP session ID missing');
+    mcpSessions.set(bearer, id);
+    return id;
+  }
+
   async function callMcp(bearer: string | null, toolName: string, toolArgs: any): Promise<any> {
+    const sessionId = bearer ? await initializeMcpSession(bearer) : undefined;
     return new Promise((resolve, reject) => {
       const payload = JSON.stringify({
         jsonrpc: '2.0',
@@ -100,6 +119,8 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         'Content-Length': String(Buffer.byteLength(payload)),
+        Accept: 'application/json, text/event-stream',
+        ...(sessionId ? { 'mcp-session-id': sessionId, 'mcp-protocol-version': '2025-11-25' } : {}),
       };
       if (bearer) {
         headers['Authorization'] = bearer;
@@ -120,7 +141,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
             try {
               resolve({
                 statusCode: res.statusCode,
-                body: data ? JSON.parse(data) : null,
+                body: data ? JSON.parse(data.startsWith('event:') ? data.split('\n').find((line) => line.startsWith('data: '))!.slice(6) : data) : null,
               });
             } catch {
               resolve({

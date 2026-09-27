@@ -59,6 +59,8 @@ import {
   type McpToolResult,
 } from './types.ts';
 
+import { SUPPORTED_PROTOCOL_VERSIONS, LATEST_PROTOCOL_VERSION } from '@modelcontextprotocol/sdk/types.js';
+
 export class McpServer {
   private db: DatabaseSync;
   private tokenService: McpTokenService;
@@ -110,6 +112,10 @@ export class McpServer {
 
   getRecoveryService(): DraftRecoveryService {
     return this.recoveryService;
+  }
+
+  getAuthService(): McpAuthService {
+    return this.authService;
   }
 
   private registerTools(): void {
@@ -215,9 +221,12 @@ export class McpServer {
   ): Promise<any> {
     switch (method) {
       case 'initialize': {
-        const clientVersion = params?.protocolVersion || '2024-11-05';
+        const clientVersion = params?.protocolVersion;
+        const protocolVersion = (clientVersion && ['2026-07-28', ...SUPPORTED_PROTOCOL_VERSIONS].includes(clientVersion))
+          ? clientVersion
+          : LATEST_PROTOCOL_VERSION;
         return {
-          protocolVersion: clientVersion,
+          protocolVersion,
           capabilities: {
             tools: {},
             resources: {},
@@ -316,7 +325,7 @@ export class McpServer {
     }
   }
 
-  private async dispatchTool(
+  async dispatchTool(
     name: string,
     args: any,
     token: ValidatedMcpToken
@@ -349,6 +358,8 @@ export class McpServer {
           'update_step',
           'delete_step',
           'duplicate_step',
+          'move_content',
+          'duplicate_content',
         ].includes(name)
       ) {
         return await executeCourseMutationTool(
@@ -365,7 +376,7 @@ export class McpServer {
         );
       }
 
-      if (['get_agent_activity', 'restore_draft_revision'].includes(name)) {
+      if (['get_agent_activity', 'restore_draft_revision', 'list_agent_activity', 'get_change'].includes(name)) {
         return await executeAgentActivityTool(
           name,
           args,
@@ -377,7 +388,15 @@ export class McpServer {
         );
       }
 
-      if (['create_image_upload', 'complete_image_upload', 'get_image', 'update_image_metadata'].includes(name)) {
+      if ([
+        'create_image_upload',
+        'complete_image_upload',
+        'get_image',
+        'update_image_metadata',
+        'update_image',
+        'attach_image',
+        'detach_image',
+      ].includes(name)) {
         return await executeImageTool(
           name,
           args,
@@ -411,7 +430,7 @@ export class McpServer {
         );
       }
 
-      if (name === 'batch_author') {
+      if (['batch_author', 'prepare_course_changes', 'apply_course_changes'].includes(name)) {
         return await executeBatchAuthorTool(
           name,
           args,

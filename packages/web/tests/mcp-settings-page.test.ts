@@ -121,6 +121,8 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
     });
 
     assert.ok(html.includes('Claude Desktop Agent'), 'Token 1 label present');
+    assert.ok(html.includes('Setup unavailable for inactive connection'), 'Revoked token has disabled setup');
+    assert.ok(!html.includes('/settings/ai-connections/tok-revoked-1/setup'), 'Revoked token has no setup link');
     assert.ok(html.includes('zat_claude_active'), 'Token 1 identifier present');
     assert.ok(html.includes('Draft authoring'), 'Scope summary preset formatted');
     assert.ok(html.includes('Python foundations'), 'Course restriction formatted');
@@ -140,6 +142,21 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
     assert.ok(html.includes('/settings/ai-connections/tok-1/setup'), 'Setup link present');
     assert.ok(html.includes('data-action="replace-token"'), 'Replace action present');
     assert.ok(html.includes('data-action="revoke-token"'), 'Revoke action present');
+  });
+
+  await t.test('P43: Mobile responsive layout renders connection cards with access/status under name and reachable actions', () => {
+    const html = renderAiConnectionsPage({
+      user: authorUser,
+      tokens: sampleTokens,
+      courses: [{ id: 'course-python-foundations', title: 'Python foundations' }],
+    });
+
+    assert.ok(html.includes('connections-mobile-list'), 'Must render mobile connections list container');
+    assert.ok(html.includes('id="mobile-token-card-tok-1"'), 'Must render mobile token card for active token');
+    assert.ok(html.includes('id="mobile-token-card-tok-4"'), 'Must render mobile token card for revoked token');
+    assert.ok(html.includes('connection-mobile-header'), 'Must render card header with title and status badge');
+    assert.ok(html.includes('connection-mobile-body'), 'Must render card body with access and course summary under name');
+    assert.ok(html.includes('connection-mobile-actions'), 'Must render mobile reachable actions');
   });
 
   await t.test('P43: Scope and course formatting helpers', () => {

@@ -1,5 +1,8 @@
 import http from 'node:http';
 import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
 import { DatabaseSync } from 'node:sqlite';
 import { ZURError, AuthenticationError, AuthorizationError, NotFoundError, ValidationError } from 'zur-shared';
 import { IdentityService } from './services/identity-service.ts';
@@ -177,6 +180,10 @@ export function createServer(
 
     // Handle CORS preflight
     if (req.method === 'OPTIONS') {
+      if (mcpTransport.isMcpRequest(pathname)) {
+        await mcpTransport.handleHttpRequest(req, res);
+        return;
+      }
       res.writeHead(204, {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
@@ -1321,6 +1328,92 @@ export function createServer(
         const courseId = authorCourseAssetsMatch[1];
         const assets = mediaService.listCourseAssets(user.id, courseId);
         sendJson(res, 200, { assets });
+        return;
+      }
+
+      // 44b. Author / MCP: Image Byte Upload Session Endpoint (PRD §23.5, Finding 2)
+      const uploadSessionMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/assets\/upload-session\/([a-zA-Z0-9_-]+)$/);
+      if ((method === 'PUT' || method === 'POST') && uploadSessionMatch) {
+        const courseId = uploadSessionMatch[1];
+        const uploadId = uploadSessionMatch[2];
+
+        const uploadToken = req.headers['x-upload-token'];
+        if (typeof uploadToken !== 'string' || !uploadToken) {
+          throw new AuthenticationError('X-Upload-Token is required.');
+        }
+        if (req.headers.authorization) {
+          throw new AuthenticationError('Author bearer credentials are not accepted by the upload endpoint.');
+        }
+
+        const uploadRow = db.prepare('SELECT * FROM media_uploads WHERE id = ? AND course_id = ?').get(uploadId, courseId) as any;
+        if (!uploadRow) {
+          throw new NotFoundError("This page isn't available.");
+        }
+
+        if (new Date(uploadRow.expires_at) <= new Date()) {
+          throw new ValidationError('Upload session has expired.');
+        }
+
+        const providedHash = crypto.createHash('sha256').update(uploadToken).digest('hex');
+        if (providedHash !== uploadRow.upload_token_hash) {
+          throw new AuthenticationError('Invalid upload token.');
+        }
+
+        if (uploadRow.status !== 'pending') {
+          throw new ValidationError('Upload capability has already been used.');
+        }
+        if (req.headers['content-type']?.split(';')[0].trim().toLowerCase() !== uploadRow.allowed_mime) {
+          throw new ValidationError('Uploaded content type does not match the upload capability.');
+        }
+
+        const maxBytes = uploadRow.max_bytes || (10 * 1024 * 1024);
+        const chunks: Buffer[] = [];
+        let totalBytes = 0;
+        for await (const chunk of req) {
+          totalBytes += chunk.length;
+          if (totalBytes > maxBytes) {
+            throw new ValidationError(`Payload exceeds maximum upload size of ${maxBytes} bytes.`);
+          }
+          chunks.push(chunk);
+        }
+        const fileBuffer = Buffer.concat(chunks);
+        if (fileBuffer.length === 0) {
+          throw new ValidationError('Uploaded payload is empty.');
+        }
+
+        const uploadedChecksum = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+        if (uploadRow.expected_checksum && uploadRow.expected_checksum.toLowerCase() !== uploadedChecksum) {
+          throw new ValidationError('Uploaded image checksum mismatch: bytes do not match expected checksum.');
+        }
+
+        let stagingDir = path.resolve('data/uploads/staged');
+        let stagedPath = path.join(stagingDir, `${uploadId}.bin`);
+        try {
+          if (!fs.existsSync(stagingDir)) {
+            fs.mkdirSync(stagingDir, { recursive: true });
+          }
+          fs.writeFileSync(stagedPath, fileBuffer, { flag: 'w' });
+        } catch {
+          stagingDir = path.join(os.tmpdir(), 'zur-uploads', 'staged');
+          if (!fs.existsSync(stagingDir)) {
+            fs.mkdirSync(stagingDir, { recursive: true });
+          }
+          stagedPath = path.join(stagingDir, `${uploadId}.bin`);
+          fs.writeFileSync(stagedPath, fileBuffer, { flag: 'w' });
+        }
+
+        db.prepare(`
+          UPDATE media_uploads
+          SET staged_file_path = ?, uploaded_bytes = ?, uploaded_checksum = ?, status = 'uploaded'
+          WHERE id = ? AND status = 'pending'
+        `).run(stagedPath, fileBuffer.length, uploadedChecksum, uploadId);
+
+        sendJson(res, 200, {
+          status: 'uploaded',
+          upload_id: uploadId,
+          bytes_received: fileBuffer.length,
+          checksum: uploadedChecksum,
+        });
         return;
       }
 

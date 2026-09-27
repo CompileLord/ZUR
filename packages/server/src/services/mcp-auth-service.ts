@@ -1,5 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
 import {
+  AuthenticationError,
   AuthorizationError,
   NotFoundError,
   ScopeRequiredError,
@@ -19,7 +20,26 @@ export class McpAuthService {
 
 
   verifyMcpPermission(token: ValidatedMcpToken, requiredScope: TokenScope, courseId?: string): void {
-    if (!token.scopes.includes(requiredScope)) {
+    const tokenRow = this.db.prepare(`
+      SELECT id, author_id, scopes, course_restrictions, expires_at, is_revoked
+      FROM author_access_tokens
+      WHERE id = ?
+    `).get(token.id) as any;
+
+    if (!tokenRow) {
+      throw new AuthenticationError('Token not found or invalid.');
+    }
+
+    if (tokenRow.is_revoked) {
+      throw new AuthenticationError('Token has been revoked.');
+    }
+
+    if (new Date(tokenRow.expires_at) <= new Date()) {
+      throw new AuthenticationError('Token has expired.');
+    }
+
+    const currentScopes: TokenScope[] = JSON.parse(tokenRow.scopes || '[]');
+    if (!currentScopes.includes(requiredScope)) {
       throw new ScopeRequiredError(requiredScope);
     }
 
@@ -39,8 +59,9 @@ export class McpAuthService {
     }
 
     if (courseId) {
-      if (token.courseRestrictions !== null) {
-        if (!token.courseRestrictions.includes(courseId)) {
+      if (tokenRow.course_restrictions !== null) {
+        const restrictions: string[] = JSON.parse(tokenRow.course_restrictions || '[]');
+        if (!restrictions.includes(courseId)) {
           throw new AuthorizationError('Course is not in allowed course restrictions for this token.');
         }
       }

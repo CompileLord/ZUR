@@ -11,19 +11,45 @@ import type { DraftRecoveryService } from '../../services/draft-recovery-service
 import type { McpTool, McpToolResult } from '../types.ts';
 
 export function createAgentActivityTools(): McpTool[] {
+  const activityListSchema = {
+    type: 'object',
+    properties: {
+      course_id: { type: 'string', description: 'Course ID' },
+      page: { type: 'integer', description: 'Page number (default: 1)' },
+      limit: { type: 'integer', description: 'Items per page (default: 20, max: 100)' },
+      tool_name: { type: 'string', description: 'Filter by tool name' },
+    },
+    required: ['course_id'],
+  };
+
   return [
     {
+      name: 'list_agent_activity',
+      description: 'Lists scoped, paginated agent mutation receipts and activity history for a course without exposing secrets or learner data.',
+      inputSchema: activityListSchema,
+      annotations: {
+        readOnly: true,
+      },
+      requiredScope: 'courses:read',
+    },
+    {
       name: 'get_agent_activity',
-      description: 'Lists agent mutation receipts and activity history for a course.',
+      description: 'Alias for list_agent_activity: lists agent mutation receipts and activity history for a course.',
+      inputSchema: activityListSchema,
+      annotations: {
+        readOnly: true,
+      },
+      requiredScope: 'courses:read',
+    },
+    {
+      name: 'get_change',
+      description: 'Retrieves access-controlled change details and protected content diffs for a specific agent mutation.',
       inputSchema: {
         type: 'object',
         properties: {
-          course_id: { type: 'string', description: 'Course ID' },
-          page: { type: 'integer', description: 'Page number (default: 1)' },
-          limit: { type: 'integer', description: 'Items per page (default: 20, max: 100)' },
-          tool_name: { type: 'string', description: 'Filter by tool name' },
+          change_id: { type: 'string', description: 'Mutation/change ID to inspect' },
+          mutation_id: { type: 'string', description: 'Alternative parameter name for mutation ID' },
         },
-        required: ['course_id'],
       },
       annotations: {
         readOnly: true,
@@ -60,6 +86,7 @@ export async function executeAgentActivityTool(
   recoveryService: DraftRecoveryService
 ): Promise<McpToolResult> {
   switch (name) {
+    case 'list_agent_activity':
     case 'get_agent_activity': {
       const courseId = args?.course_id?.trim();
       if (!courseId) {
@@ -78,8 +105,55 @@ export async function executeAgentActivityTool(
         toolName,
       });
 
+      const safeItems = activity.items.map((item: any) => {
+        const { tokenId, ...rest } = item;
+        return rest;
+      });
+
       return {
-        content: [{ type: 'text', text: JSON.stringify(activity, null, 2) }],
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                ...activity,
+                items: safeItems,
+                mutations: safeItems,
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    }
+
+    case 'get_change': {
+      const changeId = (args?.change_id || args?.mutation_id)?.trim();
+      if (!changeId) {
+        throw new ValidationError('change_id is required');
+      }
+
+      const detail = activityService.getMutationDetail(token.authorId, changeId);
+      authService.verifyMcpPermission(token, 'courses:read', detail.courseId);
+
+      const diff = {
+        prior: detail.priorContent,
+        new: detail.newContent,
+      };
+
+      const result = {
+        ...detail,
+        course_id: detail.courseId,
+        tool_name: detail.toolName,
+        base_revision: detail.baseRevision,
+        new_revision: detail.newRevision,
+        affected_entities: detail.affectedEntities,
+        diff,
+      };
+
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
       };
     }
 
@@ -105,6 +179,8 @@ export async function executeAgentActivityTool(
         revisionId,
         expectedRevision
       );
+
+      authService.verifyMcpPermission(token, 'content:write', courseId);
 
       // Record recovery mutation in agent_mutations
       activityService.recordMutation({

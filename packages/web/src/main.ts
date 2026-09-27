@@ -157,7 +157,31 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
     if (!s2Current(path)) return;
     if (pageId === 'P22') {
       const query = new URLSearchParams(window.location.search);
-      appEl.innerHTML = renderCourseBuilderPage({ courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, modules: tree.modules, selectedType: (query.get('type') as any) || 'course', selectedId: query.get('id') || courseId });
+      let remoteUpdate: any;
+      try {
+        const actRes = await s2Request(`/api/author/courses/${courseId}/activity?limit=1`);
+        const latest = actRes?.items?.[0];
+        const createdAt = latest?.createdAt || latest?.created_at;
+        if (latest && createdAt && (Date.now() - new Date(createdAt).getTime() < 3600 * 1000)) {
+          const hasLocalEdits = Boolean(sessionStorage.getItem(`zur_builder_unsaved_${courseId}`) || query.get('hasLocalEdits') === 'true');
+          remoteUpdate = {
+            agentName: latest.tokenLabel || latest.client_label || 'AI agent',
+            timestampText: 'just now',
+            newRevision: latest.newRevision ?? latest.new_revision,
+            hasLocalEdits,
+          };
+        }
+      } catch { /* activity optional */ }
+
+      appEl.innerHTML = renderCourseBuilderPage({ courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, modules: tree.modules, selectedType: (query.get('type') as any) || 'course', selectedId: query.get('id') || courseId, remoteUpdate });
+      document.getElementById('load-update-btn')?.addEventListener('click', () => {
+        sessionStorage.removeItem(`zur_builder_unsaved_${courseId}`);
+        renderApp(path);
+      });
+      document.getElementById('resolve-conflict-btn')?.addEventListener('click', () => {
+        window.history.pushState({}, '', `/teach/${courseId}/activity`);
+        renderApp();
+      });
       appEl.querySelectorAll('form[action^="/teach/"]').forEach(form => form.addEventListener('submit', async event => {
         event.preventDefault();
         const target = event.currentTarget as HTMLFormElement;
@@ -189,7 +213,19 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       if (!s2Current(path)) return;
       const base = { courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, stepId: step.id, stepTitle: detail.title, revision: detail.revision, isRequired: detail.isRequired, estimatedDurationMinutes: detail.estimatedDurationMinutes };
       const c = specialized ? (step.type === 'quiz' ? specialized.quiz : specialized) : detail.content || {};
-      if (step.type === 'theory') appEl.innerHTML = renderTheoryEditorPage({ ...base, markdown: c.markdown || '' });
+      if (step.type === 'theory') {
+        appEl.innerHTML = renderTheoryEditorPage({ ...base, markdown: c.markdown || '' });
+        appEl.querySelectorAll<HTMLElement>('.theory-tabs [data-tab]').forEach(button => button.addEventListener('click', () => {
+          const tab = button.dataset.tab;
+          const isPreview = tab === 'preview';
+          (appEl.querySelector('.theory-edit-pane') as HTMLElement)?.style.setProperty('display', isPreview ? 'none' : '');
+          (appEl.querySelector('.theory-preview-pane') as HTMLElement)?.style.setProperty('display', isPreview ? '' : 'none');
+          appEl.querySelectorAll<HTMLElement>('.theory-tabs [data-tab]').forEach(b => {
+            b.classList.toggle('active', b === button);
+            b.setAttribute('aria-selected', String(b === button));
+          });
+        }));
+      }
       else if (step.type === 'video') appEl.innerHTML = renderVideoEditorPage({ ...base, videoUrl: c.videoUrl || '', provider: c.provider || 'youtube', transcript: c.transcript || '', captionVerified: Boolean(c.captionVerified) });
       else if (step.type === 'quiz') appEl.innerHTML = renderQuizEditorPage({ ...base, quizType: c.quizType || 'single_choice', prompt: c.prompt || '', options: c.options || [], explanation: c.explanation || '' });
       else appEl.innerHTML = renderPythonExerciseEditorPage({ ...base, problemStatement: c.problemStatement || '', inputFormat: c.inputFormat || '', outputFormat: c.outputFormat || '', constraints: c.constraints || '', starterCode: c.starterCode || '', referenceSolution: c.referenceSolution || '', hints: c.hints || [], solutionExplanation: c.solutionExplanation || '', publicTests: c.publicTests || [], hiddenTests: c.hiddenTests || [], runtimeLimits: c.runtimeLimits || { cpuTimeoutSeconds: 2, wallTimeoutSeconds: 5, memoryLimitMib: 128 } });

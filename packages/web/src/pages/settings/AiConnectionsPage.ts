@@ -258,7 +258,9 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                     </td>
                     <td class="text-right">
                       <div class="flex items-center justify-end gap-2">
-                        <a href="/settings/ai-connections/${token.id}/setup" class="btn btn-secondary btn-compact" aria-label="Setup ${token.label}">Setup</a>
+                        ${token.isRevoked || token.status === 'expired'
+                          ? '<button type="button" class="btn btn-secondary btn-compact" disabled aria-label="Setup unavailable for inactive connection">Setup</button>'
+                          : `<a href="/settings/ai-connections/${token.id}/setup" class="btn btn-secondary btn-compact" aria-label="Setup ${token.label}">Setup</a>`}
                         ${
                           !token.isRevoked
                             ? `
@@ -275,6 +277,81 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                 .join('')}
             </tbody>
           </table>
+        </div>
+
+        <div class="connections-mobile-list" role="list" aria-label="AI Connections">
+          ${filteredTokens
+            .map((token) => {
+              let badgeStatus: 'info' | 'success' | 'warning' | 'danger' = 'info';
+              let statusLabel = 'Never used';
+              if (token.status === 'active') {
+                badgeStatus = 'success';
+                statusLabel = 'Active';
+              } else if (token.status === 'expired') {
+                badgeStatus = 'warning';
+                statusLabel = 'Expired';
+              } else if (token.status === 'revoked') {
+                badgeStatus = 'danger';
+                statusLabel = 'Revoked';
+              }
+
+              const expiryDate = new Date(token.expiresAt).toLocaleDateString(undefined, {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              });
+
+              const lastUsedText = token.lastUsedAt
+                ? new Date(token.lastUsedAt).toLocaleDateString(undefined, {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : 'Never used';
+
+              return `
+              <article class="connection-mobile-card" id="mobile-token-card-${token.id}" role="listitem">
+                <div class="connection-mobile-header">
+                  <div class="connection-mobile-identity">
+                    <div class="font-medium text-primary">${token.label}</div>
+                    <div class="text-xs font-mono text-muted">${token.tokenIdentifier}</div>
+                  </div>
+                  <div class="connection-mobile-status">
+                    ${renderStatusBadge({ status: badgeStatus, label: statusLabel })}
+                  </div>
+                </div>
+                <div class="connection-mobile-body text-xs space-y-1">
+                  <div class="connection-mobile-row-field">
+                    <span class="text-secondary font-medium">Access: </span>
+                    <span class="text-primary font-medium">${formatScopeSummary(token.scopes)}</span>
+                  </div>
+                  <div class="connection-mobile-row-field">
+                    <span class="text-secondary font-medium">Courses: </span>
+                    <span class="text-secondary">${formatCourseRestrictions(token.courseRestrictions, coursesMap)}</span>
+                  </div>
+                  <div class="connection-mobile-row-meta flex flex-wrap gap-x-4 text-muted pt-1">
+                    <span>Last used: ${lastUsedText}</span>
+                    <span>Expires: ${expiryDate}</span>
+                  </div>
+                </div>
+                <div class="connection-mobile-actions">
+                  ${token.isRevoked || token.status === 'expired'
+                    ? '<button type="button" class="btn btn-secondary btn-compact" disabled aria-label="Setup unavailable for inactive connection">Setup</button>'
+                    : `<a href="/settings/ai-connections/${token.id}/setup" class="btn btn-secondary btn-compact" aria-label="Setup ${token.label}">Setup</a>`}
+                  ${
+                    !token.isRevoked
+                      ? `
+                    <button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>
+                    <button type="button" class="btn btn-destructive btn-compact" data-action="revoke-token" data-token-id="${token.id}" aria-label="Revoke ${token.label}">Revoke</button>
+                  `
+                      : ''
+                  }
+                </div>
+              </article>
+            `;
+            })
+            .join('')}
         </div>
       `
       }
