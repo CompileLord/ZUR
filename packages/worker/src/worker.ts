@@ -35,9 +35,14 @@ export async function processExecutionJob(job: ExecutionJobPayload): Promise<Exe
   let isInfrastructureFailure = false;
 
   if (jobType === 'run_custom') {
-    if (remainingWallSeconds() <= 0) return { jobId, verdict: 'TIME_LIMIT',
-      isInfrastructureFailure: false, executionTimeMs: 0, testResults: [], completedAt: new Date().toISOString() };
+    if (remainingWallSeconds() <= 0) return { jobId, verdict: 'INTERNAL_ERROR',
+      isInfrastructureFailure: true, executionTimeMs: 0, testResults: [], completedAt: new Date().toISOString() };
+    const limitedByJobDeadline = remainingWallSeconds() < (limits?.wallTimeoutSeconds ?? 5);
     const outcome = await runPythonIsolated(code, stdin || '', boundedLimits());
+    if (limitedByJobDeadline && outcome.verdict === 'TIME_LIMIT') {
+      outcome.verdict = 'INTERNAL_ERROR';
+      outcome.errorMessage = 'Execution could not complete before its job deadline.';
+    }
     totalExecutionTimeMs = outcome.executionTimeMs;
 
     const testPassed = outcome.verdict === 'PASSED';
@@ -80,10 +85,16 @@ export async function processExecutionJob(job: ExecutionJobPayload): Promise<Exe
 
   for (const tc of testsToRun) {
     if (remainingWallSeconds() <= 0) {
-      overallVerdict = 'TIME_LIMIT';
+      overallVerdict = 'INTERNAL_ERROR';
+      isInfrastructureFailure = true;
       break;
     }
+    const limitedByJobDeadline = remainingWallSeconds() < (limits?.wallTimeoutSeconds ?? 5);
     const outcome = await runPythonIsolated(code, tc.stdin, boundedLimits());
+    if (limitedByJobDeadline && outcome.verdict === 'TIME_LIMIT') {
+      outcome.verdict = 'INTERNAL_ERROR';
+      outcome.errorMessage = 'Execution could not complete before its job deadline.';
+    }
     totalExecutionTimeMs += outcome.executionTimeMs;
 
     if (outcome.verdict === 'INTERNAL_ERROR') {

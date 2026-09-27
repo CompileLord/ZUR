@@ -13,9 +13,9 @@ The worker's DB access is its authority to claim and complete jobs. Completion c
 ## Local evidence
 
 - `packages/worker/tests/runner.test.ts`: host `/etc/passwd` unavailable, environment secret absent, child process denied, outbound connection denied, output and wall limits, cleanup.
-- `packages/server/tests/execution-boundary.test.ts`: pinned assessment, public/hidden grading, duplicate and stale completion, revocation before commit, idempotency, lease recovery.
+- `packages/server/tests/execution-boundary.test.ts`: pinned assessment, public/hidden grading, duplicate and stale completion, revocation before commit, idempotency, atomic lease recovery with an injected persistence failure and retry, stranded legacy recovery repair, and queued deadline classification.
 - Manual API → separate daemon → poll on a file-backed SQLite fixture returned HTTP 202, then a persisted `PASSED` attempt.
-- `npm test`: 484 tests passed on 2026-09-27.
+- `npm test`: 489 tests passed on 2026-09-27.
 
 ## Gate still pending
 

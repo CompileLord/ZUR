@@ -176,4 +176,15 @@ print("Even")
     assert.strictEqual(result.testResults[0].passed, true);
     assert.strictEqual(result.testResults[1].passed, false);
   });
+
+  await t.test('expired job deadline is infrastructure failure before code runs', async () => {
+    const result = await processExecutionJob({
+      jobId: 'job-expired', userId: 'user-1', stepId: 'step-1', jobType: 'submit',
+      code: 'print("Even")', testCases: dummyTestCases,
+      deadlineAt: new Date(Date.now() - 1000).toISOString(),
+    });
+    assert.equal(result.verdict, 'INTERNAL_ERROR');
+    assert.equal(result.isInfrastructureFailure, true);
+    assert.equal(result.testResults.length, 0);
+  });
 });

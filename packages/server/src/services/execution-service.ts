@@ -315,14 +315,23 @@ export class ExecutionService {
     const now = new Date().toISOString();
     this.db.exec('BEGIN IMMEDIATE');
     try {
+      this.completeJobInTransaction(jobId, workerId, result, now);
+      this.db.exec('COMMIT');
+    } catch (error) { this.db.exec('ROLLBACK'); throw error; }
+  }
+
+  private completeJobInTransaction(jobId: string, workerId: string, result: ExecutionResult, now: string): void {
       const jobRow = this.db.prepare(`SELECT id, user_id, enrollment_id, step_id, job_type, code,
         course_version_id, deadline_at FROM execution_jobs
         WHERE id=? AND status='running' AND worker_id=?
-          AND (lease_expires_at>=? OR worker_id='recovery')`).get(jobId, workerId, now) as any;
-      if (!jobRow) { this.db.exec('COMMIT'); return; }
-      if (jobRow.deadline_at && jobRow.deadline_at < now) {
-        result = { jobId, verdict: 'TIME_LIMIT', isInfrastructureFailure: false,
-          executionTimeMs: 60_000, testResults: [], completedAt: now };
+          AND lease_expires_at>=?`).get(jobId, workerId, now) as any;
+      if (!jobRow) return;
+      const studentTestTimedOut = result.verdict === 'TIME_LIMIT' && !result.isInfrastructureFailure &&
+        result.testResults.some((test) => test.verdict === 'TIME_LIMIT');
+      if (jobRow.deadline_at && jobRow.deadline_at < now && !studentTestTimedOut) {
+        result = { jobId, verdict: 'INTERNAL_ERROR', isInfrastructureFailure: true,
+          executionTimeMs: 0, testResults: [],
+          guidance: 'Execution could not complete before its job deadline. Please retry.', completedAt: now };
       }
       let attemptId: string | null = null;
       const access = jobRow.enrollment_id ? this.db.prepare(`SELECT e.status, e.pinned_version_id,
@@ -358,8 +367,6 @@ export class ExecutionService {
       this.db.prepare(`UPDATE execution_jobs SET status='completed', result_payload=?, attempt_id=?,
         lease_expires_at=NULL, updated_at=? WHERE id=? AND status='running' AND worker_id=?`)
         .run(JSON.stringify(result), attemptId, now, jobId, workerId);
-      this.db.exec('COMMIT');
-    } catch (error) { this.db.exec('ROLLBACK'); throw error; }
   }
 
   failJob(jobId: string, workerId: string, errorPayload: { verdict: TerminalVerdict; isInfrastructureFailure: boolean; message?: string }): void {
@@ -370,17 +377,21 @@ export class ExecutionService {
 
   recoverStuckJobs(): number {
     const now = new Date().toISOString();
-    const terminal: Array<{ id: string; verdict: TerminalVerdict }> = [];
     this.db.exec('BEGIN IMMEDIATE');
     try {
       const expired = this.db.prepare(`SELECT id,retry_count,deadline_at FROM execution_jobs
-        WHERE status='running' AND lease_expires_at < ?`).all(now) as any[];
+        WHERE (status='running' AND (lease_expires_at < ? OR deadline_at < ?
+          OR (worker_id='recovery' AND lease_expires_at IS NULL)))
+           OR (status='queued' AND deadline_at < ?)`).all(now, now, now) as any[];
       for (const row of expired) {
         if (row.retry_count >= 2 || (row.deadline_at && row.deadline_at < now)) {
-          const verdict: TerminalVerdict = row.deadline_at && row.deadline_at < now ? 'TIME_LIMIT' : 'INTERNAL_ERROR';
-          this.db.prepare(`UPDATE execution_jobs SET worker_id='recovery', lease_expires_at=NULL,
-            updated_at=? WHERE id=? AND status='running'`).run(now, row.id);
-          terminal.push({ id: row.id, verdict });
+          this.db.prepare(`UPDATE execution_jobs SET status='running', worker_id='recovery',
+            lease_expires_at=?, updated_at=? WHERE id=? AND status IN ('running','queued')`)
+            .run(now, now, row.id);
+          this.completeJobInTransaction(row.id, 'recovery', { jobId: row.id,
+            verdict: 'INTERNAL_ERROR', isInfrastructureFailure: true, executionTimeMs: 0,
+            testResults: [], guidance: 'Execution infrastructure did not complete this job. Please retry.',
+            completedAt: now }, now);
         } else {
           this.db.prepare(`UPDATE execution_jobs SET status='queued',worker_id=NULL,
             lease_expires_at=NULL,retry_count=retry_count+1,updated_at=? WHERE id=? AND status='running'`)
@@ -388,14 +399,12 @@ export class ExecutionService {
         }
       }
       this.db.exec('COMMIT');
-      for (const item of terminal) this.failJob(item.id, 'recovery', {
-        verdict: item.verdict, isInfrastructureFailure: item.verdict === 'INTERNAL_ERROR',
-      });
       return expired.length;
     } catch (error) { this.db.exec('ROLLBACK'); throw error; }
   }
 
   claimJobById(jobId: string, workerId: string, leaseDurationMs: number = 30000): ExecutionJobPayload | null {
+    this.recoverStuckJobs();
     const now = new Date().toISOString();
     const expires = new Date(Date.now()+leaseDurationMs).toISOString();
     this.db.exec('BEGIN IMMEDIATE');

@@ -300,6 +300,75 @@ test('Execution Boundary: Lease Recovery and Reliability (T021, AC-13)', async (
     assert.strictEqual(job.worker_id, null);
     assert.strictEqual(job.lease_expires_at, null);
   });
+
+  await t.test('Terminal recovery rolls back on persistence failure and can be retried', () => {
+    const expiredLease = new Date(Date.now() - 60_000).toISOString();
+    db.prepare(`INSERT INTO execution_jobs (id,user_id,enrollment_id,step_id,job_type,code,status,
+      lease_expires_at,worker_id,retry_count,created_at,updated_at)
+      VALUES ('job-terminal-retry',?,?,?,'submit','print(2)','running',?,'worker-dead',2,datetime('now'),datetime('now'))`)
+      .run(userId, enrollmentId, stepId, expiredLease);
+    db.exec(`CREATE TRIGGER reject_recovery_attempt BEFORE INSERT ON assessment_attempts
+      WHEN NEW.code_snapshot='print(2)' BEGIN SELECT RAISE(ABORT, 'simulated persistence failure'); END`);
+    assert.throws(() => executionService.recoverStuckJobs(), /simulated persistence failure/);
+    const afterFailure = db.prepare(`SELECT status,worker_id,lease_expires_at,result_payload FROM execution_jobs
+      WHERE id='job-terminal-retry'`).get() as any;
+    assert.equal(afterFailure.status, 'running');
+    assert.equal(afterFailure.worker_id, 'worker-dead');
+    assert.equal(afterFailure.lease_expires_at, expiredLease);
+    assert.equal(afterFailure.result_payload, null);
+    db.exec('DROP TRIGGER reject_recovery_attempt');
+    assert.equal(executionService.recoverStuckJobs(), 1);
+    const completed = db.prepare(`SELECT status,result_payload,attempt_id FROM execution_jobs
+      WHERE id='job-terminal-retry'`).get() as any;
+    assert.equal(completed.status, 'completed');
+    assert.equal(JSON.parse(completed.result_payload).verdict, 'INTERNAL_ERROR');
+    assert.equal(JSON.parse(completed.result_payload).isInfrastructureFailure, true);
+    assert.equal((db.prepare('SELECT is_infrastructure_failure FROM assessment_attempts WHERE id=?')
+      .get(completed.attempt_id) as any).is_infrastructure_failure, 1);
+    assert.equal(executionService.recoverStuckJobs(), 0);
+  });
+
+  await t.test('Queued deadline expiry is an infrastructure result', () => {
+    const expiredDeadline = new Date(Date.now() - 60_000).toISOString();
+    db.prepare(`INSERT INTO execution_jobs (id,user_id,enrollment_id,step_id,job_type,code,status,
+      deadline_at,retry_count,created_at,updated_at)
+      VALUES ('job-queued-expired',?,?,?,'submit','print(3)','queued',?,1,datetime('now'),datetime('now'))`)
+      .run(userId, enrollmentId, stepId, expiredDeadline);
+    assert.equal(executionService.recoverStuckJobs(), 1);
+    const row = db.prepare(`SELECT status,result_payload,attempt_id FROM execution_jobs
+      WHERE id='job-queued-expired'`).get() as any;
+    assert.equal(row.status, 'completed');
+    assert.equal(JSON.parse(row.result_payload).verdict, 'INTERNAL_ERROR');
+    assert.equal((db.prepare('SELECT is_infrastructure_failure,verdict FROM assessment_attempts WHERE id=?')
+      .get(row.attempt_id) as any).is_infrastructure_failure, 1);
+  });
+
+  await t.test('Previously stranded recovery claim is terminalized', () => {
+    db.prepare(`INSERT INTO execution_jobs (id,user_id,enrollment_id,step_id,job_type,code,status,
+      lease_expires_at,worker_id,retry_count,created_at,updated_at)
+      VALUES ('job-stranded',?,?,?,'submit','print(4)','running',NULL,'recovery',2,datetime('now'),datetime('now'))`)
+      .run(userId, enrollmentId, stepId);
+    assert.equal(executionService.recoverStuckJobs(), 1);
+    const row = db.prepare(`SELECT status,result_payload FROM execution_jobs WHERE id='job-stranded'`).get() as any;
+    assert.equal(row.status, 'completed');
+    assert.equal(JSON.parse(row.result_payload).isInfrastructureFailure, true);
+  });
+
+  await t.test('Job deadline terminates a live lease without accepting its late result', () => {
+    const expiredDeadline = new Date(Date.now() - 1000).toISOString();
+    const liveLease = new Date(Date.now() + 60_000).toISOString();
+    db.prepare(`INSERT INTO execution_jobs (id,user_id,enrollment_id,step_id,job_type,code,status,
+      deadline_at,lease_expires_at,worker_id,created_at,updated_at)
+      VALUES ('job-live-lease',?,?,?,'submit','print(5)','running',? ,?,'worker-late',datetime('now'),datetime('now'))`)
+      .run(userId, enrollmentId, stepId, expiredDeadline, liveLease);
+    assert.equal(executionService.recoverStuckJobs(), 1);
+    executionService.completeJob('job-live-lease', 'worker-late', { jobId: 'job-live-lease',
+      verdict: 'PASSED', isInfrastructureFailure: false, executionTimeMs: 1,
+      testResults: [], completedAt: new Date().toISOString() });
+    const row = db.prepare(`SELECT result_payload FROM execution_jobs WHERE id='job-live-lease'`).get() as any;
+    assert.equal(JSON.parse(row.result_payload).verdict, 'INTERNAL_ERROR');
+    assert.equal(JSON.parse(row.result_payload).isInfrastructureFailure, true);
+  });
 });
 
 test('Execution completion is atomic and ignores duplicate or stale worker results', async () => {
