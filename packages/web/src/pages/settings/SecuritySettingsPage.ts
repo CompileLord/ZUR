@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../utils/escape-html.ts';
 import { renderSettingsNav } from './SettingsNav.ts';
 import { renderTextInput, renderButton } from '../../components/common/index.ts';
 import type { User } from 'zur-shared';
@@ -23,7 +24,7 @@ export function renderSecuritySettingsPage(opts: SecuritySettingsPageOptions): s
         opts.error
           ? `
         <div id="security-error" class="form-error mb-6 p-3 border border-danger rounded" role="alert" aria-live="polite">
-          <span aria-hidden="true">⚠</span> <span>${opts.error}</span>
+          <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
         </div>
       `
           : '<div id="security-error" class="sr-only" role="alert" aria-live="polite"></div>'

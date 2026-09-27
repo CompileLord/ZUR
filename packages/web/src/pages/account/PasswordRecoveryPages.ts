@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../utils/escape-html.ts';
 import { renderAccountShell } from '../../components/shells/AccountShell.ts';
 import { renderTextInput, renderButton } from '../../components/common/index.ts';
 
@@ -31,7 +32,7 @@ export function renderForgotPasswordPage(opts: ForgotPasswordPageOptions = {}): 
         opts.error
           ? `
         <div id="forgot-error" class="form-error mb-4 p-3 border border-danger rounded" role="alert" aria-live="polite">
-          <span aria-hidden="true">⚠</span> <span>${opts.error}</span>
+          <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
         </div>
       `
           : '<div id="forgot-error" class="sr-only" role="alert" aria-live="polite"></div>'
@@ -122,7 +123,7 @@ export function renderResetPasswordPage(opts: ResetPasswordPageOptions = {}): st
         opts.error
           ? `
         <div id="reset-error" class="form-error mb-4 p-3 border border-danger rounded" role="alert" aria-live="polite">
-          <span aria-hidden="true">⚠</span> <span>${opts.error}</span>
+          <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
         </div>
       `
           : '<div id="reset-error" class="sr-only" role="alert" aria-live="polite"></div>'

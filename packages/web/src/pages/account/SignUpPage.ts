@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../utils/escape-html.ts';
 import { renderAccountShell } from '../../components/shells/AccountShell.ts';
 import { renderTextInput, renderButton } from '../../components/common/index.ts';
 
@@ -17,7 +18,7 @@ export function renderSignUpPage(opts: SignUpPageOptions = {}): string {
         opts.error
           ? `
         <div id="sign-up-error" class="form-error mb-4 p-3 border border-danger rounded" role="alert" aria-live="polite">
-          <span aria-hidden="true">⚠</span> <span>${opts.error}</span>
+          <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
         </div>
       `
           : '<div id="sign-up-error" class="sr-only" role="alert" aria-live="polite"></div>'
@@ -64,7 +65,7 @@ export function renderSignUpPage(opts: SignUpPageOptions = {}): string {
         <label><input type="checkbox" name="adultConfirmed" required /> I confirm that I am at least 18 years of age and agree to the <a href="/terms" class="text-primary underline">Terms of Service</a> and <a href="/privacy" class="text-primary underline">Privacy Policy</a>.</label>
       </div>
 
-      <input type="hidden" name="returnTo" value="${opts.returnTo || ''}" />
+      <input type="hidden" name="returnTo" value="${escapeHtml(opts.returnTo)}" />
 
       ${renderButton({
         id: 'submit-sign-up',

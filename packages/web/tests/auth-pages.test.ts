@@ -24,6 +24,16 @@ const testUser: User = {
 };
 
 test('Identity and Account Client Pages (S1-M01, P04-P08, P17-P20, P42)', async (t) => {
+  await t.test('Untrusted account text is escaped in fields and status messages', () => {
+    const payload = '\"><img src=x onerror=alert(1)>';
+    const verify = renderVerifyEmailPage({ email: payload, error: payload, infoMessage: payload });
+    const signUp = renderSignUpPage({ email: payload, returnTo: payload, error: payload });
+    assert.ok(!verify.includes('<img'));
+    assert.ok(!signUp.includes('<img'));
+    assert.ok(verify.includes('&lt;img'));
+    assert.ok(signUp.includes('&lt;img'));
+    assert.ok(renderVerifyEmailPage({ isVerified: true, returnTo: 'javascript:alert(1)' }).includes('href="/learn"'));
+  });
   await t.test('P04: Sign-in renders accessible labels, recovery link, and aria-live error region', () => {
     const html = renderSignInPage({ email: 'ada@zur.internal', returnTo: '/learn' });
 

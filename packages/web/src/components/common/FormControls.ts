@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../utils/escape-html.ts';
 export interface TextInputProps {
   id: string;
   label: string;
@@ -21,26 +22,26 @@ export function renderTextInput(props: TextInputProps): string {
   ].filter(Boolean).join(' ');
 
   return `
-    <div class="form-group" id="group-${props.id}">
-      <label for="${props.id}" class="form-label">
-        ${props.label} ${props.required ? '<span class="text-danger" aria-hidden="true">*</span>' : ''}
+    <div class="form-group" id="group-${escapeHtml(props.id)}">
+      <label for="${escapeHtml(props.id)}" class="form-label">
+        ${escapeHtml(props.label)} ${props.required ? '<span class="text-danger" aria-hidden="true">*</span>' : ''}
       </label>
       <input
         type="${type}"
-        id="${props.id}"
-        name="${props.name}"
+        id="${escapeHtml(props.id)}"
+        name="${escapeHtml(props.name)}"
         class="form-input ${props.error ? 'has-error' : ''}"
-        value="${props.value || ''}"
-        ${props.placeholder ? `placeholder="${props.placeholder}"` : ''}
+        value="${escapeHtml(props.value || '')}"
+        ${props.placeholder ? `placeholder="${escapeHtml(props.placeholder)}"` : ''}
         ${props.required ? 'required' : ''}
         ${props.disabled ? 'disabled' : ''}
-        ${ariaDescribedBy ? `aria-describedby="${ariaDescribedBy}"` : ''}
+        ${ariaDescribedBy ? `aria-describedby="${escapeHtml(ariaDescribedBy)}"` : ''}
         ${props.error ? 'aria-invalid="true"' : ''}
       />
-      ${props.hint ? `<span id="${hintId}" class="form-hint">${props.hint}</span>` : ''}
+      ${props.hint ? `<span id="${escapeHtml(hintId)}" class="form-hint">${escapeHtml(props.hint)}</span>` : ''}
       ${props.error ? `
-        <span id="${errorId}" class="form-error" role="alert">
-          <span aria-hidden="true">⚠</span> ${props.error}
+        <span id="${escapeHtml(errorId)}" class="form-error" role="alert">
+          <span aria-hidden="true">⚠</span> ${escapeHtml(props.error)}
         </span>
       ` : ''}
     </div>
@@ -65,7 +66,7 @@ export function renderStatusBadge(props: StatusBadgeProps): string {
   return `
     <span class="status-badge ${props.status}">
       <span aria-hidden="true">${icon}</span>
-      <span>${props.label}</span>
+      <span>${escapeHtml(props.label)}</span>
     </span>
   `;
 }

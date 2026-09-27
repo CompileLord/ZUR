@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../utils/escape-html.ts';
 import { renderAccountShell } from '../../components/shells/AccountShell.ts';
 import { renderTextInput, renderButton } from '../../components/common/index.ts';
 
@@ -16,7 +17,7 @@ export function renderSignInPage(opts: SignInPageOptions = {}): string {
         opts.error
           ? `
         <div id="sign-in-error" class="form-error mb-4 p-3 border border-danger rounded" role="alert" aria-live="polite">
-          <span aria-hidden="true">⚠</span> <span>${opts.error}</span>
+          <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
         </div>
       `
           : '<div id="sign-in-error" class="sr-only" role="alert" aria-live="polite"></div>'
@@ -51,7 +52,7 @@ export function renderSignInPage(opts: SignInPageOptions = {}): string {
         <a href="/forgot-password" class="text-sm text-secondary hover-underline">Forgot password?</a>
       </div>
 
-      <input type="hidden" name="returnTo" value="${opts.returnTo || ''}" />
+      <input type="hidden" name="returnTo" value="${escapeHtml(opts.returnTo)}" />
 
       ${renderButton({
         id: 'submit-sign-in',

@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../utils/escape-html.ts';
 import { renderAccountShell } from '../../components/shells/AccountShell.ts';
 import { renderButton } from '../../components/common/index.ts';
 
@@ -25,13 +26,14 @@ function maskEmail(email?: string): string {
 
 export function renderVerifyEmailPage(opts: VerifyEmailPageOptions = {}): string {
   if (opts.isVerified) {
-    const continueHref = opts.returnTo || '/learn';
+    const continueHref = opts.returnTo?.startsWith('/') && !opts.returnTo.startsWith('//')
+      ? opts.returnTo : '/learn';
     const formContent = `
       <div class="verification-success text-center py-4">
         <div class="success-icon text-3xl mb-3 text-success" aria-hidden="true">✓</div>
         <h2 class="text-lg font-semibold mb-2">Email confirmed</h2>
         <p class="text-sm text-secondary mb-6">Your email address has been verified. You can now enroll in courses and practice exercises.</p>
-        <a href="${continueHref}" class="btn btn-primary w-full">Continue to learning</a>
+        <a href="${escapeHtml(continueHref)}" class="btn btn-primary w-full">Continue to learning</a>
       </div>
     `;
 
@@ -53,7 +55,7 @@ export function renderVerifyEmailPage(opts: VerifyEmailPageOptions = {}): string
         opts.error
           ? `
         <div id="verify-error" class="form-error mb-4 p-3 border border-danger rounded text-left" role="alert" aria-live="polite">
-          <span aria-hidden="true">⚠</span> <span>${opts.error}</span>
+          <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
         </div>
       `
           : '<div id="verify-error" class="sr-only" role="alert" aria-live="polite"></div>'
@@ -63,18 +65,18 @@ export function renderVerifyEmailPage(opts: VerifyEmailPageOptions = {}): string
         opts.infoMessage
           ? `
         <div id="verify-info" class="mb-4 p-3 bg-surface border border-accent rounded text-sm text-left" role="status" aria-live="polite">
-          <span>${opts.infoMessage}</span>
+          <span>${escapeHtml(opts.infoMessage)}</span>
         </div>
       `
           : ''
       }
 
       <p class="text-sm text-secondary mb-4 text-left">
-        We sent a verification link to <strong class="text-primary font-mono">${masked}</strong>. Click the link in the message to activate your account.
+        We sent a verification link to <strong class="text-primary font-mono">${escapeHtml(masked)}</strong>. Click the link in the message to activate your account.
       </p>
 
       <form id="resend-verification-form" class="mt-6 mb-4">
-        <input type="hidden" name="email" value="${opts.email || ''}" />
+        <input type="hidden" name="email" value="${escapeHtml(opts.email)}" />
         ${renderButton({
           id: 'btn-resend-verification',
           label: isCooldownActive ? `Resend email (${cooldown}s)` : 'Resend email',

@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../utils/escape-html.ts';
 import { renderSettingsNav } from './SettingsNav.ts';
 import { renderTextInput, renderButton, renderStatusBadge } from '../../components/common/index.ts';
 import type { User } from 'zur-shared';
@@ -21,7 +22,7 @@ export function renderProfileSettingsPage(opts: ProfileSettingsPageOptions): str
         opts.error
           ? `
         <div id="profile-error" class="form-error mb-6 p-3 border border-danger rounded" role="alert" aria-live="polite">
-          <span aria-hidden="true">⚠</span> <span>${opts.error}</span>
+          <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
         </div>
       `
           : '<div id="profile-error" class="sr-only" role="alert" aria-live="polite"></div>'

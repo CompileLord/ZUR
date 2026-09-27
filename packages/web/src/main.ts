@@ -109,7 +109,7 @@ function showRouteLoading(label: string): void {
 }
 
 function showRouteFailure(message: string, retryPath: string): void {
-  appEl.innerHTML = `<main class="container py-8"><section class="state-container" role="alert"><h1 class="page-title">Couldn't load this page</h1><p class="text-secondary">${message}</p><button class="btn btn-secondary" id="route-retry">Try again</button></section></main>`;
+  appEl.innerHTML = `<main class="container py-8"><section class="state-container" role="alert"><h1 class="page-title">Couldn't load this page</h1><p class="text-secondary">${escapeHtml(message)}</p><button class="btn btn-secondary" id="route-retry">Try again</button></section></main>`;
   document.getElementById('route-retry')?.addEventListener('click', () => renderApp(retryPath));
 }
 
@@ -2139,7 +2139,7 @@ function attachSignInListeners(): void {
       } catch (err: any) {
         if (errorEl) {
           errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Invalid email or password.'}</span>`;
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Invalid email or password.')}</span>`;
         }
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -2185,7 +2185,7 @@ function attachSignUpListeners(): void {
       } catch (err: any) {
         if (errorEl) {
           errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Could not create account.'}</span>`;
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Could not create account.')}</span>`;
         }
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -2290,7 +2290,7 @@ function attachForgotPasswordListeners(): void {
       } catch (err: any) {
         if (errorEl) {
           errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Unable to process request.'}</span>`;
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Unable to process request.')}</span>`;
         }
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -2344,7 +2344,7 @@ function attachResetPasswordListeners(): void {
       } catch (err: any) {
         if (errorEl) {
           errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Reset link expired or invalid.'}</span>`;
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Reset link expired or invalid.')}</span>`;
         }
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -2385,7 +2385,7 @@ function attachProfileListeners(): void {
       } catch (err: any) {
         if (errorEl) {
           errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Failed to update profile.'}</span>`;
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Failed to update profile.')}</span>`;
         }
         if (saveBtn) {
           saveBtn.disabled = false;
@@ -2446,7 +2446,7 @@ function attachAppearanceListeners(): void {
         const errorEl = document.getElementById('appearance-error');
         if (errorEl) {
           errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Failed to save appearance settings.'}</span>`;
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Failed to save appearance settings.')}</span>`;
         }
         if (saveBtn) {
           saveBtn.disabled = false;
@@ -2523,7 +2523,7 @@ function attachSecurityListeners(): void {
       } catch (err: any) {
         if (errorEl) {
           errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Failed to update password.'}</span>`;
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Failed to update password.')}</span>`;
         }
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -2573,7 +2573,7 @@ function attachPrivacyListeners(): void {
         if (deleteModal) deleteModal.style.display = 'none';
         if (errorEl) {
           errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Deletion request blocked.'}</span>`;
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Deletion request blocked.')}</span>`;
         }
       }
     });
@@ -2606,7 +2606,7 @@ function attachPrivacyListeners(): void {
         const errorEl = document.getElementById('privacy-error');
         if (errorEl) {
           errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${err.message || 'Export failed.'}</span>`;
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Export failed.')}</span>`;
         }
         if (exportBtn) {
           exportBtn.disabled = false;
