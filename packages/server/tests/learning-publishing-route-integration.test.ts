@@ -5,6 +5,8 @@ import { runMigrations } from '../src/db/migrate.ts';
 import { seedDatabase } from '../src/db/seed.ts';
 import { createServer } from '../src/server.ts';
 import type { AddressInfo } from 'node:net';
+import { ExecutionService } from '../src/services/execution-service.ts';
+import { processExecutionJob } from 'zur-worker';
 
 test('Live P15 content and P27 review APIs accept seeded opaque IDs and preserve access boundaries', async (t) => {
   const db = getDatabase(':memory:');
@@ -14,6 +16,7 @@ test('Live P15 content and P27 review APIs accept seeded opaque IDs and preserve
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   t.after(() => server.close());
   const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  const execution = new ExecutionService(db);
   const signIn = async (email: string, password: string) => {
     const response = await fetch(`${origin}/api/auth/sign-in`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -24,6 +27,18 @@ test('Live P15 content and P27 review APIs accept seeded opaque IDs and preserve
   };
 
   const studentToken = await signIn('ada@zur.internal', 'StudentPass123!');
+  const finishAcceptedJob = async (response: Response) => {
+    assert.equal(response.status, 202);
+    const accepted = await response.json() as any;
+    const payload = execution.claimJobById(accepted.job.id, 'integration-worker');
+    assert.ok(payload);
+    execution.completeJob(payload.jobId, 'integration-worker', await processExecutionJob(payload));
+    const result = await fetch(`${origin}/api/execution/jobs/${accepted.job.id}`, {
+      headers: { Authorization: `Bearer ${studentToken}` },
+    });
+    assert.equal(result.status, 200);
+    return (await result.json() as any);
+  };
   const contentResponse = await fetch(`${origin}/api/learn/enr-ada/steps/step-6-python-evenodd/content`, {
     headers: { Authorization: `Bearer ${studentToken}` },
   });
@@ -41,8 +56,7 @@ test('Live P15 content and P27 review APIs accept seeded opaque IDs and preserve
       code: 'import sys\nraw=sys.stdin.read().strip()\nprint("Empty" if not raw else "Even")',
     }),
   });
-  assert.equal(hiddenFailureResponse.status, 200);
-  const hiddenFailure = await hiddenFailureResponse.json() as any;
+  const hiddenFailure = await finishAcceptedJob(hiddenFailureResponse);
   assert.equal(hiddenFailure.result.verdict, 'WRONG_ANSWER');
   assert.equal(hiddenFailure.result.executionTimeMs, undefined);
   assert.equal(hiddenFailure.result.testResults.some((row: any) => row.input === '-3' || row.expectedOutput === 'Odd'), false);
@@ -64,8 +78,7 @@ test('Live P15 content and P27 review APIs accept seeded opaque IDs and preserve
     method: 'POST', headers: { Authorization: `Bearer ${studentToken}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ enrollmentId: 'enr-ada', stepId: 'step-6-python-evenodd', code: 'import sys\nraw=sys.stdin.read().strip()\nprint("Wrong" if raw == "4" else "Empty" if not raw else "Odd")' }),
   });
-  assert.equal(publicFailureResponse.status, 200);
-  const publicFailure = await publicFailureResponse.json() as any;
+  const publicFailure = await finishAcceptedJob(publicFailureResponse);
   assert.equal(publicFailure.result.verdict, 'WRONG_ANSWER');
   assert.ok(publicFailure.result.executionTimeMs > 0);
   const publicAttemptId = publicFailure.result.attemptId;

@@ -301,3 +301,61 @@ test('Execution Boundary: Lease Recovery and Reliability (T021, AC-13)', async (
     assert.strictEqual(job.lease_expires_at, null);
   });
 });
+
+test('Execution completion is atomic and ignores duplicate or stale worker results', async () => {
+  const db = getDatabase(':memory:');
+  runMigrations(':memory:');
+  seedDatabase(':memory:');
+  const service = new ExecutionService(db);
+  const job = service.enqueueJob({ userId: 'user-student-1', enrollmentId: 'enr-ada',
+    stepId: 'step-6-python-evenodd', jobType: 'submit', code: 'print("Even")',
+    idempotencyKey: `lease-${Date.now()}` }).job;
+  const claimed = service.claimJobById(job.id, 'worker-1');
+  assert.ok(claimed);
+  const result = await processExecutionJob(claimed);
+  service.completeJob(job.id, 'stale-worker', result);
+  assert.equal((db.prepare('SELECT COUNT(*) count FROM assessment_attempts WHERE code_snapshot=?')
+    .get('print("Even")') as any).count, 0);
+  service.completeJob(job.id, 'worker-1', result);
+  service.completeJob(job.id, 'worker-1', result);
+  assert.equal((db.prepare('SELECT COUNT(*) count FROM assessment_attempts WHERE code_snapshot=?')
+    .get('print("Even")') as any).count, 1);
+  assert.equal(service.claimJobById(job.id, 'worker-2'), null);
+});
+
+test('Revoked enrollment cannot gain progress from an in-flight result', () => {
+  const db = getDatabase(':memory:');
+  runMigrations(':memory:');
+  seedDatabase(':memory:');
+  const service = new ExecutionService(db);
+  const beforeProgress = (db.prepare("SELECT COUNT(*) count FROM step_progress WHERE enrollment_id='enr-ada' AND step_id='step-6-python-evenodd'")
+    .get() as any).count;
+  const job = service.enqueueJob({ userId: 'user-student-1', enrollmentId: 'enr-ada',
+    stepId: 'step-6-python-evenodd', jobType: 'submit', code: 'print("Even")',
+    idempotencyKey: `revoked-${Date.now()}` }).job;
+  assert.ok(service.claimJobById(job.id, 'worker-revoked'));
+  db.prepare("UPDATE enrollments SET status='revoked' WHERE id='enr-ada'").run();
+  service.completeJob(job.id, 'worker-revoked', { jobId: job.id, verdict: 'PASSED',
+    isInfrastructureFailure: false, executionTimeMs: 1, testResults: [], completedAt: new Date().toISOString() });
+  assert.equal((db.prepare('SELECT COUNT(*) count FROM assessment_attempts WHERE code_snapshot=?')
+    .get('print("Even")') as any).count, 0);
+  assert.equal((db.prepare("SELECT COUNT(*) count FROM step_progress WHERE enrollment_id='enr-ada' AND step_id='step-6-python-evenodd'")
+    .get() as any).count, beforeProgress);
+  assert.throws(() => service.getJob(job.id, 'user-student-1'));
+});
+
+test('Completed operational Run records expire after 24 hours', () => {
+  const db = getDatabase(':memory:');
+  runMigrations(':memory:');
+  seedDatabase(':memory:');
+  const service = new ExecutionService(db);
+  const old = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
+  const now = new Date().toISOString();
+  db.prepare(`INSERT INTO execution_jobs (id,user_id,enrollment_id,step_id,job_type,code,status,created_at,updated_at)
+    VALUES ('old-run','user-student-1','enr-ada','step-6-python-evenodd','run_custom','print(1)','completed',?,?),
+    ('old-submit','user-student-1','enr-ada','step-6-python-evenodd','submit','print(1)','completed',?,?)`)
+    .run(old, now, old, now);
+  assert.equal(service.purgeExpiredRunJobs(), 1);
+  assert.equal(db.prepare("SELECT id FROM execution_jobs WHERE id='old-run'").get(), undefined);
+  assert.ok(db.prepare("SELECT id FROM execution_jobs WHERE id='old-submit'").get());
+});

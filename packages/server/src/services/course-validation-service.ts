@@ -15,6 +15,7 @@ import type {
   TheoryContent,
 } from 'zur-shared';
 import { runPythonIsolated } from 'zur-worker';
+import { AuthorValidationQuota } from './author-validation-quota.ts';
 
 export class CourseValidationService {
   private db: DatabaseSync;
@@ -42,6 +43,8 @@ export class CourseValidationService {
 
   async validateCourseDraft(userId: string, courseId: string): Promise<CourseValidationResult> {
     const course = this.verifyCourseAccess(userId, courseId);
+    const releaseValidation = new AuthorValidationQuota(this.db).acquire(userId);
+    try {
 
     const errors: ValidationErrorItem[] = [];
     const warnings: ValidationWarningItem[] = [];
@@ -486,5 +489,6 @@ export class CourseValidationService {
       errors,
       warnings,
     };
+    } finally { releaseValidation(); }
   }
 }

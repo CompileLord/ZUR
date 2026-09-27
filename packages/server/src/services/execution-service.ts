@@ -5,7 +5,9 @@ import {
   NotFoundError,
   AuthorizationError,
   ConflictError,
+  RateLimitError,
   validatePythonSource,
+  validateTestCaseInputOutput,
   type ExecutionResult,
   type TerminalVerdict,
   type TestCase,
@@ -45,6 +47,13 @@ export class ExecutionService {
       ? null
       : this.getPinnedAssessment(userId, enrollmentId, stepId);
 
+    if (jobType === 'run_custom') {
+      const inputCheck = validateTestCaseInputOutput(stdin ?? '', '');
+      if (!inputCheck.valid) throw new ValidationError(inputCheck.error || 'Invalid custom input.');
+    }
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+
     // Idempotency check: if request with this idempotency key already exists for this user, return it
     if (idempotencyKey) {
       const existing = this.db.prepare(`
@@ -59,6 +68,7 @@ export class ExecutionService {
             existing.job_type !== jobType || existing.code !== code || existing.stdin !== (stdin || null)) {
           throw new ConflictError('This request key was already used for a different execution.');
         }
+        this.db.exec('COMMIT');
         return {
           job: {
             id: existing.id,
@@ -84,6 +94,9 @@ export class ExecutionService {
     if (jobType !== 'author_validation') {
       this.quotaService.checkCanEnqueue(userId, jobType);
     }
+    const queueCount = this.db.prepare("SELECT COUNT(*) count FROM execution_jobs WHERE status IN ('queued','running')")
+      .get() as { count: number };
+    if (queueCount.count >= 200) throw new RateLimitError('Execution queue is full. Retry shortly.', 5);
 
     const validation = validatePythonSource(code);
     if (!validation.valid) {
@@ -96,8 +109,8 @@ export class ExecutionService {
     this.db.prepare(`
       INSERT INTO execution_jobs (
         id, user_id, enrollment_id, step_id, job_type, code, stdin,
-        idempotency_key, status, course_version_id, assessment_snapshot, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, ?, ?, ?)
+        idempotency_key, status, course_version_id, assessment_snapshot, deadline_at, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, ?, ?, ?, ?)
     `).run(
       jobId,
       userId,
@@ -109,6 +122,7 @@ export class ExecutionService {
       idempotencyKey || null,
       pinnedAssessment?.versionId || null,
       pinnedAssessment ? JSON.stringify(pinnedAssessment.testCases) : null,
+      null,
       now,
       now
     );
@@ -127,7 +141,9 @@ export class ExecutionService {
       updatedAt: now,
     };
 
+    this.db.exec('COMMIT');
     return { job, isDuplicate: false };
+    } catch (error) { this.db.exec('ROLLBACK'); throw error; }
   }
 
   private getPinnedAssessment(userId: string, enrollmentId: string | null | undefined, stepId: string): { versionId: string; testCases: TestCase[] } {
@@ -202,7 +218,7 @@ export class ExecutionService {
     const row = this.db.prepare(`
       SELECT j.id, j.user_id, j.enrollment_id, j.step_id, j.job_type, j.code, j.stdin, j.idempotency_key,
              j.status, j.lease_expires_at, j.result_payload, j.attempt_id, j.created_at, j.updated_at,
-             e.course_id, c.owner_id course_owner_id
+             e.course_id, e.status enrollment_status, c.owner_id course_owner_id, c.is_suspended
       FROM execution_jobs j JOIN enrollments e ON e.id=j.enrollment_id JOIN courses c ON c.id=e.course_id
       WHERE j.id = ?
     `).get(jobId) as any;
@@ -212,6 +228,9 @@ export class ExecutionService {
     }
 
     // Keep learner code and execution output private to the learner and course owner.
+    if (row.user_id === requestingUserId && (row.enrollment_status !== 'active' || row.is_suspended)) {
+      throw new NotFoundError("This page isn't available.");
+    }
     if (row.user_id !== requestingUserId) {
       if (row.course_owner_id !== requestingUserId) {
         throw new NotFoundError("This page isn't available.");
@@ -251,186 +270,148 @@ export class ExecutionService {
   }
 
   claimNextJob(workerId: string, leaseDurationMs: number = 30000): ExecutionJobPayload | null {
+    this.recoverStuckJobs();
     const now = new Date().toISOString();
     const leaseExpires = new Date(Date.now() + leaseDurationMs).toISOString();
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      const candidate = this.db.prepare(`
+        SELECT id, user_id, enrollment_id, step_id, job_type, code, stdin, course_version_id, assessment_snapshot, deadline_at
+        FROM execution_jobs queued WHERE status = 'queued'
+        ORDER BY COALESCE((SELECT MAX(updated_at) FROM execution_jobs served
+          WHERE served.user_id=queued.user_id AND served.status='completed'), '') ASC,
+          queued.created_at ASC LIMIT 1
+      `).get() as any;
+      if (!candidate) { this.db.exec('COMMIT'); return null; }
+      const deadlineAt = candidate.deadline_at || new Date(Date.now() + 60_000).toISOString();
+      this.db.prepare(`UPDATE execution_jobs SET status='running', worker_id=?, lease_expires_at=?,
+        deadline_at=?, updated_at=? WHERE id=? AND status='queued'`).run(workerId, leaseExpires, deadlineAt, now, candidate.id);
+      const testCases = this.getTestCasesForJob(candidate);
+      this.db.exec('COMMIT');
+      return { jobId: candidate.id, userId: candidate.user_id, enrollmentId: candidate.enrollment_id,
+        stepId: candidate.step_id, jobType: candidate.job_type, code: candidate.code,
+        stdin: candidate.stdin, testCases, deadlineAt };
+    } catch (error) { this.db.exec('ROLLBACK'); throw error; }
+  }
 
-    const candidate = this.db.prepare(`
-      SELECT id, user_id, enrollment_id, step_id, job_type, code, stdin, course_version_id, assessment_snapshot
-      FROM execution_jobs
-      WHERE status = 'queued'
-         OR (status = 'running' AND lease_expires_at < ?)
-      ORDER BY created_at ASC
-      LIMIT 1
-    `).get(now) as any;
+  renewLease(jobId: string, workerId: string, leaseDurationMs: number = 30000): boolean {
+    const now = new Date().toISOString();
+    const expires = new Date(Date.now() + leaseDurationMs).toISOString();
+    const result = this.db.prepare(`UPDATE execution_jobs SET lease_expires_at=?,updated_at=?
+      WHERE id=? AND status='running' AND worker_id=? AND lease_expires_at>=?`)
+      .run(expires, now, jobId, workerId, now);
+    return result.changes === 1;
+  }
 
-    if (!candidate) {
-      return null;
-    }
-
-    this.db.prepare(`
-      UPDATE execution_jobs
-      SET status = 'running', worker_id = ?, lease_expires_at = ?, updated_at = ?
-      WHERE id = ?
-    `).run(workerId, leaseExpires, now, candidate.id);
-
-    const testCases = this.getTestCasesForJob(candidate);
-
-    return {
-      jobId: candidate.id,
-      userId: candidate.user_id,
-      enrollmentId: candidate.enrollment_id,
-      stepId: candidate.step_id,
-      jobType: candidate.job_type,
-      code: candidate.code,
-      stdin: candidate.stdin,
-      testCases,
-    };
+  purgeExpiredRunJobs(now: Date = new Date()): number {
+    const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+    const result = this.db.prepare(`DELETE FROM execution_jobs
+      WHERE job_type IN ('run_samples','run_custom') AND status='completed' AND created_at<?`)
+      .run(cutoff);
+    return Number(result.changes);
   }
 
   completeJob(jobId: string, workerId: string, result: ExecutionResult): void {
     const now = new Date().toISOString();
-
-    const jobRow = this.db.prepare(`
-      SELECT id, user_id, enrollment_id, step_id, job_type, code, course_version_id
-      FROM execution_jobs
-      WHERE id = ?
-    `).get(jobId) as any;
-
-    if (!jobRow) return;
-
-    let attemptId: string | null = null;
-
-    if (jobRow.job_type === 'submit' && jobRow.enrollment_id) {
-      // 1. Resolve enrollment's pinned course version
-      const enrollmentRow = this.db.prepare(`
-        SELECT pinned_version_id FROM enrollments WHERE id = ?
-      `).get(jobRow.enrollment_id) as { pinned_version_id: string } | undefined;
-
-      const courseVersionId = jobRow.course_version_id || enrollmentRow?.pinned_version_id || 'version-default';
-
-      // 2. Compute attempt number
-      const countRow = this.db.prepare(`
-        SELECT COUNT(*) as count
-        FROM assessment_attempts
-        WHERE enrollment_id = ? AND step_id = ?
-      `).get(jobRow.enrollment_id, jobRow.step_id) as { count: number };
-
-      const attemptNumber = countRow.count + 1;
-      attemptId = `attempt-${crypto.randomUUID()}`;
-
-      this.db.prepare(`
-        INSERT INTO assessment_attempts (
-          id, user_id, enrollment_id, step_id, course_version_id,
-          attempt_number, type, verdict, code_snapshot, execution_time_ms,
-          is_infrastructure_failure, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, 'python', ?, ?, ?, ?, ?)
-      `).run(
-        attemptId,
-        jobRow.user_id,
-        jobRow.enrollment_id,
-        jobRow.step_id,
-        courseVersionId,
-        attemptNumber,
-        result.verdict,
-        jobRow.code,
-        result.executionTimeMs,
-        result.isInfrastructureFailure ? 1 : 0,
-        now
-      );
-
-      result.attemptId = attemptId;
-
-      // 3. Atomically update progress when PASSED
-      if (result.verdict === 'PASSED') {
-        const progressId = `progress-${crypto.randomUUID()}`;
-        this.db.prepare(`
-          INSERT INTO step_progress (id, user_id, enrollment_id, step_id, is_completed, completed_at, created_at, updated_at)
-          VALUES (?, ?, ?, ?, 1, ?, ?, ?)
-          ON CONFLICT(enrollment_id, step_id) DO UPDATE SET
-            is_completed = 1,
-            completed_at = COALESCE(step_progress.completed_at, excluded.completed_at),
-            updated_at = excluded.updated_at
-        `).run(
-          progressId,
-          jobRow.user_id,
-          jobRow.enrollment_id,
-          jobRow.step_id,
-          now,
-          now,
-          now
-        );
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      const jobRow = this.db.prepare(`SELECT id, user_id, enrollment_id, step_id, job_type, code,
+        course_version_id, deadline_at FROM execution_jobs
+        WHERE id=? AND status='running' AND worker_id=?
+          AND (lease_expires_at>=? OR worker_id='recovery')`).get(jobId, workerId, now) as any;
+      if (!jobRow) { this.db.exec('COMMIT'); return; }
+      if (jobRow.deadline_at && jobRow.deadline_at < now) {
+        result = { jobId, verdict: 'TIME_LIMIT', isInfrastructureFailure: false,
+          executionTimeMs: 60_000, testResults: [], completedAt: now };
       }
-    }
-
-    this.db.prepare(`
-      UPDATE execution_jobs
-      SET status = 'completed', result_payload = ?, attempt_id = ?, updated_at = ?
-      WHERE id = ?
-    `).run(JSON.stringify(result), attemptId, now, jobId);
+      let attemptId: string | null = null;
+      const access = jobRow.enrollment_id ? this.db.prepare(`SELECT e.status, e.pinned_version_id,
+        c.is_suspended, u.account_status FROM enrollments e
+        JOIN courses c ON c.id=e.course_id JOIN users u ON u.id=e.user_id WHERE e.id=? AND e.user_id=?`)
+        .get(jobRow.enrollment_id, jobRow.user_id) as any : null;
+      const accessLost = Boolean(jobRow.enrollment_id && (!access || access.status !== 'active' || access.is_suspended ||
+          access.account_status !== 'active'));
+      if (accessLost) {
+        result = { jobId, verdict: 'INTERNAL_ERROR', isInfrastructureFailure: true,
+          executionTimeMs: 0, testResults: [], guidance: 'Access changed before this result was recorded.', completedAt: now };
+      }
+      if (jobRow.job_type === 'submit' && jobRow.enrollment_id && access && !accessLost) {
+        const count = this.db.prepare(`SELECT COUNT(*) count FROM assessment_attempts
+          WHERE enrollment_id=? AND step_id=?`).get(jobRow.enrollment_id, jobRow.step_id) as { count: number };
+        attemptId = `attempt-${crypto.randomUUID()}`;
+        this.db.prepare(`INSERT INTO assessment_attempts (id,user_id,enrollment_id,step_id,
+          course_version_id,attempt_number,type,verdict,code_snapshot,execution_time_ms,
+          is_infrastructure_failure,created_at)
+          VALUES (?,?,?,?,?,?,'python',?,?,?,?,?)`).run(attemptId, jobRow.user_id, jobRow.enrollment_id,
+          jobRow.step_id, jobRow.course_version_id || access.pinned_version_id, count.count+1,
+          result.verdict, jobRow.code, result.executionTimeMs, result.isInfrastructureFailure ? 1 : 0, now);
+        result.attemptId = attemptId;
+        if (result.verdict === 'PASSED') {
+          this.db.prepare(`INSERT INTO step_progress (id,user_id,enrollment_id,step_id,is_completed,
+            completed_at,created_at,updated_at) VALUES (?,?,?,?,1,?,?,?)
+            ON CONFLICT(enrollment_id,step_id) DO UPDATE SET is_completed=1,
+            completed_at=COALESCE(step_progress.completed_at,excluded.completed_at),updated_at=excluded.updated_at`)
+            .run(`progress-${crypto.randomUUID()}`, jobRow.user_id, jobRow.enrollment_id,
+              jobRow.step_id, now, now, now);
+        }
+      }
+      this.db.prepare(`UPDATE execution_jobs SET status='completed', result_payload=?, attempt_id=?,
+        lease_expires_at=NULL, updated_at=? WHERE id=? AND status='running' AND worker_id=?`)
+        .run(JSON.stringify(result), attemptId, now, jobId, workerId);
+      this.db.exec('COMMIT');
+    } catch (error) { this.db.exec('ROLLBACK'); throw error; }
   }
 
-  failJob(
-    jobId: string,
-    workerId: string,
-    errorPayload: { verdict: TerminalVerdict; isInfrastructureFailure: boolean; message?: string }
-  ): void {
-    const now = new Date().toISOString();
-    const result: ExecutionResult = {
-      jobId,
-      verdict: errorPayload.verdict,
-      isInfrastructureFailure: errorPayload.isInfrastructureFailure,
-      executionTimeMs: 0,
-      testResults: [],
-      guidance: errorPayload.message,
-      completedAt: now,
-    };
-
-    this.completeJob(jobId, workerId, result);
+  failJob(jobId: string, workerId: string, errorPayload: { verdict: TerminalVerdict; isInfrastructureFailure: boolean; message?: string }): void {
+    this.completeJob(jobId, workerId, { jobId, verdict: errorPayload.verdict,
+      isInfrastructureFailure: errorPayload.isInfrastructureFailure, executionTimeMs: 0,
+      testResults: [], guidance: errorPayload.message, completedAt: new Date().toISOString() });
   }
 
   recoverStuckJobs(): number {
     const now = new Date().toISOString();
-    const result = this.db.prepare(`
-      UPDATE execution_jobs
-      SET status = 'queued', worker_id = NULL, lease_expires_at = NULL, updated_at = ?
-      WHERE status = 'running' AND lease_expires_at < ?
-    `).run(now, now);
-
-    return Number(result.changes);
+    const terminal: Array<{ id: string; verdict: TerminalVerdict }> = [];
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      const expired = this.db.prepare(`SELECT id,retry_count,deadline_at FROM execution_jobs
+        WHERE status='running' AND lease_expires_at < ?`).all(now) as any[];
+      for (const row of expired) {
+        if (row.retry_count >= 2 || (row.deadline_at && row.deadline_at < now)) {
+          const verdict: TerminalVerdict = row.deadline_at && row.deadline_at < now ? 'TIME_LIMIT' : 'INTERNAL_ERROR';
+          this.db.prepare(`UPDATE execution_jobs SET worker_id='recovery', lease_expires_at=NULL,
+            updated_at=? WHERE id=? AND status='running'`).run(now, row.id);
+          terminal.push({ id: row.id, verdict });
+        } else {
+          this.db.prepare(`UPDATE execution_jobs SET status='queued',worker_id=NULL,
+            lease_expires_at=NULL,retry_count=retry_count+1,updated_at=? WHERE id=? AND status='running'`)
+            .run(now, row.id);
+        }
+      }
+      this.db.exec('COMMIT');
+      for (const item of terminal) this.failJob(item.id, 'recovery', {
+        verdict: item.verdict, isInfrastructureFailure: item.verdict === 'INTERNAL_ERROR',
+      });
+      return expired.length;
+    } catch (error) { this.db.exec('ROLLBACK'); throw error; }
   }
 
   claimJobById(jobId: string, workerId: string, leaseDurationMs: number = 30000): ExecutionJobPayload | null {
     const now = new Date().toISOString();
-    const leaseExpires = new Date(Date.now() + leaseDurationMs).toISOString();
-
-    const candidate = this.db.prepare(`
-      SELECT id, user_id, enrollment_id, step_id, job_type, code, stdin, course_version_id, assessment_snapshot
-      FROM execution_jobs
-      WHERE id = ?
-    `).get(jobId) as any;
-
-    if (!candidate) {
-      return null;
-    }
-
-    this.db.prepare(`
-      UPDATE execution_jobs
-      SET status = 'running', worker_id = ?, lease_expires_at = ?, updated_at = ?
-      WHERE id = ?
-    `).run(workerId, leaseExpires, now, candidate.id);
-
-    const testCases = this.getTestCasesForJob(candidate);
-
-    return {
-      jobId: candidate.id,
-      userId: candidate.user_id,
-      enrollmentId: candidate.enrollment_id,
-      stepId: candidate.step_id,
-      jobType: candidate.job_type,
-      code: candidate.code,
-      stdin: candidate.stdin,
-      testCases,
-    };
+    const expires = new Date(Date.now()+leaseDurationMs).toISOString();
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      const row = this.db.prepare(`SELECT id,user_id,enrollment_id,step_id,job_type,code,stdin,
+        course_version_id,assessment_snapshot,deadline_at FROM execution_jobs WHERE id=? AND status='queued'`).get(jobId) as any;
+      if (!row) { this.db.exec('COMMIT'); return null; }
+      const deadlineAt = row.deadline_at || new Date(Date.now()+60_000).toISOString();
+      this.db.prepare(`UPDATE execution_jobs SET status='running',worker_id=?,lease_expires_at=?,
+        deadline_at=?,updated_at=? WHERE id=? AND status='queued'`).run(workerId,expires,deadlineAt,now,jobId);
+      const testCases = this.getTestCasesForJob(row);
+      this.db.exec('COMMIT');
+      return { jobId, userId: row.user_id, enrollmentId: row.enrollment_id,
+        stepId: row.step_id, jobType: row.job_type, code: row.code,
+        stdin: row.stdin, testCases, deadlineAt };
+    } catch (error) { this.db.exec('ROLLBACK'); throw error; }
   }
 
   async executeJobSynchronously(params: EnqueueJobParams): Promise<{ job: ExecutionJob; result: ExecutionResult }> {

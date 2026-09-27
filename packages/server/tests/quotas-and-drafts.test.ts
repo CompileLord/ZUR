@@ -200,3 +200,25 @@ test('Quotas, Overload Controls & Operator Kill Switch (T024)', async (t) => {
   });
 
 });
+
+test('Queue schedules a different waiting account after one account is served', () => {
+  const db = getDatabase(':memory:');
+  runMigrations(':memory:');
+  seedDatabase(':memory:');
+  const service = new ExecutionService(db);
+  const created = new Date().toISOString();
+  for (const [id, userId, enrollmentId] of [
+    ['fair-1', 'user-student-1', 'enr-ada'],
+    ['fair-2', 'user-student-1', 'enr-ada'],
+    ['fair-3', 'user-student-2', 'enr-grace'],
+  ]) {
+    db.prepare(`INSERT INTO execution_jobs(id,user_id,enrollment_id,step_id,job_type,code,status,created_at,updated_at)
+      VALUES (?,?,?,'step-6-python-evenodd','run_custom','print(1)','queued',?,?)`)
+      .run(id, userId, enrollmentId, created, created);
+  }
+  const first = service.claimNextJob('fair-worker');
+  assert.equal(first?.jobId, 'fair-1');
+  service.completeJob(first!.jobId, 'fair-worker', { jobId: first!.jobId, verdict: 'PASSED',
+    isInfrastructureFailure: false, executionTimeMs: 1, testResults: [], completedAt: new Date().toISOString() });
+  assert.equal(service.claimNextJob('fair-worker')?.jobId, 'fair-3');
+});

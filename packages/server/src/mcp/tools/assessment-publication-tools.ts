@@ -3,8 +3,13 @@ import {
   ValidationError,
   NotFoundError,
   AuthorizationError,
+  compareOutput,
+  validatePythonSource,
+  validateTestCaseInputOutput,
+  validateTestCount,
 } from 'zur-shared';
 import { runPythonIsolated } from 'zur-worker';
+import { AuthorValidationQuota } from '../../services/author-validation-quota.ts';
 import type { ValidatedMcpToken } from '../../services/mcp-token-service.ts';
 import type { McpAuthService } from '../../services/mcp-auth-service.ts';
 import type { CourseValidationService } from '../../services/course-validation-service.ts';
@@ -38,9 +43,9 @@ export function createAssessmentPublicationTools(): McpTool[] {
           runtime_limits: {
             type: 'object',
             properties: {
-              cpu_timeout_seconds: { type: 'integer', minimum: 1, maximum: 10 },
-              wall_timeout_seconds: { type: 'integer', minimum: 1, maximum: 20 },
-              memory_limit_mib: { type: 'integer', minimum: 16, maximum: 512 },
+              cpu_timeout_seconds: { type: 'integer', minimum: 1, maximum: 5 },
+              wall_timeout_seconds: { type: 'integer', minimum: 1, maximum: 5 },
+              memory_limit_mib: { type: 'integer', minimum: 16, maximum: 256 },
             },
           },
         },
@@ -104,17 +109,31 @@ export async function executeAssessmentPublicationTool(
       if (!referenceSolution || typeof referenceSolution !== 'string') {
         throw new ValidationError('reference_solution string is required');
       }
+      const sourceCheck = validatePythonSource(referenceSolution);
+      if (!sourceCheck.valid) throw new ValidationError(sourceCheck.error || 'Invalid reference solution');
 
       const testCases = args?.test_cases;
       if (!Array.isArray(testCases) || testCases.length === 0) {
         throw new ValidationError('test_cases array with at least one item is required');
       }
+      const testCount = validateTestCount(testCases.length);
+      if (!testCount.valid) throw new ValidationError(testCount.error || 'Too many tests');
+      for (const tc of testCases) {
+        const check = validateTestCaseInputOutput(tc.stdin ?? '', tc.expected_stdout ?? '');
+        if (!check.valid) throw new ValidationError(check.error || 'Invalid test case');
+      }
 
       const runLimits = {
-        cpuTimeoutSeconds: args?.runtime_limits?.cpu_timeout_seconds || 5,
-        wallTimeoutSeconds: args?.runtime_limits?.wall_timeout_seconds || 10,
+        cpuTimeoutSeconds: args?.runtime_limits?.cpu_timeout_seconds || 2,
+        wallTimeoutSeconds: args?.runtime_limits?.wall_timeout_seconds || 5,
         memoryLimitMib: args?.runtime_limits?.memory_limit_mib || 128,
       };
+      if (runLimits.cpuTimeoutSeconds > 5 || runLimits.wallTimeoutSeconds > 5 || runLimits.memoryLimitMib > 256) {
+        throw new ValidationError('Requested runtime limit exceeds the supported execution envelope.');
+      }
+
+      const releaseValidation = new AuthorValidationQuota(db).acquire(token.authorId);
+      try {
 
       const results = [];
       let allPassed = true;
@@ -126,7 +145,7 @@ export async function executeAssessmentPublicationTool(
         const expectedStdout = tc.expected_stdout ?? '';
 
         const outcome = await runPythonIsolated(referenceSolution, stdin, runLimits);
-        const passed = outcome.verdict === 'PASSED' && outcome.stdout.trimEnd() === expectedStdout.trimEnd();
+        const passed = outcome.verdict === 'PASSED' && compareOutput(outcome.stdout, expectedStdout).passed;
 
         results.push({
           index: i,
@@ -135,7 +154,7 @@ export async function executeAssessmentPublicationTool(
           passed,
           stdout: outcome.stdout,
           stderr: outcome.stderr,
-          wallDurationMs: outcome.wallDurationMs,
+          wallDurationMs: outcome.executionTimeMs,
         });
 
         if (!passed && allPassed) {
@@ -155,6 +174,7 @@ export async function executeAssessmentPublicationTool(
       return {
         content: [{ type: 'text', text: JSON.stringify(response, null, 2) }],
       };
+      } finally { releaseValidation(); }
     }
 
     case 'validate_course': {

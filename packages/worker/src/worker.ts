@@ -17,10 +17,17 @@ export interface ExecutionJobPayload {
   stdin?: string | null;
   testCases: TestCase[];
   limits?: RunOptions;
+  deadlineAt?: string;
 }
 
 export async function processExecutionJob(job: ExecutionJobPayload): Promise<ExecutionResult> {
   const { jobId, jobType, code, stdin, testCases, limits } = job;
+  const remainingWallSeconds = () => job.deadlineAt
+    ? Math.max(0, (Date.parse(job.deadlineAt) - Date.now()) / 1000)
+    : 60;
+  const boundedLimits = (): RunOptions => ({ ...limits,
+    wallTimeoutSeconds: Math.min(limits?.wallTimeoutSeconds ?? 5, remainingWallSeconds()),
+  });
 
   let totalExecutionTimeMs = 0;
   const testResults: TestCaseResult[] = [];
@@ -28,7 +35,9 @@ export async function processExecutionJob(job: ExecutionJobPayload): Promise<Exe
   let isInfrastructureFailure = false;
 
   if (jobType === 'run_custom') {
-    const outcome = await runPythonIsolated(code, stdin || '', limits);
+    if (remainingWallSeconds() <= 0) return { jobId, verdict: 'TIME_LIMIT',
+      isInfrastructureFailure: false, executionTimeMs: 0, testResults: [], completedAt: new Date().toISOString() };
+    const outcome = await runPythonIsolated(code, stdin || '', boundedLimits());
     totalExecutionTimeMs = outcome.executionTimeMs;
 
     const testPassed = outcome.verdict === 'PASSED';
@@ -70,7 +79,11 @@ export async function processExecutionJob(job: ExecutionJobPayload): Promise<Exe
       });
 
   for (const tc of testsToRun) {
-    const outcome = await runPythonIsolated(code, tc.stdin, limits);
+    if (remainingWallSeconds() <= 0) {
+      overallVerdict = 'TIME_LIMIT';
+      break;
+    }
+    const outcome = await runPythonIsolated(code, tc.stdin, boundedLimits());
     totalExecutionTimeMs += outcome.executionTimeMs;
 
     if (outcome.verdict === 'INTERNAL_ERROR') {
