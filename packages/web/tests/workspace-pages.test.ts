@@ -264,4 +264,29 @@ test('DraftManager: Local Caching and Sign-Out Clearance (T025, AC-11)', async (
     // Grace's draft must be preserved
     assert.ok(DraftManager.loadLocalDraft('user-grace', 'enr-2', 'step-6'));
   });
+
+  await t.test('Tracks unsynchronized work for the correct account', () => {
+    DraftManager.markUnsynced('user-ada', 'enr-1', 'step-6', true);
+    assert.equal(DraftManager.hasUnsyncedWork('user-ada'), true);
+    assert.equal(DraftManager.hasUnsyncedWork('user-grace'), false);
+    DraftManager.markUnsynced('user-ada', 'enr-1', 'step-6', false);
+    assert.equal(DraftManager.hasUnsyncedWork('user-ada'), false);
+  });
+
+  await t.test('Synchronizes a local draft before clearing its sign-out warning', async () => {
+    const priorFetch = globalThis.fetch;
+    const writes: string[] = [];
+    globalThis.fetch = (async (_url: string, options?: RequestInit) => {
+      if (!options) return { ok: true, json: async () => ({ code: 'old', revision: 2 }) } as any;
+      writes.push(String(options.body));
+      return { ok: true, json: async () => ({ code: 'new', revision: 3 }) } as any;
+    }) as any;
+    try {
+      DraftManager.saveLocalDraft('user-ada', 'enr-1', 'step-6', 'new', 2);
+      DraftManager.markUnsynced('user-ada', 'enr-1', 'step-6', true);
+      await DraftManager.syncUnsyncedWork('user-ada');
+      assert.equal(writes.length, 1);
+      assert.equal(DraftManager.hasUnsyncedWork('user-ada'), false);
+    } finally { globalThis.fetch = priorFetch; }
+  });
 });

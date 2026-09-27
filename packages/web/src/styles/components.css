@@ -397,6 +397,9 @@
 .modal-dialog.conflict {
   max-width: var(--dialog-width-conflict);
 }
+dialog.modal-dialog { margin: auto; color: var(--text-primary); }
+dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigation) 78%, transparent); }
+.dialog-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: flex-end; }
 
 /* Drawer */
 .drawer {
@@ -612,8 +615,25 @@
   overflow: auto;
 }
 
+.code-editor-input.cm-source-backup { display: none; }
+.code-editor-area .cm-editor {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  background: var(--code-bg);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--type-code-size);
+}
+.code-editor-area .cm-scroller { overflow: auto; font-family: inherit; }
+.code-editor-area .cm-gutters { background: var(--bg-surface); color: var(--text-muted); border-color: var(--border-subtle); }
+.code-editor-area .cm-activeLine, .code-editor-area .cm-activeLineGutter { background: var(--bg-selected); }
+.code-editor-area .cm-focused { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
+.code-editor-area .cm-cursor { border-left-color: var(--text-primary); }
+.code-editor-area .cm-selectionBackground { background: var(--bg-selected) !important; }
+
 .workspace-results-region {
-  height: 240px;
+  height: var(--results-height, 240px);
   border-top: 1px solid var(--border-subtle);
   background-color: var(--bg-canvas);
   display: flex;
@@ -677,6 +697,7 @@
   color: var(--success);
   border: 1px solid var(--success);
 }
+.result-card-banner.info { background: var(--info-bg); color: var(--info); }
 
 .result-card-banner.wrong {
   background-color: var(--danger-bg);

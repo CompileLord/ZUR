@@ -355,8 +355,19 @@
 .paired-workspace .workspace-viewport {
   flex: 1;
   display: grid;
-  grid-template-columns: 4fr 6fr; /* 40% problem, 60% code */
+  grid-template-columns: var(--problem-pane-width, 40%) 6px minmax(0, 1fr);
   overflow: hidden;
+}
+.workspace-splitter, .results-splitter {
+  background: var(--border-subtle);
+  position: relative;
+  touch-action: none;
+}
+.workspace-splitter { cursor: col-resize; }
+.results-splitter { height: 6px; flex: none; cursor: row-resize; }
+.workspace-splitter:focus-visible, .results-splitter:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -1px;
 }
 
 .desktop-guidance-banner {
@@ -380,14 +391,26 @@
     display: none;
   }
   .paired-workspace .workspace-viewport {
-    grid-template-columns: 1fr;
+    display: block;
     overflow-y: auto;
   }
+  .paired-workspace .workspace-splitter,
+  .paired-workspace .results-splitter { display: none; }
+  .paired-workspace .problem-pane {
+    overflow: visible;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
   .paired-workspace .editor-pane {
-    min-height: 430px;
+    overflow: visible;
   }
   .paired-workspace .code-editor-area {
-    min-height: 160px;
+    height: 200px;
+    flex: none;
+  }
+  .paired-workspace .workspace-results-region {
+    height: auto;
+    min-height: 180px;
   }
 }
 

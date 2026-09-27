@@ -1,5 +1,6 @@
 import type { User, UserPreferences, PrivacyRequest } from 'zur-shared';
 import { getSafeReturnDestination } from '../router/routes.ts';
+import { DraftManager } from './draft-manager.ts';
 
 const TOKEN_KEY = 'zur_session_token';
 const USER_KEY = 'zur_current_user';
@@ -48,6 +49,7 @@ export class AuthClient {
   }
 
   clearSession(): void {
+    if (this.currentUser) DraftManager.clearAllUserLocalDrafts(this.currentUser.id);
     this.token = null;
     this.currentUser = null;
     localStorage.removeItem(TOKEN_KEY);
@@ -57,7 +59,7 @@ export class AuthClient {
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && (key.startsWith('zur_account_') || key.startsWith('zur_draft_'))) {
+      if (key && (key.startsWith('zur_account_') || key.startsWith('zur_draft_') || key.startsWith('zur_unsynced_') || key.startsWith('zur_job_'))) {
         keysToRemove.push(key);
       }
     }
@@ -105,10 +107,10 @@ export class AuthClient {
     return data.user;
   }
 
-  async signUp(displayName: string, email: string, password: string): Promise<{ user: User; verificationToken: string }> {
+  async signUp(displayName: string, email: string, password: string, adultConfirmed: boolean): Promise<{ user: User; deliveryStatus: string }> {
     const data = await this.fetchApi('/api/auth/sign-up', {
       method: 'POST',
-      body: JSON.stringify({ displayName, email, password }),
+      body: JSON.stringify({ displayName, email, password, adultConfirmed }),
     });
     return data;
   }

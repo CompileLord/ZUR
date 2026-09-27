@@ -43,6 +43,15 @@ import { renderStudentDetailPage } from './pages/author/StudentDetailPage.ts';
 import { renderCourseAnalyticsPage } from './pages/author/CourseAnalyticsPage.ts';
 import { renderCoursePublishPage, type CoursePublishPageOptions } from './pages/author/CoursePublishPage.ts';
 import { renderPythonWorkspacePage, renderPythonExecutionResults, type PythonWorkspacePageOptions } from './pages/learning/PythonWorkspacePage.ts';
+import type { ExecutionResult } from 'zur-shared';
+import { EditorState, Compartment } from '@codemirror/state';
+import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from '@codemirror/view';
+import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
+import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
+import { bracketMatching, HighlightStyle, syntaxHighlighting, indentOnInput, indentUnit } from '@codemirror/language';
+import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
+import { python } from '@codemirror/lang-python';
+import { tags } from '@lezer/highlight';
 import { renderAttemptHistoryPage } from './pages/learning/AttemptHistoryPage.ts';
 import { DraftManager } from './services/draft-manager.ts';
 import { DraftSaveQueue } from './services/draft-save-queue.ts';
@@ -175,9 +184,10 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
   const isCurrent = () => window.location.pathname + window.location.search === requestedPath;
   showRouteLoading('Python workspace');
   try {
-    const [stepData, contentData] = await Promise.all([
+    const [stepData, contentData, accountData] = await Promise.all([
       authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`),
       authClient.fetchApi(`/api/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}/content`),
+      authClient.fetchApi('/api/auth/me'),
     ]);
     if (!isCurrent()) return;
     const content = contentData.content;
@@ -207,6 +217,8 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
       constraints: content.constraints,
       starterCode: content.starterCode,
       currentCode: initialCode,
+      editorFontSize: accountData.preferences?.editorFontSize,
+      indentationSpaces: accountData.preferences?.indentationSpaces,
       isCompact: window.innerWidth < 1024,
       hints: content.hints || [],
       solutionExplanation: content.solutionExplanation,
@@ -534,6 +546,7 @@ function attachPythonWorkspaceListeners(
   let currentResult = initial.currentResult || null;
   let resultMode = initial.resultMode;
   let activeTab = initial.activeTab || 'results';
+  const pendingJobKey = `zur_job_${userId}_${initial.enrollmentId}_${initial.stepId}`;
   const saveQueue = new DraftSaveQueue({
     revision: startingRevision,
     save: (snapshot, baseRevision) => savePythonDraft(snapshot, baseRevision, initial.enrollmentId, initial.stepId),
@@ -541,17 +554,19 @@ function attachPythonWorkspaceListeners(
       if (window.location.pathname + window.location.search !== requestedPath) return;
       const hasUnsavedTail = latestCode !== saved.code;
       DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, latestCode, saved.revision);
+      DraftManager.markUnsynced(userId, initial.enrollmentId, initial.stepId, hasUnsavedTail);
       setSaveState(hasUnsavedTail ? 'saving' : 'saved', hasUnsavedTail ? 'Saving…' : 'Saved');
       if (!hasUnsavedTail) document.getElementById('python-save-notice')?.remove();
     },
     onFailure: (error, latestCode) => {
       if (window.location.pathname + window.location.search !== requestedPath) return;
-      DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, latestCode, saveQueue.revision);
+      const storedLocally = DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, latestCode, saveQueue.revision);
+      DraftManager.markUnsynced(userId, initial.enrollmentId, initial.stepId, true);
       const isConflict = error?.code === 'STALE_REVISION';
       setSaveState(isConflict ? 'conflict' : 'unsaved', isConflict ? 'Draft conflict' : 'Unsaved edits (offline)');
       setDraftNotice(isConflict
-        ? 'A newer server draft exists. Your local code is preserved on this device.'
-        : 'Changes are stored on this device. Reconnect to sync.', isConflict);
+        ? storedLocally ? 'A newer server draft exists. Your local code is preserved on this device.' : 'A newer server draft exists. Keep this page open and copy your code before leaving.'
+        : storedLocally ? 'Changes are stored on this device. Reconnect to sync.' : 'Local storage is unavailable. Keep this page open and copy your code before leaving.', isConflict);
     },
   });
 
@@ -620,6 +635,55 @@ function attachPythonWorkspaceListeners(
   };
 
   const textarea = document.getElementById('code-editor-input') as HTMLTextAreaElement | null;
+  let editorView: EditorView | null = null;
+  let suppressEditorChange = false;
+  const readOnlyCompartment = new Compartment();
+  if (textarea) {
+    textarea.classList.add('cm-source-backup');
+    document.querySelector('.code-editor-line-numbers')?.remove();
+    editorView = new EditorView({
+      state: EditorState.create({
+        doc: textarea.value,
+        extensions: [
+          lineNumbers(), highlightActiveLineGutter(), history(), highlightActiveLine(),
+          EditorState.tabSize.of(initial.indentationSpaces || 4),
+          indentUnit.of(' '.repeat(initial.indentationSpaces || 4)),
+          indentOnInput(), bracketMatching(), closeBrackets(), highlightSelectionMatches(),
+          syntaxHighlighting(HighlightStyle.define([
+            { tag: tags.keyword, color: 'var(--syntax-keyword)' },
+            { tag: tags.string, color: 'var(--syntax-string)' },
+            { tag: tags.number, color: 'var(--syntax-number)' },
+            { tag: [tags.function(tags.variableName), tags.function(tags.propertyName)], color: 'var(--syntax-function)' },
+            { tag: tags.comment, color: 'var(--syntax-comment)' },
+          ])), python(),
+          keymap.of([
+            { key: 'Mod-Enter', run: () => {
+              const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
+              void execute(activeTab === 'custom_input' ? 'custom' : 'samples', input?.value || '');
+              return true;
+            } },
+            { key: 'Escape', run: () => { document.getElementById('run-samples-btn')?.focus(); return true; } },
+            indentWithTab, ...closeBracketsKeymap, ...searchKeymap, ...historyKeymap, ...defaultKeymap,
+          ]),
+          readOnlyCompartment.of(EditorState.readOnly.of(window.innerWidth < 1024)),
+          EditorView.contentAttributes.of({ 'aria-label': 'Python Source Code', 'aria-multiline': 'true' }),
+          EditorView.updateListener.of((update) => {
+            if (!update.docChanged || suppressEditorChange) return;
+            textarea.value = update.state.doc.toString();
+            textarea.dispatchEvent(new Event('input'));
+          }),
+        ],
+      }),
+      parent: textarea.parentElement || undefined,
+    });
+    editorView.dom.style.fontSize = `${initial.editorFontSize || 14}px`;
+  }
+  const setEditorCode = (newCode: string) => {
+    if (!editorView) return;
+    suppressEditorChange = true;
+    editorView.dispatch({ changes: { from: 0, to: editorView.state.doc.length, insert: newCode } });
+    suppressEditorChange = false;
+  };
   const resolveDraftConflict = async (choice: 'local' | 'server') => {
     if (!textarea) return;
     const localCode = textarea.value;
@@ -630,8 +694,10 @@ function attachPythonWorkspaceListeners(
       if (choice === 'server') {
         code = serverDraft.code;
         textarea.value = serverDraft.code;
+        setEditorCode(serverDraft.code);
         saveQueue.setServerState(serverDraft.code, serverDraft.revision);
         DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, serverDraft.code, serverDraft.revision);
+        DraftManager.markUnsynced(userId, initial.enrollmentId, initial.stepId, false);
         isRevisionConflict = false;
         setSaveState('saved', 'Saved');
         document.getElementById('python-save-notice')?.remove();
@@ -652,17 +718,72 @@ function attachPythonWorkspaceListeners(
     }
   };
   if (isRevisionConflict) setDraftNotice(initial.saveNotice || 'A newer server draft exists. Choose which copy to keep.', true);
+  if (isRevisionConflict || initial.saveStatus === 'unsaved') {
+    DraftManager.markUnsynced(userId, initial.enrollmentId, initial.stepId, true);
+  }
   if (textarea) {
     workspaceResizeController?.abort();
     workspaceResizeController = new AbortController();
-    const updateCompactMode = () => { textarea.readOnly = window.innerWidth < 1024; };
+    workspaceResizeController.signal.addEventListener('abort', () => editorView?.destroy(), { once: true });
+    const updateCompactMode = () => {
+      textarea.readOnly = window.innerWidth < 1024;
+      editorView?.dispatch({ effects: readOnlyCompartment.reconfigure(EditorState.readOnly.of(window.innerWidth < 1024)) });
+    };
     updateCompactMode();
     window.addEventListener('resize', updateCompactMode, { signal: workspaceResizeController.signal });
   }
+  const workspaceViewport = document.querySelector<HTMLElement>('.paired-workspace .workspace-viewport');
+  const workspaceSplitter = document.getElementById('workspace-splitter');
+  const editorPane = document.querySelector<HTMLElement>('.paired-workspace .editor-pane');
+  const resultsSplitter = document.getElementById('results-splitter');
+  const resultsRegion = document.querySelector<HTMLElement>('.paired-workspace .workspace-results-region');
+  const setProblemWidth = (width: number) => {
+    if (!workspaceViewport || !workspaceSplitter) return;
+    const bounded = Math.max(340, Math.min(width, workspaceViewport.clientWidth - 486));
+    workspaceViewport.style.setProperty('--problem-pane-width', `${bounded}px`);
+    workspaceSplitter.setAttribute('aria-valuenow', String(Math.round(bounded)));
+  };
+  const setResultsHeight = (height: number) => {
+    if (!editorPane || !resultsSplitter || !resultsRegion) return;
+    const bounded = Math.max(120, Math.min(height, editorPane.clientHeight - 284));
+    editorPane.style.setProperty('--results-height', `${bounded}px`);
+    resultsSplitter.setAttribute('aria-valuenow', String(Math.round(bounded)));
+  };
+  workspaceSplitter?.addEventListener('keydown', (event) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    setProblemWidth((workspaceViewport?.querySelector('.problem-pane')?.clientWidth || 400) + (event.key === 'ArrowRight' ? 16 : -16));
+  });
+  resultsSplitter?.addEventListener('keydown', (event) => {
+    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+    event.preventDefault();
+    setResultsHeight((resultsRegion?.clientHeight || 240) + (event.key === 'ArrowUp' ? 16 : -16));
+  });
+  workspaceSplitter?.addEventListener('pointerdown', (event) => {
+    if (window.innerWidth < 1024) return;
+    workspaceSplitter.setPointerCapture(event.pointerId);
+    const startX = event.clientX;
+    const startWidth = workspaceViewport?.querySelector('.problem-pane')?.clientWidth || 400;
+    const move = (moveEvent: PointerEvent) => setProblemWidth(startWidth + moveEvent.clientX - startX);
+    workspaceSplitter.addEventListener('pointermove', move);
+    workspaceSplitter.addEventListener('pointerup', () => workspaceSplitter.removeEventListener('pointermove', move), { once: true });
+  });
+  resultsSplitter?.addEventListener('pointerdown', (event) => {
+    if (window.innerWidth < 1024) return;
+    resultsSplitter.setPointerCapture(event.pointerId);
+    const startY = event.clientY;
+    const startHeight = resultsRegion?.clientHeight || 240;
+    const move = (moveEvent: PointerEvent) => setResultsHeight(startHeight + startY - moveEvent.clientY);
+    resultsSplitter.addEventListener('pointermove', move);
+    resultsSplitter.addEventListener('pointerup', () => resultsSplitter.removeEventListener('pointermove', move), { once: true });
+  });
   textarea?.addEventListener('input', () => {
     code = textarea.value;
-    DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, code, saveQueue.revision);
-    setSaveState(isRevisionConflict ? 'conflict' : 'saving', isRevisionConflict ? 'Draft conflict' : 'Saving…');
+    const storedLocally = DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, code, saveQueue.revision);
+    DraftManager.markUnsynced(userId, initial.enrollmentId, initial.stepId, true);
+    setSaveState(isRevisionConflict ? 'conflict' : storedLocally ? 'saving' : 'unsaved',
+      isRevisionConflict ? 'Draft conflict' : storedLocally ? 'Saving…' : 'Unsaved edits');
+    if (!storedLocally) setDraftNotice('Local storage is unavailable. Keep this page open and copy your code before leaving.');
     if (isRevisionConflict) return;
     saveQueue.update(code);
   });
@@ -671,14 +792,19 @@ function attachPythonWorkspaceListeners(
     code = textarea?.value ?? code;
     const runButton = document.getElementById(mode === 'submit' ? 'submit-solution-btn' : mode === 'custom' ? 'run-custom-btn' : 'run-samples-btn') as HTMLButtonElement | null;
     if (runButton) runButton.disabled = true;
-    setResults({ inFlightStatus: 'running' });
+    setResults({ inFlightStatus: 'queued' });
     try {
       const endpoint = mode === 'samples' ? '/api/execution/run-samples' : mode === 'custom' ? '/api/execution/run-custom' : '/api/execution/submit';
       const response = await authClient.fetchApi(endpoint, {
         method: 'POST',
         body: JSON.stringify({ enrollmentId: initial.enrollmentId, stepId: initial.stepId, code, stdin, idempotencyKey: crypto.randomUUID() }),
       });
-      currentResult = response.result;
+      const jobId = response.job?.id;
+      if (!jobId) throw new Error('Execution was not accepted.');
+      localStorage.setItem(pendingJobKey, JSON.stringify({ jobId, mode }));
+      const completed = await waitForJob(jobId);
+      currentResult = completed.result;
+      localStorage.removeItem(pendingJobKey);
       resultMode = mode;
       if (mode === 'submit' && currentResult?.verdict === 'PASSED') initial.isCompleted = true;
       selectTab('results');
@@ -702,6 +828,30 @@ function attachPythonWorkspaceListeners(
       if (runButton) runButton.disabled = false;
     }
   };
+
+  const waitForJob = async (jobId: string): Promise<{ result: ExecutionResult }> => {
+    while (window.location.pathname + window.location.search === requestedPath) {
+      const state = await authClient.fetchApi(`/api/execution/jobs/${encodeURIComponent(jobId)}`);
+      if (state.job?.status === 'completed') return state;
+      setResults({ inFlightStatus: state.job?.status === 'running' ? 'running' : 'queued', inFlightJobId: jobId });
+      await new Promise((resolve) => setTimeout(resolve, 800));
+    }
+    throw new Error('Navigation interrupted polling.');
+  };
+
+  try {
+    const pending = JSON.parse(localStorage.getItem(pendingJobKey) || 'null');
+    if (pending?.jobId) {
+      resultMode = pending.mode;
+      setResults({ inFlightStatus: 'reconnecting', inFlightJobId: pending.jobId });
+      void waitForJob(pending.jobId).then((state) => {
+        localStorage.removeItem(pendingJobKey);
+        currentResult = state.result;
+        selectTab('results');
+        setResults();
+      }).catch(() => setResults({ executionError: 'Could not reconnect to this execution. Your code is unchanged.' }));
+    }
+  } catch { localStorage.removeItem(pendingJobKey); }
 
   document.getElementById('run-samples-btn')?.addEventListener('click', () => void execute('samples'));
   document.getElementById('submit-solution-btn')?.addEventListener('click', () => void execute('submit'));
@@ -729,7 +879,9 @@ function attachPythonWorkspaceListeners(
   });
   textarea?.addEventListener('keydown', (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-      event.preventDefault(); void execute('samples');
+      event.preventDefault();
+      const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
+      void execute(activeTab === 'custom_input' ? 'custom' : 'samples', input?.value || '');
     }
   });
   document.getElementById('reset-code-btn')?.addEventListener('click', async () => {
@@ -748,8 +900,10 @@ function attachPythonWorkspaceListeners(
       saveQueue.setServerState(reset.code, reset.revision);
       code = reset.code;
       DraftManager.saveLocalDraft(userId, initial.enrollmentId, initial.stepId, code, reset.revision);
+      DraftManager.markUnsynced(userId, initial.enrollmentId, initial.stepId, false);
       document.getElementById('python-save-notice')?.remove();
       if (textarea) textarea.value = code;
+      setEditorCode(code);
       currentResult = null;
       resultMode = undefined;
       setResults();
@@ -881,6 +1035,47 @@ async function loadAdminPage(path: string, displayName: string, email: string): 
   } catch(error:any) {
     appEl.innerHTML=renderAdminPage(path,null,error.message,{displayName,email});
   }
+}
+
+async function confirmUnsyncedSignOut(userId: string): Promise<boolean> {
+  if (!DraftManager.hasUnsyncedWork(userId)) return true;
+  return new Promise<boolean>((resolve) => {
+    const dialog = document.createElement('dialog');
+    dialog.className = 'modal-dialog';
+    dialog.setAttribute('aria-labelledby', 'unsynced-signout-title');
+    const title = document.createElement('h2');
+    title.id = 'unsynced-signout-title';
+    title.textContent = 'Unsynchronized code';
+    const description = document.createElement('p');
+    description.textContent = 'Some code is stored only on this device. Choose whether to synchronize it or discard it before signing out.';
+    const error = document.createElement('p');
+    error.className = 'form-error';
+    error.setAttribute('role', 'alert');
+    const actions = document.createElement('div');
+    actions.className = 'dialog-actions';
+    const button = (label: string, className: string) => {
+      const element = document.createElement('button');
+      element.type = 'button'; element.className = className; element.textContent = label;
+      actions.append(element); return element;
+    };
+    const cancel = button('Keep editing', 'btn btn-ghost');
+    const discard = button('Discard local code and sign out', 'btn btn-secondary');
+    const sync = button('Synchronize and sign out', 'btn btn-primary');
+    dialog.append(title, description, error, actions);
+    document.body.append(dialog);
+    const finish = (accepted: boolean) => { dialog.close(); dialog.remove(); resolve(accepted); };
+    dialog.addEventListener('cancel', (event) => { event.preventDefault(); finish(false); });
+    cancel.addEventListener('click', () => finish(false));
+    discard.addEventListener('click', () => finish(true));
+    sync.addEventListener('click', async () => {
+      sync.disabled = true;
+      error.textContent = '';
+      try { await DraftManager.syncUnsyncedWork(userId); finish(true); }
+      catch (problem: any) { error.textContent = problem?.message || 'Could not synchronize code. Keep editing or explicitly discard it.'; sync.disabled = false; }
+    });
+    dialog.showModal();
+    sync.focus();
+  });
 }
 
 export function navigateTo(path: string): void {
@@ -1976,6 +2171,7 @@ function attachSignUpListeners(): void {
       const displayName = (form.elements.namedItem('displayName') as HTMLInputElement).value;
       const email = (form.elements.namedItem('email') as HTMLInputElement).value;
       const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+      const adultConfirmed = (form.elements.namedItem('adultConfirmed') as HTMLInputElement).checked;
       const submitBtn = document.getElementById('submit-sign-up') as HTMLButtonElement | null;
 
       if (submitBtn) {
@@ -1984,7 +2180,7 @@ function attachSignUpListeners(): void {
       }
 
       try {
-        await authClient.signUp(displayName, email, password);
+        await authClient.signUp(displayName, email, password, adultConfirmed);
         navigateTo(`/verify-email?email=${encodeURIComponent(email)}`);
       } catch (err: any) {
         if (errorEl) {
@@ -2045,6 +2241,8 @@ function attachVerifyEmailListeners(token?: string | null): void {
   if (diffAccountLink) {
     diffAccountLink.addEventListener('click', async (e) => {
       e.preventDefault();
+      const user = authClient.getUser();
+      if (user && !await confirmUnsyncedSignOut(user.id)) return;
       await authClient.signOut();
       navigateTo('/sign-in');
     });
@@ -2281,6 +2479,8 @@ function attachSecurityListeners(): void {
 
   if (btnConfirmSignout) {
     btnConfirmSignout.addEventListener('click', async () => {
+      const user = authClient.getUser();
+      if (user && !await confirmUnsyncedSignOut(user.id)) return;
       await authClient.signOutAll();
       navigateTo('/sign-in');
     });
@@ -2954,6 +3154,8 @@ document.addEventListener('click', (e) => {
       hintTrigger.setAttribute('aria-expanded', 'true');
       if (content) content.hidden = false;
       if (chevron) chevron.textContent = '▲';
+      const nextHint = accordion?.nextElementSibling as HTMLElement | null;
+      if (nextHint?.classList.contains('hint-accordion')) nextHint.hidden = false;
 
       // Telemetry on actual validated reveal: only record once per hint reveal to prevent fabricated duplicate analytics
       if (!hintTrigger.hasAttribute('data-revealed')) {
@@ -2975,6 +3177,16 @@ document.addEventListener('click', (e) => {
   if (target && target.href && !target.hasAttribute('download') && target.origin === window.location.origin) {
     const pathname = target.pathname;
     if (pathname.startsWith('/api/')) return; // Allow direct API endpoints
+    if (pathname === '/sign-out') {
+      e.preventDefault();
+      const user = authClient.getUser();
+      void (async () => {
+        if (user && !await confirmUnsyncedSignOut(user.id)) return;
+        await authClient.signOut();
+        navigateTo('/sign-in');
+      })();
+      return;
+    }
 
     e.preventDefault();
     navigateTo(pathname + target.search);
