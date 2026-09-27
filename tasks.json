@@ -365,9 +365,11 @@
                 "packages/web/src/services/auth-client.ts",
                 "packages/web/src/pages/account/SignInPage.ts",
                 "packages/server/tests/auth-core.test.ts",
-                "packages/web/tests/auth-pages.test.ts"
+                "packages/web/tests/auth-pages.test.ts",
+                "packages/server/src/db/migrations/020_auth_request_limits.sql",
+                "packages/server/tests/auth-request-limits.test.ts"
               ],
-              "status_note": "Session and sign-out flow is exercised; stronger administrator authentication and distributed sign-in throttling remain unresolved."
+              "status_note": "Durable per-email/IP sign-in admission and reauthentication throttles are implemented; administrator second factor and full cross-session review remain."
             },
             {
               "id": "T015",
@@ -380,9 +382,11 @@
                 "packages/web/src/pages/account/PasswordRecoveryPages.ts",
                 "packages/web/src/pages/settings/SecuritySettingsPage.ts",
                 "packages/server/tests/auth-core.test.ts",
-                "packages/web/tests/auth-pages.test.ts"
+                "packages/web/tests/auth-pages.test.ts",
+                "packages/server/src/db/migrations/020_auth_request_limits.sql",
+                "packages/server/tests/auth-request-limits.test.ts"
               ],
-              "status_note": "Recovery secret delivery is email-only; endpoint rate limits, live provider delivery, and security-settings states need verification."
+              "status_note": "Generic email-only recovery and durable per-email/IP request limits are implemented; provider delivery and security-settings states need end-to-end verification, and administrator second-factor state remains."
             },
             {
               "id": "T016",

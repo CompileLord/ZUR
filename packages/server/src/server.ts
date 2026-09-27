@@ -204,6 +204,7 @@ export function createServer(
       // 1. Sign Up (T013)
       if (method === 'POST' && pathname === '/api/auth/sign-up') {
         const body = await parseJsonBody(req);
+        identityService.consumeRequestRateLimit('sign-up-ip', req.socket.remoteAddress || 'unknown', 10, 60 * 60 * 1000);
         if (body.adultConfirmed !== true) throw new ValidationError('Adult eligibility confirmation is required.');
         const result = identityService.signUp(body);
         const delivery = await emailDeliveryService.sendAccountLink({ recipientEmail: result.user.email,
@@ -223,6 +224,8 @@ export function createServer(
       // 3. Resend Verification (T013)
       if (method === 'POST' && pathname === '/api/auth/resend-verification') {
         const body = await parseJsonBody(req);
+        identityService.consumeRequestRateLimit('resend-ip', req.socket.remoteAddress || 'unknown', 30, 60 * 60 * 1000);
+        identityService.consumeRequestRateLimit('resend-email', String(body.email || '').trim().toLowerCase(), 5, 60 * 60 * 1000);
         const result = identityService.resendVerificationEmail(body.email);
         if (result.verificationToken) await emailDeliveryService.sendAccountLink({
           recipientEmail: String(body.email).trim().toLowerCase(), kind: 'verify',
@@ -272,6 +275,8 @@ export function createServer(
       // 7. Password Recovery Request (T015)
       if (method === 'POST' && pathname === '/api/auth/forgot-password') {
         const body = await parseJsonBody(req);
+        identityService.consumeRequestRateLimit('recovery-ip', req.socket.remoteAddress || 'unknown', 30, 60 * 60 * 1000);
+        identityService.consumeRequestRateLimit('recovery-email', String(body.email || '').trim().toLowerCase(), 5, 60 * 60 * 1000);
         const result = identityService.requestPasswordReset(body.email);
         if (result.resetToken) await emailDeliveryService.sendAccountLink({
           recipientEmail: String(body.email).trim().toLowerCase(), kind: 'reset',
@@ -283,6 +288,7 @@ export function createServer(
       // 8. Password Reset (T015)
       if (method === 'POST' && pathname === '/api/auth/reset-password') {
         const body = await parseJsonBody(req);
+        identityService.consumeRequestRateLimit('reset-ip', req.socket.remoteAddress || 'unknown', 20, 15 * 60 * 1000);
         const success = identityService.resetPassword(body.token, body.password);
         const clearCookie = 'zur_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0';
         sendJson(res, 200, { success }, { 'Set-Cookie': clearCookie });

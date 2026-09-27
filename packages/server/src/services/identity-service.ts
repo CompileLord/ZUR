@@ -62,6 +62,31 @@ export class IdentityService {
     this.rateLimitMap.delete(key);
   }
 
+  /** Durable admission limit shared by API processes using the same database. */
+  consumeRequestRateLimit(scope: string, key: string, maxAttempts: number, windowMs: number): void {
+    const now = Date.now();
+    const keyHash = crypto.createHash('sha256').update(`${scope}:${key}`).digest('hex');
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      const record = this.db.prepare('SELECT attempts,window_started_at FROM auth_request_limits WHERE key_hash=?')
+        .get(keyHash) as { attempts: number; window_started_at: number } | undefined;
+      if (record && now - record.window_started_at < windowMs && record.attempts >= maxAttempts) {
+        throw new RateLimitError('Too many attempts. Please try again later.',
+          Math.ceil((windowMs - (now - record.window_started_at)) / 1000));
+      }
+      if (!record || now - record.window_started_at >= windowMs) {
+        this.db.prepare(`INSERT INTO auth_request_limits (key_hash,attempts,window_started_at,last_attempt_at)
+          VALUES (?,1,?,?) ON CONFLICT(key_hash) DO UPDATE SET attempts=1,
+          window_started_at=excluded.window_started_at,last_attempt_at=excluded.last_attempt_at`)
+          .run(keyHash, now, now);
+      } else {
+        this.db.prepare('UPDATE auth_request_limits SET attempts=attempts+1,last_attempt_at=? WHERE key_hash=?')
+          .run(now, keyHash);
+      }
+      this.db.exec('COMMIT');
+    } catch (error) { this.db.exec('ROLLBACK'); throw error; }
+  }
+
   private sanitizeUser(row: any): User {
     let capabilities: any[] = [];
     try {
@@ -227,6 +252,9 @@ export class IdentityService {
     if (!email || !password) {
       throw new ValidationError('Email and password are required.');
     }
+
+    this.consumeRequestRateLimit('sign-in-email', email, 10, 15 * 60 * 1000);
+    this.consumeRequestRateLimit('sign-in-ip', data.ipAddress || 'unknown', 60, 15 * 60 * 1000);
 
     const rateLimitKey = `signin:${email}:${data.ipAddress || 'unknown'}`;
     this.checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
@@ -418,6 +446,7 @@ export class IdentityService {
 
   verifyCurrentPassword(userId: string, password: string): boolean {
     if (!password) throw new ValidationError('Current password is required for this administrator action.');
+    this.consumeRequestRateLimit('admin-reauth', userId, 10, 15 * 60 * 1000);
     const rateKey=`admin-reauth:${userId}`;
     this.checkRateLimit(rateKey,5,15*60*1000);
     const user = this.db.prepare('SELECT password_hash FROM users WHERE id=?').get(userId) as { password_hash: string } | undefined;
