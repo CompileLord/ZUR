@@ -54,19 +54,19 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
       <div class="attempt-detail-view" role="region" aria-label="Attempt Detail">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4);">
           <div style="display: flex; align-items: center; gap: var(--space-3);">
-            <a href="/learn/${opts.enrollmentId}/steps/${opts.stepId}/attempts" class="btn btn-ghost btn-compact">
+            <a href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts" class="btn btn-ghost btn-compact">
               ← All attempts
             </a>
-          <h2>Attempt #${selected.attemptNumber}</h2>
+            <h2>Attempt #${escapeHtml(selected.attemptNumber)}</h2>
           </div>
           <span class="status-badge ${badgeClass}">${escapeHtml(selected.verdict)}</span>
         </div>
 
         <div class="problem-meta-row" style="margin-bottom: var(--space-4);">
-          <span>Submitted at: ${new Date(selected.createdAt).toLocaleString()}</span>
+          <span>Submitted at: ${escapeHtml(new Date(selected.createdAt).toLocaleString())}</span>
           <span>·</span>
-          <span>Runtime: ${selected.runtimeVersion || 'Python 3.14'}</span>
-          ${selected.executionTimeMs ? `<span>·</span><span>${selected.executionTimeMs} ms</span>` : ''}
+          <span>Runtime: ${escapeHtml(selected.runtimeVersion || 'Python 3.14')}</span>
+          ${selected.executionTimeMs ? `<span>·</span><span>${escapeHtml(selected.executionTimeMs)} ms</span>` : ''}
         </div>
 
         <div style="margin-bottom: var(--space-4);">
@@ -109,11 +109,11 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
     <div style="max-width: 800px; margin: 0 auto; padding: var(--space-6); width: 100%;">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-6);">
         <div>
-          <a href="${opts.workspaceUrl}" class="btn btn-ghost btn-compact" style="margin-bottom: var(--space-2);">
+          <a href="${escapeHtml(opts.workspaceUrl)}" class="btn btn-ghost btn-compact" style="margin-bottom: var(--space-2);">
             ← Back to workspace
           </a>
           <h1 class="problem-title">Submission History</h1>
-          <p class="problem-section-body">${opts.totalAttempts} total attempts for this exercise</p>
+          <p class="problem-section-body">${escapeHtml(opts.totalAttempts)} total attempts for this exercise</p>
         </div>
       </div>
 
@@ -130,14 +130,14 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
             return `
               <a href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts/${encodeURIComponent(att.id)}" class="attempt-row-card">
                 <div style="display: flex; align-items: center; gap: var(--space-4);">
-              <span class="status-badge ${badgeClass}">${escapeHtml(att.verdict)}</span>
-                  <span style="font-weight: 500;">Attempt #${att.attemptNumber}</span>
+                  <span class="status-badge ${badgeClass}">${escapeHtml(att.verdict)}</span>
+                  <span style="font-weight: 500;">Attempt #${escapeHtml(att.attemptNumber)}</span>
                   <span class="text-secondary" style="font-size: var(--type-metadata-size);">
-                    ${new Date(att.createdAt).toLocaleString()}
+                    ${escapeHtml(new Date(att.createdAt).toLocaleString())}
                   </span>
                 </div>
                 <div style="display: flex; align-items: center; gap: var(--space-3);">
-                  ${att.executionTimeMs ? `<span class="text-tertiary" style="font-size: var(--type-metadata-size);">${att.executionTimeMs} ms</span>` : ''}
+                  ${att.executionTimeMs ? `<span class="text-tertiary" style="font-size: var(--type-metadata-size);">${escapeHtml(att.executionTimeMs)} ms</span>` : ''}
                   <span class="btn btn-ghost btn-compact">View →</span>
                 </div>
               </a>
@@ -145,7 +145,7 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
           }).join('')}
         </div>
       `}
-      ${opts.totalAttempts > opts.pageSize ? `<nav class="attempt-history-pagination" aria-label="Submission history pages"><span>Showing ${Math.min((opts.offset || 0) + 1, opts.totalAttempts)}–${Math.min((opts.offset || 0) + opts.attempts.length, opts.totalAttempts)} of ${opts.totalAttempts}</span><div>${(opts.offset || 0) > 0 ? `<a class="btn btn-secondary btn-compact" href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts?offset=${Math.max(0, (opts.offset || 0) - opts.pageSize)}">Previous</a>` : ''}${(opts.offset || 0) + opts.pageSize < opts.totalAttempts ? `<a class="btn btn-secondary btn-compact" href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts?offset=${(opts.offset || 0) + opts.pageSize}">Next</a>` : ''}</div></nav>` : ''}
+      ${opts.totalAttempts > opts.pageSize ? `<nav class="attempt-history-pagination" aria-label="Submission history pages"><span>Showing ${Math.min((opts.offset || 0) + 1, opts.totalAttempts)}–${Math.min((opts.offset || 0) + opts.attempts.length, opts.totalAttempts)} of ${escapeHtml(opts.totalAttempts)}</span><div>${(opts.offset || 0) > 0 ? `<a class="btn btn-secondary btn-compact" href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts?offset=${Math.max(0, (opts.offset || 0) - opts.pageSize)}">Previous</a>` : ''}${(opts.offset || 0) + opts.pageSize < opts.totalAttempts ? `<a class="btn btn-secondary btn-compact" href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts?offset=${(opts.offset || 0) + opts.pageSize}">Next</a>` : ''}</div></nav>` : ''}
     </div>
   `;
 

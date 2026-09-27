@@ -34,6 +34,27 @@ export async function runPythonIsolated(
   const memoryLimitMib = Math.min(options.memoryLimitMib ?? EXECUTION_BUDGETS.DEFAULT_MEMORY_LIMIT_MIB, EXECUTION_BUDGETS.MAX_ADMIN_MEMORY_LIMIT_MIB);
   const maxOutputBytes = Math.min(options.maxOutputBytes ?? EXECUTION_BUDGETS.MAX_CAPTURED_OUTPUT_BYTES, EXECUTION_BUDGETS.MAX_CAPTURED_OUTPUT_BYTES);
 
+  if (Buffer.byteLength(code, 'utf-8') > EXECUTION_BUDGETS.MAX_SOURCE_CODE_BYTES) {
+    return {
+      verdict: 'INTERNAL_ERROR',
+      stdout: '',
+      stderr: 'Source code exceeds 64 KiB maximum limit.',
+      exitCode: -1,
+      executionTimeMs: 0,
+      errorMessage: 'Source code exceeds 64 KiB maximum limit.',
+    };
+  }
+  if (Buffer.byteLength(stdin, 'utf-8') > EXECUTION_BUDGETS.MAX_STDIN_BYTES) {
+    return {
+      verdict: 'INTERNAL_ERROR',
+      stdout: '',
+      stderr: 'Standard input exceeds 64 KiB maximum limit.',
+      exitCode: -1,
+      executionTimeMs: 0,
+      errorMessage: 'Standard input exceeds 64 KiB maximum limit.',
+    };
+  }
+
   const sandboxDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zur-sandbox-'));
   const scriptPath = path.join(sandboxDir, 'main.py');
   const cidFile = path.join(sandboxDir, 'container.id');
@@ -148,7 +169,7 @@ export async function runPythonIsolated(
             executionTimeMs, errorMessage: 'Program output is not valid UTF-8.' });
         }
 
-        if (killedByTimeout || signal === 'SIGKILL' && !code) {
+        if (killedByTimeout) {
           return resolve({
             verdict: 'TIME_LIMIT',
             stdout,
@@ -164,9 +185,23 @@ export async function runPythonIsolated(
             return resolve({ verdict: 'TIME_LIMIT', stdout, stderr: '', exitCode: code,
               executionTimeMs, errorMessage: 'CPU time limit exceeded.' });
           }
-          if (code === 125 || code === 127 || stderr.startsWith('Error:')) {
+          if (code === 153 || signal === 'SIGXFSZ') {
+            return resolve({ verdict: 'OUTPUT_LIMIT', stdout, stderr: '', exitCode: code,
+              executionTimeMs, errorMessage: 'Disk output limit exceeded.' });
+          }
+          if (code === 125 || code === 126 || code === 127 || stderr.startsWith('Error:') || stderr.includes('time="') || stderr.includes('container engine failure')) {
             return resolve({ verdict: 'INTERNAL_ERROR', stdout: '', stderr: '', exitCode: code,
               executionTimeMs, errorMessage: 'Execution sandbox is unavailable.' });
+          }
+          if (code === 137 || signal === 'SIGKILL') {
+            return resolve({
+              verdict: 'MEMORY_LIMIT',
+              stdout,
+              stderr,
+              exitCode: code,
+              executionTimeMs,
+              errorMessage: 'Memory limit exceeded',
+            });
           }
           if (stderr.includes('SyntaxError:') || stderr.includes('IndentationError:')) {
             return resolve({

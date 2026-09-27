@@ -14,6 +14,7 @@ import {
   type ExecutionJob,
 } from 'zur-shared';
 import { QuotaService } from './quota-service.ts';
+import { AuthorValidationQuota } from './author-validation-quota.ts';
 import { redactFullExecutionResultForStudent } from './redaction-service.ts';
 import { processExecutionJob, type ExecutionJobPayload } from 'zur-worker';
 
@@ -89,10 +90,15 @@ export class ExecutionService {
       }
     }
 
+    const jobId = `job-${crypto.randomUUID()}`;
+    const now = new Date().toISOString();
+
     // Enforce quotas, rate limits, active jobs limit, and operator kill switch
     this.quotaService.assertExecutionAvailable();
     if (jobType !== 'author_validation') {
       this.quotaService.checkCanEnqueue(userId, jobType);
+    } else {
+      new AuthorValidationQuota(this.db).acquire(userId, true, jobId);
     }
     const queueCount = this.db.prepare("SELECT COUNT(*) count FROM execution_jobs WHERE status IN ('queued','running')")
       .get() as { count: number };
@@ -102,9 +108,6 @@ export class ExecutionService {
     if (!validation.valid) {
       throw new ValidationError(validation.error || 'Invalid Python source code');
     }
-
-    const jobId = `job-${crypto.randomUUID()}`;
-    const now = new Date().toISOString();
 
     this.db.prepare(`
       INSERT INTO execution_jobs (
@@ -219,7 +222,9 @@ export class ExecutionService {
       SELECT j.id, j.user_id, j.enrollment_id, j.step_id, j.job_type, j.code, j.stdin, j.idempotency_key,
              j.status, j.lease_expires_at, j.result_payload, j.attempt_id, j.created_at, j.updated_at,
              e.course_id, e.status enrollment_status, c.owner_id course_owner_id, c.is_suspended
-      FROM execution_jobs j JOIN enrollments e ON e.id=j.enrollment_id JOIN courses c ON c.id=e.course_id
+      FROM execution_jobs j
+      LEFT JOIN enrollments e ON e.id = j.enrollment_id
+      LEFT JOIN courses c ON c.id = e.course_id
       WHERE j.id = ?
     `).get(jobId) as any;
 
@@ -227,13 +232,19 @@ export class ExecutionService {
       throw new NotFoundError("This page isn't available.");
     }
 
-    // Keep learner code and execution output private to the learner and course owner.
-    if (row.user_id === requestingUserId && (row.enrollment_status !== 'active' || row.is_suspended)) {
-      throw new NotFoundError("This page isn't available.");
-    }
-    if (row.user_id !== requestingUserId) {
-      if (row.course_owner_id !== requestingUserId) {
+    if (row.job_type === 'author_validation') {
+      if (row.user_id !== requestingUserId) {
         throw new NotFoundError("This page isn't available.");
+      }
+    } else {
+      // Keep learner code and execution output private to the learner and course owner.
+      if (row.user_id === requestingUserId && (row.enrollment_status !== 'active' || row.is_suspended)) {
+        throw new NotFoundError("This page isn't available.");
+      }
+      if (row.user_id !== requestingUserId) {
+        if (row.course_owner_id !== requestingUserId) {
+          throw new NotFoundError("This page isn't available.");
+        }
       }
     }
 
@@ -363,6 +374,9 @@ export class ExecutionService {
             .run(`progress-${crypto.randomUUID()}`, jobRow.user_id, jobRow.enrollment_id,
               jobRow.step_id, now, now, now);
         }
+      }
+      if (jobRow.job_type === 'author_validation') {
+        new AuthorValidationQuota(this.db).complete(jobRow.id, now);
       }
       this.db.prepare(`UPDATE execution_jobs SET status='completed', result_payload=?, attempt_id=?,
         lease_expires_at=NULL, updated_at=? WHERE id=? AND status='running' AND worker_id=?`)

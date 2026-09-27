@@ -1,4 +1,4 @@
-import { compareOutput } from 'zur-shared';
+import { compareOutput, isValidUtf8, EXECUTION_BUDGETS } from 'zur-shared';
 import type {
   ExecutionResult,
   TestCaseResult,
@@ -29,16 +29,40 @@ export async function processExecutionJob(job: ExecutionJobPayload): Promise<Exe
     wallTimeoutSeconds: Math.min(limits?.wallTimeoutSeconds ?? 5, remainingWallSeconds()),
   });
 
+  if (!isValidUtf8(code) || Buffer.byteLength(code, 'utf-8') > EXECUTION_BUDGETS.MAX_SOURCE_CODE_BYTES) {
+    return {
+      jobId,
+      verdict: 'INTERNAL_ERROR',
+      isInfrastructureFailure: true,
+      executionTimeMs: 0,
+      testResults: [],
+      guidance: 'Source code exceeds size limit (64 KiB) or is invalid UTF-8.',
+      completedAt: new Date().toISOString(),
+    };
+  }
+
   let totalExecutionTimeMs = 0;
   const testResults: TestCaseResult[] = [];
   let overallVerdict: TerminalVerdict = 'PASSED';
   let isInfrastructureFailure = false;
 
   if (jobType === 'run_custom') {
+    const rawStdin = stdin || '';
+    if (!isValidUtf8(rawStdin) || Buffer.byteLength(rawStdin, 'utf-8') > EXECUTION_BUDGETS.MAX_STDIN_BYTES) {
+      return {
+        jobId,
+        verdict: 'INTERNAL_ERROR',
+        isInfrastructureFailure: true,
+        executionTimeMs: 0,
+        testResults: [],
+        guidance: 'Custom input exceeds size limit (64 KiB) or is invalid UTF-8.',
+        completedAt: new Date().toISOString(),
+      };
+    }
     if (remainingWallSeconds() <= 0) return { jobId, verdict: 'INTERNAL_ERROR',
       isInfrastructureFailure: true, executionTimeMs: 0, testResults: [], completedAt: new Date().toISOString() };
     const limitedByJobDeadline = remainingWallSeconds() < (limits?.wallTimeoutSeconds ?? 5);
-    const outcome = await runPythonIsolated(code, stdin || '', boundedLimits());
+    const outcome = await runPythonIsolated(code, rawStdin, boundedLimits());
     if (limitedByJobDeadline && outcome.verdict === 'TIME_LIMIT') {
       outcome.verdict = 'INTERNAL_ERROR';
       outcome.errorMessage = 'Execution could not complete before its job deadline.';
@@ -84,6 +108,29 @@ export async function processExecutionJob(job: ExecutionJobPayload): Promise<Exe
       });
 
   for (const tc of testsToRun) {
+    if (
+      !isValidUtf8(tc.stdin) ||
+      Buffer.byteLength(tc.stdin, 'utf-8') > EXECUTION_BUDGETS.MAX_STDIN_BYTES ||
+      !isValidUtf8(tc.expectedStdout) ||
+      Buffer.byteLength(tc.expectedStdout, 'utf-8') > EXECUTION_BUDGETS.MAX_EXPECTED_STDOUT_BYTES
+    ) {
+      overallVerdict = 'INTERNAL_ERROR';
+      isInfrastructureFailure = true;
+      testResults.push({
+        position: tc.position,
+        passed: false,
+        verdict: 'INTERNAL_ERROR',
+        input: tc.stdin,
+        expectedOutput: tc.expectedStdout,
+        actualOutput: '',
+        stderr: '',
+        executionTimeMs: 0,
+        isHidden: tc.isHidden,
+        errorMessage: 'Test case input/output exceeds 64 KiB or is invalid UTF-8.',
+      });
+      break;
+    }
+
     if (remainingWallSeconds() <= 0) {
       overallVerdict = 'INTERNAL_ERROR';
       isInfrastructureFailure = true;

@@ -290,3 +290,90 @@ test('DraftManager: Local Caching and Sign-Out Clearance (T025, AC-11)', async (
     } finally { globalThis.fetch = priorFetch; }
   });
 });
+
+test('Workspace HTML Safety & XSS Prevention (T026, Finding 8)', async (t) => {
+  await t.test('PythonWorkspacePage escapes all dynamic content and data attributes', () => {
+    const xssPayload = '<script>alert("xss")</script>';
+    const imgPayload = '<img src=x onerror=alert(1)>';
+    const attrPayload = '"><script>alert("attr")</script>';
+
+    const html = renderPythonWorkspacePage({
+      courseTitle: 'Security Course',
+      courseOverviewUrl: '/courses/sec-1',
+      lessonTitle: 'Sanitization',
+      stepTitle: xssPayload,
+      stepOrdinalText: 'Step 1',
+      enrollmentId: attrPayload,
+      stepId: attrPayload,
+      problemStatement: imgPayload,
+      inputFormat: xssPayload,
+      outputFormat: xssPayload,
+      constraints: xssPayload,
+      starterCode: '# safe',
+      currentCode: '# safe',
+      hints: [xssPayload],
+      solutionExplanation: xssPayload,
+      isCompleted: true,
+      examples: [{ input: xssPayload, output: xssPayload }],
+    });
+
+    // Zero unescaped raw scripts or img tags
+    assert.strictEqual(html.includes('<script>alert("xss")</script>'), false);
+    assert.strictEqual(html.includes('<img src=x onerror=alert(1)>'), false);
+    assert.strictEqual(html.includes('"><script>alert("attr")</script>'), false);
+
+    // Escaped entities are present
+    assert.ok(html.includes('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'));
+    assert.ok(html.includes('&lt;img src=x onerror=alert(1)&gt;'));
+    assert.ok(html.includes('&quot;&gt;&lt;script&gt;alert(&quot;attr&quot;)&lt;/script&gt;'));
+    // outlineContent specifically checked for escaping
+    assert.ok(html.includes('<nav class="outline-nav"><ul><li>&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;</li></ul></nav>'));
+  });
+
+  await t.test('AttemptHistoryPage escapes dynamic fields and encodes URLs', () => {
+    const xssPayload = '<script>alert("history")</script>';
+    const attrPayload = '"><script>alert("url")</script>';
+
+    const html = renderAttemptHistoryPage({
+      courseTitle: 'Security Course',
+      courseOverviewUrl: '/courses/sec-1',
+      lessonTitle: 'Sanitization',
+      stepTitle: xssPayload,
+      enrollmentId: 'enr/special?x=1',
+      stepId: 'step/special?y=2',
+      workspaceUrl: attrPayload,
+      totalAttempts: 1,
+      currentPage: 1,
+      pageSize: 20,
+      attempts: [
+        {
+          id: 'att-xss',
+          attemptNumber: 1,
+          verdict: 'PASSED',
+          executionTimeMs: 10,
+          isInfrastructureFailure: false,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+      selectedAttempt: {
+        id: 'att-xss',
+        attemptNumber: 1,
+        verdict: 'PASSED',
+        codeSnapshot: xssPayload,
+        executionTimeMs: 10,
+        isInfrastructureFailure: false,
+        createdAt: new Date().toISOString(),
+        canRestore: true,
+        runtimeVersion: 'Python 3.14',
+      },
+    });
+
+    assert.strictEqual(html.includes('<script>alert("history")</script>'), false);
+    assert.strictEqual(html.includes('"><script>alert("url")</script>'), false);
+    assert.ok(html.includes('&quot;&gt;&lt;script&gt;alert(&quot;url&quot;)&lt;/script&gt;'));
+    assert.ok(html.includes('&lt;script&gt;alert(&quot;history&quot;)&lt;/script&gt;'));
+    // URL components are encoded
+    assert.ok(html.includes('enr%2Fspecial%3Fx%3D1'));
+    assert.ok(html.includes('step%2Fspecial%3Fy%3D2'));
+  });
+});

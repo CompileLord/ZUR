@@ -187,4 +187,75 @@ print("Even")
     assert.equal(result.isInfrastructureFailure, true);
     assert.equal(result.testResults.length, 0);
   });
+
+  await t.test('runPythonIsolated rejects code exceeding 64 KiB without running container', async () => {
+    const oversizedCode = 'x = 1\n'.repeat(12000); // > 64 KiB
+    const outcome = await runPythonIsolated(oversizedCode);
+    assert.strictEqual(outcome.verdict, 'INTERNAL_ERROR');
+    assert.strictEqual(outcome.exitCode, -1);
+    assert.ok(outcome.errorMessage?.includes('64 KiB'));
+  });
+
+  await t.test('runPythonIsolated rejects stdin exceeding 64 KiB without running container', async () => {
+    const oversizedStdin = 'a'.repeat(65537); // > 64 KiB
+    const outcome = await runPythonIsolated('print(1)', oversizedStdin);
+    assert.strictEqual(outcome.verdict, 'INTERNAL_ERROR');
+    assert.strictEqual(outcome.exitCode, -1);
+    assert.ok(outcome.errorMessage?.includes('64 KiB'));
+  });
+
+  await t.test('processExecutionJob rejects code exceeding 64 KiB with infrastructure failure', async () => {
+    const oversizedCode = 'y = 2\n'.repeat(12000);
+    const result = await processExecutionJob({
+      jobId: 'job-oversized',
+      userId: 'user-1',
+      stepId: 'step-1',
+      jobType: 'submit',
+      code: oversizedCode,
+      testCases: dummyTestCases,
+    });
+    assert.strictEqual(result.verdict, 'INTERNAL_ERROR');
+    assert.strictEqual(result.isInfrastructureFailure, true);
+    assert.ok(result.guidance?.includes('64 KiB'));
+  });
+
+  await t.test('processExecutionJob rejects custom stdin exceeding 64 KiB with infrastructure failure', async () => {
+    const oversizedStdin = 'b'.repeat(65537);
+    const result = await processExecutionJob({
+      jobId: 'job-oversized-stdin',
+      userId: 'user-1',
+      stepId: 'step-1',
+      jobType: 'run_custom',
+      code: 'print(1)',
+      stdin: oversizedStdin,
+      testCases: [],
+    });
+    assert.strictEqual(result.verdict, 'INTERNAL_ERROR');
+    assert.strictEqual(result.isInfrastructureFailure, true);
+    assert.ok(result.guidance?.includes('64 KiB'));
+  });
+
+  await t.test('processExecutionJob rejects test cases exceeding 64 KiB with infrastructure failure', async () => {
+    const oversizedTestCase: TestCase = {
+      id: 'tc-huge',
+      stepId: 'step-1',
+      stdin: 'c'.repeat(65537),
+      expectedStdout: 'ok',
+      isHidden: false,
+      position: 0,
+      createdAt: new Date().toISOString(),
+    };
+    const result = await processExecutionJob({
+      jobId: 'job-huge-tc',
+      userId: 'user-1',
+      stepId: 'step-1',
+      jobType: 'submit',
+      code: 'print(1)',
+      testCases: [oversizedTestCase],
+    });
+    assert.strictEqual(result.verdict, 'INTERNAL_ERROR');
+    assert.strictEqual(result.isInfrastructureFailure, true);
+    assert.strictEqual(result.testResults.length, 1);
+    assert.ok(result.testResults[0].errorMessage?.includes('64 KiB'));
+  });
 });

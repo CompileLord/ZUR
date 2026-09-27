@@ -50,7 +50,9 @@ export function redactExecutionResultForStudent(rawResult: {
       attemptId: rawResult.attemptId,
       verdict: rawResult.verdict,
       isInfrastructureFailure: rawResult.isInfrastructureFailure,
-      guidance: 'Your solution did not pass a hidden test. Review the input limits and edge cases.',
+      guidance: rawResult.isInfrastructureFailure
+        ? 'An infrastructure error occurred during execution. Please try again.'
+        : 'Your solution did not pass a hidden test. Review the input limits and edge cases.',
       // publicTestsResults stripped or only showing passed public samples
       publicTestsResults: rawResult.publicTestsResults?.filter((r) => r.passed),
     };
@@ -105,7 +107,9 @@ export function redactFullExecutionResultForStudent(
           expectedOutput: t.expectedOutput,
           actualOutput: t.actualOutput,
         })),
-      guidance: 'Your solution did not pass a hidden test. Review the input limits and edge cases.',
+      guidance: result.isInfrastructureFailure
+        ? 'An infrastructure error occurred during execution. Please try again.'
+        : (result.guidance || 'Your solution did not pass a hidden test. Review the input limits and edge cases.'),
       completedAt: result.completedAt,
     };
   }

@@ -516,7 +516,8 @@
               "evidence": [
                 "packages/server/src/services/execution-service.ts",
                 "packages/server/src/services/redaction-service.ts",
-                "packages/server/tests/execution-boundary.test.ts"
+                "packages/server/tests/execution-boundary.test.ts",
+                "packages/server/tests/author-validation-quota.test.ts"
               ]
             },
             {
@@ -527,7 +528,8 @@
               "description": "Enforce per-account Run/Submit rates, two active jobs per user, fair bounded queue, provider-independent admission, retry guidance, author-wide validation quotas, and operator kill switch that leaves reading/saving available.",
               "evidence": [
                 "packages/server/src/services/quota-service.ts",
-                "packages/server/tests/quotas-and-drafts.test.ts"
+                "packages/server/tests/quotas-and-drafts.test.ts",
+                "packages/server/tests/author-validation-quota.test.ts"
               ],
               "status_note": "Atomic per-user/global admission, fair account scheduling, and author-wide validation quota are implemented and covered by tests."
             },

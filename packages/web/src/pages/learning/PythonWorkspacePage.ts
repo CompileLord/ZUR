@@ -98,7 +98,7 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
 
   // Left Panel: Problem Statement
   const leftPanelHtml = `
-    <div class="problem-pane" role="region" aria-label="Problem Instructions" data-enrollment-id="${opts.enrollmentId}" data-step-id="${opts.stepId}">
+    <div class="problem-pane" role="region" aria-label="Problem Instructions" data-enrollment-id="${escapeHtml(opts.enrollmentId)}" data-step-id="${escapeHtml(opts.stepId)}">
       ${saveNoticeHtml}
       <div class="problem-header">
         <div class="problem-meta-row">
@@ -151,7 +151,7 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
           <div class="hints-container">
             ${hints.map((hint, idx) => `
               <div class="hint-accordion" ${idx > 0 ? 'hidden' : ''}>
-                <button type="button" class="hint-trigger" aria-expanded="false" data-hint-index="${idx}" data-enrollment-id="${opts.enrollmentId}" data-step-id="${opts.stepId}">
+                <button type="button" class="hint-trigger" aria-expanded="false" data-hint-index="${idx}" data-enrollment-id="${escapeHtml(opts.enrollmentId)}" data-step-id="${escapeHtml(opts.stepId)}">
                   <span>Hint ${idx + 1}</span>
                   <span class="hint-chevron">▼</span>
                 </button>
@@ -268,7 +268,7 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
     stepOrdinalText: opts.stepOrdinalText,
     isPythonWorkspace: true,
     saveStatusText: saveLabel,
-    outlineContent: '<nav class="outline-nav"><ul><li>' + opts.stepTitle + '</li></ul></nav>',
+    outlineContent: '<nav class="outline-nav"><ul><li>' + escapeHtml(opts.stepTitle) + '</li></ul></nav>',
     workspaceContent: leftPanelHtml +
       '<div id="workspace-splitter" class="workspace-splitter" role="separator" tabindex="0" aria-label="Resize problem and code panes" aria-orientation="vertical" aria-valuemin="340" aria-valuemax="800" aria-valuenow="400"></div>' + rightPanelHtml,
     previousStepUrl: opts.previousStepUrl,
