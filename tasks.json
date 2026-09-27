@@ -313,7 +313,7 @@
       "id": "S1",
       "name": "Phase A — prove safe practice",
       "phase": "A",
-      "status": "done",
+      "status": "in_progress",
       "gate": "Isolated Run/Submit, hidden-output protection, idempotency, reconnect, malicious-code tests, and code recovery pass.",
       "modules": [
         {
@@ -339,7 +339,7 @@
             {
               "id": "T013",
               "title": "Implement sign-up and email verification",
-              "status": "done",
+              "status": "in_progress",
               "priority": "P0",
               "description": "Build verified-email account creation, resend/cooldown, expired-link recovery, restricted-pilot eligibility, safe invitation context, and P05–P06 states; enrollment and authoring require verification.",
               "evidence": [
@@ -348,13 +348,15 @@
                 "packages/web/src/pages/account/SignUpPage.ts",
                 "packages/web/src/pages/account/VerifyEmailPage.ts",
                 "packages/server/tests/auth-core.test.ts",
-                "packages/web/tests/auth-pages.test.ts"
-              ]
+                "packages/web/tests/auth-pages.test.ts",
+                "packages/server/tests/account-email-boundary.test.ts"
+              ],
+              "status_note": "Adult affirmation and email-only secret delivery are implemented; pilot country eligibility, live provider delivery, and expired-link recovery need end-to-end validation."
             },
             {
               "id": "T014",
               "title": "Implement sign-in, sessions, and sign-out",
-              "status": "done",
+              "status": "in_progress",
               "priority": "P0",
               "description": "Build P04 sign-in, session expiry, safe return destinations, sign-out/all-device revocation, account suspension enforcement, authentication rate limits, and stronger admin authentication.",
               "evidence": [
@@ -364,12 +366,13 @@
                 "packages/web/src/pages/account/SignInPage.ts",
                 "packages/server/tests/auth-core.test.ts",
                 "packages/web/tests/auth-pages.test.ts"
-              ]
+              ],
+              "status_note": "Session and sign-out flow is exercised; stronger administrator authentication and distributed sign-in throttling remain unresolved."
             },
             {
               "id": "T015",
               "title": "Implement password recovery and security settings",
-              "status": "done",
+              "status": "in_progress",
               "priority": "P0",
               "description": "Build generic recovery responses, expiring reset flow, password/provider controls, reauthentication, admin stronger-auth state, and P07/P19 error and confirmation states without account enumeration.",
               "evidence": [
@@ -378,7 +381,8 @@
                 "packages/web/src/pages/settings/SecuritySettingsPage.ts",
                 "packages/server/tests/auth-core.test.ts",
                 "packages/web/tests/auth-pages.test.ts"
-              ]
+              ],
+              "status_note": "Recovery secret delivery is email-only; endpoint rate limits, live provider delivery, and security-settings states need verification."
             },
             {
               "id": "T016",
@@ -398,7 +402,7 @@
             {
               "id": "T017",
               "title": "Implement privacy request intake",
-              "status": "done",
+              "status": "in_progress",
               "priority": "P0",
               "description": "Build P20 export/deletion request submission, status, consequence dialog, and sole-owner blocker; route requests to an audited manual support process until completion automation exists.",
               "evidence": [
@@ -407,12 +411,13 @@
                 "packages/web/src/pages/settings/PrivacySettingsPage.ts",
                 "packages/server/tests/auth-core.test.ts",
                 "packages/web/tests/auth-pages.test.ts"
-              ]
+              ],
+              "status_note": "Privacy request and sole-owner paths have unit coverage, but audited manual support intake and status completion require verification."
             },
             {
               "id": "T018",
               "title": "Enforce safe access states",
-              "status": "done",
+              "status": "in_progress",
               "priority": "P0",
               "description": "Provide P42 unknown, signed-out, revoked, suspended, offline, execution-disabled, and outage presentations; deny guessed private IDs and protected media across APIs and pages.",
               "evidence": [
@@ -422,10 +427,11 @@
                 "packages/web/src/components/states/UniversalStates.ts",
                 "packages/server/tests/auth-core.test.ts",
                 "packages/web/tests/auth-pages.test.ts"
-              ]
+              ],
+              "status_note": "Safe denial states exist; cross-route private ID and protected-media authorization still require adversarial verification."
             }
           ],
-          "status": "done"
+          "status": "in_progress"
         },
         {
           "id": "S1-M02",
@@ -452,7 +458,8 @@
                 "packages/shared/src/constants.ts",
                 "packages/shared/src/comparator.ts",
                 "packages/shared/tests/comparator.test.ts"
-              ]
+              ],
+              "status_note": "Pinned Python 3.14.7 OCI digest, canonical comparator, source/test limits, and author validation boundary verified locally. Deployment isolation review remains T028."
             },
             {
               "id": "T020",
@@ -464,7 +471,8 @@
                 "packages/worker/src/runner.ts",
                 "packages/worker/src/worker.ts",
                 "packages/worker/src/index.ts",
-                "packages/worker/tests/runner.test.ts"
+                "packages/worker/tests/runner.test.ts",
+                "packages/worker/src/daemon.ts"
               ]
             },
             {
@@ -476,7 +484,9 @@
               "evidence": [
                 "packages/server/src/db/migrations/003_execution_boundary.sql",
                 "packages/server/src/services/execution-service.ts",
-                "packages/server/tests/execution-boundary.test.ts"
+                "packages/server/tests/execution-boundary.test.ts",
+                "packages/server/src/db/migrations/018_execution_leases.sql",
+                "packages/worker/src/daemon.ts"
               ]
             },
             {
@@ -489,7 +499,8 @@
                 "packages/server/src/services/execution-service.ts",
                 "packages/worker/src/worker.ts",
                 "packages/server/tests/execution-boundary.test.ts"
-              ]
+              ],
+              "status_note": "Run samples and custom input use separate asynchronous jobs; operational Run records expire after 24 hours."
             },
             {
               "id": "T023",
@@ -512,7 +523,8 @@
               "evidence": [
                 "packages/server/src/services/quota-service.ts",
                 "packages/server/tests/quotas-and-drafts.test.ts"
-              ]
+              ],
+              "status_note": "Atomic per-user/global admission, fair account scheduling, and author-wide validation quota are implemented and covered by tests."
             },
             {
               "id": "T025",
@@ -525,19 +537,23 @@
                 "packages/web/src/services/draft-manager.ts",
                 "packages/server/tests/quotas-and-drafts.test.ts",
                 "packages/web/tests/workspace-pages.test.ts"
-              ]
+              ],
+              "status_note": "Account-scoped local recovery, revision-aware sync, and Sync/Discard sign-out dialog verified in browser and tests."
             },
             {
               "id": "T026",
               "title": "Build desktop Python workspace",
-              "status": "done",
+              "status": "in_progress",
               "priority": "P0",
               "description": "Implement P15 paired problem/editor/results layout, resizable keyboard-operable panels, syntax/indent/brackets/line numbers/undo/search/shortcuts/theme/font controls, Run mode, Submit, hints, status reconnect, public/hidden/infrastructure feedback, and desktop guidance on compact devices.",
               "evidence": [
                 "packages/web/src/pages/learning/PythonWorkspacePage.ts",
                 "packages/web/src/styles/components.css",
-                "packages/web/tests/workspace-pages.test.ts"
-              ]
+                "packages/web/tests/workspace-pages.test.ts",
+                "screenshots/S1-python-desktop.png",
+                "screenshots/S1-python-compact.png"
+              ],
+              "status_note": "CodeMirror, named regions, keyboard splitters, responsive layouts, and visible status transitions are locally verified; screen-reader and 200% zoom review remain."
             },
             {
               "id": "T027",
@@ -555,7 +571,7 @@
             {
               "id": "T028",
               "title": "Validate runner isolation and reliability",
-              "status": "done",
+              "status": "in_progress",
               "priority": "P0",
               "description": "Run adversarial networking/file/process/output tests, hidden-input echo leakage checks, Unicode/comparator cases, worker crash and timeout recovery, idempotency/reconnect checks, and document an isolation review before Phase A exit.",
               "evidence": [
@@ -563,12 +579,14 @@
                 "packages/server/tests/execution-boundary.test.ts",
                 "packages/server/tests/quotas-and-drafts.test.ts",
                 "docs/decisions/ADR-003-isolation-and-reliability-review.md"
-              ]
+              ],
+              "status_note": "Pinned Podman sandbox and local security/recovery tests pass; staging isolation, load, and deployment review remain."
             }
           ],
-          "status": "done"
+          "status": "in_progress"
         }
-      ]
+      ],
+      "status_note": "Phase A gate pending: pinned runtime image, staging isolation/load review, and remaining identity/workspace checks."
     },
     {
       "id": "S2",
