@@ -78,15 +78,38 @@ print(val)
   });
 
   await t.test('Cleans up temporary sandbox directory after execution', async () => {
-    const getSandboxDirCode = `
-import os
-print(os.getcwd())
-`;
-    const outcome = await runPythonIsolated(getSandboxDirCode);
-    const sandboxDir = outcome.stdout.trim();
-    assert.ok(sandboxDir.includes('zur-sandbox-'));
-    // Verify directory is deleted after runPythonIsolated completes
-    assert.strictEqual(fs.existsSync(sandboxDir), false);
+    const before = new Set(fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith('zur-sandbox-')));
+    const outcome = await runPythonIsolated('import os; print(os.getcwd())');
+    assert.strictEqual(outcome.stdout.trim(), '/work');
+    const after = fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith('zur-sandbox-'));
+    assert.deepStrictEqual(after.filter((name) => !before.has(name)), []);
+  });
+
+  await t.test('Denies host files, child processes, and inherited secrets', async () => {
+    const code = `import os, subprocess
+print(os.path.exists(${JSON.stringify(path.join(process.cwd(), 'tasks.json'))}))
+print(os.environ.get('ZUR_TEST_SECRET_KEY', 'absent'))
+try:
+ subprocess.run(['python3', '-c', 'print(1)'])
+except OSError:
+ print('child denied')`;
+    process.env.ZUR_TEST_SECRET_KEY = 'secret';
+    const outcome = await runPythonIsolated(code);
+    delete process.env.ZUR_TEST_SECRET_KEY;
+    assert.strictEqual(outcome.verdict, 'PASSED');
+    assert.deepStrictEqual(outcome.stdout.trim().split('\n'), ['False', 'absent', 'child denied']);
+  });
+
+  await t.test('Denies outbound network access', async () => {
+    const outcome = await runPythonIsolated(`import socket
+s = socket.socket()
+try:
+ s.connect(('1.1.1.1', 53))
+ print('connected')
+except OSError:
+ print('denied')`);
+    assert.strictEqual(outcome.verdict, 'PASSED');
+    assert.strictEqual(outcome.stdout.trim(), 'denied');
   });
 });
 

@@ -14,6 +14,8 @@
     "db:demo-users": "node --experimental-strip-types packages/server/src/db/create-demo-users.ts",
     "db:reapply-deletions": "node --experimental-strip-types packages/server/src/db/reapply-deletions.ts",
     "dev:server": "node --experimental-strip-types packages/server/src/index.ts",
+    "dev:worker": "node --experimental-strip-types packages/worker/src/daemon.ts",
+    "runner:prepare": "podman pull docker.io/library/python@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d",
     "dev:web": "npm run dev --workspace=packages/web"
   },
   "devDependencies": {
