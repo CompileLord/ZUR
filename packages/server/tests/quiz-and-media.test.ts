@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import os from 'node:os';
+import path from 'node:path';
 import { getDatabase } from '../src/db/database.ts';
 import { runMigrations } from '../src/db/migrate.ts';
 import { seedDatabase } from '../src/db/seed.ts';
@@ -17,12 +19,29 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
 
   const courseService = new CourseService(db);
   const structureService = new CourseStructureService(db);
-  const mediaService = new MediaService(db, 'data/test-uploads');
+  const testUploadDir = path.join(os.tmpdir(), 'zur-test-uploads');
+  const mediaService = new MediaService(db, testUploadDir);
   const quizService = new QuizService(db);
     const exerciseService = new ExerciseAuthoringService(db);
 
   const authorId = 'user-author-1'; // Seeded author: Charles Babbage
   const studentId = 'user-student-1'; // Seeded student: Ada Lovelace
+
+  await t.test('Pinned quiz answers stay immutable and draft quiz access requires authorization', () => {
+    const pinned = quizService.getStudentQuiz(studentId, 'enr-ada', 'step-3-quiz-single');
+    assert.equal(pinned.prompt, 'Which of the following correctly assigns the integer 10 to variable `n` in Python?');
+    assert.throws(() => quizService.getStudentQuiz(studentId, null, 'step-3-quiz-single'), NotFoundError);
+    assert.throws(() => quizService.getStudentQuiz('user-student-2', 'enr-ada', 'step-3-quiz-single'), NotFoundError);
+    const current = quizService.getAuthorQuiz(authorId, 'step-3-quiz-single');
+    quizService.updateQuiz(authorId, 'step-3-quiz-single', current.revision, {
+      ...current.quiz,
+      prompt: 'Unpublished changed question',
+      options: current.quiz.options.map(option => ({ ...option, isCorrect: option.id === 'opt-2' })),
+    });
+    assert.equal(quizService.getStudentQuiz(studentId, 'enr-ada', 'step-3-quiz-single').prompt, pinned.prompt);
+    assert.equal(quizService.gradeQuiz(studentId, 'enr-ada', 'step-3-quiz-single', ['opt-1']).isPassed, true);
+    assert.equal(quizService.gradeQuiz(studentId, 'enr-ada', 'step-3-quiz-single', ['opt-2']).isPassed, false);
+  });
 
   // Create a course for Charles
   const course = courseService.createCourseDraft(authorId, {
@@ -33,16 +52,8 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
 
   await t.test('T033: Media asset upload, validation (size, MIME), and dimensions', () => {
     // 1. Valid PNG upload
-    // Create a 1x1 PNG dummy buffer
-    const pngBuffer = Buffer.from([
-      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, // PNG signature
-      0x00, 0x00, 0x00, 0x0d, // IHDR length
-      0x49, 0x48, 0x44, 0x52, // IHDR
-      0x00, 0x00, 0x02, 0x80, // width: 640
-      0x00, 0x00, 0x01, 0xe0, // height: 480
-      0x08, 0x06, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-    ]);
+    // Complete 1x1 PNG; header-only files must never be marked ready.
+    const pngBuffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVQI12P4//8/AAX+Av7czFnnAAAAAElFTkSuQmCC', 'base64');
 
     const asset = mediaService.uploadAsset(authorId, course.id, {
       buffer: pngBuffer,
@@ -57,14 +68,18 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
     assert.equal(asset.altText, 'Block diagram of arithmetic logic unit');
     assert.equal(asset.isDecorative, false);
     assert.equal(asset.processingStatus, 'ready');
-    assert.equal(asset.dimensions?.width, 640);
-    assert.equal(asset.dimensions?.height, 480);
+    assert.equal(asset.dimensions?.width, 1);
+    assert.equal(asset.dimensions?.height, 1);
+
+    assert.throws(() => mediaService.uploadAsset(authorId, course.id, {
+      buffer: pngBuffer.subarray(0, 33), filename: 'truncated.png', mimeType: 'image/png',
+    }), ValidationError, 'Header-only PNG must fail a full decode');
 
     // 2. Reject SVG (PRD §11: Do not allow SVG uploads in P0)
     assert.throws(
       () => {
         mediaService.uploadAsset(authorId, course.id, {
-          buffer: Buffer.from('<svg></svg>'),
+          buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>'),
           filename: 'image.svg',
           mimeType: 'image/svg+xml',
         });
@@ -73,18 +88,101 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
       'Must reject SVG upload'
     );
 
-    // 3. Reject file exceeding 5 MiB
+    // 3. Reject file exceeding 10 MB budget (PRD §11)
     assert.throws(
       () => {
-        const largeBuffer = Buffer.alloc(6 * 1024 * 1024); // 6 MiB
+        const largeBuffer = Buffer.alloc(11 * 1024 * 1024); // 11 MB
         mediaService.uploadAsset(authorId, course.id, {
           buffer: largeBuffer,
           filename: 'huge.png',
           mimeType: 'image/png',
         });
       },
+      (err: any) => {
+        assert.ok(err instanceof ValidationError);
+        assert.match(err.message, /10 MB limit/);
+        return true;
+      }
+    );
+
+    // 4. Reject spoofed content type / malformed bytes without fallback dimensions
+    assert.throws(
+      () => {
+        mediaService.uploadAsset(authorId, course.id, {
+          buffer: Buffer.from('Not a real PNG but claiming to be one'),
+          filename: 'fake.png',
+          mimeType: 'image/png',
+        });
+      },
+      (err: any) => {
+        assert.ok(err instanceof ValidationError);
+        assert.match(err.message, /Invalid image/);
+        return true;
+      }
+    );
+
+    // 5. Valid JPEG upload with decoded dimensions
+    const jpegBuffer = Buffer.from('/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==', 'base64');
+    const jpegAsset = mediaService.uploadAsset(authorId, course.id, {
+      buffer: jpegBuffer,
+      filename: 'photo.jpg',
+      mimeType: 'image/jpeg',
+      altText: 'Sample photo',
+    });
+    assert.equal(jpegAsset.mimeType, 'image/jpeg');
+    assert.equal(jpegAsset.dimensions?.width, 1);
+    assert.equal(jpegAsset.dimensions?.height, 1);
+    assert.equal(jpegAsset.processingStatus, 'ready');
+
+    // 6. Valid WebP upload with decoded dimensions
+    const webpBuffer = Buffer.from('UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAgA0JaQAA3AA/vuUAAA=', 'base64');
+    const webpAsset = mediaService.uploadAsset(authorId, course.id, {
+      buffer: webpBuffer,
+      filename: 'diagram.webp',
+      mimeType: 'image/webp',
+      altText: 'WebP diagram',
+    });
+    assert.equal(webpAsset.mimeType, 'image/webp');
+    assert.equal(webpAsset.dimensions?.width, 1);
+    assert.equal(webpAsset.dimensions?.height, 1);
+    assert.equal(webpAsset.processingStatus, 'ready');
+
+    // 7. Reject MIME mismatch (JPEG claiming to be PNG)
+    assert.throws(
+      () => {
+        mediaService.uploadAsset(authorId, course.id, {
+          buffer: jpegBuffer,
+          filename: 'photo.png',
+          mimeType: 'image/png',
+        });
+      },
       ValidationError,
-      'Must reject files larger than 5 MiB'
+      'Must reject MIME mismatch'
+    );
+
+    // 8. Reject decompression limit violation (> 25 megapixels)
+    const giantPngBuffer = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+      0x00, 0x00, 0x00, 0x0d,
+      0x49, 0x48, 0x44, 0x52,
+      0x00, 0x00, 0x17, 0x70, // width: 6000
+      0x00, 0x00, 0x13, 0x88, // height: 5000 (30 megapixels > 25 MP limit)
+      0x08, 0x06, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+    ]);
+    assert.throws(
+      () => {
+        mediaService.uploadAsset(authorId, course.id, {
+          buffer: giantPngBuffer,
+          filename: 'giant.png',
+          mimeType: 'image/png',
+        });
+      },
+      (err: any) => {
+        assert.ok(err instanceof ValidationError);
+        assert.match(err.message, /25 megapixels/);
+        return true;
+      }
     );
 
     // 4. Update asset metadata
@@ -196,7 +294,7 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
     );
 
     // 3. Student view strips isCorrect flags (PRD §11.2)
-    const studentView = quizService.getStudentQuiz(quizStepId);
+    const studentView = quizService.getStudentQuiz(authorId, null, quizStepId, true);
     assert.equal(studentView.title, 'Logic Gates Checkpoint');
     assert.equal(studentView.options.length, 3);
     for (const opt of studentView.options) {
@@ -210,7 +308,7 @@ test('Media Assets, Quizzes & Python Exercises (T033, T036, T037, T039)', async 
     db.prepare(
       `INSERT INTO course_versions (id, course_id, version_number, snapshot_data, created_at)
        VALUES (?, ?, 1, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`
-    ).run(versionId, course.id, JSON.stringify({ modules: [{ lessons: [{ steps: [{ id: quizStepId, type: 'quiz' }] }] }] }));
+    ).run(versionId, course.id, JSON.stringify({ modules: [{ lessons: [{ steps: [{ id: quizStepId, type: 'quiz', title: 'Logic Gates Checkpoint', content: quizService.getAuthorQuiz(authorId, quizStepId).quiz }] }] }] }));
 
     const enrollmentId = 'enroll-ada-arch';
     db.prepare(

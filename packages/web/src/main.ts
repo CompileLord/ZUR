@@ -60,10 +60,219 @@ import { CourseClient } from './services/course-client.ts';
 import { renderTheoryStepPage } from './pages/learning/TheoryStepPage.ts';
 import { renderVideoStepPage } from './pages/learning/VideoStepPage.ts';
 import { renderQuizStepPage } from './pages/learning/QuizStepPage.ts';
+import { renderAuthorCoursesPage } from './pages/author/AuthorCoursesPage.ts';
+import { renderCourseBuilderPage } from './pages/author/CourseBuilderPage.ts';
+import { renderTheoryEditorPage } from './pages/author/TheoryEditorPage.ts';
+import { renderVideoEditorPage } from './pages/author/VideoEditorPage.ts';
+import { renderQuizEditorPage } from './pages/author/QuizEditorPage.ts';
+import { renderPythonExerciseEditorPage } from './pages/author/PythonExerciseEditorPage.ts';
+import { renderCourseSettingsPage } from './pages/author/CourseSettingsPage.ts';
+import { renderAuthorPreviewPage } from './pages/author/AuthorPreviewPage.ts';
+import { renderDashboardContinuePage } from './pages/learning/DashboardContinuePage.ts';
+import { renderMyCoursesPage } from './pages/learning/MyCoursesPage.ts';
+import { renderEnrolledCoursePage } from './pages/learning/EnrolledCoursePage.ts';
+import { renderAcceptInvitationPage } from './pages/learning/AcceptInvitationPage.ts';
 
 const appEl = document.getElementById('app')!;
 const authClient = AuthClient.getInstance();
 const courseClient = CourseClient.getInstance();
+async function s2Request(url: string, method = 'GET', body?: unknown): Promise<any> {
+  const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authClient.getToken() || ''}` }, body: body === undefined ? undefined : JSON.stringify(body) });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error?.message || 'The request failed. Please try again.');
+  return data;
+}
+
+function s2Current(path: string): boolean { return window.location.pathname + window.location.search === path; }
+
+async function loadS2Page(pageId: string, params: Record<string, string>, path: string): Promise<void> {
+  const user = authClient.getUser()!;
+  const courseId = params.courseId;
+  try {
+    if (pageId === 'P21') {
+      const data = await s2Request('/api/author/courses?limit=100');
+      if (!s2Current(path)) return;
+      let modal = false;
+      const draw = (error?: string) => {
+        appEl.innerHTML = renderAuthorCoursesPage({ user, courses: data.courses, showNewCourseModal: modal, newCourseError: error });
+        appEl.querySelectorAll('[data-action="open-new-course-modal"]').forEach(el => el.addEventListener('click', () => { modal = true; draw(); }));
+        appEl.querySelectorAll('[data-action="close-modal"]').forEach(el => el.addEventListener('click', () => { modal = false; draw(); }));
+        appEl.querySelector('form.modal-body[action="/teach"]')?.addEventListener('submit', async event => {
+          event.preventDefault();
+          const title = String(new FormData(event.currentTarget as HTMLFormElement).get('title') || '').trim();
+          try { const course = await s2Request('/api/author/courses', 'POST', { title }); window.history.pushState({}, '', `/teach/${course.id}/content`); renderApp(); }
+          catch (err: any) { draw(err.message); }
+        });
+      };
+      draw();
+      return;
+    }
+    if (pageId === 'P09') {
+      const data = await s2Request('/api/student/dashboard');
+      if (s2Current(path)) appEl.innerHTML = renderDashboardContinuePage({ user, continueCourse: data.continueCourse, recentCourses: data.recentCourses });
+      return;
+    }
+    if (pageId === 'P10') {
+      const data = await s2Request('/api/student/courses');
+      if (!s2Current(path)) return;
+      const courses = data.enrollments.map((e: any) => ({ ...e, percentage: e.progress?.percentage || 0, completedRequired: e.progress?.completedRequired || 0, totalRequired: e.progress?.totalRequired || 0, isCompleted: Boolean(e.progress?.isCompleted), nextStepId: e.progress?.nextIncompleteStepId || e.progress?.lastVisitedStepId }));
+      appEl.innerHTML = renderMyCoursesPage({ user, courses });
+      return;
+    }
+    if (pageId === 'P11') {
+      const progress = await s2Request(`/api/enrollments/${params.enrollmentId}/progress`);
+      if (!s2Current(path)) return;
+      const modules: any[] = [];
+      for (const step of progress.steps) {
+        let module = modules.find(m => m.id === step.moduleId);
+        if (!module) { module = { id: step.moduleId, title: String(step.moduleTitle || '').replace(/^Module\s+\d+\s*:\s*/i, ''), lessons: [] }; modules.push(module); }
+        let lesson = module.lessons.find((l: any) => l.id === step.lessonId);
+        if (!lesson) { lesson = { id: step.lessonId, title: String(step.lessonTitle || '').replace(/^Lesson\s+\d+\s*:\s*/i, ''), steps: [] }; module.lessons.push(lesson); }
+        lesson.steps.push(step);
+      }
+      const duration = Number(progress.estimatedDurationMinutes) || progress.steps.reduce((sum: number, step: any) => sum + (Number(step.estimatedDurationMinutes) || 0), 0);
+      appEl.innerHTML = renderEnrolledCoursePage({ user, enrollmentId: params.enrollmentId, courseId: progress.courseId, title: progress.courseTitle, description: progress.description, difficulty: progress.difficulty, estimatedDurationMinutes: duration, pinnedVersionNumber: progress.pinnedVersionNumber, percentage: progress.percentage, completedRequired: progress.completedRequired, totalRequired: progress.totalRequired, waivedRequired: progress.waivedRequired, isCompleted: progress.isCompleted, nextStepId: progress.nextIncompleteStepId, modules });
+      return;
+    }
+    if (!courseId) return;
+    const course = await s2Request(`/api/author/courses/${courseId}`);
+    if (!s2Current(path)) return;
+    if (pageId === 'P31') {
+      const categories = await s2Request('/api/categories');
+      if (s2Current(path)) appEl.innerHTML = renderCourseSettingsPage({ course, categories });
+      appEl.querySelectorAll('form.metadata-form, form.access-form').forEach(form => form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const target = event.currentTarget as HTMLFormElement;
+        const fields = Object.fromEntries(new FormData(target).entries()) as Record<string, string>;
+        const metadata = target.classList.contains('metadata-form');
+        if (metadata) { fields.tags = fields.tags || ''; fields.learningOutcomes = fields.learningOutcomes || ''; }
+        try {
+          await s2Request(`/api/author/courses/${courseId}/${metadata ? 'metadata' : 'settings'}`, 'PUT', metadata ? { expectedRevision: Number(fields.expectedRevision), metadata: { ...fields, tags: fields.tags.split(',').map(v => v.trim()).filter(Boolean), learningOutcomes: fields.learningOutcomes.split('\n').map(v => v.trim()).filter(Boolean), estimatedDurationMinutes: Number(fields.estimatedDurationMinutes) || 0 } } : fields);
+          renderApp(path);
+        } catch (err: any) { window.alert(err.message); }
+      }));
+      return;
+    }
+    const tree = await s2Request(`/api/author/courses/${courseId}/structure`);
+    if (!s2Current(path)) return;
+    if (pageId === 'P22') {
+      const query = new URLSearchParams(window.location.search);
+      appEl.innerHTML = renderCourseBuilderPage({ courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, modules: tree.modules, selectedType: (query.get('type') as any) || 'course', selectedId: query.get('id') || courseId });
+      appEl.querySelectorAll('form[action^="/teach/"]').forEach(form => form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const target = event.currentTarget as HTMLFormElement;
+        const fields = Object.fromEntries(new FormData(target).entries());
+        const action = target.getAttribute('action') || '';
+        let route = action.replace(/^\/teach/, '/api/author/courses');
+        if (route.endsWith('/rename')) route = route.slice(0, -7);
+        if (route.endsWith('/duplicate')) route = route.slice(0, -10) + '/duplicate';
+        try { await s2Request(route, action.endsWith('/rename') ? 'PUT' : 'POST', fields); renderApp(path); }
+        catch (err: any) { showRouteFailure(err.message, path); }
+      }));
+      return;
+    }
+    if (pageId === 'P26') {
+      const steps = tree.modules.flatMap((m: any) => m.lessons.flatMap((l: any) => l.steps));
+      const requested = new URLSearchParams(window.location.search).get('stepId');
+      const step = steps.find((s: any) => s.id === requested) || steps[0];
+      if (!step) { showRouteFailure('Add a step before previewing the course.', path); return; }
+      const preview = await s2Request(`/api/author/courses/${courseId}/preview/${step.id}`);
+      if (!s2Current(path)) return;
+      appEl.innerHTML = renderAuthorPreviewPage({ ...preview, returnEditorUrl: `/teach/${courseId}/content/${step.type}/${step.id}` });
+      return;
+    }
+    if (['P23', 'P24', 'P25'].includes(pageId)) {
+      const step = tree.modules.flatMap((m: any) => m.lessons.flatMap((l: any) => l.steps)).find((s: any) => s.id === params.stepId);
+      if (!step) throw new Error("This step isn't available.");
+      const detail = await s2Request(`/api/author/steps/${step.id}/content`);
+      const specialized = step.type === 'quiz' ? await s2Request(`/api/author/steps/${step.id}/quiz`) : step.type === 'python' ? await s2Request(`/api/author/steps/${step.id}/python`) : null;
+      if (!s2Current(path)) return;
+      const base = { courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, stepId: step.id, stepTitle: detail.title, revision: detail.revision, isRequired: detail.isRequired, estimatedDurationMinutes: detail.estimatedDurationMinutes };
+      const c = specialized ? (step.type === 'quiz' ? specialized.quiz : specialized) : detail.content || {};
+      if (step.type === 'theory') appEl.innerHTML = renderTheoryEditorPage({ ...base, markdown: c.markdown || '' });
+      else if (step.type === 'video') appEl.innerHTML = renderVideoEditorPage({ ...base, videoUrl: c.videoUrl || '', provider: c.provider || 'youtube', transcript: c.transcript || '', captionVerified: Boolean(c.captionVerified) });
+      else if (step.type === 'quiz') appEl.innerHTML = renderQuizEditorPage({ ...base, quizType: c.quizType || 'single_choice', prompt: c.prompt || '', options: c.options || [], explanation: c.explanation || '' });
+      else appEl.innerHTML = renderPythonExerciseEditorPage({ ...base, problemStatement: c.problemStatement || '', inputFormat: c.inputFormat || '', outputFormat: c.outputFormat || '', constraints: c.constraints || '', starterCode: c.starterCode || '', referenceSolution: c.referenceSolution || '', hints: c.hints || [], solutionExplanation: c.solutionExplanation || '', publicTests: c.publicTests || [], hiddenTests: c.hiddenTests || [], runtimeLimits: c.runtimeLimits || { cpuTimeoutSeconds: 2, wallTimeoutSeconds: 5, memoryLimitMib: 128 } });
+      if (step.type === 'quiz') {
+        appEl.querySelector('[data-action="add-option"]')?.addEventListener('click', () => {
+          const container = appEl.querySelector('.options-container');
+          if (!container || container.children.length >= 8) return;
+          const id = crypto.randomUUID();
+          const row = document.createElement('div'); row.className = 'quiz-option-row card p-3 mb-2'; row.dataset.optionId = id;
+          row.innerHTML = `<label class="correct-answer-label"><input type="${(appEl.querySelector('#quiz-type-select') as HTMLSelectElement)?.value === 'multiple_choice' ? 'checkbox' : 'radio'}" name="correctOption" value="${id}"> Correct answer</label><input type="text" class="text-input option-text-input" placeholder="Answer choice" required><button type="button" class="btn btn-secondary btn-compact remove-option-btn">Remove</button>`;
+          container.append(row);
+        });
+        appEl.querySelector('.options-container')?.addEventListener('click', event => {
+          const button = (event.target as Element).closest('.remove-option-btn');
+          if (button && appEl.querySelectorAll('.quiz-option-row').length > 2) button.closest('.quiz-option-row')?.remove();
+        });
+        appEl.querySelector('#quiz-type-select')?.addEventListener('change', () => {
+          const multi = (appEl.querySelector('#quiz-type-select') as HTMLSelectElement).value === 'multiple_choice';
+          appEl.querySelectorAll<HTMLInputElement>('.quiz-option-row input[type="radio"], .quiz-option-row input[type="checkbox"]').forEach(input => { input.type = multi ? 'checkbox' : 'radio'; input.name = multi ? `correctOption_${input.value}` : 'correctOption'; });
+        });
+      }
+      if (step.type === 'python') {
+        appEl.querySelectorAll<HTMLElement>('.sub-tab-btn[data-tab]').forEach(button => button.addEventListener('click', () => {
+          const tab = button.dataset.tab;
+          appEl.querySelectorAll<HTMLElement>('.sub-tab-pane').forEach(pane => { pane.style.display = pane.id === `tab-${tab}` ? '' : 'none'; });
+          appEl.querySelectorAll<HTMLElement>('.sub-tab-btn').forEach(item => { item.classList.toggle('active', item === button); item.setAttribute('aria-selected', String(item === button)); });
+        }));
+        for (const kind of ['public', 'hidden']) appEl.querySelector(`[data-action="add-${kind}-test"]`)?.addEventListener('click', event => {
+          const section = (event.currentTarget as Element).closest('.test-cases-section');
+          if (!section) return;
+          const row = document.createElement('div'); row.className = 'card p-3 mb-2 test-case-card';
+          row.innerHTML = `<div class="test-header"><strong>${kind === 'public' ? 'Public' : 'Hidden'} test</strong></div><label class="field-label">Standard input<textarea class="textarea-input code-editor font-mono test-stdin" rows="3"></textarea></label><label class="field-label">Expected output<textarea class="textarea-input code-editor font-mono test-stdout" rows="3"></textarea></label><button type="button" class="btn btn-secondary btn-compact remove-test">Remove</button>`;
+          section.insertBefore(row, event.currentTarget as Node);
+        });
+        appEl.querySelector('#tab-tests')?.addEventListener('click', event => { if ((event.target as Element).classList.contains('remove-test')) (event.target as Element).closest('.test-case-card')?.remove(); });
+      }
+      const saveButton = document.createElement('button');
+      saveButton.type = 'button'; saveButton.className = 'btn btn-primary btn-compact'; saveButton.textContent = 'Save changes';
+      appEl.querySelector('.author-header-right')?.prepend(saveButton);
+      saveButton.addEventListener('click', async () => {
+        const value = (id: string) => (appEl.querySelector(`#${id}`) as HTMLInputElement | HTMLTextAreaElement | null)?.value || '';
+        const checked = (id: string) => Boolean((appEl.querySelector(`#${id}`) as HTMLInputElement | null)?.checked);
+        const stepMeta = { title: value('step-title-input'), isRequired: checked('step-required'), estimatedDurationMinutes: Number(value('step-duration')) || detail.estimatedDurationMinutes };
+        let payload: any = { ...c, kind: step.type };
+        if (step.type === 'theory') payload.markdown = value('theory-markdown-input');
+        if (step.type === 'video') payload = { ...payload, videoUrl: value('video-url-input'), transcript: value('video-transcript-input'), captionVerified: checked('caption-verified'), provider: value('video-url-input').includes('vimeo.com') ? 'vimeo' : 'youtube' };
+        if (step.type === 'quiz') {
+          payload = { ...payload, quizType: value('quiz-type-select'), prompt: value('quiz-prompt-input'), explanation: value('quiz-explanation-input'), options: Array.from(appEl.querySelectorAll('.quiz-option-row')).map(row => ({ id: (row as HTMLElement).dataset.optionId, text: (row.querySelector('input[type="text"]') as HTMLInputElement)?.value || '', isCorrect: Boolean((row.querySelector('input[type="radio"], input[type="checkbox"]') as HTMLInputElement)?.checked) })) };
+        }
+        if (step.type === 'python') {
+          const sections = appEl.querySelectorAll('#tab-tests .test-cases-section');
+          const readTests = (section: Element | undefined) => Array.from(section?.querySelectorAll('.test-case-card') || []).map(row => ({ stdin: (row.querySelector('.test-stdin') as HTMLTextAreaElement).value, expectedStdout: (row.querySelector('.test-stdout') as HTMLTextAreaElement).value }));
+          payload = { ...payload, problemStatement: value('problem-stmt-input'), inputFormat: value('input-format-input'), outputFormat: value('output-format-input'), constraints: value('constraints-input'), starterCode: value('starter-code-input'), referenceSolution: value('ref-solution-input'), solutionExplanation: value('explanation-input'), publicTests: readTests(sections[0]), hiddenTests: readTests(sections[1]), runtimeLimits: { cpuTimeoutSeconds: Number(value('cpu-timeout')), wallTimeoutSeconds: Number(value('wall-timeout')), memoryLimitMib: Number(value('memory-limit')) } };
+        }
+        saveButton.disabled = true; saveButton.textContent = 'Saving…';
+        try {
+          const endpoint = step.type === 'quiz' ? `/api/author/steps/${step.id}/quiz` : step.type === 'python' ? `/api/author/steps/${step.id}/python` : `/api/author/steps/${step.id}/content`;
+          const body = step.type === 'quiz' ? { expectedRevision: detail.revision, quiz: payload } : step.type === 'python' ? { expectedRevision: detail.revision, exercise: { ...payload, title: stepMeta.title } } : { expectedRevision: detail.revision, payload, stepMeta };
+          const result = await s2Request(endpoint, 'PUT', body);
+          detail.revision = result.revision; Object.assign(c, payload); saveButton.textContent = 'Saved';
+        } catch (err: any) { saveButton.textContent = 'Retry save'; window.alert(err.message); }
+        finally { saveButton.disabled = false; }
+      });
+      return;
+    }
+  } catch (err: any) { if (s2Current(path)) showRouteFailure(err.message || 'Could not load this page.', path); }
+}
+
+async function loadInvitationPage(inviteToken: string, path: string): Promise<void> {
+  try {
+    const preview = await s2Request(`/api/invitations/${encodeURIComponent(inviteToken)}`);
+    if (!s2Current(path)) return;
+    const show = (error?: string) => {
+      appEl.innerHTML = renderAcceptInvitationPage({ token: inviteToken, valid: preview.valid, reason: preview.reason, courseTitle: preview.course?.title, courseDescription: preview.course?.description, inviterName: preview.inviterName, expiresAt: preview.expiresAt, recipientEmailMasked: preview.recipientEmailMasked, currentUser: authClient.getUser(), error });
+      appEl.querySelector('.invitation-accept-form')?.addEventListener('submit', async event => {
+        event.preventDefault();
+        try { const accepted = await s2Request(`/api/invitations/${encodeURIComponent(inviteToken)}/accept`, 'POST'); window.history.pushState({}, '', `/learn/${accepted.enrollment.id}`); renderApp(); }
+        catch (err: any) { show(err.message); }
+      });
+    };
+    show();
+  } catch { if (s2Current(path)) appEl.innerHTML = renderAcceptInvitationPage({ token: inviteToken, valid: false }); }
+}
 const lessonMediaObjectUrls = new Set<string>();
 let lessonVideoLoadTimer: number | undefined;
 let lessonVideoReadyCleanup: (() => void) | undefined;
@@ -1294,6 +1503,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
     }
 
     case 'S2': {
+      if (route.pageId === 'P08') { void loadInvitationPage(params.token, path); break; }
       // Account Pages (P04, P05, P06, P07)
       if (route.pageId === 'P04') {
         const returnTo = searchParams.get('returnTo') || '';
@@ -1323,6 +1533,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
     }
 
     case 'S3': {
+      if (['P09', 'P10', 'P11', 'P21'].includes(route.pageId)) { void loadS2Page(route.pageId, params, path); break; }
       // Authenticated Application & Settings Pages (P09-P11, P17-P20)
       const user = currentUser || {
         id: 'user-guest',
@@ -1455,6 +1666,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
     }
 
     case 'S4': {
+      if (route.pageId === 'P26') { void loadS2Page(route.pageId, params, path); break; }
       if (route.pageId === 'P12') {
         void loadEnrolledStep(params.enrollmentId, params.stepId, path);
         break;
@@ -1512,6 +1724,7 @@ print(val * 2)
     }
 
     case 'S5': {
+      if (['P22', 'P23', 'P24', 'P25', 'P31'].includes(route.pageId)) { void loadS2Page(route.pageId, params, path); break; }
       if (route.pageId === 'P27') {
         void loadPublishReview(params.courseId, path);
         break;

@@ -8,6 +8,7 @@ import { CourseStructureService } from '../src/services/course-structure-service
 import { CoursePublicationService } from '../src/services/course-publication-service.ts';
 import { EnrollmentService } from '../src/services/enrollment-service.ts';
 import { LearningProgressService } from '../src/services/learning-progress-service.ts';
+import { QuizService } from '../src/services/quiz-service.ts';
 import {
   ValidationError,
   AuthorizationError,
@@ -24,6 +25,7 @@ test('Module S2-M03: Enrollment Lifecycle & Learning Progress (T045, T047)', asy
   const publicationService = new CoursePublicationService(db);
   const enrollmentService = new EnrollmentService(db);
   const progressService = new LearningProgressService(db);
+  const quizService = new QuizService(db);
 
   const authorId = 'user-author-1'; // Guido van Rossum
   const student1Id = 'user-student-1'; // Ada Lovelace
@@ -279,5 +281,72 @@ test('Module S2-M03: Enrollment Lifecycle & Learning Progress (T045, T047)', asy
 
     prog = progressService.getCourseProgress(student1Id, enr.id);
     assert.strictEqual(prog.lastVisitedStepId, optStep.id);
+  });
+
+  await t.test('T047: Cannot manually complete quiz or python assessment steps', () => {
+    const enr = enrollmentService.getEnrollment(student1Id, courseId)!;
+
+    // quizStep is type: 'quiz'
+    assert.throws(
+      () => {
+        progressService.markStepComplete(student1Id, enr.id, quizStep.id);
+      },
+      (err: any) => {
+        assert.ok(err instanceof ValidationError);
+        assert.match(err.message, /Assessments.*cannot be manually marked complete/);
+        return true;
+      }
+    );
+
+    // Verify step_progress is NOT marked complete
+    const progRow = db
+      .prepare('SELECT is_completed FROM step_progress WHERE enrollment_id = ? AND step_id = ?')
+      .get(enr.id, quizStep.id) as any;
+    assert.ok(!progRow || progRow.is_completed === 0);
+  });
+
+  await t.test('T047: Cannot mark complete or visit unrelated step not in pinned snapshot', () => {
+    const enr = enrollmentService.getEnrollment(student1Id, courseId)!;
+    const unrelatedStepId = 'step-unrelated-random-id';
+
+    assert.throws(
+      () => {
+        progressService.markStepComplete(student1Id, enr.id, unrelatedStepId);
+      },
+      NotFoundError
+    );
+
+    assert.throws(
+      () => {
+        progressService.recordStepVisit(student1Id, enr.id, unrelatedStepId);
+      },
+      NotFoundError
+    );
+
+    // Verify no progress was created for the unrelated step
+    const progRow = db
+      .prepare('SELECT * FROM step_progress WHERE enrollment_id = ? AND step_id = ?')
+      .get(enr.id, unrelatedStepId) as any;
+    assert.strictEqual(progRow, undefined);
+  });
+
+  await t.test('T047: Authoritative quiz grading path awards completion on passing', () => {
+    const enr = enrollmentService.getEnrollment(student1Id, courseId)!;
+
+    // Quiz grading with incorrect answer does NOT complete step
+    const failGrade = quizService.gradeQuiz(student1Id, enr.id, quizStep.id, ['opt-no'], false);
+    assert.strictEqual(failGrade.isPassed, false);
+    let progRow = db
+      .prepare('SELECT is_completed FROM step_progress WHERE enrollment_id = ? AND step_id = ?')
+      .get(enr.id, quizStep.id) as any;
+    assert.ok(!progRow || progRow.is_completed === 0);
+
+    // Quiz grading with correct answer DOES complete step
+    const passGrade = quizService.gradeQuiz(student1Id, enr.id, quizStep.id, ['opt-yes'], false);
+    assert.strictEqual(passGrade.isPassed, true);
+    progRow = db
+      .prepare('SELECT is_completed FROM step_progress WHERE enrollment_id = ? AND step_id = ?')
+      .get(enr.id, quizStep.id) as any;
+    assert.strictEqual(progRow.is_completed, 1);
   });
 });

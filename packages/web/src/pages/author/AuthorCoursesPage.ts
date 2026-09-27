@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
 
 export interface AuthorCourseItem {
@@ -23,6 +24,7 @@ export interface AuthorCoursesPageOptions {
 }
 
 export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string {
+  opts = safeTemplateData(opts);
   const isAuthor = opts.user.capabilities.includes('author') || opts.user.capabilities.includes('admin');
 
   if (!isAuthor) {

@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
 
 export interface StepSummary {
@@ -48,6 +49,7 @@ export interface CourseBuilderPageOptions {
 }
 
 export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string {
+  opts = safeTemplateData(opts);
   const selectedType = opts.selectedType || 'course';
   const selectedId = opts.selectedId || opts.courseId;
 

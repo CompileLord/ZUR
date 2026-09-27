@@ -355,8 +355,14 @@ export function seedDatabase(dbPath?: string): void {
       for (const module of snapshot.modules || []) {
         for (const lesson of module.lessons || []) {
           for (const step of lesson.steps || []) {
-            if (step.type !== 'python') continue;
             const contentRow = db.prepare('SELECT content_payload FROM step_contents WHERE step_id = ?').get(step.id) as any;
+            if (step.type !== 'python') {
+              // Keep the legacy V1 fixture intentionally contentless for its
+              // compatibility and unavailable-content route checks.
+              if (versionId === ver1Id) continue;
+              step.content = contentRow ? JSON.parse(contentRow.content_payload) : null;
+              continue;
+            }
             const testRows = db.prepare('SELECT id, stdin, expected_stdout, is_hidden, position, created_at FROM test_cases WHERE step_id = ? ORDER BY position ASC').all(step.id) as any[];
             step.content = {
               ...(contentRow ? JSON.parse(contentRow.content_payload) : {}),

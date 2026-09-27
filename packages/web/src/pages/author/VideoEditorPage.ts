@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
 
 export interface VideoEditorPageOptions {
@@ -54,6 +55,7 @@ export function deriveEmbedUrl(videoUrl: string): { embedUrl: string | null; pro
 }
 
 export function renderVideoEditorPage(opts: VideoEditorPageOptions): string {
+  opts = safeTemplateData(opts);
   const saveStatusText =
     opts.saveStatus === 'saving'
       ? 'Saving...'

@@ -599,7 +599,7 @@
       "id": "S2",
       "name": "Phase B — author-to-student delivery",
       "phase": "B",
-      "status": "done",
+      "status": "in_progress",
       "gate": "An author creates, validates, previews, and publishes a mixed lesson; an invited learner enrolls, completes it, and resumes without staff database changes.",
       "modules": [
         {
@@ -676,14 +676,15 @@
             {
               "id": "T033",
               "title": "Build image upload and asset processing",
-              "status": "done",
+              "status": "in_progress",
               "priority": "P0",
               "description": "Support upload/paste/preview/replace, PNG/JPEG/WebP checks, size/dimension/decompression limits, processing/quarantine states, alt/decorative/caption metadata, object storage, authorized delivery, stable references, and version-aware retention.",
               "evidence": [
                 "packages/server/src/services/media-service.ts",
                 "packages/server/src/server.ts",
                 "packages/server/tests/quiz-and-media.test.ts"
-              ]
+              ],
+              "status_note": "Image validation defect closed; object storage, metadata stripping, and processing/quarantine and retention deployment checks remain open."
             },
             {
               "id": "T034",
@@ -764,7 +765,7 @@
               ]
             }
           ],
-          "status": "done"
+          "status": "in_progress"
         },
         {
           "id": "S2-M02",
@@ -975,7 +976,8 @@
           ],
           "status": "done"
         }
-      ]
+      ],
+      "status_note": "Phase B browser gate passed locally; T033 object storage and media lifecycle deployment review remain open. See docs/audits/S2-audit.md."
     },
     {
       "id": "S3",

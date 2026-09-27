@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
 
 export interface QuizOptionItem {
@@ -27,6 +28,7 @@ export interface QuizEditorPageOptions {
 }
 
 export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
+  opts = safeTemplateData(opts);
   const saveStatusText =
     opts.saveStatus === 'saving'
       ? 'Saving...'

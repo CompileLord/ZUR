@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
 import { renderProgressLine } from '../../components/common/CourseRow.ts';
 import { renderDialog } from '../../components/common/Dialog.ts';
@@ -35,6 +36,7 @@ export interface MyCoursesPageOptions {
 }
 
 export function renderMyCoursesPage(opts: MyCoursesPageOptions): string {
+  opts = safeTemplateData(opts);
   const activeFilter = opts.activeFilter || 'in_progress';
   const activeCourses = opts.courses.filter((c) => c.status === 'active');
   const previousCourses =

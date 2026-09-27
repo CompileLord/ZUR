@@ -11,6 +11,7 @@ export interface ProgressStepItem {
   id: string;
   title: string;
   type: string;
+  estimatedDurationMinutes: number;
   isRequired: boolean;
   isCompleted: boolean;
   isWaived: boolean;
@@ -26,6 +27,9 @@ export interface CourseProgressSummary {
   enrollmentId: string;
   courseId: string;
   courseTitle: string;
+  description: string;
+  difficulty: string;
+  estimatedDurationMinutes: number;
   pinnedVersionId: string;
   pinnedVersionNumber: number;
   totalSteps: number;
@@ -47,6 +51,35 @@ export class LearningProgressService {
     this.db = db;
   }
 
+  private getPinnedSnapshotStep(pinnedVersionId: string, stepId: string): any {
+    const versionRow = this.db
+      .prepare('SELECT id, version_number, snapshot_data FROM course_versions WHERE id = ?')
+      .get(pinnedVersionId) as any;
+
+    if (!versionRow) {
+      throw new NotFoundError("This page isn't available.");
+    }
+
+    let snapshot: CourseVersionSnapshot;
+    try {
+      snapshot = JSON.parse(versionRow.snapshot_data);
+    } catch {
+      throw new Error('Corrupt course version snapshot data.');
+    }
+
+    for (const mod of snapshot.modules || []) {
+      for (const les of mod.lessons || []) {
+        for (const stp of les.steps || []) {
+          if (stp.id === stepId) {
+            return stp;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
   markStepComplete(
     userId: string,
     enrollmentId: string,
@@ -62,6 +95,17 @@ export class LearningProgressService {
 
     if (enrollment.status !== 'active') {
       throw new AuthorizationError('Cannot update progress on inactive enrollment.');
+    }
+
+    const step = this.getPinnedSnapshotStep(enrollment.pinned_version_id, stepId);
+    if (!step) {
+      throw new NotFoundError("This page isn't available.");
+    }
+
+    if (step.type !== 'theory' && step.type !== 'video') {
+      throw new ValidationError(
+        `Assessments (${step.type}) cannot be manually marked complete; completion requires authoritative passing submission.`
+      );
     }
 
     const now = new Date().toISOString();
@@ -99,6 +143,15 @@ export class LearningProgressService {
       .get(enrollmentId) as any;
 
     if (!enrollment || enrollment.user_id !== userId) {
+      throw new NotFoundError("This page isn't available.");
+    }
+
+    if (enrollment.status !== 'active') {
+      throw new AuthorizationError('Cannot update progress on inactive enrollment.');
+    }
+
+    const step = this.getPinnedSnapshotStep(enrollment.pinned_version_id, stepId);
+    if (!step) {
       throw new NotFoundError("This page isn't available.");
     }
 
@@ -196,6 +249,7 @@ export class LearningProgressService {
             id: stp.id,
             title: stp.title,
             type: stp.type,
+            estimatedDurationMinutes: Number(stp.estimatedDurationMinutes) || 0,
             isRequired: isReq,
             isCompleted,
             isWaived,
@@ -244,6 +298,9 @@ export class LearningProgressService {
       enrollmentId,
       courseId: enrollment.course_id,
       courseTitle: enrollment.course_title,
+      description: snapshot.description || '',
+      difficulty: snapshot.difficulty || 'beginner',
+      estimatedDurationMinutes: Number(snapshot.estimatedDurationMinutes) || 0,
       pinnedVersionId: enrollment.pinned_version_id,
       pinnedVersionNumber: versionRow.version_number,
       totalSteps,

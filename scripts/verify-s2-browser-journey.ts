@@ -1,0 +1,188 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { spawn } from 'node:child_process';
+import { createServer as createNetServer } from 'node:net';
+import { closeDatabase, getDatabase } from '../packages/server/src/db/database.ts';
+import { runMigrations } from '../packages/server/src/db/migrate.ts';
+import { seedDatabase } from '../packages/server/src/db/seed.ts';
+import { createServer } from '../packages/server/src/server.ts';
+import { ExecutionService } from '../packages/server/src/services/execution-service.ts';
+import { processExecutionJob } from 'zur-worker';
+
+const root = process.cwd();
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'zur-s2-browser-'));
+const dbPath = path.join(tmp, 's2.sqlite');
+runMigrations(dbPath); seedDatabase(dbPath);
+const db = getDatabase(dbPath);
+const api = createServer(db);
+const execution = new ExecutionService(db);
+let vite: ReturnType<typeof spawn> | undefined;
+let chrome: ReturnType<typeof spawn> | undefined;
+let socket: WebSocket | undefined;
+async function port(): Promise<number> { const s=createNetServer(); await new Promise<void>(r=>s.listen(0,'127.0.0.1',r)); const a=s.address(); if(!a||typeof a==='string') throw Error('port'); await new Promise<void>(r=>s.close(()=>r())); return a.port; }
+async function stop(p?: ReturnType<typeof spawn>) { if(!p||p.exitCode!==null)return; await new Promise<void>(r=>{p.once('exit',()=>r());p.kill('SIGTERM');setTimeout(()=>{if(p.exitCode===null)p.kill('SIGKILL')},2000)}); }
+async function ready(url:string) { for(let i=0;i<100;i++){try{if((await fetch(url)).ok)return}catch{}await new Promise(r=>setTimeout(r,100))}throw Error(`not ready: ${url}`); }
+try {
+  const apiPort=await port(); await new Promise<void>(r=>api.listen(apiPort,'127.0.0.1',r));
+  const webPort=await port(); const origin=`http://127.0.0.1:${webPort}`;
+  vite=spawn(process.execPath,[path.join(root,'node_modules/vite/bin/vite.js'),'--host','127.0.0.1','--port',String(webPort),'--strictPort'],{cwd:path.join(root,'packages/web'),stdio:'ignore',env:{...process.env,ZUR_API_PROXY_TARGET:`http://127.0.0.1:${apiPort}`}}); await ready(origin);
+  const debugPort=await port(); chrome=spawn('google-chrome',['--headless=new','--disable-gpu','--no-sandbox','--remote-allow-origins=*',`--remote-debugging-port=${debugPort}`,`--user-data-dir=${path.join(tmp,'chrome')}`,'about:blank'],{stdio:'ignore'});
+  let target:any; for(let i=0;i<100;i++){try{target=(await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json() as any[]).find(x=>x.type==='page');if(target?.webSocketDebuggerUrl)break}catch{}await new Promise(r=>setTimeout(r,100))} if(!target)throw Error('chrome unavailable');
+  socket=new WebSocket(target.webSocketDebuggerUrl); await new Promise<void>((r,j)=>{socket!.addEventListener('open',()=>r(),{once:true});socket!.addEventListener('error',()=>j(Error('CDP connection')),{once:true})});
+  let next=0; const pending=new Map<number,(v:any)=>void>(); socket.addEventListener('message',e=>{const m=JSON.parse(String(e.data)); if(m.id){pending.get(m.id)?.(m.result);pending.delete(m.id)}});
+  const cmd=(method:string,params:Record<string,unknown>={})=>new Promise<any>(r=>{const id=++next;pending.set(id,r);socket!.send(JSON.stringify({id,method,params}))});
+  const ev=async(expression:string)=>(await cmd('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true})).result?.value;
+  const wait=async(expression:string,label:string)=>{for(let i=0;i<100;i++){if(await ev(expression))return;await new Promise(r=>setTimeout(r,100))}throw Error(`${label}: ${await ev('document.body.innerText.slice(0,800)')}`)};
+  const nav=async(url:string)=>{await cmd('Page.navigate',{url});await wait(`location.href===${JSON.stringify(url)}`,'navigation');};
+  await cmd('Page.enable');await cmd('Runtime.enable');
+  await cmd('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+  const capture=async(name:string)=>fs.writeFileSync(path.join(root,'screenshots',name),Buffer.from((await cmd('Page.captureScreenshot',{format:'png',fromSurface:true})).data,'base64'));
+  await nav(`${origin}/sign-in`); await wait('Boolean(document.querySelector("#sign-in-form"))','author sign-in');
+  await ev(`(()=>{document.querySelector('#email').value='guido@zur.internal';document.querySelector('#password').value='AuthorPass123!';document.querySelector('#sign-in-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+  await wait('Boolean(localStorage.getItem("zur_session_token"))','author session');
+  await nav(`${origin}/teach`); await wait('document.body.innerText.includes("Your courses")','author courses');
+  const authorCourses=await ev('document.body.innerText.includes("Python foundations")');
+  await ev(`(()=>{document.querySelector('[data-action="open-new-course-modal"]').click();return true})()`);
+  await wait('Boolean(document.querySelector("#course-title-input"))','create course dialog');
+  const formValue=await ev(`(()=>{const f=document.querySelector('form.modal-body[action="/teach"]');f.querySelector('#course-title-input').value='S2 browser draft';const value=new FormData(f).get('title');f.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return value})()`);
+  if(formValue!=='S2 browser draft')throw Error(`course form value ${formValue}`);
+  await wait('location.pathname.includes("/content") && document.body.innerText.includes("S2 browser draft")','created course builder');
+  const createdCoursePath=await ev('location.pathname');
+  const freshCourseId=createdCoursePath.split('/')[2];
+  await capture('S2-audit-author-builder.png');
+  await nav(`${origin}/teach/${freshCourseId}/settings`); await wait('Boolean(document.querySelector(".metadata-form"))','fresh course settings');
+  await ev(`(()=>{const f=document.querySelector('.metadata-form');f.querySelector('[name="description"]').value='A complete mixed lesson authored in the browser.';f.querySelector('[name="learningOutcomes"]').value='Use Python input and output';f.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+  await wait(`Boolean(document.querySelector('.metadata-form [name="description"]')?.value.includes('complete mixed lesson'))`,'metadata saved');
+  const freshTree=await ev(`(async()=>{const r=await fetch('/api/author/courses/${freshCourseId}/structure',{headers:{Authorization:'Bearer '+localStorage.getItem('zur_session_token')}});return r.json()})()`);
+  const freshLessonId=freshTree.modules[0].lessons[0].id;
+  const freshTheoryId=freshTree.modules[0].lessons[0].steps[0].id;
+  const addFreshStep=async(type:string,title:string)=>{
+    await nav(`${origin}/teach/${freshCourseId}/content?type=lesson&id=${freshLessonId}`); await wait('Boolean(document.querySelector(".add-step-form"))','add step form');
+    await ev(`(()=>{const f=document.querySelector('.add-step-form');f.querySelector('[name="title"]').value=${JSON.stringify(title)};f.querySelector('[name="type"]').value=${JSON.stringify(type)};f.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+    await wait(`document.body.innerText.includes(${JSON.stringify(title)})`,`${title} added`);
+    const tree=await ev(`(async()=>{const r=await fetch('/api/author/courses/${freshCourseId}/structure',{headers:{Authorization:'Bearer '+localStorage.getItem('zur_session_token')}});return r.json()})()`);
+    const step=tree.modules[0].lessons[0].steps.find((s:any)=>s.title===title); if(!step)throw Error(`${title} missing from structure`); return step.id as string;
+  };
+  const freshVideoId=await addFreshStep('video','Video explanation');
+  const freshQuizId=await addFreshStep('quiz','Input and output quiz');
+  const freshPythonId=await addFreshStep('python','Double the input');
+  await nav(`${origin}/teach/${freshCourseId}/content/video/${freshVideoId}`); await wait('Boolean(document.querySelector("#video-url-input"))','video editor');
+  await ev(`(()=>{document.querySelector('#video-url-input').value='https://www.youtube.com/watch?v=dQw4w9WgXcQ';document.querySelector('#video-transcript-input').value='Read an integer and print twice its value.';document.querySelector('#caption-verified').checked=true;document.querySelector('.author-header-right button').click();return true})()`);
+  await wait('document.querySelector(".author-header-right button")?.textContent==="Saved"','video saved');
+  await nav(`${origin}/teach/${freshCourseId}/content/quiz/${freshQuizId}`); await wait('Boolean(document.querySelector("#quiz-prompt-input"))','quiz editor');
+  await ev(`(()=>{document.querySelector('#quiz-prompt-input').value='Which statement prints twice the integer n?';const rows=[...document.querySelectorAll('.quiz-option-row')];rows[0].querySelector('.option-text-input').value='print(n * 2)';rows[1].querySelector('.option-text-input').value='print(n + 2)';document.querySelector('.author-header-right button').click();return true})()`);
+  await wait('document.querySelector(".author-header-right button")?.textContent==="Saved"','quiz saved');
+  await nav(`${origin}/teach/${freshCourseId}/content/python/${freshPythonId}`); await wait('Boolean(document.querySelector("#problem-stmt-input"))','Python author editor');
+  await ev(`(()=>{document.querySelector('#problem-stmt-input').value='Read one integer and print twice its value.';document.querySelector('#starter-code-input').value='n = int(input())\\n';document.querySelector('#ref-solution-input').value='print(int(input()) * 2)\\n';document.querySelector('[data-action="add-public-test"]').click();document.querySelector('[data-action="add-hidden-test"]').click();const sections=[...document.querySelectorAll('#tab-tests .test-cases-section')];sections[0].querySelector('.test-stdin').value='3';sections[0].querySelector('.test-stdout').value='6';sections[1].querySelector('.test-stdin').value='-4';sections[1].querySelector('.test-stdout').value='-8';document.querySelector('.author-header-right button').click();return true})()`);
+  await wait('document.querySelector(".author-header-right button")?.textContent==="Saved"','Python exercise saved');
+  await nav(`${origin}/teach/${freshCourseId}/publish`); await wait('Boolean(document.querySelector("#publish-form"))','fresh publication review');
+  if(!(await ev('!document.querySelector("#publish-open-confirm")?.disabled')))throw Error(`fresh validation blocked: ${await ev('document.body.innerText.slice(-1500)')}`);
+  await ev(`(()=>{document.querySelector('#publish-open-confirm').click();document.querySelector('#publish-confirm-submit').click();return true})()`);
+  await wait('Boolean(document.querySelector(".receipt-card"))','fresh mixed publication receipt');
+  await capture('S2-audit-published.png');
+  await nav(`${origin}/teach/course-python-foundations/content`); await wait('Boolean(document.querySelector(".builder-tree-container"))','course builder');
+  const builder=await ev('document.querySelector(".author-course-title")?.textContent');
+  await nav(`${origin}/teach/course-python-foundations/content/theory/step-1-theory`); await wait('Boolean(document.querySelector("#theory-markdown-input"))','theory editor');
+  await ev(`(()=>{document.querySelector('#theory-markdown-input').value='# Browser edit\\nA changed theory step.';document.querySelector('.author-header-right button').click();return true})()`);
+  await wait('document.querySelector(".author-header-right button")?.textContent==="Saved"','author theory save');
+  const savedTheory=await ev(`(async()=>{const r=await fetch('/api/author/steps/step-1-theory/content',{headers:{Authorization:'Bearer '+localStorage.getItem('zur_session_token')}});return (await r.json()).content.markdown})()`);
+  if(!savedTheory.includes('Browser edit'))throw Error('Theory edit did not persist');
+  await nav(`${origin}/teach/course-python-foundations/preview`); await wait('Boolean(document.querySelector(".author-preview-banner"))','draft preview');
+  await nav(`${origin}/teach/course-python-foundations/publish`); await wait('Boolean(document.querySelector("#publish-form"))','publication review');
+  const authorToken=await ev('localStorage.getItem("zur_session_token")');
+  const inviteResponse=await fetch(`${origin}/api/author/courses/course-python-foundations/invitations`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${authorToken}`},body:JSON.stringify({type:'shareable_link',maxUses:3})});
+  if(!inviteResponse.ok) throw Error(`invitation creation ${inviteResponse.status}: ${await inviteResponse.text()}`);
+  const invite=await inviteResponse.json() as any;
+  await nav(`${origin}/sign-in`);
+  await ev(`(()=>{localStorage.removeItem('zur_session_token');localStorage.removeItem('zur_user');return true})()`);
+  await nav(`${origin}/sign-in`); await wait('Boolean(document.querySelector("#sign-in-form"))','student sign-in');
+  await ev(`(()=>{document.querySelector('#email').value='ada@zur.internal';document.querySelector('#password').value='StudentPass123!';document.querySelector('#sign-in-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+  await wait('Boolean(localStorage.getItem("zur_session_token"))','student session');
+  await nav(`${origin}/join/${invite.token}`); await wait('Boolean(document.querySelector(".invitation-accept-form"))','invitation preview');
+  await ev(`(()=>{document.querySelector('.invitation-accept-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+  await wait('location.pathname.startsWith("/learn/")','accepted invitation');
+  await wait('document.body.innerText.includes("Course Syllabus")','enrolled course');
+  const enrollmentPath=await ev('location.pathname');
+  const mixedSteps = [
+    ['step-1-theory', '.theory-step-content'],
+    ['step-2-video', '.video-step-content'],
+    ['step-3-quiz-single', '.quiz-step-content'],
+    ['step-4-python-echo', '.problem-pane'],
+  ];
+  const stepViews: Record<string, boolean> = {};
+  for (const [stepId, selector] of mixedSteps) {
+    await nav(`${origin}${enrollmentPath}/steps/${stepId}`);
+    await wait(`Boolean(document.querySelector(${JSON.stringify(selector)}))`, `${stepId} view`);
+    stepViews[stepId] = true;
+  }
+  await nav(`${origin}${enrollmentPath}/steps/step-2-video`); await wait('Boolean(document.querySelector(".complete-step-form"))','video completion action');
+  await ev(`(()=>{document.querySelector('.complete-step-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+  await wait(`location.pathname.endsWith('/steps/step-3-quiz-single')`,'video completion navigation');
+  const submitQuiz=async(stepId:string,options:string[])=>{
+    await nav(`${origin}${enrollmentPath}/steps/${stepId}`); await wait('Boolean(document.querySelector(".quiz-form"))',`${stepId} quiz`);
+    await ev(`(()=>{for(const id of ${JSON.stringify(options)})document.querySelector('.quiz-form input[value="'+id+'"]').checked=true;document.querySelector('.quiz-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+    await wait('Boolean(document.querySelector(".quiz-feedback-strip.success"))',`${stepId} passed`);
+  };
+  const submitPython=async(stepId:string,code:string)=>{
+    await nav(`${origin}${enrollmentPath}/steps/${stepId}`); await wait('Boolean(document.querySelector("#submit-solution-btn"))',`${stepId} Python workspace`);
+    await ev(`(()=>{document.querySelector('#code-editor-input').value=${JSON.stringify(code)};document.querySelector('#submit-solution-btn').click();return true})()`);
+    let job:any; for(let i=0;i<100;i++){job=db.prepare("SELECT id FROM execution_jobs WHERE enrollment_id='enr-ada' AND step_id=? AND status='queued' ORDER BY created_at DESC LIMIT 1").get(stepId);if(job)break;await new Promise(r=>setTimeout(r,100))} if(!job)throw Error(`${stepId} submit did not queue`);
+    const payload=execution.claimJobById(job.id,'s2-browser-worker'); if(!payload)throw Error(`${stepId} job claim failed`);
+    execution.completeJob(job.id,'s2-browser-worker',await processExecutionJob(payload));
+    await wait('document.body.innerText.includes("Passed")',`${stepId} passed in browser`);
+  };
+  await submitQuiz('step-3-quiz-single',['opt-1']);
+  await submitPython('step-4-python-echo','import sys\nval = int(sys.stdin.read().strip())\nprint(val * 2)\n');
+  await submitQuiz('step-5-quiz-multi',['opt-2-1','opt-2-3']);
+  await submitPython('step-6-python-evenodd','import sys\nraw = sys.stdin.read().strip()\nif not raw:\n    print("Empty")\nelse:\n    n = int(raw)\n    print("Even" if n % 2 == 0 else "Odd")\n');
+  await submitPython('step-7-python-sum','print(sum(map(int, input().split())))\n');
+  const studentToken=await ev('localStorage.getItem("zur_session_token")');
+  const progressResponse=await fetch(`${origin}/api/enrollments/enr-ada/progress`,{headers:{Authorization:`Bearer ${studentToken}`}});
+  const finalProgress=await progressResponse.json() as any;
+  if(!finalProgress.isCompleted||finalProgress.percentage!==100)throw Error(`mixed course incomplete: ${JSON.stringify(finalProgress)}`);
+
+  // The Phase B gate uses the same course from author creation through student completion.
+  const freshInviteResponse=await fetch(`${origin}/api/author/courses/${freshCourseId}/invitations`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${authorToken}`},body:JSON.stringify({type:'shareable_link',maxUses:1})});
+  if(!freshInviteResponse.ok)throw Error(`fresh invitation creation ${freshInviteResponse.status}: ${await freshInviteResponse.text()}`);
+  const freshInvite=await freshInviteResponse.json() as any;
+  await nav(`${origin}/join/${freshInvite.token}`);await wait('Boolean(document.querySelector(".invitation-accept-form"))','fresh invitation preview');
+  await ev(`(()=>{document.querySelector('.invitation-accept-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+  await wait('location.pathname.startsWith("/learn/")','fresh invitation accepted');
+  const freshEnrollmentPath=await ev('location.pathname');
+  const freshEnrollmentId=freshEnrollmentPath.split('/')[2];
+  await wait('document.body.innerText.includes("S2 browser draft")','fresh enrolled overview');
+  await capture('S2-audit-student-overview.png');
+  const completeFreshContent=async(stepId:string)=>{
+    await nav(`${origin}${freshEnrollmentPath}/steps/${stepId}`);
+    await wait('Boolean(document.querySelector(".complete-step-form"))',`${stepId} completion action`);
+    await ev(`(()=>{document.querySelector('.complete-step-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+    await wait(`document.body.innerText.includes('Completed') || location.pathname !== ${JSON.stringify(`${freshEnrollmentPath}/steps/${stepId}`)}`,`${stepId} completed`);
+  };
+  await completeFreshContent(freshTheoryId);
+  await completeFreshContent(freshVideoId);
+  const freshQuizContent=JSON.parse((db.prepare('SELECT content_payload FROM step_contents WHERE step_id=?').get(freshQuizId) as any).content_payload);
+  const freshCorrectIds=freshQuizContent.options.filter((option:any)=>option.isCorrect).map((option:any)=>option.id);
+  await nav(`${origin}${freshEnrollmentPath}/steps/${freshQuizId}`);await wait('Boolean(document.querySelector(".quiz-form"))','fresh quiz');
+  await ev(`(()=>{for(const id of ${JSON.stringify(freshCorrectIds)})document.querySelector('.quiz-form input[value="'+id+'"]').checked=true;document.querySelector('.quiz-form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));return true})()`);
+  await wait('Boolean(document.querySelector(".quiz-feedback-strip.success"))','fresh quiz passed');
+  await nav(`${origin}${freshEnrollmentPath}/steps/${freshPythonId}`);await wait('Boolean(document.querySelector("#submit-solution-btn"))','fresh Python workspace');
+  await ev(`(()=>{document.querySelector('#code-editor-input').value='print(int(input()) * 2)\\n';document.querySelector('#submit-solution-btn').click();return true})()`);
+  let freshJob:any;for(let i=0;i<100;i++){freshJob=db.prepare("SELECT id FROM execution_jobs WHERE enrollment_id=? AND step_id=? AND status='queued' ORDER BY created_at DESC LIMIT 1").get(freshEnrollmentId,freshPythonId);if(freshJob)break;await new Promise(r=>setTimeout(r,100))}if(!freshJob)throw Error('fresh Python submit did not queue');
+  const freshPayload=execution.claimJobById(freshJob.id,'s2-browser-fresh-worker');if(!freshPayload)throw Error('fresh Python job claim failed');
+  execution.completeJob(freshJob.id,'s2-browser-fresh-worker',await processExecutionJob(freshPayload));
+  await wait('document.body.innerText.includes("Passed")','fresh Python passed');
+  const freshProgressResponse=await fetch(`${origin}/api/enrollments/${freshEnrollmentId}/progress`,{headers:{Authorization:`Bearer ${studentToken}`}});
+  const freshProgress=await freshProgressResponse.json() as any;
+  if(!freshProgress.isCompleted||freshProgress.percentage!==100)throw Error(`fresh course incomplete: ${JSON.stringify(freshProgress)}`);
+  await nav(`${origin}${freshEnrollmentPath}`);await wait('document.body.innerText.includes("Course complete")','fresh completed overview');
+  if(await ev('document.body.innerText.includes("undefinedm")'))throw Error('fresh overview contains undefined step duration');
+  await capture('S2-audit-student-complete.png');
+  await cmd('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  await new Promise(r=>setTimeout(r,300));
+  await capture('S2-audit-student-complete-compact.png');
+  await cmd('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+  await nav(`${origin}/learn`); await wait('document.body.innerText.includes("Continue learning")','student dashboard');
+  await nav(`${origin}/learn/courses`); await wait('document.body.innerText.includes("My courses")','my courses');
+  console.log(JSON.stringify({authorCourses,createdCoursePath,builder,invitationAccepted:true,enrollmentPath,stepViews,completedRequired:finalProgress.completedRequired,percentage:finalProgress.percentage,freshEnrollmentPath,freshCompletedRequired:freshProgress.completedRequired,freshPercentage:freshProgress.percentage,studentCourses:true},null,2));
+} finally { socket?.close();await stop(chrome);await stop(vite);await new Promise<void>(r=>api.close(()=>r()));closeDatabase(dbPath);fs.rmSync(tmp,{recursive:true,force:true,maxRetries:8,retryDelay:100}); }

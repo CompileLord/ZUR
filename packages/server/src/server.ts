@@ -137,7 +137,7 @@ export function createServer(
       let data = '';
       req.on('data', (chunk) => {
         data += chunk;
-        if (data.length > 10 * 1024 * 1024) {
+        if (data.length > 20 * 1024 * 1024) {
           reject(new Error('Payload too large'));
         }
       });
@@ -669,7 +669,7 @@ export function createServer(
       }
 
       // 31. Author: Update Course Access Settings (T030)
-      const authorCourseSettingsMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/settings$/);
+      const authorCourseSettingsMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/settings$/);
       if (method === 'PUT' && authorCourseSettingsMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -709,7 +709,7 @@ export function createServer(
       }
 
       // 34. Author: Archive Course (T043)
-      const authorCourseArchiveMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/archive$/);
+      const authorCourseArchiveMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/archive$/);
       if (method === 'POST' && authorCourseArchiveMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -720,7 +720,7 @@ export function createServer(
       }
 
       // 35. Author: Restore Course (T043)
-      const authorCourseRestoreMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/restore$/);
+      const authorCourseRestoreMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/restore$/);
       if (method === 'POST' && authorCourseRestoreMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -741,7 +741,7 @@ export function createServer(
       }
 
       // 37. Admin: Suspend or Unsuspend Course (T043)
-      const adminCourseSuspendMatch = pathname.match(/^\/api\/admin\/courses\/([0-9a-fA-F-]+)\/suspend$/);
+      const adminCourseSuspendMatch = pathname.match(/^\/api\/admin\/courses\/([a-zA-Z0-9_-]+)\/suspend$/);
       if (method === 'POST' && adminCourseSuspendMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -1120,7 +1120,7 @@ export function createServer(
       }
 
       // 35. Author: Get Course Tree Structure (T031)
-      const authorCourseStructureMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/structure$/);
+      const authorCourseStructureMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/structure$/);
       if (method === 'GET' && authorCourseStructureMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -1131,7 +1131,7 @@ export function createServer(
       }
 
       // 36. Author: Add Module (T031)
-      const authorCourseModulesMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/modules$/);
+      const authorCourseModulesMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/modules$/);
       if (method === 'POST' && authorCourseModulesMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -1144,7 +1144,7 @@ export function createServer(
 
       // 37. Author: Update / Delete Module (T031)
       const authorCourseModuleItemMatch = pathname.match(
-        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/modules\/([0-9a-fA-F-]+)$/
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/modules\/([a-zA-Z0-9_-]+)$/
       );
       if (method === 'PUT' && authorCourseModuleItemMatch) {
         if (!token) throw new AuthenticationError();
@@ -1168,7 +1168,7 @@ export function createServer(
 
       // 38. Author: Add Lesson (T031)
       const authorCourseLessonsMatch = pathname.match(
-        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/modules\/([0-9a-fA-F-]+)\/lessons$/
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/modules\/([a-zA-Z0-9_-]+)\/lessons$/
       );
       if (method === 'POST' && authorCourseLessonsMatch) {
         if (!token) throw new AuthenticationError();
@@ -1190,7 +1190,7 @@ export function createServer(
 
       // 39. Author: Update / Delete Lesson (T031)
       const authorCourseLessonItemMatch = pathname.match(
-        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/lessons\/([0-9a-fA-F-]+)$/
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/lessons\/([a-zA-Z0-9_-]+)$/
       );
       if (method === 'PUT' && authorCourseLessonItemMatch) {
         if (!token) throw new AuthenticationError();
@@ -1214,7 +1214,7 @@ export function createServer(
 
       // 40. Author: Add Step (T031)
       const authorCourseStepsMatch = pathname.match(
-        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/lessons\/([0-9a-fA-F-]+)\/steps$/
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/lessons\/([a-zA-Z0-9_-]+)\/steps$/
       );
       if (method === 'POST' && authorCourseStepsMatch) {
         if (!token) throw new AuthenticationError();
@@ -1229,7 +1229,7 @@ export function createServer(
 
       // 41. Author: Update / Delete Step (T031)
       const authorCourseStepItemMatch = pathname.match(
-        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/steps\/([0-9a-fA-F-]+)$/
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/steps\/([a-zA-Z0-9_-]+)$/
       );
       if (method === 'PUT' && authorCourseStepItemMatch) {
         if (!token) throw new AuthenticationError();
@@ -1253,7 +1253,7 @@ export function createServer(
 
       // 42. Author: Duplicate Step (T031)
       const authorCourseStepDupMatch = pathname.match(
-        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/steps\/([0-9a-fA-F-]+)\/duplicate$/
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/steps\/([a-zA-Z0-9_-]+)\/duplicate$/
       );
       if (method === 'POST' && authorCourseStepDupMatch) {
         if (!token) throw new AuthenticationError();
@@ -1266,7 +1266,7 @@ export function createServer(
       }
 
       // 43. Author: Step Content Autosave & Recovery (T038)
-      const authorStepContentMatch = pathname.match(/^\/api\/author\/steps\/([0-9a-fA-F-]+)\/content$/);
+      const authorStepContentMatch = pathname.match(/^\/api\/author\/steps\/([a-zA-Z0-9_-]+)\/content$/);
       if (method === 'GET' && authorStepContentMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -1292,7 +1292,7 @@ export function createServer(
       }
 
       // 44. Author: Media Asset Upload & Listing (T033)
-      const authorCourseAssetsMatch = pathname.match(/^\/api\/author\/courses\/([0-9a-fA-F-]+)\/assets$/);
+      const authorCourseAssetsMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/assets$/);
       if (method === 'POST' && authorCourseAssetsMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -1325,7 +1325,7 @@ export function createServer(
       }
 
       // 45. Author: Update Media Asset Metadata (T033)
-      const authorAssetItemMatch = pathname.match(/^\/api\/author\/assets\/([0-9a-fA-F-]+)$/);
+      const authorAssetItemMatch = pathname.match(/^\/api\/author\/assets\/([a-zA-Z0-9_-]+)$/);
       if (method === 'PUT' && authorAssetItemMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -1337,7 +1337,7 @@ export function createServer(
       }
 
       // 46. Public / Authorized Asset Delivery (T033)
-      const assetServeMatch = pathname.match(/^\/api\/assets\/([0-9a-fA-F-]+)$/);
+      const assetServeMatch = pathname.match(/^\/api\/assets\/([a-zA-Z0-9_-]+)$/);
       if (method === 'GET' && assetServeMatch) {
         const assetId = assetServeMatch[1];
         let userContext = { userId: null as string | null, capabilities: ['student'] as any, isSuspended: false };
@@ -1363,15 +1363,18 @@ export function createServer(
       }
 
       // 47. Quiz Student View & Grading (T036)
-      const studentQuizMatch = pathname.match(/^\/api\/steps\/([0-9a-fA-F-]+)\/quiz$/);
+      const studentQuizMatch = pathname.match(/^\/api\/steps\/([a-zA-Z0-9_-]+)\/quiz$/);
       if (method === 'GET' && studentQuizMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
         const stepId = studentQuizMatch[1];
-        const quiz = quizService.getStudentQuiz(stepId);
+        const enrollmentId = url.searchParams.get('enrollmentId');
+        const quiz = quizService.getStudentQuiz(user.id, enrollmentId, stepId);
         sendJson(res, 200, quiz);
         return;
       }
 
-      const studentQuizSubmitMatch = pathname.match(/^\/api\/steps\/([0-9a-fA-F-]+)\/quiz\/submit$/);
+      const studentQuizSubmitMatch = pathname.match(/^\/api\/steps\/([a-zA-Z0-9_-]+)\/quiz\/submit$/);
       if (method === 'POST' && studentQuizSubmitMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -1379,20 +1382,20 @@ export function createServer(
         const body = await parseJsonBody(req);
         const enrollmentId = body.enrollmentId || null;
         const isPreview = Boolean(body.isPreview);
-        const wasCourseComplete = !isPreview && enrollmentId ? learningProgressService.getCourseProgress(user.id, enrollmentId).isCourseCompleted : false;
+        const wasCourseComplete = !isPreview && enrollmentId ? learningProgressService.getCourseProgress(user.id, enrollmentId).isCompleted : false;
         const priorProgress = !isPreview && enrollmentId ? db.prepare('SELECT is_completed FROM step_progress WHERE enrollment_id = ? AND step_id = ?').get(enrollmentId, stepId) as { is_completed: number } | undefined : undefined;
         const result = quizService.gradeQuiz(user.id, enrollmentId, stepId, body.selectedOptionIds || [], isPreview);
         if (!isPreview && enrollmentId) {
           recordProductEvent({ eventName: 'exercise.submitted', userId: user.id, enrollmentId, stepId, metadata: { verdict: result.verdict } });
           if (result.isPassed && !priorProgress?.is_completed) recordProductEvent({ eventName: 'step.completed', userId: user.id, enrollmentId, stepId });
-          if (!wasCourseComplete && learningProgressService.getCourseProgress(user.id, enrollmentId).isCourseCompleted) recordProductEvent({ eventName: 'course.completed', userId: user.id, enrollmentId });
+          if (!wasCourseComplete && learningProgressService.getCourseProgress(user.id, enrollmentId).isCompleted) recordProductEvent({ eventName: 'course.completed', userId: user.id, enrollmentId });
         }
         sendJson(res, 200, result);
         return;
       }
 
       // 48. Quiz Author View & Update (T036)
-      const authorQuizMatch = pathname.match(/^\/api\/author\/steps\/([0-9a-fA-F-]+)\/quiz$/);
+      const authorQuizMatch = pathname.match(/^\/api\/author\/steps\/([a-zA-Z0-9_-]+)\/quiz$/);
       if (method === 'GET' && authorQuizMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -1412,7 +1415,7 @@ export function createServer(
       }
 
       // 49. Python Exercise Author View & Update (T037)
-      const authorPythonMatch = pathname.match(/^\/api\/author\/steps\/([0-9a-fA-F-]+)\/python$/);
+      const authorPythonMatch = pathname.match(/^\/api\/author\/steps\/([a-zA-Z0-9_-]+)\/python$/);
       if (method === 'GET' && authorPythonMatch) {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
@@ -1438,7 +1441,7 @@ export function createServer(
 
       // 50. True Student Preview Payload (T039)
       const authorPreviewStepMatch = pathname.match(
-        /^\/api\/author\/courses\/([0-9a-fA-F-]+)\/preview\/([0-9a-fA-F-]+)$/
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/preview\/([a-zA-Z0-9_-]+)$/
       );
       if (method === 'GET' && authorPreviewStepMatch) {
         if (!token) throw new AuthenticationError();
@@ -1446,12 +1449,17 @@ export function createServer(
         const courseId = authorPreviewStepMatch[1];
         const stepId = authorPreviewStepMatch[2];
         const course = courseService.getCourse(user.id, courseId);
-        const step = db.prepare('SELECT * FROM steps WHERE id = ?').get(stepId) as any;
+        const step = db.prepare(`
+          SELECT s.* FROM steps s
+          JOIN lessons l ON s.lesson_id = l.id
+          JOIN modules m ON l.module_id = m.id
+          WHERE s.id = ? AND m.course_id = ?
+        `).get(stepId, courseId) as any;
         if (!step) throw authService.safeNotFound();
 
         let previewData: any = null;
         if (step.type === 'quiz') {
-          previewData = quizService.getStudentQuiz(stepId);
+          previewData = quizService.getStudentQuiz(user.id, null, stepId, true);
         } else if (step.type === 'python') {
           previewData = exerciseAuthoringService.getStudentExercise(stepId);
         } else {
@@ -1601,11 +1609,11 @@ export function createServer(
         const { user } = identityService.authenticateSession(token);
         const enrollmentId = stepCompleteMatch[1];
         const stepId = stepCompleteMatch[2];
-        const wasCourseComplete = learningProgressService.getCourseProgress(user.id, enrollmentId).isCourseCompleted;
+        const wasCourseComplete = learningProgressService.getCourseProgress(user.id, enrollmentId).isCompleted;
         const priorProgress = db.prepare('SELECT is_completed FROM step_progress WHERE enrollment_id = ? AND step_id = ?').get(enrollmentId, stepId) as { is_completed: number } | undefined;
         const progress = learningProgressService.markStepComplete(user.id, enrollmentId, stepId);
         if (!priorProgress?.is_completed) recordProductEvent({ eventName: 'step.completed', userId: user.id, enrollmentId, stepId });
-        if (!wasCourseComplete && progress.isCourseCompleted) recordProductEvent({ eventName: 'course.completed', userId: user.id, enrollmentId });
+        if (!wasCourseComplete && progress.isCompleted) recordProductEvent({ eventName: 'course.completed', userId: user.id, enrollmentId });
         sendJson(res, 200, progress);
         return;
       }

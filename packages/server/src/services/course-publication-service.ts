@@ -1,6 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import crypto from 'node:crypto';
 import {
+  ConflictError,
   ValidationError,
   NotFoundError,
   AuthorizationError,
@@ -26,11 +27,34 @@ export interface PublishCourseOptions {
 export class CoursePublicationService {
   private db: DatabaseSync;
   private validationService: CourseValidationService;
-  private idempotencyCache: Map<string, PublicationReceipt> = new Map();
 
   constructor(db: DatabaseSync) {
     this.db = db;
     this.validationService = new CourseValidationService(db);
+    this.ensureIdempotencyTable();
+  }
+
+  private ensureIdempotencyTable(): void {
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS publication_idempotency (
+        id TEXT PRIMARY KEY,
+        owner_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+        idempotency_key TEXT NOT NULL UNIQUE,
+        request_payload_hash TEXT NOT NULL,
+        response_payload TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_pub_idempotency_lookup ON publication_idempotency(owner_id, course_id, idempotency_key);
+    `);
+  }
+
+  private computePayloadHash(options: PublishCourseOptions): string {
+    const normalized = {
+      expectedRevision: options.expectedRevision,
+      changeSummary: (options.changeSummary || '').trim(),
+    };
+    return crypto.createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
   }
 
   private verifyCourseOwner(userId: string, courseId: string): any {
@@ -57,9 +81,29 @@ export class CoursePublicationService {
   ): Promise<PublicationReceipt> {
     const course = this.verifyCourseOwner(userId, courseId);
 
-    // Check duplicate idempotency key
-    if (options.idempotencyKey && this.idempotencyCache.has(options.idempotencyKey)) {
-      return this.idempotencyCache.get(options.idempotencyKey)!;
+    // Check duplicate idempotency key in durable store
+    if (options.idempotencyKey) {
+      const existing = this.db
+        .prepare(
+          'SELECT owner_id, course_id, request_payload_hash, response_payload FROM publication_idempotency WHERE idempotency_key = ?'
+        )
+        .get(options.idempotencyKey) as
+        | { owner_id: string; course_id: string; request_payload_hash: string; response_payload: string }
+        | undefined;
+
+      if (existing) {
+        const payloadHash = this.computePayloadHash(options);
+        if (
+          existing.owner_id === userId &&
+          existing.course_id === courseId &&
+          existing.request_payload_hash === payloadHash
+        ) {
+          return JSON.parse(existing.response_payload) as PublicationReceipt;
+        }
+        throw new ConflictError(
+          'Idempotency key has already been used with different publication parameters or course.'
+        );
+      }
     }
 
     // Step 1: Re-validate draft tree and reference solutions
@@ -86,6 +130,31 @@ export class CoursePublicationService {
     this.db.exec('BEGIN IMMEDIATE');
 
     try {
+      if (options.idempotencyKey) {
+        const existingLocked = this.db
+          .prepare(
+            'SELECT owner_id, course_id, request_payload_hash, response_payload FROM publication_idempotency WHERE idempotency_key = ?'
+          )
+          .get(options.idempotencyKey) as
+          | { owner_id: string; course_id: string; request_payload_hash: string; response_payload: string }
+          | undefined;
+
+        if (existingLocked) {
+          const payloadHash = this.computePayloadHash(options);
+          if (
+            existingLocked.owner_id === userId &&
+            existingLocked.course_id === courseId &&
+            existingLocked.request_payload_hash === payloadHash
+          ) {
+            this.db.exec('ROLLBACK');
+            return JSON.parse(existingLocked.response_payload) as PublicationReceipt;
+          }
+          throw new ConflictError(
+            'Idempotency key has already been used with different publication parameters or course.'
+          );
+        }
+      }
+
       // Re-verify course under lock
       const lockedCourse = this.db.prepare('SELECT * FROM courses WHERE id = ?').get(courseId) as any;
       if (lockedCourse.draft_revision !== options.expectedRevision) {
@@ -254,8 +323,6 @@ export class CoursePublicationService {
           now
         );
 
-      this.db.exec('COMMIT');
-
       const receipt: PublicationReceipt = {
         versionNumber: nextVersionNumber,
         versionId,
@@ -264,8 +331,26 @@ export class CoursePublicationService {
       };
 
       if (options.idempotencyKey) {
-        this.idempotencyCache.set(options.idempotencyKey, receipt);
+        const payloadHash = this.computePayloadHash(options);
+        const pubIdempId = crypto.randomUUID();
+        this.db
+          .prepare(
+            `INSERT INTO publication_idempotency (
+              id, owner_id, course_id, idempotency_key, request_payload_hash, response_payload, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)`
+          )
+          .run(
+            pubIdempId,
+            userId,
+            courseId,
+            options.idempotencyKey,
+            payloadHash,
+            JSON.stringify(receipt),
+            now
+          );
       }
+
+      this.db.exec('COMMIT');
 
       return receipt;
     } catch (err) {

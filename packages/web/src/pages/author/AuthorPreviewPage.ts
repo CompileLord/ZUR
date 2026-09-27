@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderMarkdownToHtml } from 'zur-shared';
 import { deriveEmbedUrl } from './VideoEditorPage.ts';
 
@@ -15,6 +16,7 @@ export interface AuthorPreviewPageOptions {
 }
 
 export function renderAuthorPreviewPage(opts: AuthorPreviewPageOptions): string {
+  opts = safeTemplateData(opts, new Set(['markdown']));
   // Top persistent preview banner (design §12 P26)
   const previewBanner = `
     <aside class="author-preview-banner" role="status" aria-label="Student Preview Status">

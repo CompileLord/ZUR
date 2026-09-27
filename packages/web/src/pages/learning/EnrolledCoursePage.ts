@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
 import { renderProgressLine } from '../../components/common/CourseRow.ts';
 
@@ -47,6 +48,9 @@ export interface EnrolledCoursePageOptions {
 }
 
 export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): string {
+  opts = safeTemplateData(opts);
+  const withoutOrdinal = (title: string, kind: 'Module' | 'Lesson') =>
+    title.replace(new RegExp(`^${kind}\\s+\\d+\\s*:\\s*`, 'i'), '');
   const resumeUrl = opts.nextStepId
     ? `/learn/${opts.enrollmentId}/steps/${opts.nextStepId}`
     : null;
@@ -93,12 +97,12 @@ export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): strin
       <div class="syllabus-modules">
         ${opts.modules.map((mod, modIdx) => `
           <div class="module-group" data-module-id="${mod.id}">
-            <h3 class="module-title">Module ${modIdx + 1}: ${mod.title}</h3>
+            <h3 class="module-title">Module ${modIdx + 1}: ${withoutOrdinal(mod.title, 'Module')}</h3>
 
             <div class="module-lessons">
               ${mod.lessons.map((les, lesIdx) => `
                 <div class="lesson-group" data-lesson-id="${les.id}">
-                  <h4 class="lesson-title">Lesson ${lesIdx + 1}: ${les.title}</h4>
+                  <h4 class="lesson-title">Lesson ${lesIdx + 1}: ${withoutOrdinal(les.title, 'Lesson')}</h4>
                   ${les.description ? `<p class="lesson-desc">${les.description}</p>` : ''}
 
                   <ul class="lesson-steps-rail" role="list">
@@ -165,8 +169,7 @@ export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): strin
             <span class="version-tag">Version ${opts.pinnedVersionNumber}</span>
             <span>·</span>
             <span>${opts.difficulty}</span>
-            <span>·</span>
-            <span>~${opts.estimatedDurationMinutes} mins</span>
+            ${opts.estimatedDurationMinutes > 0 ? `<span>·</span><span>~${opts.estimatedDurationMinutes} mins</span>` : ''}
           </div>
 
           <h1 class="course-title">${opts.title}</h1>

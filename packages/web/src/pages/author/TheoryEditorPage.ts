@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
 import { renderMarkdownToHtml } from 'zur-shared';
 
@@ -18,6 +19,8 @@ export interface TheoryEditorPageOptions {
 }
 
 export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
+  const rawMarkdown = opts.markdown;
+  opts = safeTemplateData(opts);
   const saveStatusText =
     opts.saveStatus === 'saving'
       ? 'Saving...'
@@ -27,7 +30,7 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
       ? 'Draft conflict'
       : 'Saved';
 
-  const previewHtml = renderMarkdownToHtml(opts.markdown || '');
+  const previewHtml = renderMarkdownToHtml(rawMarkdown || '');
 
   const editorContent = `
     <div class="theory-editor-container" style="max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem;">

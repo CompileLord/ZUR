@@ -232,6 +232,7 @@ test('Module S2-M02: Validation, Immutable Publication & Lifecycle (T040–T044)
     // 3. Idempotency test: duplicate call with idempotencyKey returns cached receipt
     const duplicateReceipt = await publicationService.publishCourse(authorId, courseId, {
       expectedRevision: publishedRevision,
+      changeSummary: 'Initial release with Python and Quiz',
       idempotencyKey: 'idemp-12345',
     });
     assert.equal(duplicateReceipt.versionId, receipt.versionId);

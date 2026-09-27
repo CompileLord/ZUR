@@ -41,6 +41,9 @@ test('P01–P45 Route Contracts and URL Safety (design.md §9, §14, T012)', asy
     const detailMatch = matchRoute('/learn/enr-1/steps/step-42/attempts/att-8');
     assert.equal(detailMatch?.route.pageId, 'P16');
     assert.equal(detailMatch?.params.attemptId, 'att-8');
+    const videoEditor = matchRoute('/teach/course-1/content/video/step-2');
+    assert.equal(videoEditor?.route.pageId, 'P23');
+    assert.equal(videoEditor?.params.stepId, 'step-2');
   });
 
   await t.test('Sanitize query params filters out code, tokens, and untracked keys', () => {

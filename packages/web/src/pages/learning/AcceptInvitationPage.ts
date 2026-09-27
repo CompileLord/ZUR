@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAccountShell } from '../../components/shells/AccountShell.ts';
 
 export interface AcceptInvitationPageOptions {
@@ -17,6 +18,7 @@ export interface AcceptInvitationPageOptions {
 }
 
 export function renderAcceptInvitationPage(opts: AcceptInvitationPageOptions): string {
+  opts = safeTemplateData(opts);
   if (!opts.valid) {
     let message = 'This invitation is not valid.';
     if (opts.reason === 'revoked') {

@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
 
 export interface CourseSettingsData {
@@ -29,6 +30,7 @@ export interface CourseSettingsPageOptions {
 }
 
 export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): string {
+  opts = safeTemplateData(opts);
   const c = opts.course;
   const isPrivate = c.visibility === 'private';
   const neverPublished = !c.currentVersionId && (!c.versions || c.versions.length === 0);

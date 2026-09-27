@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
 import { renderProgressLine } from '../../components/common/CourseRow.ts';
 
@@ -35,6 +36,7 @@ export interface DashboardContinuePageOptions {
 }
 
 export function renderDashboardContinuePage(opts: DashboardContinuePageOptions): string {
+  opts = safeTemplateData(opts);
   const hasEnrollments = Boolean(opts.continueCourse || (opts.recentCourses && opts.recentCourses.length > 0));
 
   let mainContentHtml = '';

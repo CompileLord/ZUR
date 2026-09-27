@@ -1,3 +1,4 @@
+import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
 
 export interface TestCaseItem {
@@ -42,6 +43,7 @@ export interface PythonExerciseEditorPageOptions {
 }
 
 export function renderPythonExerciseEditorPage(opts: PythonExerciseEditorPageOptions): string {
+  opts = safeTemplateData(opts);
   const saveStatusText =
     opts.saveStatus === 'saving'
       ? 'Saving...'

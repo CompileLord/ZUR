@@ -2,6 +2,8 @@ import { DatabaseSync } from 'node:sqlite';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
+import { spawnSync } from 'node:child_process';
 import {
   ValidationError,
   NotFoundError,
@@ -10,7 +12,9 @@ import {
 import type { MediaAsset } from 'zur-shared';
 import { AuthorizationService } from './auth-service.ts';
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MiB
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB per PRD §11
+const MAX_IMAGE_PIXELS = 25_000_000; // 25 megapixels per PRD §23.5
+const MAX_IMAGE_DIMENSION = 10_000;
 const ALLOWED_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
 export interface UploadAssetInput {
@@ -31,8 +35,16 @@ export class MediaService {
     this.db = db;
     this.authService = new AuthorizationService(db);
     this.uploadDir = uploadDir;
-    if (!fs.existsSync(this.uploadDir)) {
-      fs.mkdirSync(this.uploadDir, { recursive: true });
+    try {
+      if (!fs.existsSync(this.uploadDir)) {
+        fs.mkdirSync(this.uploadDir, { recursive: true });
+      }
+    } catch {
+      const fallback = path.join(os.tmpdir(), 'zur-uploads');
+      if (!fs.existsSync(fallback)) {
+        fs.mkdirSync(fallback, { recursive: true });
+      }
+      this.uploadDir = fallback;
     }
   }
 
@@ -50,43 +62,180 @@ export class MediaService {
     }
   }
 
-  private extractDimensions(buffer: Buffer, mimeType: string): { width: number; height: number } {
-    try {
-      if (mimeType === 'image/png' && buffer.length >= 24) {
-        // PNG header check
-        if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
-          const width = buffer.readUInt32BE(16);
-          const height = buffer.readUInt32BE(20);
-          return { width, height };
-        }
-      } else if (mimeType === 'image/jpeg' && buffer.length > 4) {
-        // JPEG header scan for SOF0 (0xFFC0) or SOF2 (0xFFC2)
-        let offset = 2;
-        while (offset < buffer.length - 8) {
-          if (buffer[offset] !== 0xff) break;
-          const marker = buffer[offset + 1];
-          if (marker === 0xc0 || marker === 0xc2) {
-            const height = buffer.readUInt16BE(offset + 5);
-            const width = buffer.readUInt16BE(offset + 7);
-            return { width, height };
-          }
-          const length = buffer.readUInt16BE(offset + 2);
-          offset += 2 + length;
-        }
-      } else if (mimeType === 'image/webp' && buffer.length >= 30) {
-        // Simple WebP VP8 / VP8X
-        if (buffer.toString('ascii', 0, 4) === 'RIFF' && buffer.toString('ascii', 8, 12) === 'WEBP') {
-          if (buffer.toString('ascii', 12, 16) === 'VP8X') {
-            const width = 1 + buffer.readUIntLE(24, 3);
-            const height = 1 + buffer.readUIntLE(27, 3);
-            return { width, height };
-          }
-        }
-      }
-    } catch {
-      // Fallback
+  private extractPngDimensions(buffer: Buffer): { width: number; height: number } {
+    if (buffer.length < 24) throw new ValidationError('Invalid PNG header');
+    const isPng =
+      buffer[0] === 0x89 &&
+      buffer[1] === 0x50 &&
+      buffer[2] === 0x4e &&
+      buffer[3] === 0x47 &&
+      buffer[4] === 0x0d &&
+      buffer[5] === 0x0a &&
+      buffer[6] === 0x1a &&
+      buffer[7] === 0x0a;
+    if (!isPng) throw new ValidationError('Invalid PNG signature');
+
+    const chunkType = buffer.subarray(12, 16).toString('ascii');
+    if (chunkType !== 'IHDR') throw new ValidationError('Missing PNG IHDR chunk');
+
+    const width = buffer.readUInt32BE(16);
+    const height = buffer.readUInt32BE(20);
+    return { width, height };
+  }
+
+  private extractJpegDimensions(buffer: Buffer): { width: number; height: number } {
+    if (buffer.length < 4 || buffer[0] !== 0xff || buffer[1] !== 0xd8) {
+      throw new ValidationError('Invalid JPEG signature');
     }
-    return { width: 800, height: 600 };
+    let offset = 2;
+    while (offset < buffer.length - 1) {
+      if (buffer[offset] !== 0xff) {
+        offset++;
+        continue;
+      }
+      while (offset < buffer.length && buffer[offset] === 0xff) {
+        offset++;
+      }
+      if (offset >= buffer.length) break;
+      const marker = buffer[offset++];
+      if (marker === 0xd9 || marker === 0xda) {
+        break;
+      }
+      if (marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) {
+        continue;
+      }
+      if (offset + 2 > buffer.length) break;
+      const length = buffer.readUInt16BE(offset);
+      if (
+        (marker >= 0xc0 && marker <= 0xc3) ||
+        (marker >= 0xc5 && marker <= 0xc7) ||
+        (marker >= 0xc9 && marker <= 0xcb) ||
+        (marker >= 0xcd && marker <= 0xcf)
+      ) {
+        if (offset + 7 > buffer.length) break;
+        const height = buffer.readUInt16BE(offset + 3);
+        const width = buffer.readUInt16BE(offset + 5);
+        return { width, height };
+      }
+      offset += length;
+    }
+    throw new ValidationError('Invalid or corrupt JPEG: no SOF marker found');
+  }
+
+  private extractWebpDimensions(buffer: Buffer): { width: number; height: number } {
+    if (buffer.length < 16) throw new ValidationError('Invalid WebP image');
+    const riff = buffer.subarray(0, 4).toString('ascii');
+    const webp = buffer.subarray(8, 12).toString('ascii');
+    if (riff !== 'RIFF' || webp !== 'WEBP') {
+      throw new ValidationError('Invalid WebP signature');
+    }
+    const chunkType = buffer.subarray(12, 16).toString('ascii');
+    if (chunkType === 'VP8X') {
+      if (buffer.length < 30) throw new ValidationError('Invalid VP8X WebP header');
+      const width = 1 + buffer.readUIntLE(24, 3);
+      const height = 1 + buffer.readUIntLE(27, 3);
+      return { width, height };
+    } else if (chunkType === 'VP8 ') {
+      if (buffer.length < 30) throw new ValidationError('Invalid VP8 WebP header');
+      const width = buffer.readUInt16LE(26) & 0x3fff;
+      const height = buffer.readUInt16LE(28) & 0x3fff;
+      if (width > 0 && height > 0) return { width, height };
+      throw new ValidationError('Invalid VP8 keyframe');
+    } else if (chunkType === 'VP8L') {
+      if (buffer.length < 25) throw new ValidationError('Invalid VP8L WebP header');
+      if (buffer[20] !== 0x2f) throw new ValidationError('Invalid VP8L signature');
+      const b1 = buffer[21];
+      const b2 = buffer[22];
+      const b3 = buffer[23];
+      const b4 = buffer[24];
+      const width = 1 + (((b2 & 0x3f) << 8) | b1);
+      const height = 1 + (((b4 & 0x0f) << 10) | (b3 << 2) | ((b2 & 0xc0) >> 6));
+      return { width, height };
+    }
+    throw new ValidationError(`Unsupported WebP format: ${chunkType}`);
+  }
+
+  private validateAndExtractDimensions(
+    buffer: Buffer,
+    claimedMime: string
+  ): { actualMime: string; dimensions: { width: number; height: number } } {
+    const sample = buffer.subarray(0, 512).toString('latin1').toLowerCase();
+    if (
+      sample.includes('<svg') ||
+      sample.includes('<?xml') ||
+      sample.includes('<!doctype svg') ||
+      sample.includes('<html')
+    ) {
+      throw new ValidationError('SVG uploads and HTML embeds are not permitted in P0.');
+    }
+    if (sample.startsWith('mz') || sample.startsWith('\x7felf') || sample.startsWith('#!/')) {
+      throw new ValidationError('Executable files are not permitted.');
+    }
+
+    let actualMime: string;
+    let dimensions: { width: number; height: number };
+
+    if (
+      buffer.length >= 8 &&
+      buffer[0] === 0x89 &&
+      buffer[1] === 0x50 &&
+      buffer[2] === 0x4e &&
+      buffer[3] === 0x47
+    ) {
+      actualMime = 'image/png';
+      dimensions = this.extractPngDimensions(buffer);
+    } else if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+      actualMime = 'image/jpeg';
+      dimensions = this.extractJpegDimensions(buffer);
+    } else if (
+      buffer.length >= 12 &&
+      buffer.subarray(0, 4).toString('ascii') === 'RIFF' &&
+      buffer.subarray(8, 12).toString('ascii') === 'WEBP'
+    ) {
+      actualMime = 'image/webp';
+      dimensions = this.extractWebpDimensions(buffer);
+    } else {
+      throw new ValidationError(
+        'Invalid image: file bytes do not match supported image formats (PNG, JPEG, WebP).'
+      );
+    }
+
+    if (claimedMime !== actualMime) {
+      throw new ValidationError(
+        `Claimed MIME type "${claimedMime}" does not match detected image type "${actualMime}".`
+      );
+    }
+
+    if (dimensions.width <= 0 || dimensions.height <= 0) {
+      throw new ValidationError('Invalid image dimensions: width and height must be positive.');
+    }
+
+    if (dimensions.width > MAX_IMAGE_DIMENSION || dimensions.height > MAX_IMAGE_DIMENSION) {
+      throw new ValidationError(
+        `Image dimensions exceed maximum allowed limit of ${MAX_IMAGE_DIMENSION}px.`
+      );
+    }
+
+    if (dimensions.width * dimensions.height > MAX_IMAGE_PIXELS) {
+      throw new ValidationError(
+        `Image exceeds maximum pixel budget of 25 megapixels (received ${dimensions.width}x${dimensions.height}).`
+      );
+    }
+
+    // Parsing a header is insufficient: a truncated or corrupt image can still claim
+    // plausible dimensions. Force the approved decoder to read pixel data under
+    // bounded resources before the asset is stored or marked ready.
+    const format = actualMime === 'image/png' ? 'png' : actualMime === 'image/jpeg' ? 'jpeg' : 'webp';
+    const decoded = spawnSync('magick', [
+      '-limit', 'memory', '128MiB', '-limit', 'map', '256MiB',
+      '-limit', 'disk', '0', '-limit', 'time', '5',
+      `${format}:-`, '-sample', '1x1', 'txt:-',
+    ], { input: buffer, timeout: 7000, maxBuffer: 64 * 1024, encoding: 'utf8' });
+    if (decoded.error || decoded.status !== 0 || !decoded.stdout?.includes('pixel enumeration')) {
+      throw new ValidationError('Image could not be decoded safely. Upload a valid PNG, JPEG, or WebP image.');
+    }
+
+    return { actualMime, dimensions };
   }
 
   uploadAsset(userId: string, courseId: string, input: UploadAssetInput): MediaAsset {
@@ -97,7 +246,9 @@ export class MediaService {
     }
 
     if (input.buffer.length > MAX_IMAGE_BYTES) {
-      throw new ValidationError(`File size exceeds 5 MiB limit (received ${input.buffer.length} bytes)`);
+      throw new ValidationError(
+        `File size exceeds 10 MB limit (received ${input.buffer.length} bytes)`
+      );
     }
 
     const mime = (input.mimeType || '').toLowerCase().trim();
@@ -107,21 +258,33 @@ export class MediaService {
       );
     }
 
-    const dimensions = this.extractDimensions(input.buffer, mime);
+    const { actualMime, dimensions } = this.validateAndExtractDimensions(input.buffer, mime);
     const assetId = crypto.randomUUID();
 
     let ext = 'png';
-    if (mime === 'image/jpeg') ext = 'jpg';
-    if (mime === 'image/webp') ext = 'webp';
+    if (actualMime === 'image/jpeg') ext = 'jpg';
+    if (actualMime === 'image/webp') ext = 'webp';
 
-    const courseDir = path.join(this.uploadDir, courseId);
-    if (!fs.existsSync(courseDir)) {
-      fs.mkdirSync(courseDir, { recursive: true });
+    let courseDir = path.join(this.uploadDir, courseId);
+    try {
+      if (!fs.existsSync(courseDir)) {
+        fs.mkdirSync(courseDir, { recursive: true });
+      }
+    } catch {
+      this.uploadDir = path.join(os.tmpdir(), 'zur-uploads');
+      courseDir = path.join(this.uploadDir, courseId);
+      if (!fs.existsSync(courseDir)) {
+        fs.mkdirSync(courseDir, { recursive: true });
+      }
     }
 
     const filename = `${assetId}.${ext}`;
     const filePath = path.join(courseDir, filename);
     fs.writeFileSync(filePath, input.buffer);
+
+    if (!fs.existsSync(filePath) || fs.statSync(filePath).size !== input.buffer.length) {
+      throw new ValidationError('Failed to write and verify uploaded image asset on disk.');
+    }
 
     const isDecorative = Boolean(input.isDecorative);
     const altText = isDecorative ? '' : (input.altText || '').trim();
@@ -146,7 +309,7 @@ export class MediaService {
         userId,
         filePath,
         input.buffer.length,
-        mime,
+        actualMime,
         JSON.stringify(dimensions),
         altText || null,
         isDecorative ? 1 : 0,
@@ -161,7 +324,7 @@ export class MediaService {
       uploaderId: userId,
       filePath,
       fileSize: input.buffer.length,
-      mimeType: mime,
+      mimeType: actualMime,
       dimensions,
       altText: altText || null,
       isDecorative,

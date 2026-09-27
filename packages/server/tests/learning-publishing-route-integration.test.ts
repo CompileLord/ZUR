@@ -27,6 +27,17 @@ test('Live P15 content and P27 review APIs accept seeded opaque IDs and preserve
   };
 
   const studentToken = await signIn('ada@zur.internal', 'StudentPass123!');
+  const anonymousQuiz = await fetch(`${origin}/api/steps/step-3-quiz-single/quiz`);
+  assert.equal(anonymousQuiz.status, 401, 'private quiz endpoint requires authentication');
+  const noEnrollmentQuiz = await fetch(`${origin}/api/steps/step-3-quiz-single/quiz`, {
+    headers: { Authorization: `Bearer ${studentToken}` },
+  });
+  assert.equal(noEnrollmentQuiz.status, 404, 'quiz requires a pinned enrollment');
+  const pinnedQuiz = await fetch(`${origin}/api/steps/step-3-quiz-single/quiz?enrollmentId=enr-ada`, {
+    headers: { Authorization: `Bearer ${studentToken}` },
+  });
+  assert.equal(pinnedQuiz.status, 200, 'enrolled student can read pinned quiz');
+  assert.equal((await pinnedQuiz.json() as any).options[0].isCorrect, undefined);
   const finishAcceptedJob = async (response: Response) => {
     assert.equal(response.status, 202);
     const accepted = await response.json() as any;

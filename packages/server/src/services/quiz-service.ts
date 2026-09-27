@@ -173,21 +173,32 @@ export class QuizService {
     return { quiz: normalizedPayload, revision: newRevision };
   }
 
-  getStudentQuiz(stepId: string): StudentQuizPayload {
-    const step = this.db.prepare('SELECT title FROM steps WHERE id = ?').get(stepId) as any;
-    if (!step) {
+  private authorizedQuiz(userId: string, enrollmentId: string | null, stepId: string, isPreview: boolean): { title: string; quiz: QuizContent } {
+    if (isPreview) {
+      const row = this.db.prepare(`SELECT s.title, c.owner_id, sc.content_payload FROM steps s
+        JOIN lessons l ON s.lesson_id = l.id JOIN modules m ON l.module_id = m.id
+        JOIN courses c ON m.course_id = c.id JOIN step_contents sc ON sc.step_id = s.id
+        WHERE s.id = ? AND s.type = 'quiz'`).get(stepId) as any;
+      if (!row || row.owner_id !== userId) throw new NotFoundError("This page isn't available.");
+      return { title: row.title, quiz: JSON.parse(row.content_payload) };
+    }
+    const enrollment = this.db.prepare(`SELECT e.user_id, e.status, c.is_suspended, cv.snapshot_data FROM enrollments e
+      JOIN courses c ON c.id = e.course_id JOIN course_versions cv ON e.pinned_version_id = cv.id
+      WHERE e.id = ?`).get(enrollmentId) as any;
+    if (!enrollment || enrollment.user_id !== userId || enrollment.status !== 'active' || enrollment.is_suspended) {
       throw new NotFoundError("This page isn't available.");
     }
-
-    const contentRow = this.db
-      .prepare('SELECT content_payload FROM step_contents WHERE step_id = ?')
-      .get(stepId) as any;
-
-    if (!contentRow) {
-      throw new NotFoundError("This page isn't available.");
+    const snapshot = JSON.parse(enrollment.snapshot_data);
+    for (const module of snapshot.modules || []) for (const lesson of module.lessons || []) for (const step of lesson.steps || []) {
+      if (step.id === stepId && step.type === 'quiz' && step.content?.kind === 'quiz') {
+        return { title: step.title, quiz: step.content as QuizContent };
+      }
     }
+    throw new NotFoundError("This page isn't available.");
+  }
 
-    const payload = JSON.parse(contentRow.content_payload) as QuizContent;
+  getStudentQuiz(userId: string, enrollmentId: string | null, stepId: string, isPreview = false): StudentQuizPayload {
+    const { title, quiz: payload } = this.authorizedQuiz(userId, enrollmentId, stepId, isPreview);
 
     // Strip isCorrect from options before sending to student! (PRD §11.2)
     const sanitizedOptions = (payload.options || []).map((o) => ({
@@ -197,7 +208,7 @@ export class QuizService {
 
     return {
       stepId,
-      title: step.title,
+      title,
       prompt: payload.prompt,
       quizType: payload.quizType,
       options: sanitizedOptions,
@@ -211,31 +222,7 @@ export class QuizService {
     selectedOptionIds: string[],
     isPreview: boolean = false
   ): QuizGradeResult {
-    if (isPreview) {
-      const owner = this.db.prepare(`SELECT c.owner_id FROM steps s JOIN lessons l ON s.lesson_id = l.id
-        JOIN modules m ON l.module_id = m.id JOIN courses c ON m.course_id = c.id WHERE s.id = ?`).get(stepId) as { owner_id: string } | undefined;
-      if (!owner || owner.owner_id !== userId) throw new NotFoundError("This page isn't available.");
-    } else {
-      const enrollment = this.db.prepare(`SELECT e.user_id, e.status, cv.snapshot_data FROM enrollments e
-        JOIN course_versions cv ON e.pinned_version_id = cv.id WHERE e.id = ?`).get(enrollmentId) as any;
-      if (!enrollment || enrollment.user_id !== userId || enrollment.status !== 'active') {
-        throw new NotFoundError("This page isn't available.");
-      }
-      const snapshot = JSON.parse(enrollment.snapshot_data);
-      if (!(snapshot.modules || []).some((module: any) => (module.lessons || []).some((lesson: any) =>
-        (lesson.steps || []).some((step: any) => step.id === stepId && step.type === 'quiz')))) {
-        throw new NotFoundError("This page isn't available.");
-      }
-    }
-    const contentRow = this.db
-      .prepare('SELECT content_payload FROM step_contents WHERE step_id = ?')
-      .get(stepId) as any;
-
-    if (!contentRow) {
-      throw new NotFoundError("This page isn't available.");
-    }
-
-    const quiz = JSON.parse(contentRow.content_payload) as QuizContent;
+    const { quiz } = this.authorizedQuiz(userId, enrollmentId, stepId, isPreview);
     const correctIds = (quiz.options || []).filter((o) => o.isCorrect).map((o) => o.id);
 
     // Exact set equality
@@ -263,48 +250,55 @@ export class QuizService {
       const enr = this.db.prepare('SELECT pinned_version_id FROM enrollments WHERE id = ?').get(enrollmentId) as any;
       const courseVersionId = enr?.pinned_version_id || '';
 
-      // Record attempt
-      const attemptId = crypto.randomUUID();
-      this.db
-        .prepare(
-          `INSERT INTO assessment_attempts (
-            id, user_id, enrollment_id, step_id, course_version_id,
-            attempt_number, type, verdict, selected_options,
-            is_infrastructure_failure, created_at
-          ) VALUES (
-            ?, ?, ?, ?, ?,
-            (SELECT COALESCE(MAX(attempt_number), 0) + 1 FROM assessment_attempts WHERE enrollment_id = ? AND step_id = ?),
-            'quiz', ?, ?,
-            0, ?
-          )`
-        )
-        .run(
-          attemptId,
-          userId,
-          enrollmentId,
-          stepId,
-          courseVersionId,
-          enrollmentId,
-          stepId,
-          verdict,
-          JSON.stringify(selectedOptionIds),
-          now
-        );
-
-      // If passed and enrollmentId provided, update progress
-      if (isPassed) {
+      this.db.exec('BEGIN IMMEDIATE');
+      try {
+        // Record attempt
+        const attemptId = crypto.randomUUID();
         this.db
           .prepare(
-            `INSERT INTO step_progress (
-              id, user_id, enrollment_id, step_id, is_completed, completed_at, is_waived, created_at, updated_at
+            `INSERT INTO assessment_attempts (
+              id, user_id, enrollment_id, step_id, course_version_id,
+              attempt_number, type, verdict, selected_options,
+              is_infrastructure_failure, created_at
             ) VALUES (
-              ?, ?, ?, ?, 1, ?, 0, ?, ?
-            ) ON CONFLICT(enrollment_id, step_id) DO UPDATE SET
-              is_completed = 1,
-              completed_at = COALESCE(completed_at, excluded.completed_at),
-              updated_at = excluded.updated_at`
+              ?, ?, ?, ?, ?,
+              (SELECT COALESCE(MAX(attempt_number), 0) + 1 FROM assessment_attempts WHERE enrollment_id = ? AND step_id = ?),
+              'quiz', ?, ?,
+              0, ?
+            )`
           )
-          .run(crypto.randomUUID(), userId, enrollmentId, stepId, now, now, now);
+          .run(
+            attemptId,
+            userId,
+            enrollmentId,
+            stepId,
+            courseVersionId,
+            enrollmentId,
+            stepId,
+            verdict,
+            JSON.stringify(selectedOptionIds),
+            now
+          );
+
+        // If passed and enrollmentId provided, update progress
+        if (isPassed) {
+          this.db
+            .prepare(
+              `INSERT INTO step_progress (
+                id, user_id, enrollment_id, step_id, is_completed, completed_at, is_waived, created_at, updated_at
+              ) VALUES (
+                ?, ?, ?, ?, 1, ?, 0, ?, ?
+              ) ON CONFLICT(enrollment_id, step_id) DO UPDATE SET
+                is_completed = 1,
+                completed_at = COALESCE(step_progress.completed_at, excluded.completed_at),
+                updated_at = excluded.updated_at`
+            )
+            .run(crypto.randomUUID(), userId, enrollmentId, stepId, now, now, now);
+        }
+        this.db.exec('COMMIT');
+      } catch (err) {
+        this.db.exec('ROLLBACK');
+        throw err;
       }
     }
 
