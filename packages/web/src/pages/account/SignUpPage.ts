@@ -61,7 +61,7 @@ export function renderSignUpPage(opts: SignUpPageOptions = {}): string {
       </div>
 
       <div class="pilot-eligibility-note mb-4 p-3 bg-surface border border-subtle rounded text-xs text-secondary">
-        <p>By creating an account, you affirm that you are at least 18 years of age and agree to the <a href="/terms" class="text-primary underline">Terms of Service</a> and <a href="/privacy" class="text-primary underline">Privacy Policy</a>.</p>
+        <label><input type="checkbox" name="adultConfirmed" required /> I confirm that I am at least 18 years of age and agree to the <a href="/terms" class="text-primary underline">Terms of Service</a> and <a href="/privacy" class="text-primary underline">Privacy Policy</a>.</label>
       </div>
 
       <input type="hidden" name="returnTo" value="${opts.returnTo || ''}" />

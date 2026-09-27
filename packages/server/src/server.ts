@@ -204,8 +204,11 @@ export function createServer(
       // 1. Sign Up (T013)
       if (method === 'POST' && pathname === '/api/auth/sign-up') {
         const body = await parseJsonBody(req);
+        if (body.adultConfirmed !== true) throw new ValidationError('Adult eligibility confirmation is required.');
         const result = identityService.signUp(body);
-        sendJson(res, 201, result);
+        const delivery = await emailDeliveryService.sendAccountLink({ recipientEmail: result.user.email,
+          kind: 'verify', path: `/verify-email?token=${encodeURIComponent(result.verificationToken)}` });
+        sendJson(res, 201, { user: result.user, deliveryStatus: delivery.status });
         return;
       }
 
@@ -221,7 +224,10 @@ export function createServer(
       if (method === 'POST' && pathname === '/api/auth/resend-verification') {
         const body = await parseJsonBody(req);
         const result = identityService.resendVerificationEmail(body.email);
-        sendJson(res, 200, result);
+        if (result.verificationToken) await emailDeliveryService.sendAccountLink({
+          recipientEmail: String(body.email).trim().toLowerCase(), kind: 'verify',
+          path: `/verify-email?token=${encodeURIComponent(result.verificationToken)}` });
+        sendJson(res, 200, { success: true });
         return;
       }
 
@@ -267,7 +273,10 @@ export function createServer(
       if (method === 'POST' && pathname === '/api/auth/forgot-password') {
         const body = await parseJsonBody(req);
         const result = identityService.requestPasswordReset(body.email);
-        sendJson(res, 200, result);
+        if (result.resetToken) await emailDeliveryService.sendAccountLink({
+          recipientEmail: String(body.email).trim().toLowerCase(), kind: 'reset',
+          path: `/reset-password?token=${encodeURIComponent(result.resetToken)}` });
+        sendJson(res, 200, { success: true });
         return;
       }
 
@@ -404,7 +413,7 @@ export function createServer(
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         const body = await parseJsonBody(req);
-        const result = await executionService.executeJobSynchronously({
+        const result = executionService.enqueueJob({
           userId: user.id,
           enrollmentId: body.enrollmentId,
           stepId: body.stepId,
@@ -413,7 +422,7 @@ export function createServer(
           idempotencyKey: body.idempotencyKey,
         });
         recordProductEvent({ eventName: 'exercise.run', userId: user.id, enrollmentId: body.enrollmentId, stepId: body.stepId, metadata: { mode: 'samples' } });
-        sendJson(res, 200, result);
+        sendJson(res, 202, result);
         return;
       }
 
@@ -422,7 +431,7 @@ export function createServer(
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         const body = await parseJsonBody(req);
-        const result = await executionService.executeJobSynchronously({
+        const result = executionService.enqueueJob({
           userId: user.id,
           enrollmentId: body.enrollmentId,
           stepId: body.stepId,
@@ -432,7 +441,7 @@ export function createServer(
           idempotencyKey: body.idempotencyKey,
         });
         recordProductEvent({ eventName: 'exercise.run', userId: user.id, enrollmentId: body.enrollmentId, stepId: body.stepId, metadata: { mode: 'custom' } });
-        sendJson(res, 200, result);
+        sendJson(res, 202, result);
         return;
       }
 
@@ -441,9 +450,7 @@ export function createServer(
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         const body = await parseJsonBody(req);
-        const wasCourseComplete = learningProgressService.getCourseProgress(user.id, body.enrollmentId).isCourseCompleted;
-        const priorStep = db.prepare('SELECT is_completed FROM step_progress WHERE enrollment_id = ? AND step_id = ?').get(body.enrollmentId, body.stepId) as { is_completed: number } | undefined;
-        const result = await executionService.executeJobSynchronously({
+        const result = executionService.enqueueJob({
           userId: user.id,
           enrollmentId: body.enrollmentId,
           stepId: body.stepId,
@@ -451,10 +458,8 @@ export function createServer(
           code: body.code,
           idempotencyKey: body.idempotencyKey,
         });
-        recordProductEvent({ eventName: 'exercise.submitted', userId: user.id, enrollmentId: body.enrollmentId, stepId: body.stepId, metadata: { verdict: result.result?.verdict } });
-        if (result.result?.verdict === 'PASSED' && !priorStep?.is_completed) recordProductEvent({ eventName: 'step.completed', userId: user.id, enrollmentId: body.enrollmentId, stepId: body.stepId });
-        if (!wasCourseComplete && learningProgressService.getCourseProgress(user.id, body.enrollmentId).isCourseCompleted) recordProductEvent({ eventName: 'course.completed', userId: user.id, enrollmentId: body.enrollmentId });
-        sendJson(res, 200, result);
+        recordProductEvent({ eventName: 'exercise.submitted', userId: user.id, enrollmentId: body.enrollmentId, stepId: body.stepId, metadata: { status: 'queued' } });
+        sendJson(res, 202, result);
         return;
       }
 

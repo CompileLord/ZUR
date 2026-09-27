@@ -136,6 +136,40 @@ export class EmailDeliveryService {
     }
   }
 
+  async sendAccountLink(input: {
+    recipientEmail: string;
+    kind: 'verify' | 'reset';
+    path: string;
+  }): Promise<InvitationEmailDeliveryResult> {
+    const { provider, serverToken, runtime, mock } = this.config;
+    const from = this.config.from || (runtime === 'development' ? 'noreply@zur.local' : undefined);
+    const appBaseUrl = this.config.appBaseUrl || (runtime === 'development' ? 'http://localhost:5173' : undefined);
+    if (!from || !appBaseUrl) return { status: 'not_configured', sentAt: null, message: 'Account email delivery is unavailable.' };
+    const url = new URL(input.path, appBaseUrl).toString();
+    const subject = input.kind === 'verify' ? 'Verify your ZUR email' : 'Reset your ZUR password';
+    const text = `${subject}: ${url}`;
+    const message = { from, subject, text, html: `<p><a href="${url.replace(/[&<>"]/g, '')}">${subject}</a></p>` };
+    if (provider === 'mock' && runtime !== 'production' && runtime !== 'staging' && mock) {
+      mock.capture({ recipientEmail: input.recipientEmail, courseTitle: '', inviterName: '',
+        invitationUrl: input.path, expiresAt: '' }, message);
+      return { status: 'not_configured', sentAt: null, message: 'Account email captured in the local mock.' };
+    }
+    if (provider !== 'postmark' || !serverToken) return { status: 'not_configured', sentAt: null, message: 'Account email delivery is unavailable.' };
+    try {
+      const response = await (this.config.fetcher || fetch)('https://api.postmarkapp.com/email', {
+        method: 'POST',
+        headers: { 'X-Postmark-Server-Token': serverToken, Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ From: from, To: input.recipientEmail, Subject: subject,
+          TextBody: text, HtmlBody: message.html, MessageStream: 'outbound' }),
+      });
+      return response.ok
+        ? { status: 'sent', sentAt: new Date().toISOString(), message: 'Account email accepted for delivery.' }
+        : { status: 'failed', sentAt: null, message: 'Account email could not be delivered.' };
+    } catch {
+      return { status: 'failed', sentAt: null, message: 'Account email could not be delivered.' };
+    }
+  }
+
   private buildMessage(email: InvitationEmail, from: string, baseUrl: URL) {
     const joinUrl = new URL(email.invitationUrl, baseUrl).toString();
     const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (char) => ({
