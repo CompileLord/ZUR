@@ -7,6 +7,7 @@ import { AdminService } from '../src/services/admin-service.ts';
 import { AuthorizationService } from '../src/services/auth-service.ts';
 import { AttemptService } from '../src/services/attempt-service.ts';
 import { IdentityService } from '../src/services/identity-service.ts';
+import { OperationalMetricsService } from '../src/services/operational-metrics-service.ts';
 import { NotFoundError, ConflictError, ValidationError } from 'zur-shared';
 import crypto from 'node:crypto';
 import { closeDatabase } from '../src/db/database.ts';
@@ -25,11 +26,58 @@ function useDeletionRegistry(t: any) {
 }
 
 test('AdminService enforces role boundaries, audited access, and real operations state',(t)=>{
-  const {db,cleanup}=setup();t.after(cleanup);const admin=new AdminService(db);
+  const {db,cleanup}=setup();t.after(cleanup);
+  const metrics = new OperationalMetricsService();
+  const admin=new AdminService(db, metrics);
   assert.throws(()=>admin.listUsers('user-student-1'),NotFoundError);
   const before=admin.getOperationsOverview('user-admin-1');
   assert.equal(typeof before.execution.paused,'boolean');
   assert.equal(typeof before.refreshedAt,'string');
+  assert.ok(before.internalErrorRate);
+  assert.equal(before.internalErrorRate.window, '5m');
+  assert.equal(before.internalErrorRate.windowLabel, 'Last 5 minutes');
+  assert.equal(before.internalErrorRate.windowSeconds, 300);
+  assert.equal(before.internalErrorRate.numerator, 0);
+  assert.equal(before.internalErrorRate.denominator, 0);
+  // Initially insufficient telemetry when no request samples exist in metrics buffer
+  assert.equal(before.internalErrorRate.status, 'insufficient_telemetry');
+  assert.equal(before.internalErrorRate.rate, null);
+  assert.equal(before.internalErrorRate.rateFormatted, 'Unavailable');
+
+  // Record successful requests and 4xx client errors (401, 404)
+  // 4xx client errors MUST be excluded from the numerator
+  metrics.recordRequest('GET', '/api/courses', 200, 15);
+  metrics.recordRequest('POST', '/api/auth/sign-in', 401, 20); // 4xx client error
+  metrics.recordRequest('GET', '/api/not-found', 404, 5);     // 4xx client error
+  const withClientErrors = admin.getOperationsOverview('user-admin-1');
+  assert.equal(withClientErrors.internalErrorRate.status, 'available');
+  assert.equal(withClientErrors.internalErrorRate.numerator, 0); // strictly excludes 4xx!
+  assert.equal(withClientErrors.internalErrorRate.denominator, 3);
+  assert.equal(withClientErrors.internalErrorRate.rate, 0.0);
+  assert.equal(withClientErrors.internalErrorRate.rateFormatted, '0.00%');
+  assert.equal(withClientErrors.internalErrorRate.client4xxErrors, 2);
+
+  // Now record a genuine platform 5xx server error
+  metrics.recordRequest('POST', '/api/autosave', 500, 45); // 5xx server error
+  const withServerError = admin.getOperationsOverview('user-admin-1');
+  assert.equal(withServerError.internalErrorRate.status, 'available');
+  assert.equal(withServerError.internalErrorRate.numerator, 1);
+  assert.equal(withServerError.internalErrorRate.denominator, 4);
+  assert.equal(withServerError.internalErrorRate.rate, 0.25);
+  assert.equal(withServerError.internalErrorRate.rateFormatted, '25.00%');
+
+  // Verify DB execution infrastructure failure is tracked separately in executionInfrastructureErrors
+  const nowStr = new Date().toISOString();
+  const enrRow = db.prepare('SELECT id, user_id, pinned_version_id FROM enrollments WHERE user_id = ? LIMIT 1').get('user-student-1') as any;
+  db.prepare(`INSERT INTO assessment_attempts (id, enrollment_id, user_id, step_id, course_version_id, attempt_number, type, verdict, is_infrastructure_failure, created_at)
+    VALUES ('test-att-infra-1', ?, ?, 'step-4-python-echo', ?, 1, 'python', 'infrastructure_failure', 1, ?)`).run(enrRow.id, enrRow.user_id, enrRow.pinned_version_id, nowStr);
+  const withInfra = admin.getOperationsOverview('user-admin-1');
+  assert.equal(withInfra.executionInfrastructureErrors.failures, 1);
+  assert.equal(withInfra.executionInfrastructureErrors.attempts.errors, 1);
+  // internalErrorRate numerator remains 1 (not polluted by execution event)
+  assert.equal(withInfra.internalErrorRate.numerator, 1);
+  assert.equal(withInfra.internalErrorRate.denominator, 4);
+
   assert.throws(()=>admin.setExecutionPaused('user-admin-1',true,'short'),ValidationError);
   const paused=admin.setExecutionPaused('user-admin-1',true,'Runner incident review');
   assert.equal(paused.executionPaused,true);
@@ -118,7 +166,36 @@ test('Report resolution requires an outcome and audit reason; list omits submitt
   assert.throws(()=>admin.updateReport('user-admin-1','rep-admin-test','resolved','','','Reviewed'),ValidationError);
   const updated=admin.updateReport('user-admin-1','rep-admin-test','resolved','Reproduced and fixed in version 3','Internal note','Issue verified and resolved');
   assert.equal(updated.status,'resolved');
-  assert.ok(admin.getReport('user-admin-1','rep-admin-test').resolutionOutcome);
+  const repWithoutVer = admin.getReport('user-admin-1','rep-admin-test');
+  assert.ok(repWithoutVer.resolutionOutcome);
+  assert.equal(repWithoutVer.versionNumber, null);
+  assert.equal(repWithoutVer.versionDetails, null);
+
+  // Exact immutable version and step linking test
+  const versionRow = db.prepare('SELECT id, version_number, snapshot_data FROM course_versions WHERE course_id = ? LIMIT 1').get('course-python-foundations') as any;
+  const snapshot = JSON.parse(versionRow.snapshot_data);
+  const firstStep = (snapshot.modules || []).flatMap((m: any) => m.lessons || []).flatMap((l: any) => l.steps || [])[0];
+
+  db.prepare(`INSERT INTO reports(id,reporter_id,course_id,course_version_id,step_id,type,description,status,created_at,updated_at)
+    VALUES('rep-admin-exact-ver','user-student-1','course-python-foundations',?,?,'broken_exercise','Step issue in immutable version','open',?,?)`).run(versionRow.id, firstStep.id, now, now);
+  const repWithVer = admin.getReport('user-admin-1', 'rep-admin-exact-ver');
+  assert.equal(repWithVer.courseVersionId, versionRow.id);
+  assert.equal(repWithVer.versionNumber, versionRow.version_number);
+  assert.ok(repWithVer.versionDetails);
+  assert.equal(repWithVer.versionDetails.id, versionRow.id);
+  assert.equal(repWithVer.versionDetails.versionNumber, versionRow.version_number);
+  assert.equal(repWithVer.stepTitle, firstStep.title);
+
+  // Missing snapshot test: report has courseVersionId but row is not in course_versions
+  db.exec('PRAGMA foreign_keys = OFF;');
+  db.prepare(`INSERT INTO reports(id,reporter_id,course_id,course_version_id,step_id,type,description,status,created_at,updated_at)
+    VALUES('rep-admin-missing-snap','user-student-1','course-python-foundations','nonexistent-ver-id',?,'broken_exercise','Snapshot missing','open',?,?)`).run(firstStep.id, now, now);
+  db.exec('PRAGMA foreign_keys = ON;');
+  const repMissingSnap = admin.getReport('user-admin-1', 'rep-admin-missing-snap');
+  assert.equal(repMissingSnap.courseVersionId, 'nonexistent-ver-id');
+  assert.equal(repMissingSnap.versionNumber, null);
+  assert.equal(repMissingSnap.versionDetails, null);
+  assert.equal(repMissingSnap.stepTitle, null);
 });
 
 test('Media preview and deletion enforce quarantine and retained-reference checks',(t)=>{

@@ -25,6 +25,7 @@ export interface CatalogCategoryItem {
 export interface CatalogPageProps {
   courses?: CatalogCourseItem[];
   categories?: CatalogCategoryItem[];
+  languages?: string[];
   total?: number;
   isLoading?: boolean;
   error?: string | null;
@@ -37,6 +38,36 @@ export interface CatalogPageProps {
     limit?: number;
   };
   isMobileFilterOpen?: boolean;
+}
+
+const LANGUAGE_LABELS: Record<string, string> = {
+  en: 'English',
+  es: 'Spanish',
+  fr: 'French',
+  de: 'German',
+  ja: 'Japanese',
+  zh: 'Chinese',
+  ar: 'Arabic',
+  pt: 'Portuguese',
+  ru: 'Russian',
+  it: 'Italian',
+  nl: 'Dutch',
+  ko: 'Korean',
+  hi: 'Hindi',
+};
+
+function getLanguageDisplayName(code: string): string {
+  const lower = code.toLowerCase();
+  if (LANGUAGE_LABELS[lower]) {
+    return LANGUAGE_LABELS[lower];
+  }
+  try {
+    const name = new Intl.DisplayNames(['en'], { type: 'language' }).of(lower);
+    if (name) return name;
+  } catch {
+    // ignore
+  }
+  return code.toUpperCase();
 }
 
 export function renderCatalogPage(props: CatalogPageProps): string {
@@ -64,6 +95,33 @@ export function renderCatalogPage(props: CatalogPageProps): string {
     .map(
       (cat) =>
         `<option value="${escapeHtml(cat.id)}" ${filters.category === cat.id ? 'selected' : ''}>${escapeHtml(cat.name)}</option>`
+    )
+    .join('');
+
+  const rawLanguages = (props.languages && props.languages.length > 0)
+    ? props.languages
+    : courses.map((c) => c.language).filter((l): l is string => Boolean(l));
+
+  const languageSet = new Set<string>();
+  if (rawLanguages.length === 0 && !filters.language) {
+    languageSet.add('en');
+  }
+  for (const l of rawLanguages) {
+    if (l) languageSet.add(l);
+  }
+  if (filters.language) {
+    languageSet.add(filters.language);
+  }
+  const sortedLanguages = Array.from(languageSet).sort((a, b) => {
+    if (a.toLowerCase() === 'en') return -1;
+    if (b.toLowerCase() === 'en') return 1;
+    return getLanguageDisplayName(a).localeCompare(getLanguageDisplayName(b));
+  });
+
+  const languageOptions = sortedLanguages
+    .map(
+      (lang) =>
+        `<option value="${escapeHtml(lang)}" ${filters.language === lang ? 'selected' : ''}>${escapeHtml(getLanguageDisplayName(lang))}</option>`
     )
     .join('');
 
@@ -108,7 +166,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
             <label for="mobile-filter-language" class="form-label">Content Language</label>
             <select id="mobile-filter-language" class="form-input">
               <option value="" ${!filters.language ? 'selected' : ''}>All languages</option>
-              <option value="en" ${filters.language === 'en' ? 'selected' : ''}>English</option>
+              ${languageOptions}
             </select>
           </div>
         </div>
@@ -216,7 +274,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
     : '';
 
   return `
-    <div class="catalog-page container py-10">
+    <div class="catalog-page container py-10" data-catalog-loaded="${!isLoading}">
       <div class="catalog-header mb-8">
         <h1 class="page-title font-semibold mb-2">Explore courses</h1>
         <p class="text-secondary text-sm">
@@ -242,7 +300,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
 
         <div class="filter-toolbar flex items-center justify-between flex-wrap gap-3">
           <!-- Desktop Filter Dropdowns -->
-          <div class="desktop-filters hidden md:flex items-center gap-3">
+          <div class="desktop-filters items-center gap-3">
             <div class="filter-group">
               <label for="filter-category" class="sr-only">Category</label>
               <select id="filter-category" class="form-input form-input-compact">
@@ -265,7 +323,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
               <label for="filter-language" class="sr-only">Language</label>
               <select id="filter-language" class="form-input form-input-compact">
                 <option value="" ${!filters.language ? 'selected' : ''}>All languages</option>
-                <option value="en" ${filters.language === 'en' ? 'selected' : ''}>English</option>
+                ${languageOptions}
               </select>
             </div>
 
@@ -277,7 +335,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
           </div>
 
           <!-- Mobile Filter Button -->
-          <div class="mobile-filter-trigger md:hidden">
+          <div class="mobile-filter-trigger">
             <button type="button" class="btn btn-secondary btn-compact flex items-center gap-2" data-action="open-sheet">
               <span>Filters</span>
               ${

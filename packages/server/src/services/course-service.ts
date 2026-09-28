@@ -752,6 +752,7 @@ export class CourseService {
     total: number;
     limit: number;
     offset: number;
+    languages: string[];
   } {
     const limit = Math.max(1, Math.min(100, options.limit || 20));
     const offset = Math.max(0, options.offset || 0);
@@ -830,7 +831,17 @@ export class CourseService {
       updatedAt: r.updated_at,
     }));
 
-    return { courses, total, limit, offset };
+    const langRows = this.db
+      .prepare(
+        `SELECT DISTINCT c.language
+         FROM courses c
+         WHERE c.publication_status = 'published' AND c.is_suspended = 0 AND c.visibility = 'public' AND c.language IS NOT NULL AND TRIM(c.language) != ''
+         ORDER BY c.language ASC`
+      )
+      .all() as Array<{ language: string }>;
+    const languages = langRows.map((r) => r.language).filter(Boolean);
+
+    return { courses, total, limit, offset, languages };
   }
 
   listCategories(): Array<{ id: string; name: string; slug: string }> {

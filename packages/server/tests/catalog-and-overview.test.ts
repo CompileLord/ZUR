@@ -177,6 +177,29 @@ test('Course Catalog, Public Overview, and Reporting Endpoints (T069–T072)', a
   });
   db.prepare('UPDATE courses SET is_suspended = 1 WHERE id = ?').run(courseF.id);
 
+  // Course G: Public, published, Spanish language (non-English)
+  const courseG = courseService.createCourseDraft(authorId, {
+    title: 'Fundamentos de Python en Español',
+  });
+  courseService.updateCourseMetadata(authorId, courseG.id, 1, {
+    description: 'Aprende los conceptos fundamentales de Python en español.',
+    difficulty: 'beginner',
+    language: 'es',
+    categoryId: 'cat-core',
+    learningOutcomes: ['Escribir bucles', 'Definir funciones'],
+    prerequisites: 'Ninguno',
+    estimatedDurationMinutes: 90,
+  });
+  courseService.updateCourseAccessSettings(authorId, courseG.id, {
+    visibility: 'public',
+    enrollmentPolicy: 'open',
+  });
+  const draftGRow = db.prepare('SELECT draft_revision FROM courses WHERE id = ?').get(courseG.id) as any;
+  await publicationService.publishCourse(authorId, courseG.id, {
+    expectedRevision: draftGRow.draft_revision,
+    changeSummary: 'Release G Spanish',
+  });
+
   // --- 1. Categories Endpoint ---
   await t.test('GET /api/categories returns category list', async () => {
     const res = await fetch(`${baseUrl}/api/categories`);
@@ -236,6 +259,28 @@ test('Course Catalog, Public Overview, and Reporting Endpoints (T069–T072)', a
     const bodyPage = (await resPage.json()) as any;
     assert.strictEqual(bodyPage.courses.length, 1);
     assert.ok(bodyPage.total >= 2);
+  });
+
+  await t.test('GET /api/courses/catalog offers published languages and filters non-English courses (T070, PRD §16)', async () => {
+    const res = await fetch(`${baseUrl}/api/courses/catalog`);
+    const body = (await res.json()) as any;
+    assert.ok(Array.isArray(body.languages), 'Catalog response must include languages array');
+    assert.ok(body.languages.includes('en'), 'Published languages should include en');
+    assert.ok(body.languages.includes('es'), 'Published languages should include es');
+
+    // Filter by language=es
+    const resEs = await fetch(`${baseUrl}/api/courses/catalog?language=es`);
+    const bodyEs = (await resEs.json()) as any;
+    const esIds = bodyEs.courses.map((c: any) => c.id);
+    assert.ok(esIds.includes(courseG.id), 'Spanish course should be included in language=es filter');
+    assert.ok(!esIds.includes(courseA.id), 'English course must NOT be in language=es filter');
+
+    // Filter by language=en
+    const resEn = await fetch(`${baseUrl}/api/courses/catalog?language=en`);
+    const bodyEn = (await resEn.json()) as any;
+    const enIds = bodyEn.courses.map((c: any) => c.id);
+    assert.ok(!enIds.includes(courseG.id), 'Spanish course must NOT be in language=en filter');
+    assert.ok(enIds.includes(courseA.id), 'English course must be in language=en filter');
   });
 
   // --- 3. Course Overview Endpoint (T071, AC-05) ---

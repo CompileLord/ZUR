@@ -37,7 +37,7 @@ import { OperationalMetricsService } from './services/operational-metrics-servic
 
 export function createServer(
   db: DatabaseSync,
-  dependencies: { emailDeliveryService?: EmailDeliveryService } = {}
+  dependencies: { emailDeliveryService?: EmailDeliveryService; operationalMetrics?: OperationalMetricsService } = {}
 ): http.Server {
 
   const identityService = new IdentityService(db);
@@ -66,8 +66,8 @@ export function createServer(
   const teacherRosterService = new TeacherRosterService(db);
   const productAnalyticsService = new ProductAnalyticsService(db);
   const emailDeliveryService = dependencies.emailDeliveryService || new EmailDeliveryService();
-  const adminService = new AdminService(db);
-  const operationalMetrics = new OperationalMetricsService();
+  const operationalMetrics = dependencies.operationalMetrics || new OperationalMetricsService();
+  const adminService = new AdminService(db, operationalMetrics);
 
   async function deliverCourseInvitation(ownerId: string, invitationId: string, courseId: string, token: string) {
     const invitation = db.prepare(`SELECT i.recipient_email, i.expires_at, c.title, u.display_name
@@ -520,12 +520,12 @@ export function createServer(
       const adminPage = (limitName='limit', offsetName='offset') => ({ limit: Number(url.searchParams.get(limitName) || 20), offset: Number(url.searchParams.get(offsetName) || 0) });
       if (method === 'GET' && pathname === '/api/admin/operations') {
         if (!token) throw new AuthenticationError(); const { user } = identityService.authenticateSession(token);
-        const overview = adminService.getOperationsOverview(user.id);
+        const overview = adminService.getOperationsOverview(user.id, operationalMetrics);
         sendJson(res,200,{...overview,operational:operationalMetrics.snapshot(db)}); return;
       }
       if (method === 'GET' && pathname === '/api/admin/operations/metrics') {
         if (!token) throw new AuthenticationError(); const { user } = identityService.authenticateSession(token);
-        adminService.getOperationsOverview(user.id);
+        adminService.getOperationsOverview(user.id, operationalMetrics);
         sendJson(res,200,operationalMetrics.snapshot(db)); return;
       }
       if (method === 'GET' && pathname === '/api/admin/execution/jobs') {

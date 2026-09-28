@@ -38,6 +38,31 @@ export class OperationalMetricsService {
     if (this.samples.length > MAX_SAMPLES) this.samples.splice(0, this.samples.length - MAX_SAMPLES);
   }
 
+  getServerErrorRate(now = Date.now(), windowMs = WINDOW_MS) {
+    const recent = this.samples.filter((sample) => sample.at >= now - windowMs);
+    const totalRequests = recent.length;
+    // Numerator: HTTP 5xx across app request families (strictly excludes 4xx client errors)
+    const server5xxErrors = recent.filter((sample) => sample.status >= 500).length;
+    const client4xxErrors = recent.filter((sample) => sample.status >= 400 && sample.status < 500).length;
+    const hasTelemetry = totalRequests > 0;
+    const rate = hasTelemetry ? server5xxErrors / totalRequests : null;
+    const rateFormatted = hasTelemetry ? `${((server5xxErrors / totalRequests) * 100).toFixed(2)}%` : 'Unavailable';
+    const windowMinutes = Math.round(windowMs / 60_000);
+
+    return {
+      window: `${windowMinutes}m`,
+      windowLabel: `Last ${windowMinutes} minutes`,
+      windowSeconds: Math.round(windowMs / 1000),
+      numerator: server5xxErrors,
+      denominator: totalRequests,
+      rate,
+      rateFormatted,
+      status: hasTelemetry ? ('available' as const) : ('insufficient_telemetry' as const),
+      client4xxErrors,
+      retentionPolicy: 'In-memory recent request buffer (resets on process restart)',
+    };
+  }
+
   snapshot(db: DatabaseSync, now = Date.now()) {
     const recent = this.samples.filter((sample) => sample.at >= now - WINDOW_MS);
     const accessDenialLikeResponses = recent.filter((sample) => sample.status === 403 || (sample.status === 404 && sample.family !== 'web' && sample.family !== 'health')).length;
@@ -72,6 +97,7 @@ export class OperationalMetricsService {
       requestMetrics: { retention: 'In-memory, last 10,000 requests; resets on process restart.', totalSinceStart: this.totalObserved, recentByFamily: counts },
       execution: { queueAgeSeconds, staleRunning, infrastructureFailures24h, separateWorkerHeartbeat: 'Unavailable — this deployment has no separate worker heartbeat.' },
       email: { deliveryIssues },
+      serverErrorRate: this.getServerErrorRate(now),
       accessDenialLikeResponses,
       alerts,
     };

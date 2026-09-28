@@ -10,11 +10,15 @@ import { renderAdminPage } from '../packages/web/src/pages/admin/AdminPages.ts';
 import { renderAppShell } from '../packages/web/src/components/shells/AppShell.ts';
 import { renderPrivacySettingsPage } from '../packages/web/src/pages/settings/PrivacySettingsPage.ts';
 
-const root=process.cwd(),dbPath=path.join(os.tmpdir(),`zur-s4-m03-${process.pid}.sqlite`),out=path.join(root,'screenshots');
+const root=process.cwd(),dbPath=path.join(os.tmpdir(),`zur-s4-m03-${process.pid}.sqlite`),out=process.env.SCREENSHOTS_DIR||path.join(root,'screenshots');
 runMigrations(dbPath);seedDatabase(dbPath);const db=getDatabase(dbPath),admin=new AdminService(db),adminId='user-admin-1';
 const now=new Date().toISOString();
-db.prepare(`INSERT INTO reports(id,reporter_id,course_id,type,description,status,created_at,updated_at)
-  VALUES('report-screen','user-student-1','course-python-foundations','broken_exercise','The expected output differs from the lesson example.','open',?,?)`).run(now,now);
+const enrAda = db.prepare("SELECT id, user_id, pinned_version_id FROM enrollments WHERE id='enr-ada'").get() as any;
+db.prepare(`INSERT INTO assessment_attempts (id, enrollment_id, user_id, step_id, course_version_id, attempt_number, type, verdict, is_infrastructure_failure, created_at)
+  VALUES ('att-screen-1', ?, ?, 'step-4-python-echo', ?, 1, 'python', 'passed', 0, ?)`).run(enrAda.id, enrAda.user_id, enrAda.pinned_version_id, now);
+const v1Row = db.prepare("SELECT id FROM course_versions WHERE course_id='course-python-foundations' ORDER BY version_number ASC LIMIT 1").get() as any;
+db.prepare(`INSERT INTO reports(id,reporter_id,course_id,course_version_id,step_id,type,description,status,created_at,updated_at)
+  VALUES('report-screen','user-student-1','course-python-foundations',?,'step-4-python-echo','broken_exercise','The expected output differs from the lesson example.','open',?,?)`).run(v1Row.id,now,now);
 const overview=admin.getOperationsOverview(adminId);
 const users=admin.listUsers(adminId,{search:'Ada'});
 const user=admin.getUserDetail(adminId,'user-student-1');

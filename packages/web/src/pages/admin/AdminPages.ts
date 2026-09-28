@@ -15,14 +15,34 @@ export function renderAdminPage(path:string,data:any,error?:string,adminUser={di
   const err = error ? `<div class="alert alert-danger" role="alert">${escapeAdmin(error)} <button class="btn btn-secondary btn-compact" type="button" data-admin-retry>Retry</button></div>` : '';
   let content = `<section class="admin-page-content"><p class="text-secondary">Loading operational records…</p></section>`;
   if (data) {
-    if(route==='/admin') content = `<section><p class="text-secondary">Platform status · refreshed ${escapeAdmin(data.refreshedAt)}</p>${data.operational?`<section aria-labelledby="ops-alert-title"><h2 id="ops-alert-title">Operational alerts</h2>${data.operational.alerts.length?`<ul class="ops-alert-list">${data.operational.alerts.map((alert:any)=>`<li class="ops-alert ${alert.severity==='critical'?'critical':''}" role="${alert.severity==='critical'?'alert':'status'}"><strong>${escapeAdmin(alert.code)}</strong> ${escapeAdmin(alert.message)}</li>`).join('')}</ul>`:'<p role="status">No active threshold alerts.</p>'}<p class="text-muted">Request samples are in memory and reset on process restart. p95 values use the last five minutes; no request payloads or user identifiers are retained.</p><details><summary>Recent request metrics</summary>${table(['Service','Requests','Failures','p95 latency'],Object.entries(data.operational.requestMetrics.recentByFamily).map(([name,metric]:any)=>`<tr><th scope="row">${escapeAdmin(name)}</th><td>${metric.requests}</td><td>${metric.failures}</td><td>${metric.p95LatencyMs===null?'Unavailable':`${metric.p95LatencyMs} ms`}</td></tr>`),'No requests observed in the current window.')}</details></section>`:''}<div class="admin-ops-grid">
-      <article class="admin-overview-card"><h2>Execution</h2>${pill(data.execution.paused?'Disabled':'Available',data.execution.paused?'warning':'success')}<p>New Python jobs ${data.execution.paused?'are paused':'can be accepted'}.</p><a href="/admin/execution">Execution operations</a></article>
+    if(route==='/admin') {
+      const errRate = data.internalErrorRate;
+      let errRateDisplay = 'Unavailable';
+      let errRateSub = 'Last 5 minutes (resets on restart)';
+      if (errRate) {
+        const numErrors = errRate.numerator ?? 0;
+        const numRequests = errRate.denominator ?? 0;
+        const windowLabel = errRate.windowLabel || (errRate.window === '5m' ? 'Last 5 minutes' : errRate.window) || 'Last 5 minutes';
+        if (errRate.status === 'available' && errRate.rateFormatted) {
+          errRateDisplay = errRate.rateFormatted;
+          errRateSub = `${escapeAdmin(numErrors)} 5xx error${numErrors === 1 ? '' : 's'} / ${escapeAdmin(numRequests)} request${numRequests === 1 ? '' : 's'} · ${escapeAdmin(windowLabel)}`;
+        } else {
+          errRateDisplay = 'Unavailable';
+          errRateSub = `Insufficient telemetry (${escapeAdmin(numRequests)} request${numRequests === 1 ? '' : 's'} in ${escapeAdmin(windowLabel)} · resets on restart)`;
+        }
+      } else if (typeof data.internalErrors === 'number') {
+        errRateDisplay = 'Unavailable';
+        errRateSub = `${escapeAdmin(data.internalErrors)} 5xx error${data.internalErrors === 1 ? '' : 's'} recorded (no denominator)`;
+      }
+      content = `<section><p class="text-secondary">Platform status · refreshed ${escapeAdmin(data.refreshedAt)}</p>${data.operational?`<section aria-labelledby="ops-alert-title"><h2 id="ops-alert-title">Operational alerts</h2>${data.operational.alerts.length?`<ul class="ops-alert-list">${data.operational.alerts.map((alert:any)=>`<li class="ops-alert ${alert.severity==='critical'?'critical':''}" role="${alert.severity==='critical'?'alert':'status'}"><strong>${escapeAdmin(alert.code)}</strong> ${escapeAdmin(alert.message)}</li>`).join('')}</ul>`:'<p role="status">No active threshold alerts.</p>'}<p class="text-muted">Request samples are in memory and reset on process restart. p95 values use the last five minutes; no request payloads or user identifiers are retained.</p><details id="recent-request-metrics"><summary>Recent request metrics</summary>${table(['Service','Requests','Failures','p95 latency'],Object.entries(data.operational.requestMetrics.recentByFamily).map(([name,metric]:any)=>`<tr><th scope="row">${escapeAdmin(name)}</th><td>${metric.requests}</td><td>${metric.failures}</td><td>${metric.p95LatencyMs===null?'Unavailable':`${metric.p95LatencyMs} ms`}</td></tr>`),'No requests observed in the current window.')}</details></section>`:''}<div class="admin-ops-grid">
+      <article class="admin-overview-card"><h2>Execution</h2>${pill(data.execution.paused?'Disabled':'Available',data.execution.paused?'warning':'success')}<p>New Python jobs ${data.execution.paused?'are paused':'can be accepted'}.${data.executionInfrastructureErrors ? ` ${escapeAdmin(data.executionInfrastructureErrors.failures)} runner failure${data.executionInfrastructureErrors.failures === 1 ? '' : 's'} in 24h.` : ''}</p><a href="/admin/execution">Execution operations</a></article>
       <article class="admin-overview-card"><h2>Queue</h2><strong>${data.queue.queued} queued · ${data.queue.running} running</strong><p>Oldest queued: ${escapeAdmin(data.queue.oldestQueuedAt||'No queued jobs')}</p><a href="/admin/execution">Review jobs</a></article>
       <article class="admin-overview-card"><h2>Runner telemetry</h2>${pill(data.workers.health,data.workers.lastObservedAt?'info':'warning')}<p>Last observed: ${escapeAdmin(data.workers.lastObservedAt||'Unavailable')}</p></article>
-      <article class="admin-overview-card"><h2>Internal errors</h2><strong>${data.internalErrors}</strong><p>Recorded in the last 24 hours.</p><a href="/admin/execution">Execution records</a></article>
+      <article class="admin-overview-card"><h2>Internal-error rate</h2><strong>${errRateDisplay}</strong><p>${errRateSub}</p>${data.operational ? '<a href="#recent-request-metrics">Recent request metrics</a>' : ''}</article>
       <article class="admin-overview-card"><h2>Outstanding reports</h2><strong>${data.openReports}</strong><p><a href="/admin/reports">Open report triage</a></p></article>
       <article class="admin-overview-card"><h2>Email delivery</h2><strong>${data.emailDeliveryIssues} issue(s)</strong><p>${escapeAdmin(data.email?.status||'No delivery data')} · last sent ${escapeAdmin(data.email?.lastSentAt||'unavailable')}</p><a href="/admin/users">Review account records</a></article>
-    </div><p class="text-muted">Telemetry status: queue ${escapeAdmin(data.telemetry.queue)}, worker heartbeat ${escapeAdmin(data.telemetry.workerHeartbeat)}, email ${escapeAdmin(data.telemetry.email)}.</p></section>`;
+    </div><p class="text-muted">Telemetry status: queue ${escapeAdmin(data.telemetry.queue)}, worker heartbeat ${escapeAdmin(data.telemetry.workerHeartbeat)}, email ${escapeAdmin(data.telemetry.email)}, internal errors ${escapeAdmin(data.telemetry.internalErrorRate||'unavailable')}.</p></section>`;
+    }
     else if(route==='/admin/users') {
       const rows=(data.items||[]).map((u:any)=>`<tr><td><a href="/admin/users/${encodeURIComponent(u.id)}">${escapeAdmin(u.displayName)}</a></td><td>${escapeAdmin(u.email)}</td><td>${u.emailVerified?'Verified':'Unverified'}</td><td>${escapeAdmin(u.capabilities.join(', '))}</td><td>${pill(u.accountStatus,u.accountStatus==='active'?'success':'warning')}</td><td>${escapeAdmin(u.createdAt)}</td></tr>`);
       const searchParams=new URLSearchParams(path.split('?')[1]||'');
@@ -35,7 +55,59 @@ export function renderAdminPage(path:string,data:any,error?:string,adminUser={di
       const rows=(data.items||[]).map((c:any)=>`<tr><td><a href="/admin/courses/${encodeURIComponent(c.id)}">${escapeAdmin(c.title)}</a></td><td>${escapeAdmin(c.owner_name)}</td><td>${escapeAdmin(c.publication_status)}</td><td>${escapeAdmin(c.visibility)}</td><td>${escapeAdmin(c.latest_version??'—')}</td><td>${c.is_suspended?'Suspended':'Available'}</td><td>${c.open_reports}</td></tr>`);
       content=`<form class="admin-filter-form"><label>Search <input class="form-input" name="search"></label><button class="btn btn-secondary">Search</button></form>${table(['Course','Owner','Publication','Visibility','Latest version','Availability','Open reports'],rows,'No matching courses.')}${pageNav(data,path)}`;
     } else if(route.startsWith('/admin/courses/')) {
-      content=`<p><a href="/admin/courses">← Courses</a></p><h2>${escapeAdmin(data.title)}</h2><dl><dt>Owner</dt><dd>${escapeAdmin(data.ownerName)} · ${escapeAdmin(data.ownerEmail)}</dd><dt>Published release</dt><dd>Version ${escapeAdmin(data.latestVersion||'—')}</dd><dt>Active enrollments</dt><dd>${data.activeEnrollments}</dd><dt>Open reports</dt><dd>${data.openReports}</dd><dt>State</dt><dd>${data.isSuspended?'Suspended':'Available'}</dd></dl>${data.ownerDeletionPending&&data.publicationStatus!=='archived'?`<aside class="alert alert-warning"><strong>Owner deletion request is pending.</strong> Archiving this course will unblock deletion after the retention period. ${adminForm(`/api/admin/courses/${encodeURIComponent(data.id)}/archive-for-deletion`,'','Archive to resolve ownership blocker')}</aside>`:''}<h3>Availability</h3>${adminForm(`/api/admin/courses/${encodeURIComponent(data.id)}/suspension`,`<label class="form-group"><span class="form-label">Action</span><select class="form-input" name="suspended"><option value="${!data.isSuspended}">${data.isSuspended?'Restore availability':'Suspend course'}</option></select></label>`,'Apply availability change')}<h3>Waive a broken required step</h3><p>Only active enrollments pinned to the selected immutable version can be affected. This satisfies progress without awarding a pass. The affected count is rechecked before commit.</p>${adminForm(`/api/admin/courses/${encodeURIComponent(data.id)}/waivers`,`<label class="form-group"><span>Version and required step</span><select class="form-input" name="versionStep" data-waiver-step required>${(data.versions||[]).flatMap((v:any)=>(v.steps||[]).filter((s:any)=>s.isRequired).map((s:any)=>`<option value="${escapeAdmin(v.id)}|${escapeAdmin(s.id)}">Version ${v.versionNumber} · ${escapeAdmin(s.title)}</option>`)).join('')}</select></label><input type="hidden" name="reviewedAffectedCount" value="0"><p class="waiver-review-count" role="status">Choose a step to review affected enrollments.</p>`,'Review and apply waiver')}`;
+      const query = new URLSearchParams(path.split('?')[1]||'');
+      const targetVersionId = query.get('versionId');
+      const targetStepId = query.get('stepId');
+      const targetVersion = targetVersionId && data.versions ? data.versions.find((v:any)=>v.id===targetVersionId) : null;
+      const targetStep = targetVersion && targetStepId ? targetVersion.steps.find((s:any)=>s.id===targetStepId) : null;
+
+      let inspectionBanner = '';
+      let snapshotInspectionPanel = '';
+      if (targetVersionId) {
+        if (!targetVersion) {
+          inspectionBanner = `<aside class="alert alert-warning my-3" role="status"><strong>Requested immutable version not found:</strong> Version snapshot <code>${escapeAdmin(targetVersionId)}</code> is not recorded for this course.</aside>`;
+        } else {
+          const isLatest = targetVersion.versionNumber === data.latestVersion;
+          let stepInspection = '';
+          if (targetStep) {
+            const problemHtml = targetStep.content?.problemStatement
+              ? `<div class="step-detail-problem mt-2"><strong class="text-xs text-muted uppercase">Problem statement:</strong><p class="text-sm mt-1">${escapeAdmin(targetStep.content.problemStatement)}</p></div>`
+              : '';
+            const starterHtml = targetStep.content?.starterCode
+              ? `<div class="step-detail-starter mt-2"><strong class="text-xs text-muted uppercase">Starter code:</strong><pre class="p-2 bg-canvas border border-subtle rounded text-xs overflow-x-auto">${escapeAdmin(targetStep.content.starterCode)}</pre></div>`
+              : '';
+            stepInspection = `<div class="target-step-card border border-subtle p-3 rounded mt-2 bg-subtle" data-inspected-step="${escapeAdmin(targetStep.id)}"><h4 class="text-sm font-semibold mb-1">Target step snapshot: ${escapeAdmin(targetStep.title)}</h4><p class="text-xs text-secondary mb-1">${escapeAdmin(targetStep.moduleTitle || 'Module')} › ${escapeAdmin(targetStep.lessonTitle || 'Lesson')} · Type: <code>${escapeAdmin(targetStep.type)}</code> · ${targetStep.isRequired ? 'Required' : 'Optional'}</p>${problemHtml}${starterHtml}</div>`;
+          }
+
+          snapshotInspectionPanel = `
+            <section class="exact-version-inspection-panel border border-accent p-3 rounded my-3" data-inspected-version="${escapeAdmin(targetVersion.id)}" role="region" aria-label="Exact Version Inspection">
+              <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+                <h3 class="text-sm font-bold">Version ${escapeAdmin(targetVersion.versionNumber)} · ${isLatest ? 'Latest' : 'Historical'}${targetStep ? ` · ${escapeAdmin(targetStep.title)}` : ''}</h3>
+                <span class="status-badge ${isLatest ? 'success' : 'warning'}">${isLatest ? 'Latest release' : 'Historical'}</span>
+              </div>
+              ${stepInspection}
+              <details class="text-xs text-muted mt-2">
+                <summary class="cursor-pointer font-medium py-1">Technical snapshot details</summary>
+                <div class="mt-1 pl-2 border-l border-subtle space-y-1">
+                  <p>Version ID: <code>${escapeAdmin(targetVersion.id)}</code></p>
+                  <p>Published: ${escapeAdmin(targetVersion.createdAt)}</p>
+                  ${targetStep ? `<p>Step ID: <code>${escapeAdmin(targetStep.id)}</code> · ${targetStep.isRequired ? 'Required' : 'Optional'}</p>` : ''}
+                </div>
+              </details>
+            </section>
+          `;
+        }
+      }
+
+      const versionOptions = (data.versions||[]).flatMap((v:any)=>(v.steps||[]).filter((s:any)=>s.isRequired).map((s:any)=>{
+        const val = `${v.id}|${s.id}`;
+        const isSelected = (targetVersionId === v.id && targetStepId === s.id);
+        return `<option value="${escapeAdmin(val)}" ${isSelected ? 'selected' : ''}>Version ${v.versionNumber} · ${escapeAdmin(s.title)}</option>`;
+      })).join('');
+
+      const versionsList = (data.versions||[]).map((v:any)=>`<li>Version ${v.versionNumber} (${escapeAdmin(v.id)}) · Published ${escapeAdmin(v.createdAt)} · <a href="/admin/courses/${encodeURIComponent(data.id)}?versionId=${encodeURIComponent(v.id)}" class="underline text-xs">Inspect exact snapshot</a></li>`).join('');
+
+      content=`<p><a href="/admin/courses">← Courses</a></p><h2>${escapeAdmin(data.title)}</h2>${inspectionBanner}${snapshotInspectionPanel}<dl><dt>Owner</dt><dd>${escapeAdmin(data.ownerName)} · ${escapeAdmin(data.ownerEmail)}</dd><dt>Published release</dt><dd>Version ${escapeAdmin(data.latestVersion||'—')}</dd><dt>Active enrollments</dt><dd>${data.activeEnrollments}</dd><dt>Open reports</dt><dd>${data.openReports}</dd><dt>State</dt><dd>${data.isSuspended?'Suspended':'Available'}</dd></dl>${data.ownerDeletionPending&&data.publicationStatus!=='archived'?`<aside class="alert alert-warning"><strong>Owner deletion request is pending.</strong> Archiving this course will unblock deletion after the retention period. ${adminForm(`/api/admin/courses/${encodeURIComponent(data.id)}/archive-for-deletion`,'','Archive to resolve ownership blocker')}</aside>`:''}<h3>Immutable published releases</h3><ul class="text-sm list-disc pl-5 mb-4">${versionsList||'<li>No published releases yet.</li>'}</ul><h3>Availability</h3>${adminForm(`/api/admin/courses/${encodeURIComponent(data.id)}/suspension`,`<label class="form-group"><span class="form-label">Action</span><select class="form-input" name="suspended"><option value="${!data.isSuspended}">${data.isSuspended?'Restore availability':'Suspend course'}</option></select></label>`,'Apply availability change')}<h3>Waive a broken required step</h3><p>Only active enrollments pinned to the selected immutable version can be affected. This satisfies progress without awarding a pass. The affected count is rechecked before commit.</p>${adminForm(`/api/admin/courses/${encodeURIComponent(data.id)}/waivers`,`<label class="form-group"><span>Version and required step</span><select class="form-input" name="versionStep" data-waiver-step required>${versionOptions}</select></label><input type="hidden" name="reviewedAffectedCount" value="0"><p class="waiver-review-count" role="status">Choose a step to review affected enrollments.</p>`,'Review and apply waiver')}`;
     } else if(route==='/admin/categories') {
       const rows=(data.items||[]).map((c:any)=>`<tr><td>${escapeAdmin(c.name)}</td><td>${c.usageCount}</td><td><details><summary>Edit</summary>${adminForm(`/api/admin/categories/${encodeURIComponent(c.id)}`,`<input class="form-input" name="name" value="${escapeAdmin(c.name)}">`,'Save category','put')}${c.usageCount?`<p>In use by ${c.usageCount} courses. Reassign first.</p><form data-admin-mutation action="/api/admin/categories/${encodeURIComponent(c.id)}" method="delete">${formField('replacementId','Replacement category ID')}${formField('reason','Reason')}${formField('currentPassword','Confirm administrator password','password')}<button class="btn btn-danger">Reassign and remove</button></form>`:`<form data-admin-mutation action="/api/admin/categories/${encodeURIComponent(c.id)}" method="delete">${formField('reason','Reason')}${formField('currentPassword','Confirm administrator password','password')}<button class="btn btn-danger">Remove</button></form>`}</details></td></tr>`);
       content=`${adminForm('/api/admin/categories','<label class="form-group"><span>Name</span><input class="form-input" name="name" required></label>','Create category')}${table(['Category','Course usage','Actions'],rows,'No categories.')}`;
@@ -43,7 +115,26 @@ export function renderAdminPage(path:string,data:any,error?:string,adminUser={di
       const rows=(data.items||[]).map((r:any)=>`<tr><td><a href="/admin/reports/${encodeURIComponent(r.id)}">${escapeAdmin(r.type)}</a></td><td>${escapeAdmin(r.courseTitle)}</td><td>${escapeAdmin(r.reporterName)}</td><td>${escapeAdmin(r.status)}</td><td>${escapeAdmin(r.createdAt)}</td></tr>`);
       content=`<form class="admin-filter-form"><label>Status <select class="form-input" name="status"><option value="">All</option><option>open</option><option>investigating</option><option>resolved</option></select></label><button class="btn btn-secondary">Filter</button></form>${table(['Type','Course','Reporter','Status','Submitted'],rows,'No reports in this view.')}${pageNav(data,path)}`;
     } else if(route.startsWith('/admin/reports/')) {
-      content=`<p><a href="/admin/reports">← Reports</a></p><h2>${escapeAdmin(data.type)} · ${escapeAdmin(data.courseTitle)}</h2><p>${escapeAdmin(data.description)}</p><p>Version: ${escapeAdmin(data.courseVersionId||'Unavailable')} · Step: ${escapeAdmin(data.stepId||'Course-level')}</p>${data.submittedCode?`<details><summary>Consented submitted code</summary><pre>${escapeAdmin(data.submittedCode)}</pre></details>`:''}<p>Status: ${escapeAdmin(data.status)}</p><form data-admin-mutation action="/api/admin/reports/${encodeURIComponent(data.id)}" method="patch"><label class="form-group"><span>Status</span><select name="status" class="form-input"><option>open</option><option>investigating</option><option>resolved</option></select></label>${formField('outcome','Resolution outcome', 'text',false)}<label class="form-group"><span>Internal notes</span><textarea class="form-input" name="internalNotes"></textarea></label>${formField('reason','Reason')}${formField('currentPassword','Confirm administrator password','password')}<button class="btn btn-primary">Update report</button></form>`;
+      const hasValidVersion = Boolean(data.courseVersionId && data.versionDetails);
+      const versionLabel = data.versionNumber ? `Version ${data.versionNumber}` : (data.courseVersionId || 'Unavailable');
+      const versionParam = hasValidVersion ? `versionId=${encodeURIComponent(data.courseVersionId)}` : '';
+      const stepParam = (hasValidVersion && data.stepId) ? `&stepId=${encodeURIComponent(data.stepId)}` : '';
+      const targetCourseUrl = (data.courseId && hasValidVersion)
+        ? `/admin/courses/${encodeURIComponent(data.courseId)}?${versionParam}${stepParam}`
+        : null;
+
+      const versionLinkHtml = targetCourseUrl
+        ? `<a href="${escapeAdmin(targetCourseUrl)}" class="admin-exact-version-link font-medium underline" data-report-version-link>${escapeAdmin(versionLabel)}${data.versionDetails ? (data.versionDetails.isLatest ? ' (latest published)' : ' (historical version, not newest)') : ''}</a>`
+        : `<span class="text-muted" data-report-version-unavailable>Unavailable — no version snapshot recorded</span>`;
+
+      const stepLabel = data.stepTitle ? `${data.stepTitle} (${data.stepId})` : (data.stepId || 'Course-level');
+      const stepLinkHtml = data.stepId
+        ? (targetCourseUrl
+            ? `<a href="${escapeAdmin(targetCourseUrl)}" class="admin-exact-step-link font-medium underline" data-report-step-link>${escapeAdmin(stepLabel)}</a>`
+            : `<span class="text-muted" data-report-step-unavailable>${escapeAdmin(stepLabel)}</span>`)
+        : `<span class="text-muted">Course-level report</span>`;
+
+      content=`<p><a href="/admin/reports">← Reports</a></p><h2>${escapeAdmin(data.type)} · ${escapeAdmin(data.courseTitle)}</h2><p>${escapeAdmin(data.description)}</p><div class="report-context-panel border border-subtle p-3 rounded my-3"><h3 class="text-sm font-semibold mb-2">Reported learning context</h3><p class="text-sm mb-1"><strong>Course:</strong> <a href="/admin/courses/${encodeURIComponent(data.courseId)}" class="underline">${escapeAdmin(data.courseTitle)}</a></p><p class="text-sm mb-1"><strong>Immutable version:</strong> ${versionLinkHtml}</p><p class="text-sm mb-1"><strong>Step:</strong> ${stepLinkHtml}</p>${data.versionDetails?.createdAt ? `<p class="text-xs text-muted mt-2">Pinned to version published ${escapeAdmin(data.versionDetails.createdAt)}.</p>` : ''}</div>${data.submittedCode?`<details><summary>Consented submitted code</summary><pre>${escapeAdmin(data.submittedCode)}</pre></details>`:''}<p>Status: ${escapeAdmin(data.status)}</p><form data-admin-mutation action="/api/admin/reports/${encodeURIComponent(data.id)}" method="patch"><label class="form-group"><span>Status</span><select name="status" class="form-input"><option>open</option><option>investigating</option><option>resolved</option></select></label>${formField('outcome','Resolution outcome', 'text',false)}<label class="form-group"><span>Internal notes</span><textarea class="form-input" name="internalNotes"></textarea></label>${formField('reason','Reason')}${formField('currentPassword','Confirm administrator password','password')}<button class="btn btn-primary">Update report</button></form>`;
     } else if(route==='/admin/media') {
       const rows=(data.items||[]).map((a:any)=>`<tr><td>${escapeAdmin(a.id)}</td><td>${escapeAdmin(a.courseTitle)}</td><td>${escapeAdmin(a.mimeType)} · ${Math.ceil(a.fileSize/1024)} KB</td><td>${escapeAdmin(a.processingStatus)}</td><td>${a.referenceCount}</td><td>${a.processingStatus==='ready'?`<form data-admin-preview action="/api/admin/media/${encodeURIComponent(a.id)}/preview" method="post">${formField('reason','Preview review reason')}${formField('currentPassword','Confirm administrator password','password')}<button class="btn btn-secondary">Safe preview</button></form>`:''}${adminForm(`/api/admin/media/${encodeURIComponent(a.id)}/${a.processingStatus==='quarantined'?'restore':'quarantine'}`,'','Apply review')}${a.processingStatus==='quarantined'&&a.referenceCount===0?adminForm(`/api/admin/media/${encodeURIComponent(a.id)}`,'','Delete unreferenced asset','delete'):''}</td></tr>`);
       content=table(['Asset','Course','Type / size','Processing','References','Review'],rows,'No media assets.')+pageNav(data,path);

@@ -3,10 +3,15 @@ import fs from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { ConflictError, NotFoundError, ValidationError, AuthorizationError } from 'zur-shared';
 import { appendDeletionTombstone } from '../db/deletion-registry.ts';
+import { OperationalMetricsService } from './operational-metrics-service.ts';
 
 export class AdminService {
   private readonly db: DatabaseSync;
-  constructor(db: DatabaseSync) { this.db=db; }
+  private readonly operationalMetrics?: OperationalMetricsService;
+  constructor(db: DatabaseSync, operationalMetrics?: OperationalMetricsService) {
+    this.db = db;
+    this.operationalMetrics = operationalMetrics;
+  }
 
   private requireAdmin(adminId: string): void {
     const row = this.db.prepare('SELECT capabilities, account_status FROM users WHERE id = ?').get(adminId) as any;
@@ -53,22 +58,60 @@ export class AdminService {
       this.sanitizeReason(this.reason(reason)), metadata ? JSON.stringify(metadata) : null, crypto.randomUUID(), new Date().toISOString());
   }
 
-  getOperationsOverview(adminId: string) {
+  getOperationsOverview(adminId: string, operationalMetrics?: OperationalMetricsService) {
     this.requireAdmin(adminId);
     const count = (sql: string, ...args: any[]) => (this.db.prepare(sql).get(...args) as any)?.count ?? 0;
     const oldest = this.db.prepare(`SELECT created_at FROM execution_jobs WHERE status = 'queued' ORDER BY created_at LIMIT 1`).get() as any;
     const settings = this.db.prepare(`SELECT updated_at FROM system_settings WHERE key = 'execution_paused'`).get() as any;
     const mail = this.db.prepare(`SELECT COUNT(*) AS total,SUM(email_delivery_status='sent') AS sent,SUM(email_delivery_status='pending') AS pending,COUNT(*) FILTER (WHERE email_delivery_status IN ('failed','not_configured')) AS issues,MAX(email_sent_at) AS lastSentAt FROM invitations WHERE type='email'`).get() as any;
+
+    const metrics = operationalMetrics || this.operationalMetrics;
+    const internalErrorRate = metrics?.getServerErrorRate
+      ? metrics.getServerErrorRate()
+      : {
+          window: '5m',
+          windowLabel: 'Last 5 minutes',
+          windowSeconds: 300,
+          numerator: 0,
+          denominator: 0,
+          rate: null,
+          rateFormatted: 'Unavailable',
+          status: 'insufficient_telemetry' as const,
+          client4xxErrors: 0,
+          retentionPolicy: 'In-memory recent request buffer (resets on process restart)',
+        };
+
+    const window24h = new Date(Date.now() - 86400000).toISOString();
+    const infraErrors = count("SELECT COUNT(*) count FROM assessment_attempts WHERE is_infrastructure_failure=1 AND created_at >= ?", window24h);
+    const totalAttempts = count("SELECT COUNT(*) count FROM assessment_attempts WHERE created_at >= ?", window24h);
+    const failedJobs = count("SELECT COUNT(*) count FROM execution_jobs WHERE status='failed' AND created_at >= ?", window24h);
+    const totalJobs = count("SELECT COUNT(*) count FROM execution_jobs WHERE created_at >= ?", window24h);
+
+    const executionInfrastructureErrors = {
+      window: '24h',
+      windowLabel: 'Last 24 hours',
+      failures: infraErrors + failedJobs,
+      attempts: { errors: infraErrors, total: totalAttempts },
+      jobs: { errors: failedJobs, total: totalJobs },
+    };
+
     return {
       refreshedAt: new Date().toISOString(),
       execution: { paused: ((this.db.prepare(`SELECT value FROM system_settings WHERE key='execution_paused'`).get() as any)?.value === 'true'), updatedAt: settings?.updated_at || null },
       queue: { queued: count("SELECT COUNT(*) count FROM execution_jobs WHERE status='queued'"), running: count("SELECT COUNT(*) count FROM execution_jobs WHERE status='running'"), oldestQueuedAt: oldest?.created_at || null },
       workers: { lastObservedAt: null, health: 'Unavailable — no separate worker heartbeat configured' },
-      internalErrors: count("SELECT COUNT(*) count FROM assessment_attempts WHERE is_infrastructure_failure=1 AND created_at >= ?", new Date(Date.now()-86400000).toISOString()),
+      internalErrors: internalErrorRate.numerator,
+      internalErrorRate,
+      executionInfrastructureErrors,
       openReports: count("SELECT COUNT(*) count FROM reports WHERE status != 'resolved'"),
       emailDeliveryIssues: mail.issues || 0,
       email: { status: mail.issues ? 'Delivery issues recorded' : mail.pending ? 'Delivery pending' : mail.sent ? 'Recent delivery succeeded' : 'No delivery data', lastSentAt: mail.lastSentAt || null, total:mail.total||0 },
-      telemetry: { queue: 'available', workerHeartbeat: 'not configured', email: mail.issues ? 'issues recorded' : mail.pending ? 'delivery pending' : mail.sent ? 'recent success' : 'no delivery data' },
+      telemetry: {
+        queue: 'available',
+        workerHeartbeat: 'not configured',
+        email: mail.issues ? 'issues recorded' : mail.pending ? 'delivery pending' : mail.sent ? 'recent success' : 'no delivery data',
+        internalErrorRate: internalErrorRate.status,
+      },
     };
   }
   listExecutionJobs(adminId:string,from?:string,to?:string,limit=50,offset=0){this.requireAdmin(adminId);this.page(limit,offset);const where:string[]=['1=1'],args:any[]=[];if(from){where.push('created_at>=?');args.push(from);}if(to){where.push('created_at<=?');args.push(to);}const total=(this.db.prepare(`SELECT COUNT(*) count FROM execution_jobs WHERE ${where.join(' AND ')}`).get(...args) as any).count;const items=this.db.prepare(`SELECT id,user_id userId,enrollment_id enrollmentId,step_id stepId,job_type jobType,status,worker_id workerId,lease_expires_at leaseExpiresAt,created_at createdAt,updated_at updatedAt FROM execution_jobs WHERE ${where.join(' AND ')} ORDER BY created_at DESC LIMIT ? OFFSET ?`).all(...args,limit,offset);return {items,total,limit,offset};}
@@ -137,7 +180,41 @@ export class AdminService {
       FROM courses c JOIN users u ON u.id=c.owner_id ${where} ORDER BY c.updated_at DESC LIMIT ? OFFSET ?`).all(...args,limit,offset);
     return { items,total,limit,offset };
   }
-  getCourseDetail(adminId:string,courseId:string){this.requireAdmin(adminId);const row=this.db.prepare(`SELECT c.id,c.title,c.description,c.publication_status publicationStatus,c.visibility,c.enrollment_policy enrollmentPolicy,c.is_suspended isSuspended,c.current_version_id currentVersionId,c.owner_id ownerId,u.display_name ownerName,u.email ownerEmail,u.account_status ownerAccountStatus,EXISTS(SELECT 1 FROM privacy_requests p WHERE p.user_id=u.id AND p.request_type='deletion' AND p.status IN ('submitted','pending')) ownerDeletionPending,(SELECT version_number FROM course_versions WHERE id=c.current_version_id) latestVersion,(SELECT COUNT(*) FROM enrollments e WHERE e.course_id=c.id AND e.status='active') activeEnrollments,(SELECT COUNT(*) FROM reports r WHERE r.course_id=c.id AND r.status!='resolved') openReports FROM courses c JOIN users u ON u.id=c.owner_id WHERE c.id=?`).get(courseId) as any;if(!row)throw new NotFoundError("This page isn't available.");row.ownerDeletionPending=Boolean(row.ownerDeletionPending);row.versions=(this.db.prepare('SELECT id,version_number versionNumber,created_at createdAt,snapshot_data FROM course_versions WHERE course_id=? ORDER BY version_number DESC').all(courseId) as any[]).map(v=>({id:v.id,versionNumber:v.versionNumber,createdAt:v.createdAt,steps:(JSON.parse(v.snapshot_data).modules||[]).flatMap((m:any)=>m.lessons||[]).flatMap((l:any)=>l.steps||[]).map((s:any)=>({id:s.id,title:s.title,isRequired:Boolean(s.isRequired)}))}));return row;}
+  getCourseDetail(adminId:string,courseId:string){
+    this.requireAdmin(adminId);
+    const row=this.db.prepare(`SELECT c.id,c.title,c.description,c.publication_status publicationStatus,c.visibility,c.enrollment_policy enrollmentPolicy,c.is_suspended isSuspended,c.current_version_id currentVersionId,c.owner_id ownerId,u.display_name ownerName,u.email ownerEmail,u.account_status ownerAccountStatus,EXISTS(SELECT 1 FROM privacy_requests p WHERE p.user_id=u.id AND p.request_type='deletion' AND p.status IN ('submitted','pending')) ownerDeletionPending,(SELECT version_number FROM course_versions WHERE id=c.current_version_id) latestVersion,(SELECT COUNT(*) FROM enrollments e WHERE e.course_id=c.id AND e.status='active') activeEnrollments,(SELECT COUNT(*) FROM reports r WHERE r.course_id=c.id AND r.status!='resolved') openReports FROM courses c JOIN users u ON u.id=c.owner_id WHERE c.id=?`).get(courseId) as any;
+    if(!row)throw new NotFoundError("This page isn't available.");
+    row.ownerDeletionPending=Boolean(row.ownerDeletionPending);
+    row.versions=(this.db.prepare('SELECT id,version_number versionNumber,created_at createdAt,snapshot_data FROM course_versions WHERE course_id=? ORDER BY version_number DESC').all(courseId) as any[]).map(v=>{
+      let parsed: any = {};
+      try { parsed = JSON.parse(v.snapshot_data); } catch {}
+      const steps: any[] = [];
+      for (const m of parsed.modules || []) {
+        for (const l of m.lessons || []) {
+          for (const s of l.steps || []) {
+            steps.push({
+              id: s.id,
+              title: s.title,
+              type: s.type || s.content?.kind || 'step',
+              isRequired: Boolean(s.isRequired),
+              moduleTitle: m.title || null,
+              lessonTitle: l.title || null,
+              content: s.content || null,
+            });
+          }
+        }
+      }
+      return {
+        id: v.id,
+        versionNumber: v.versionNumber,
+        createdAt: v.createdAt,
+        title: parsed.title || null,
+        description: parsed.description || null,
+        steps,
+      };
+    });
+    return row;
+  }
   setCourseSuspended(adminId:string,courseId:string,suspended:boolean,reason:string){this.requireAdmin(adminId);const why=this.reason(reason);const row=this.db.prepare('SELECT is_suspended FROM courses WHERE id=?').get(courseId) as any;if(!row)throw new NotFoundError("This page isn't available.");this.db.prepare('UPDATE courses SET is_suspended=?,updated_at=? WHERE id=?').run(suspended?1:0,new Date().toISOString(),courseId);this.audit(adminId,suspended?'course:suspend':'course:unsuspend','course',courseId,why);return this.getCourseDetail(adminId,courseId);}
   archiveCourseForDeletion(adminId:string,courseId:string,reason:string){this.requireAdmin(adminId);const why=this.reason(reason);const course=this.db.prepare(`SELECT c.owner_id,c.publication_status FROM courses c WHERE c.id=? AND EXISTS(SELECT 1 FROM privacy_requests p WHERE p.user_id=c.owner_id AND p.request_type='deletion' AND p.status IN ('submitted','pending'))`).get(courseId) as any;if(!course)throw new NotFoundError("This page isn't available.");if(course.publication_status==='archived')return this.getCourseDetail(adminId,courseId);this.db.prepare(`UPDATE courses SET publication_status='archived',updated_at=? WHERE id=?`).run(new Date().toISOString(),courseId);this.audit(adminId,'course:archive_for_deletion','course',courseId,why,{ownerId:course.owner_id});return this.getCourseDetail(adminId,courseId);}
   setExecutionPaused(adminId:string,paused:boolean,reason:string){this.requireAdmin(adminId);const why=this.reason(reason);const now=new Date().toISOString();this.db.prepare(`INSERT INTO system_settings(key,value,updated_at) VALUES('execution_paused',?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at`).run(paused?'true':'false',now);this.audit(adminId,paused?'execution:disable_new':'execution:reactivate','execution','global',why);return {executionPaused:paused,updatedAt:now};}
@@ -198,7 +275,49 @@ export class AdminService {
       FROM reports r JOIN users u ON u.id=r.reporter_id JOIN courses c ON c.id=r.course_id ${where} ORDER BY r.created_at DESC LIMIT ? OFFSET ?`).all(...args,limit,offset);
     return {items,total,limit,offset};
   }
-  getReport(adminId:string,id:string){this.requireAdmin(adminId);const report=this.db.prepare(`SELECT r.id,r.type,r.status,r.description,r.submitted_code submittedCode,r.course_id courseId,r.course_version_id courseVersionId,r.step_id stepId,r.resolution_notes resolutionNotes,r.resolution_outcome resolutionOutcome,r.internal_notes internalNotes,r.created_at createdAt,u.display_name reporterName,c.title courseTitle FROM reports r JOIN users u ON u.id=r.reporter_id JOIN courses c ON c.id=r.course_id WHERE r.id=?`).get(id);if(!report)throw new NotFoundError("This page isn't available.");return report;}
+  getReport(adminId:string,id:string){
+    this.requireAdmin(adminId);
+    const report=this.db.prepare(`SELECT r.id,r.type,r.status,r.description,r.submitted_code submittedCode,r.course_id courseId,r.course_version_id courseVersionId,r.step_id stepId,r.resolution_notes resolutionNotes,r.resolution_outcome resolutionOutcome,r.internal_notes internalNotes,r.created_at createdAt,u.display_name reporterName,c.title courseTitle FROM reports r JOIN users u ON u.id=r.reporter_id JOIN courses c ON c.id=r.course_id WHERE r.id=?`).get(id) as any;
+    if(!report)throw new NotFoundError("This page isn't available.");
+    let versionNumber: number | null = null;
+    let isLatestVersion: boolean | null = null;
+    let stepTitle: string | null = null;
+    let versionDetails: { id: string; versionNumber: number; createdAt: string; isLatest: boolean } | null = null;
+
+    if (report.courseVersionId) {
+      const v = this.db.prepare('SELECT id, version_number, created_at, snapshot_data FROM course_versions WHERE id=? AND course_id=?').get(report.courseVersionId, report.courseId) as any;
+      if (v) {
+        versionNumber = v.version_number;
+        const latest = this.db.prepare('SELECT id FROM course_versions WHERE course_id=? ORDER BY version_number DESC LIMIT 1').get(report.courseId) as any;
+        isLatestVersion = latest ? latest.id === v.id : false;
+        versionDetails = {
+          id: v.id,
+          versionNumber: v.version_number,
+          createdAt: v.created_at,
+          isLatest: isLatestVersion,
+        };
+        if (report.stepId) {
+          try {
+            const snapshot = JSON.parse(v.snapshot_data);
+            const step = (snapshot.modules || []).flatMap((m: any) => m.lessons || []).flatMap((l: any) => l.steps || []).find((s: any) => s.id === report.stepId);
+            if (step) {
+              stepTitle = step.title;
+            }
+          } catch {
+            // ignore
+          }
+        }
+      }
+    }
+
+    return {
+      ...report,
+      versionNumber,
+      isLatestVersion,
+      stepTitle,
+      versionDetails,
+    };
+  }
   updateReport(adminId:string,id:string,status:string,outcome:string,internalNotes:string,reason:string){this.requireAdmin(adminId);const why=this.reason(reason);if(!['open','investigating','resolved'].includes(status))throw new ValidationError('Invalid report status.');if(status==='resolved'&&(!outcome.trim()||outcome.trim().length>2000))throw new ValidationError('A resolution outcome is required.');if(internalNotes.length>4000)throw new ValidationError('Internal notes are too long.');const now=new Date().toISOString();const res=this.db.prepare('UPDATE reports SET status=?,resolution_outcome=?,internal_notes=?,resolution_notes=?,resolved_by=?,updated_at=? WHERE id=?').run(status,status==='resolved'?outcome.trim():null,internalNotes.trim()||null,status==='resolved'?outcome.trim():null,status==='resolved'?adminId:null,now,id);if(!res.changes)throw new NotFoundError("This page isn't available.");this.audit(adminId,'report:status','report',id,why,{status});return this.getReport(adminId,id);}
 
   listMedia(adminId:string,limit=20,offset=0){this.requireAdmin(adminId);this.page(limit,offset);const total=(this.db.prepare('SELECT COUNT(*) count FROM media_assets').get() as any).count;const items=this.db.prepare(`SELECT a.id,a.course_id courseId,c.title courseTitle,a.uploader_id uploaderId,a.file_size fileSize,a.mime_type mimeType,a.dimensions,a.alt_text altText,a.is_decorative isDecorative,a.caption,a.processing_status processingStatus,a.created_at createdAt,a.updated_at updatedAt FROM media_assets a JOIN courses c ON c.id=a.course_id ORDER BY a.created_at DESC LIMIT ? OFFSET ?`).all(limit,offset) as any[];return {items:items.map(a=>{const versions=(this.db.prepare('SELECT snapshot_data FROM course_versions WHERE course_id=?').all(a.courseId) as any[]).filter(v=>String(v.snapshot_data).includes(a.id)).length;const drafts=(this.db.prepare(`SELECT COUNT(*) count FROM step_contents sc JOIN steps s ON s.id=sc.step_id JOIN lessons l ON l.id=s.lesson_id JOIN modules m ON m.id=l.module_id WHERE m.course_id=? AND sc.content_payload LIKE ?`).get(a.courseId,`%${a.id}%`) as any).count;return {...a,dimensions:a.dimensions?JSON.parse(a.dimensions):null,isDecorative:Boolean(a.isDecorative),referenceCount:versions+drafts};}),total,limit,offset};}

@@ -33,7 +33,7 @@ export class CourseClient {
     language?: string;
     limit?: number;
     offset?: number;
-  } = {}): Promise<{ courses: CatalogCourseItem[]; total: number; limit: number; offset: number }> {
+  } = {}): Promise<{ courses: CatalogCourseItem[]; total: number; limit: number; offset: number; languages?: string[] }> {
     const query = new URLSearchParams();
     if (params.search) query.set('search', params.search);
     if (params.categoryId) query.set('categoryId', params.categoryId);

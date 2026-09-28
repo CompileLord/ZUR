@@ -1635,10 +1635,13 @@ export function renderApp(path: string = window.location.pathname + window.locat
         ])
           .then(([cats, catRes]) => {
             if (requestId !== activeCatalogRequestId || window.location.pathname !== '/courses') return;
+            const isSheetOpen = Boolean(document.getElementById('mobile-filter-sheet')?.classList.contains('open'));
             catalogState.categories = cats;
             catalogState.courses = catRes.courses;
+            catalogState.languages = catRes.languages || [];
             catalogState.total = catRes.total;
             catalogState.isLoading = false;
+            catalogState.isMobileFilterOpen = isSheetOpen || Boolean(catalogState.isMobileFilterOpen);
             const updatedContent = renderCatalogPage(catalogState);
             appEl.innerHTML = renderPublicShell({
               activePath: '/courses',
@@ -1649,8 +1652,10 @@ export function renderApp(path: string = window.location.pathname + window.locat
           })
           .catch((err) => {
             if (requestId !== activeCatalogRequestId || window.location.pathname !== '/courses') return;
+            const isSheetOpen = Boolean(document.getElementById('mobile-filter-sheet')?.classList.contains('open'));
             catalogState.isLoading = false;
             catalogState.error = err.message || 'Failed to load course catalog';
+            catalogState.isMobileFilterOpen = isSheetOpen || Boolean(catalogState.isMobileFilterOpen);
             const updatedContent = renderCatalogPage(catalogState);
             appEl.innerHTML = renderPublicShell({
               activePath: '/courses',
@@ -2520,6 +2525,7 @@ function attachCatalogListeners(catalogState: CatalogPageProps): void {
 
   function openMobileSheet(): void {
     if (!mobileSheet) return;
+    catalogState.isMobileFilterOpen = true;
     mobileTriggerElement = document.activeElement as HTMLElement | null;
     mobileSheet.style.display = 'flex';
     mobileSheet.classList.add('open');
@@ -2530,6 +2536,7 @@ function attachCatalogListeners(catalogState: CatalogPageProps): void {
 
   function closeMobileSheet(): void {
     if (!mobileSheet) return;
+    catalogState.isMobileFilterOpen = false;
     mobileSheet.style.display = 'none';
     mobileSheet.classList.remove('open');
     document.removeEventListener('keydown', handleMobileSheetKeyDown);

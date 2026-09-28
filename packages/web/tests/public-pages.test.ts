@@ -105,6 +105,54 @@ test('Public Course Catalog Page P02 (T070)', async (t) => {
     assert.ok(html.includes('aria-modal="true"'));
   });
 
+  await t.test('offers actual published languages in desktop and mobile filters and preserves URL selection (T070, P02)', () => {
+    const multiLangCourses = [
+      ...sampleCourses,
+      {
+        id: 'c3',
+        title: 'Fundamentos de Python',
+        description: 'Curso en español',
+        difficulty: 'beginner',
+        language: 'es',
+        estimatedDurationMinutes: 90,
+        authorName: 'Ada Lovelace',
+        tags: ['python', 'spanish'],
+      },
+    ];
+
+    // Case 1: unselected language (All languages default)
+    const htmlUnselected = renderCatalogPage({
+      courses: multiLangCourses,
+      categories: sampleCategories,
+      languages: ['en', 'es'],
+      total: 3,
+      isLoading: false,
+      filters: { page: 1, limit: 12 },
+    });
+
+    assert.ok(htmlUnselected.includes('value="en"'));
+    assert.ok(htmlUnselected.includes('value="es"'));
+    assert.ok(htmlUnselected.includes('English'));
+    assert.ok(htmlUnselected.includes('Spanish'));
+    assert.ok(htmlUnselected.includes('id="filter-language"'));
+    assert.ok(htmlUnselected.includes('id="mobile-filter-language"'));
+
+    // Case 2: selected language 'es' preserved in URL and selected in both dropdowns
+    const htmlSelected = renderCatalogPage({
+      courses: [multiLangCourses[2]],
+      categories: sampleCategories,
+      languages: ['en', 'es'],
+      total: 1,
+      isLoading: false,
+      filters: { language: 'es', page: 1, limit: 12 },
+    });
+
+    const selectedEsMatches = htmlSelected.match(/<option value="es" selected>Spanish<\/option>/g) || [];
+    assert.strictEqual(selectedEsMatches.length, 2, 'Both desktop and mobile selectors must have Spanish option selected');
+    assert.ok(htmlSelected.includes('Fundamentos de Python'));
+    assert.ok(htmlSelected.includes('Clear filters'));
+  });
+
   await t.test('renders loading skeleton when isLoading is true', () => {
     const html = renderCatalogPage({
       isLoading: true,
