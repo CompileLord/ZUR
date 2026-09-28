@@ -42,6 +42,11 @@ export interface ListAgentActivityOptions {
   page?: number;
   limit?: number;
   toolName?: string;
+  outcome?: string;
+  tokenId?: string;
+  date?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 export interface PaginatedAgentActivity {
@@ -50,6 +55,7 @@ export interface PaginatedAgentActivity {
   limit: number;
   total: number;
   totalPages: number;
+  connections?: { id: string; label: string }[];
 }
 
 export class AgentActivityService {
@@ -166,7 +172,7 @@ export class AgentActivityService {
     const limit = Math.min(100, Math.max(1, Number(options?.limit) || 20));
     const offset = (page - 1) * limit;
 
-    let countQuery = 'SELECT COUNT(*) as total FROM agent_mutations WHERE course_id = ? AND author_id = ?';
+    let countQuery = 'SELECT COUNT(*) as total FROM agent_mutations m WHERE m.course_id = ? AND m.author_id = ?';
     let dataQuery = `
       SELECT m.id, m.token_id, t.label as token_label, m.tool_name, m.base_revision, m.new_revision,
              m.affected_entities, m.outcome, m.correlation_id, m.created_at
@@ -178,9 +184,42 @@ export class AgentActivityService {
     const params: any[] = [courseId, authorId];
 
     if (options?.toolName) {
-      countQuery += ' AND tool_name = ?';
+      countQuery += ' AND m.tool_name = ?';
       dataQuery += ' AND m.tool_name = ?';
       params.push(options.toolName);
+    }
+
+    if (options?.outcome) {
+      countQuery += ' AND m.outcome = ?';
+      dataQuery += ' AND m.outcome = ?';
+      params.push(options.outcome);
+    }
+
+    if (options?.tokenId) {
+      countQuery += ' AND m.token_id = ?';
+      dataQuery += ' AND m.token_id = ?';
+      params.push(options.tokenId);
+    }
+
+    if (options?.date) {
+      const startOfDay = options.date.includes('T') ? options.date : `${options.date}T00:00:00.000Z`;
+      const endOfDay = options.date.includes('T') ? options.date : `${options.date}T23:59:59.999Z`;
+      countQuery += ' AND m.created_at >= ? AND m.created_at <= ?';
+      dataQuery += ' AND m.created_at >= ? AND m.created_at <= ?';
+      params.push(startOfDay, endOfDay);
+    } else {
+      if (options?.dateFrom) {
+        const fromIso = options.dateFrom.includes('T') ? options.dateFrom : `${options.dateFrom}T00:00:00.000Z`;
+        countQuery += ' AND m.created_at >= ?';
+        dataQuery += ' AND m.created_at >= ?';
+        params.push(fromIso);
+      }
+      if (options?.dateTo) {
+        const toIso = options.dateTo.includes('T') ? options.dateTo : `${options.dateTo}T23:59:59.999Z`;
+        countQuery += ' AND m.created_at <= ?';
+        dataQuery += ' AND m.created_at <= ?';
+        params.push(toIso);
+      }
     }
 
     const countRow = this.db.prepare(countQuery).get(...params) as any;
@@ -188,6 +227,14 @@ export class AgentActivityService {
 
     dataQuery += ' ORDER BY m.created_at DESC, m.new_revision DESC LIMIT ? OFFSET ?';
     const rows = this.db.prepare(dataQuery).all(...params, limit, offset) as any[];
+
+    const connRows = this.db.prepare(`
+      SELECT DISTINCT m.token_id as id, COALESCE(t.label, 'Agent') as label
+      FROM agent_mutations m
+      LEFT JOIN author_access_tokens t ON m.token_id = t.id
+      WHERE m.course_id = ? AND m.author_id = ?
+      ORDER BY label ASC
+    `).all(courseId, authorId) as { id: string; label: string }[];
 
     const items: AgentMutationSummary[] = rows.map((r) => {
       let parsedEntities: any = [];
@@ -217,6 +264,7 @@ export class AgentActivityService {
       limit,
       total,
       totalPages: Math.ceil(total / limit) || 1,
+      connections: connRows,
     };
   }
 

@@ -1,32 +1,23 @@
-# S3 audit — open
+# S3 audit — verified locally
 
-Reviewed against `PRD_V2.md` §23.2–23.9, `design.md` §19/P43–P45, and the S3 gate in `tasks.json`. The original ten source findings prompted implementation work. Their current state is below; passing tests alone do not close the S3 delivery gate.
+Reviewed against `PRD_V2.md` §23.2–23.9, `design.md` §19/P43–P45, the S3 gate and T053–T068 in `tasks.json`, source changes, full tests, and a real browser journey driven by an official MCP SDK client. The original audit findings and subsequent UI findings are closed by the evidence below.
 
-| Original finding | Current audit result |
+| Requirement | Independent result |
 |---|---|
-| Official SDK and protocol revisions (T057/T068) | Code now uses official MCP SDK v2 for `2026-07-28` and official v1 Streamable HTTP for legacy clients. A real v2 `Client` connected, discovered tools, read context, and created a course through `/mcp` in the browser journey. Automated modern/legacy transport tests pass. |
-| Actual image bytes and upload capability (T060/T068) | A scoped upload session, byte-upload endpoint, checksum/dimension checks, and 10 MB/1 MiB limits are implemented. The real-SDK journey uploaded PNG bytes and completed the asset. **Open:** the author Theory preview screenshot shows a broken image icon, so UI/MCP round trip and student delivery are not verified. |
-| Prepare/apply batch plan (T063/T068) | Separate tools, persisted digest-bound plan, revision checks, and focused tests exist. The full real-SDK browser script has not completed its later batch step. |
-| Revocation before commit (T053/T054/T063/T064) | Token status is re-read by permission checks; batch apply and publication call these checks before transaction commit. Focused revocation tests pass. A real pending-write interruption remains part of the uncompleted MCP-04 gate. |
-| Image limits and attach/detach/update (T060) | Server tools and tests cover 10 MB upload, 1 MiB inline, and asset operations. **Open:** the author editor still labels upload as 5 MiB in the captured preview, and actual preview rendering fails. |
-| Move/duplicate hierarchy (T059) | Tools and domain-service operations for modules, lessons, and steps were added, with focused tests. |
-| Batch idempotency mismatch (T063) | Request digests are persisted; matching retries return the original receipt and changed payloads are rejected in focused SDK tests. |
-| Activity list/change detail (T065) | Scoped `list_agent_activity` and `get_change` tools were added, with focused tests. |
-| Host/Origin validation (T064) | Transport now checks allowed hosts and same-origin requests; tests cover rejected hosts/origins. |
+| Official SDK and protocol revisions (T057/T068) | The official v2 client connected over Streamable HTTP using protocol `2026-07-28`, discovered tools, read author context, and performed the full course journey. Legacy v1 transport and Host/Origin rejection have focused tests. |
+| Scoped grants and connection experience (T053–T056) | Browser issued a reauthenticated token, showed its secret once, replaced it with same-or-narrower grants, revoked it, and verified the old client was denied. P43 mobile actions and scope summaries were visually reviewed. P44 uses a real token and endpoint, gives tested SDK/bearer guidance, and states the OAuth-only limitation without claiming a connection. |
+| Course structure and image delivery (T058–T060) | The SDK created metadata, modules, lessons, Markdown theory, video, quiz, and Python exercise. It uploaded real PNG bytes through a scoped session; checksum and size checks passed. The author and student browser previews loaded the image at its 400px natural width and retained alt text. Image attach/detach/update, move/duplicate, and limits have focused tests. |
+| Validation, publication, lifecycle (T061–T062) | A failing Python reference blocked publication. Validated content published at the exact draft revision; the browser showed the Published state. Published version identity remained unchanged after draft restoration. Lifecycle and access operations have scoped tests. |
+| Batch, quotas, revocation (T063–T064) | Prepare/apply used a digest-bound plan and revision recheck. Same-key retries returned the original receipt and changed-payload reuse failed. A real SDK adversarial test paused publication validation, revoked the token before commit, then confirmed no version/revision change and denial of subsequent calls. Cross-author, scope, unsafe-content, Host/Origin, and size cases passed. |
+| Activity, concurrency, and recovery (T065–T067) | A real SDK mutation produced an attributed activity row and readable field-level diff. Connection, date, operation, and outcome filters changed the live list. The builder preserved a real unsaved input across a remote mutation. A retained batch snapshot restored through the author UI as a new draft revision after review; a stale revision returned 409, while the published version remained intact. Missing snapshots show an explicit unavailable state. Desktop and 390px mobile activity screens were visually reviewed; mobile cards keep View diff reachable. |
+| MCP-01–MCP-12 (T068) | Official SDK adversarial and end-to-end test file passed 13/13; the real browser script additionally covered issue, upload, author/student image rendering, conflict, activity/diff/filter/recovery, blocked and successful publication, batch idempotency, P44 OAuth-only messaging, replacement, and revocation. |
 
-## Independent checks
+## Independent verification
 
-- `npm test`: 523 passed, 0 failed (latest run after agy changes).
-- `npm run build`: passed (Vite web build).
-- `git diff --check`: passed.
-- `node --experimental-strip-types scripts/verify-s3-browser-journey.ts`: **failed** at course validation (`Course validation failed: []`); the script checks `valid` while the service returns `isValid`. Earlier steps issued a token in the real browser, connected an official SDK v2 client, uploaded real PNG bytes, created Theory/Video/Quiz/Python steps, and captured a builder conflict state. The conflict script sets a session flag rather than making a real unsaved edit, so it does not prove preservation. Publication and later adversarial steps did not run.
-- Visual review: [image preview](../../screenshots/S3-audit-builder-theory-image-preview.png) has a broken image; [conflict state](../../screenshots/S3-audit-builder-conflict-remote-update.png) displays the unsaved-change message but is scripted with a synthetic flag. [Mobile connections](../../screenshots/S3-audit-connections-revoked-mobile-cards.png) concatenates Last used/Expires metadata and leaves a disabled Setup button on a revoked card without a clear row-level replacement action. [Mobile grant dialog](../../screenshots/S3-audit-grant-form-mobile.png) has dense helper copy and requires scrolling to its action area. Keep required scope and consequence details while simplifying copy and layout.
+- `npm test`: **534 passed, 0 failed**.
+- `npm run build`: **passed** (Vite reports only its bundle-size advisory).
+- `git diff --check`: **passed**.
+- `node --experimental-strip-types scripts/verify-s3-browser-journey.ts`: **passed**, using local SQLite, browser UI, an official SDK client, actual PNG bytes, and real API calls. The script reports every stage flag true, including `p45ActivityAndRecoveryVerified`.
+- Visual review: [image preview](../../screenshots/S3-audit-builder-theory-image-preview.png), [unsaved builder conflict](../../screenshots/S3-audit-builder-conflict-remote-update.png), [published state](../../screenshots/S3-audit-builder-published.png), [activity diff](../../screenshots/S3-audit-activity-diff-drawer.png), [mobile activity](../../screenshots/S3-audit-activity-mobile.png), [restore review](../../screenshots/S3-audit-activity-restore-modal.png), [mobile connection cards](../../screenshots/S3-audit-connections-revoked-mobile-cards.png), [mobile grant form](../../screenshots/S3-audit-grant-form-mobile.png), and [OAuth-only notice](../../screenshots/S3-audit-oauth-only-notice.png). These were inspected for accurate state, readable hierarchy, and reachable actions.
 
-## Required before S3 can be marked done
-
-1. Render authorized `zur-asset` images in the author preview and student delivery. Assert the browser image loads (`naturalWidth > 0`) and alt text survives the MCP/UI round trip. Align the editor's upload-limit copy with the actual 10 MB limit.
-2. Make a real unsaved builder edit, apply a concurrent SDK mutation, and prove local text survives with a usable conflict comparison. Do not use a synthetic session flag as the sole evidence.
-3. Correct the real-SDK journey's validation and batch request shapes, require successful tool results, finish exact-revision publication, and capture the published browser state. Exercise MCP-01–MCP-12 with real SDK/browser evidence where the PRD requires it, including the OAuth-only setup limitation.
-4. Tighten P43 mobile metadata/actions and shorten redundant grant copy while preserving the security summary, permission consequences, and accessibility.
-
-The same S3 agy conversation (`98adc3c3-da71-42d4-9b08-c3d6905e889d`, Gemini 3.8 Flash High) was given these corrections. Three consecutive continuation runs ended in model-service `RESOURCE_EXHAUSTED` (429), the last before any usable response. The stage remains **in progress**; S4 should start after the S3 gate is independently verified.
+The S3 repository gate is **done** on this local evidence. This does not assert a deployed pilot, independent storage/restore exercise, or the broader S4 Phase C gate. OAuth-only clients remain unsupported as specified by the verified setup notice.

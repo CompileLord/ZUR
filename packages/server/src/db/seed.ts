@@ -290,6 +290,7 @@ export function seedDatabase(dbPath?: string): void {
       JSON.stringify({
         courseId: course1Id,
         versionNumber: 1,
+        sourceRevision: 1,
         title: 'Python foundations',
         description: 'Version 1 initial snapshot',
         modules: [{ id: mod1Id, title: 'Variables', position: 0, lessons: [{ id: les1Id, title: 'Naming and Values', position: 0, steps: [
@@ -313,6 +314,7 @@ export function seedDatabase(dbPath?: string): void {
       JSON.stringify({
         courseId: course1Id,
         versionNumber: 2,
+        sourceRevision: 1,
         title: 'Python foundations',
         description: 'Version 2 with complete modules',
         modules: [

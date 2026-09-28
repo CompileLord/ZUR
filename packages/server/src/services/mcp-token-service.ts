@@ -271,29 +271,153 @@ export class McpTokenService {
   replaceToken(authorId: string, tokenId: string, options: ReplaceTokenOptions): { token: AuthorTokenSummary; rawToken: string } {
     const existing = this.getToken(authorId, tokenId);
 
+    // 1. Password and account verification
+    const user = this.db.prepare(`
+      SELECT id, email_verified, password_hash, capabilities, account_status
+      FROM users WHERE id = ?
+    `).get(authorId) as any;
+
+    if (!user) {
+      throw new NotFoundError("This page isn't available.");
+    }
+
+    if (!options.password || !verifyPassword(options.password, user.password_hash)) {
+      throw new AuthenticationError('Invalid password.');
+    }
+
+    if (user.account_status !== 'active') {
+      throw new AuthorizationError('Account must be active to issue AI connection tokens.');
+    }
+
+    if (!user.email_verified) {
+      throw new AuthorizationError('Email verification is required to issue AI connection tokens.');
+    }
+
+    const capabilities: string[] = JSON.parse(user.capabilities || '[]');
+    if (!capabilities.includes('author')) {
+      throw new AuthorizationError('Author capability is required to issue AI connection tokens.');
+    }
+
+    // 2. Validate scope narrowing / preservation (cannot widen)
     if (options.scopes) {
+      if (!Array.isArray(options.scopes) || options.scopes.length === 0) {
+        throw new ValidationError('At least one scope must be selected.');
+      }
       for (const scope of options.scopes) {
+        if (!ALL_TOKEN_SCOPES.includes(scope)) {
+          throw new ValidationError(`Invalid scope: ${scope}`);
+        }
         if (!existing.scopes.includes(scope)) {
           throw new ValidationError('Token replacement cannot widen scope permissions.');
         }
       }
     }
-
-    const label = options.label || existing.label;
     const scopes = options.scopes || existing.scopes;
-    const courseRestrictions = options.courseRestrictions !== undefined ? options.courseRestrictions : existing.courseRestrictions;
-    const expiryDays = options.expiryDays ?? 30;
 
-    const result = this.createToken(authorId, {
-      password: options.password,
+    // 3. Validate course restrictions narrowing / preservation (cannot widen)
+    let courseRestrictions: string[] | null;
+    if (existing.courseRestrictions !== null) {
+      if (options.courseRestrictions === null) {
+        throw new ValidationError('Token replacement cannot widen course restrictions to all courses.');
+      }
+      if (options.courseRestrictions !== undefined) {
+        const uniqueCourses = Array.from(new Set(options.courseRestrictions.map((id) => id.trim()).filter(Boolean)));
+        if (uniqueCourses.length === 0 && !scopes.includes('courses:create')) {
+          throw new ValidationError('Either select at least one course, enable course creation, or grant access to all owned courses.');
+        }
+        for (const cid of uniqueCourses) {
+          if (!existing.courseRestrictions.includes(cid)) {
+            throw new ValidationError('Token replacement cannot grant access to additional courses.');
+          }
+        }
+        courseRestrictions = uniqueCourses;
+      } else {
+        courseRestrictions = existing.courseRestrictions;
+      }
+    } else {
+      // Existing token had access to all owned courses
+      if (options.courseRestrictions !== undefined && options.courseRestrictions !== null) {
+        courseRestrictions = Array.from(new Set(options.courseRestrictions.map((id) => id.trim()).filter(Boolean)));
+        if (courseRestrictions.length === 0 && !scopes.includes('courses:create')) {
+          throw new ValidationError('Either select at least one course, enable course creation, or grant access to all owned courses.');
+        }
+        for (const courseId of courseRestrictions) {
+          const course = this.db.prepare(`
+            SELECT id, owner_id FROM courses WHERE id = ?
+          `).get(courseId) as any;
+          if (!course || course.owner_id !== authorId) {
+            throw new NotFoundError("This page isn't available.");
+          }
+        }
+      } else {
+        courseRestrictions = null;
+      }
+    }
+
+    const label = options.label?.trim() || existing.label;
+    if (!label) {
+      throw new ValidationError('Connection label is required.');
+    }
+
+    const expiryDays = options.expiryDays ?? 30;
+    if (!Number.isInteger(expiryDays) || expiryDays < 1 || expiryDays > 90) {
+      throw new ValidationError('Expiry must be between 1 and 90 days.');
+    }
+
+    const identifier = `zat_${crypto.randomBytes(8).toString('hex')}`;
+    const secret = crypto.randomBytes(32).toString('hex');
+    const rawToken = `zur_at_${identifier}_${secret}`;
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+    const id = `tok-${crypto.randomUUID()}`;
+    const expiresAt = new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000).toISOString();
+    const now = new Date().toISOString();
+
+    // 4. Atomic transaction: revoke existing token and insert new token
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      this.db.prepare(`
+        UPDATE author_access_tokens
+        SET is_revoked = 1
+        WHERE id = ? AND author_id = ?
+      `).run(tokenId, authorId);
+
+      this.db.prepare(`
+        INSERT INTO author_access_tokens (
+          id, author_id, token_identifier, token_hash, label, scopes, course_restrictions, expires_at, is_revoked, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
+      `).run(
+        id,
+        authorId,
+        identifier,
+        tokenHash,
+        label,
+        JSON.stringify(scopes),
+        courseRestrictions ? JSON.stringify(courseRestrictions) : null,
+        expiresAt,
+        now
+      );
+      this.db.exec('COMMIT');
+    } catch (err) {
+      this.db.exec('ROLLBACK');
+      throw err;
+    }
+
+    const token: AuthorTokenSummary = {
+      id,
+      authorId,
+      tokenIdentifier: identifier,
       label,
       scopes,
       courseRestrictions,
-      expiryDays,
-    });
+      expiresAt,
+      isRevoked: false,
+      lastUsedAt: null,
+      createdAt: now,
+      status: 'never_used',
+    };
 
-    this.revokeToken(authorId, tokenId);
-    return result;
+    return { token, rawToken };
   }
 
   validateToken(rawToken: string): ValidatedMcpToken {

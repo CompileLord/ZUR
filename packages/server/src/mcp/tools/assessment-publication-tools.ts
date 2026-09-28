@@ -203,7 +203,7 @@ export async function executeAssessmentPublicationTool(
         expectedRevision,
         idempotencyKey: args.idempotency_key,
         changeSummary: args.change_summary,
-        beforeCommit: () => {
+        beforeTransaction: () => {
           authService.verifyMcpPermission(token, 'courses:publish', courseId);
         },
       });

@@ -126,7 +126,8 @@ export class CourseService {
       .prepare(
         `SELECT c.*, cat.name as category_name,
           (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') as student_count,
-          (SELECT version_number FROM course_versions v WHERE v.id = c.current_version_id) as current_version_number
+          (SELECT version_number FROM course_versions v WHERE v.id = c.current_version_id) as current_version_number,
+          (SELECT snapshot_data FROM course_versions v WHERE v.id = c.current_version_id) as current_snapshot_data
         FROM courses c
         LEFT JOIN categories cat ON c.category_id = cat.id
         ${whereClause}
@@ -149,9 +150,29 @@ export class CourseService {
         outcomes = [];
       }
 
-      const hasUnpublishedChanges =
-        r.publication_status === 'draft' ||
-        (r.publication_status === 'published' && r.draft_revision > 1);
+      let hasUnpublishedChanges = r.publication_status === 'draft';
+      if (r.publication_status === 'published') {
+        if (!r.current_version_id) {
+          hasUnpublishedChanges = true;
+        } else {
+          let sourceRevision: number | null = null;
+          try {
+            if (r.current_snapshot_data) {
+              const snap = JSON.parse(r.current_snapshot_data);
+              if (typeof snap.sourceRevision === 'number') {
+                sourceRevision = snap.sourceRevision;
+              }
+            }
+          } catch {
+            sourceRevision = null;
+          }
+          if (sourceRevision !== null) {
+            hasUnpublishedChanges = r.draft_revision > sourceRevision;
+          } else {
+            hasUnpublishedChanges = r.draft_revision > 1;
+          }
+        }
+      }
 
       return {
         id: r.id,
@@ -259,7 +280,8 @@ export class CourseService {
       .prepare(
         `SELECT c.*, cat.name as category_name,
           (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') as student_count,
-          (SELECT cv.version_number FROM course_versions cv WHERE cv.id = c.current_version_id AND cv.course_id = c.id) as current_version_number
+          (SELECT cv.version_number FROM course_versions cv WHERE cv.id = c.current_version_id AND cv.course_id = c.id) as current_version_number,
+          (SELECT cv.snapshot_data FROM course_versions cv WHERE cv.id = c.current_version_id AND cv.course_id = c.id) as current_snapshot_data
         FROM courses c
         LEFT JOIN categories cat ON c.category_id = cat.id
         WHERE c.id = ?`
@@ -292,9 +314,29 @@ export class CourseService {
       outcomes = [];
     }
 
-    const hasUnpublishedChanges =
-      row.publication_status === 'draft' ||
-      (row.publication_status === 'published' && row.draft_revision > 1);
+    let hasUnpublishedChanges = row.publication_status === 'draft';
+    if (row.publication_status === 'published') {
+      if (!row.current_version_id) {
+        hasUnpublishedChanges = true;
+      } else {
+        let sourceRevision: number | null = null;
+        try {
+          if (row.current_snapshot_data) {
+            const snap = JSON.parse(row.current_snapshot_data);
+            if (typeof snap.sourceRevision === 'number') {
+              sourceRevision = snap.sourceRevision;
+            }
+          }
+        } catch {
+          sourceRevision = null;
+        }
+        if (sourceRevision !== null) {
+          hasUnpublishedChanges = row.draft_revision > sourceRevision;
+        } else {
+          hasUnpublishedChanges = row.draft_revision > 1;
+        }
+      }
+    }
 
     return {
       id: row.id,

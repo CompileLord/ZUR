@@ -118,6 +118,10 @@ export class McpServer {
     return this.authService;
   }
 
+  getPublicationService(): CoursePublicationService {
+    return this.publicationService;
+  }
+
   private registerTools(): void {
     const allTools: McpTool[] = [
       ...createCourseReadTools(

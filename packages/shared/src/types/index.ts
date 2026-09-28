@@ -56,6 +56,7 @@ export interface CourseVersion {
 export interface CourseVersionSnapshot {
   courseId: string;
   versionNumber: number;
+  sourceRevision?: number;
   title: string;
   description: string;
   categoryId: string;

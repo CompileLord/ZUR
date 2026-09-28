@@ -22,6 +22,7 @@ export interface PublishCourseOptions {
   expectedRevision: number;
   changeSummary?: string;
   idempotencyKey?: string;
+  beforeTransaction?: () => void;
   beforeCommit?: () => void;
 }
 
@@ -126,6 +127,10 @@ export class CoursePublicationService {
 
     const now = new Date().toISOString();
     const versionId = crypto.randomUUID();
+
+    if (options.beforeTransaction) {
+      options.beforeTransaction();
+    }
 
     // Step 2-5: Atomic Transaction
     this.db.exec('BEGIN IMMEDIATE');
@@ -258,9 +263,12 @@ export class CoursePublicationService {
         outcomes = [];
       }
 
+      const nextRevision = course.draft_revision + 1;
+
       const snapshot: CourseVersionSnapshot = {
         courseId: course.id,
         versionNumber: nextVersionNumber,
+        sourceRevision: nextRevision,
         title: course.title,
         description: course.description || '',
         categoryId: course.category_id,
@@ -282,7 +290,6 @@ export class CoursePublicationService {
         .run(versionId, courseId, nextVersionNumber, JSON.stringify(snapshot), now);
 
       // Update course current version & bump revision
-      const nextRevision = course.draft_revision + 1;
       this.db
         .prepare(
           `UPDATE courses SET

@@ -123,7 +123,7 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
       <hr class="section-divider mt-4" />
 
       <h4 class="text-sm font-semibold text-secondary">Asset tools</h4>
-      <p class="text-secondary text-xs mt-1">Upload PNG, JPEG, or WebP images up to 5 MiB.</p>
+      <p class="text-secondary text-xs mt-1">Upload PNG, JPEG, or WebP images up to 10 MB.</p>
       <button type="button" class="btn btn-secondary btn-compact mt-2" data-action="open-asset-modal">Upload asset</button>
 
       <div class="action-row mt-4">

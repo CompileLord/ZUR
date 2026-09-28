@@ -243,9 +243,78 @@ test('MCP Token Lifecycle and Authorization (T053–T054)', async (t) => {
     assert.ok(replaced.rawToken);
     assert.notEqual(replaced.token.id, orig.token.id);
 
-    // Check old token is revoked
+    // Check old token is revoked and denied
     const oldRow = db.prepare('SELECT is_revoked FROM author_access_tokens WHERE id = ?').get(orig.token.id) as any;
     assert.equal(oldRow.is_revoked, 1);
+    assert.throws(
+      () => {
+        tokenService.validateToken(orig.rawToken);
+      },
+      (err: any) => err instanceof AuthenticationError && err.message.includes('revoked')
+    );
+
+    // Reauthentication required: invalid password rejected
+    assert.throws(
+      () => {
+        tokenService.replaceToken(authorId, replaced.token.id, {
+          password: 'WrongPassword!',
+        });
+      },
+      (err: any) => err instanceof AuthenticationError && err.message.includes('Invalid password')
+    );
+
+    // Cannot widen course restrictions on replacement
+    const restrictedToken = tokenService.createToken(authorId, {
+      password: correctPassword,
+      label: 'Course-Restricted Token',
+      scopes: ['courses:read', 'content:write'],
+      courseRestrictions: [guidoCourseId],
+    });
+
+    // Cannot expand from specific courses to all courses (null)
+    assert.throws(
+      () => {
+        tokenService.replaceToken(authorId, restrictedToken.token.id, {
+          password: correctPassword,
+          courseRestrictions: null,
+        });
+      },
+      (err: any) => err instanceof ValidationError && err.message.includes('cannot widen course restrictions')
+    );
+
+    // Cannot add unassigned course IDs
+    assert.throws(
+      () => {
+        tokenService.replaceToken(authorId, restrictedToken.token.id, {
+          password: correctPassword,
+          courseRestrictions: [guidoCourseId, 'non-existent-course'],
+        });
+      },
+      (err: any) => err instanceof ValidationError && err.message.includes('cannot grant access to additional courses')
+    );
+
+    // Can replace already-revoked token
+    const replacedFromRevoked = tokenService.replaceToken(authorId, orig.token.id, {
+      password: correctPassword,
+      label: 'Revived from Revoked',
+    });
+    assert.ok(replacedFromRevoked.rawToken);
+    assert.equal(replacedFromRevoked.token.label, 'Revived from Revoked');
+
+    // Can replace expired token
+    const expToken = tokenService.createToken(authorId, {
+      password: correctPassword,
+      label: 'Expired Token To Replace',
+      scopes: ['courses:read'],
+      expiryDays: 1,
+    });
+    db.prepare("UPDATE author_access_tokens SET expires_at = datetime('now', '-2 days') WHERE id = ?").run(expToken.token.id);
+    const replacedFromExpired = tokenService.replaceToken(authorId, expToken.token.id, {
+      password: correctPassword,
+      label: 'Replaced from Expired',
+    });
+    assert.ok(replacedFromExpired.rawToken);
+    assert.equal(replacedFromExpired.token.status, 'never_used');
   });
 
   // T054: Scopes and course restrictions

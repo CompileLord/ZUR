@@ -30,7 +30,7 @@ import { renderAppearanceSettingsPage } from './pages/settings/AppearanceSetting
 import { renderSecuritySettingsPage } from './pages/settings/SecuritySettingsPage.ts';
 import { renderPrivacySettingsPage } from './pages/settings/PrivacySettingsPage.ts';
 import { renderAiConnectionsPage } from './pages/settings/AiConnectionsPage.ts';
-import { renderMcpClientSetupPage } from './pages/settings/McpClientSetupDialog.ts';
+import { renderMcpClientSetupPage, type CompatibleClient } from './pages/settings/McpClientSetupDialog.ts';
 import { renderAgentActivityPage } from './pages/author/AgentActivityPage.ts';
 import { renderSafeDenialPage } from './pages/status/SafeDenialPage.ts';
 import { renderLandingPage } from './pages/public/LandingPage.ts';
@@ -43,7 +43,7 @@ import { renderStudentDetailPage } from './pages/author/StudentDetailPage.ts';
 import { renderCourseAnalyticsPage } from './pages/author/CourseAnalyticsPage.ts';
 import { renderCoursePublishPage, type CoursePublishPageOptions } from './pages/author/CoursePublishPage.ts';
 import { renderPythonWorkspacePage, renderPythonExecutionResults, type PythonWorkspacePageOptions } from './pages/learning/PythonWorkspacePage.ts';
-import type { ExecutionResult } from 'zur-shared';
+import { renderMarkdownToHtml, type ExecutionResult } from 'zur-shared';
 import { EditorState, Compartment } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
@@ -79,7 +79,14 @@ const courseClient = CourseClient.getInstance();
 async function s2Request(url: string, method = 'GET', body?: unknown): Promise<any> {
   const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authClient.getToken() || ''}` }, body: body === undefined ? undefined : JSON.stringify(body) });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error?.message || 'The request failed. Please try again.');
+  if (!response.ok) {
+    const err: any = new Error(data.error?.message || 'The request failed. Please try again.');
+    err.status = response.status;
+    err.statusCode = response.status;
+    err.code = data.error?.code;
+    err.details = data.error?.details;
+    throw err;
+  }
   return data;
 }
 
@@ -172,10 +179,28 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
           };
         }
       } catch { /* activity optional */ }
-
       appEl.innerHTML = renderCourseBuilderPage({ courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, modules: tree.modules, selectedType: (query.get('type') as any) || 'course', selectedId: query.get('id') || courseId, remoteUpdate });
+
+      if (sessionStorage.getItem(`zur_builder_unsaved_${courseId}`)) {
+        appEl.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea').forEach(input => {
+          const key = `zur_builder_unsaved_val_${courseId}_${input.name || input.id}`;
+          const val = sessionStorage.getItem(key);
+          if (val !== null && val !== undefined) {
+            input.value = val;
+          }
+        });
+      }
+      appEl.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea').forEach(input => {
+        input.addEventListener('input', () => {
+          sessionStorage.setItem(`zur_builder_unsaved_${courseId}`, 'true');
+          sessionStorage.setItem(`zur_builder_unsaved_val_${courseId}_${input.name || input.id}`, input.value);
+        });
+      });
       document.getElementById('load-update-btn')?.addEventListener('click', () => {
         sessionStorage.removeItem(`zur_builder_unsaved_${courseId}`);
+        Object.keys(sessionStorage).forEach(k => {
+          if (k.startsWith(`zur_builder_unsaved_val_${courseId}_`)) sessionStorage.removeItem(k);
+        });
         renderApp(path);
       });
       document.getElementById('resolve-conflict-btn')?.addEventListener('click', () => {
@@ -203,6 +228,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       const preview = await s2Request(`/api/author/courses/${courseId}/preview/${step.id}`);
       if (!s2Current(path)) return;
       appEl.innerHTML = renderAuthorPreviewPage({ ...preview, returnEditorUrl: `/teach/${courseId}/content/${step.type}/${step.id}` });
+      void hydrateDeferredAssets(appEl);
       return;
     }
     if (['P23', 'P24', 'P25'].includes(pageId)) {
@@ -215,9 +241,18 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       const c = specialized ? (step.type === 'quiz' ? specialized.quiz : specialized) : detail.content || {};
       if (step.type === 'theory') {
         appEl.innerHTML = renderTheoryEditorPage({ ...base, markdown: c.markdown || '' });
+        void hydrateDeferredAssets(appEl);
         appEl.querySelectorAll<HTMLElement>('.theory-tabs [data-tab]').forEach(button => button.addEventListener('click', () => {
           const tab = button.dataset.tab;
           const isPreview = tab === 'preview';
+          if (isPreview) {
+            const currentMarkdown = (appEl.querySelector('#theory-markdown-input') as HTMLTextAreaElement)?.value ?? (c.markdown || '');
+            const previewContainer = appEl.querySelector('.rendered-markdown-content');
+            if (previewContainer) {
+              previewContainer.innerHTML = renderMarkdownToHtml(currentMarkdown);
+            }
+            void hydrateDeferredAssets(appEl);
+          }
           (appEl.querySelector('.theory-edit-pane') as HTMLElement)?.style.setProperty('display', isPreview ? 'none' : '');
           (appEl.querySelector('.theory-preview-pane') as HTMLElement)?.style.setProperty('display', isPreview ? '' : 'none');
           appEl.querySelectorAll<HTMLElement>('.theory-tabs [data-tab]').forEach(b => {
@@ -322,6 +357,45 @@ function releaseLessonMediaObjectUrls(): void {
   lessonVideoReadyCleanup = undefined;
 }
 
+async function hydrateDeferredAssets(container: HTMLElement = appEl): Promise<void> {
+  const mediaImages = [...container.querySelectorAll<HTMLImageElement>('img[src^="about:blank#zur-asset-"], img[data-authorized-asset]')];
+  for (const image of mediaImages) {
+    if (image.src.startsWith('blob:') || image.src.startsWith('data:')) continue;
+    const assetId = image.dataset.authorizedAsset || '';
+    if (!/^[0-9a-f-]{36}$/i.test(assetId)) continue;
+    try {
+      const token = authClient.getToken();
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const response = await fetch(`/api/assets/${encodeURIComponent(assetId)}`, {
+        cache: 'no-store',
+        headers,
+      });
+      if (!response.ok) throw new Error('media unavailable');
+      const blob = await response.blob();
+      if (!/^image\/(png|jpeg|webp|gif)$/.test(blob.type)) throw new Error('unsupported media');
+      const objectUrl = URL.createObjectURL(blob);
+      lessonMediaObjectUrls.add(objectUrl);
+      image.src = objectUrl;
+      image.addEventListener('error', () => {
+        URL.revokeObjectURL(objectUrl);
+        lessonMediaObjectUrls.delete(objectUrl);
+        const fallback = document.createElement('span');
+        fallback.className = 'lesson-media-fallback';
+        fallback.setAttribute('role', 'status');
+        fallback.textContent = image.alt ? `Image unavailable: ${image.alt}.` : 'Image unavailable.';
+        image.replaceWith(fallback);
+      }, { once: true });
+    } catch {
+      const fallback = document.createElement('span');
+      fallback.className = 'lesson-media-fallback';
+      fallback.setAttribute('role', 'status');
+      fallback.textContent = image.alt ? `Image unavailable: ${image.alt}.` : 'Image unavailable.';
+      image.replaceWith(fallback);
+    }
+  }
+}
+
 export function applyTheme(theme: 'dark' | 'light' | 'system'): void {
   localStorage.setItem('zur_theme_preference', theme);
   let resolved: 'dark' | 'light' = theme === 'system'
@@ -358,7 +432,7 @@ function showRouteFailure(message: string, retryPath: string): void {
   document.getElementById('route-retry')?.addEventListener('click', () => renderApp(retryPath));
 }
 
-async function renderAiConnectionsSettings(path: string, user: NonNullable<ReturnType<typeof authClient.getUser>>, state: { showCreateModal?: boolean; revealedToken?: any; revokingToken?: any; error?: string; successMessage?: string } = {}): Promise<void> {
+async function renderAiConnectionsSettings(path: string, user: NonNullable<ReturnType<typeof authClient.getUser>>, state: { showCreateModal?: boolean; revealedToken?: any; revokingToken?: any; replacingToken?: any; error?: string; successMessage?: string } = {}): Promise<void> {
   if (!user.capabilities.includes('author')) {
     appEl.innerHTML = renderAppShell({ activePath: path.split('?')[0], user, headerTitle: 'AI connections', content: renderAiConnectionsPage({ user, tokens: [] }) });
     return;
@@ -366,11 +440,27 @@ async function renderAiConnectionsSettings(path: string, user: NonNullable<Retur
   try {
     const response = await authClient.fetchApi(`/api/author/tokens?status=${encodeURIComponent(new URLSearchParams(path.split('?')[1] || '').get('filter') || 'all')}`);
     const tokens = response.tokens || [];
+    let courses: any[] = [];
+    try {
+      const coursesRes = await authClient.fetchApi('/api/courses');
+      courses = (coursesRes.courses || []).map((c: any) => ({ id: c.id, title: c.title }));
+    } catch {
+      courses = [];
+    }
     const render = () => {
-      appEl.innerHTML = renderAppShell({ activePath: path.split('?')[0], user, headerTitle: 'AI connections', content: renderAiConnectionsPage({ user, tokens, activeFilter: (new URLSearchParams(path.split('?')[1] || '').get('filter') || 'all') as any, ...state }) });
+      appEl.innerHTML = renderAppShell({ activePath: path.split('?')[0], user, headerTitle: 'AI connections', content: renderAiConnectionsPage({ user, tokens, courses, activeFilter: (new URLSearchParams(path.split('?')[1] || '').get('filter') || 'all') as any, ...state }) });
       const createButton = document.getElementById('btn-open-create-token') || document.getElementById('btn-empty-create-token');
       createButton?.addEventListener('click', () => { state = { showCreateModal: true }; render(); });
       document.querySelectorAll<HTMLElement>('[data-dialog-action="cancel"]').forEach((button) => button.addEventListener('click', () => { state = {}; render(); }));
+      document.querySelectorAll<HTMLInputElement>('input[name="courseScopeType"]').forEach((radio) => {
+        radio.addEventListener('change', () => {
+          const container = document.getElementById('selected-courses-container') || document.getElementById('replace-selected-courses-container');
+          if (container) {
+            if (radio.value === 'selected') container.classList.remove('hidden');
+            else container.classList.add('hidden');
+          }
+        });
+      });
       const createForm = document.getElementById('create-token-form') as HTMLFormElement | null;
       createForm?.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -387,7 +477,7 @@ async function renderAiConnectionsSettings(path: string, user: NonNullable<Retur
           const courseRestrictions = form.get('courseScopeType') === 'selected' ? [...createForm.querySelectorAll<HTMLInputElement>('input[name="selectedCourses"]:checked')].map((input) => input.value) : null;
           try {
             const created = await authClient.fetchApi('/api/author/tokens', { method: 'POST', body: JSON.stringify({ label: form.get('label'), password: form.get('password'), scopes, courseRestrictions, expiryDays: Number(form.get('expiryDays')) }) });
-            state = { revealedToken: { id: created.token.id, rawToken: created.rawToken, label: created.token.label, scopes: created.token.scopes, courseRestrictions: created.token.courseRestrictions, expiresAt: created.token.expiresAt } };
+            state = { revealedToken: { id: created.token.id, rawToken: created.rawToken, label: created.token.label, scopes: created.token.scopes, courseRestrictions: created.token.courseRestrictions, expiresAt: created.token.expiresAt }, successMessage: 'Connection created successfully.' };
             await renderAiConnectionsSettings(path, user, state);
           } catch (error: any) {
             state = { showCreateModal: true, error: error.message || 'The token could not be created.' };
@@ -395,8 +485,55 @@ async function renderAiConnectionsSettings(path: string, user: NonNullable<Retur
           }
         })();
       });
+      const replaceForm = document.getElementById('replace-token-form') as HTMLFormElement | null;
+      replaceForm?.addEventListener('submit', (event) => {
+        event.preventDefault();
+        void (async () => {
+          const form = new FormData(replaceForm);
+          const tokenId = replaceForm.dataset.tokenId;
+          const scopes = [...replaceForm.querySelectorAll<HTMLInputElement>('input[name="scopes"]:checked')].map((input) => input.value);
+          const courseScopeType = form.get('courseScopeType');
+          const courseRestrictions = courseScopeType === 'selected'
+            ? [...replaceForm.querySelectorAll<HTMLInputElement>('input[name="selectedCourses"]:checked')].map((input) => input.value)
+            : (courseScopeType === 'all' ? null : undefined);
+          try {
+            const replaced = await authClient.fetchApi(`/api/author/tokens/${encodeURIComponent(tokenId || '')}/replace`, {
+              method: 'POST',
+              body: JSON.stringify({
+                label: form.get('label'),
+                password: form.get('password'),
+                scopes,
+                ...(courseRestrictions !== undefined ? { courseRestrictions } : {}),
+                expiryDays: Number(form.get('expiryDays')) || 30,
+              }),
+            });
+            state = {
+              revealedToken: {
+                id: replaced.token.id,
+                rawToken: replaced.rawToken,
+                label: replaced.token.label,
+                scopes: replaced.token.scopes,
+                courseRestrictions: replaced.token.courseRestrictions,
+                expiresAt: replaced.token.expiresAt,
+              },
+              successMessage: 'Connection replaced successfully.',
+            };
+            await renderAiConnectionsSettings(path, user, state);
+          } catch (error: any) {
+            state = {
+              replacingToken: tokens.find((item: any) => item.id === tokenId),
+              error: error.message || 'The token could not be replaced.',
+            };
+            await renderAiConnectionsSettings(path, user, state);
+          }
+        })();
+      });
       document.querySelectorAll<HTMLButtonElement>('[data-action="revoke-token"]').forEach((button) => button.addEventListener('click', () => {
         state = { revokingToken: tokens.find((item: any) => item.id === button.dataset.tokenId) };
+        render();
+      }));
+      document.querySelectorAll<HTMLButtonElement>('[data-action="replace-token"]').forEach((button) => button.addEventListener('click', () => {
+        state = { replacingToken: tokens.find((item: any) => item.id === button.dataset.tokenId) };
         render();
       }));
       document.getElementById('btn-confirm-revoke')?.addEventListener('click', (event) => {
@@ -423,6 +560,88 @@ async function renderAiConnectionsSettings(path: string, user: NonNullable<Retur
   } catch (error: any) {
     showRouteFailure(error.message || 'Could not load AI connections.', path);
   }
+}
+
+async function renderAiConnectionSetupPage(
+  path: string,
+  user: NonNullable<ReturnType<typeof authClient.getUser>>,
+  connectionId: string
+): Promise<void> {
+  const isCurrent = () => window.location.pathname + window.location.search === path;
+  if (!connectionId) {
+    appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    initTheme();
+    return;
+  }
+
+  showRouteLoading('Connection setup');
+  let tokenData: any;
+  try {
+    const fetched = await authClient.fetchApi(`/api/author/tokens/${encodeURIComponent(connectionId)}`);
+    if (!fetched || !fetched.id) {
+      throw new Error("This connection isn't available.");
+    }
+    tokenData = fetched;
+  } catch (error: any) {
+    if (!isCurrent()) return;
+    if (error.statusCode === 404 || error.status === 404) {
+      appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    } else if (error.statusCode === 403 || error.status === 403) {
+      appEl.innerHTML = renderSafeDenialPage({ type: 'access-denied' });
+    } else {
+      showRouteFailure(error.message || 'We could not load this AI connection setup. Retry when the service is available.', path);
+    }
+    initTheme();
+    return;
+  }
+
+  if (!isCurrent()) return;
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const rawClient = searchParams.get('client');
+  let currentClient: CompatibleClient =
+    rawClient === 'generic' ? 'generic' :
+    rawClient === 'oauth_client' ? 'oauth_client' :
+    'official_sdk';
+
+  const render = () => {
+    appEl.innerHTML = renderAppShell({
+      activePath: path.split('?')[0],
+      user,
+      headerTitle: 'Connection setup and verification',
+      content: renderMcpClientSetupPage({
+        token: tokenData,
+        selectedClient: currentClient,
+        endpointUrl: `${window.location.origin}/mcp`,
+      }),
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('.client-tab-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const clientAttr = btn.dataset.client;
+        if (clientAttr === 'official_sdk' || clientAttr === 'generic' || clientAttr === 'oauth_client') {
+          currentClient = clientAttr;
+          const url = new URL(window.location.href);
+          url.searchParams.set('client', clientAttr);
+          window.history.replaceState({}, '', url.toString());
+          render();
+        }
+      });
+    });
+
+    const copyPromptBtn = document.getElementById('btn-copy-prompt');
+    copyPromptBtn?.addEventListener('click', () => {
+      const prompt = copyPromptBtn.dataset.prompt || '';
+      void navigator.clipboard?.writeText(prompt);
+      copyPromptBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        if (copyPromptBtn) copyPromptBtn.textContent = 'Copy prompt';
+      }, 2000);
+    });
+  };
+
+  render();
 }
 
 async function loadPythonWorkspace(enrollmentId: string, stepId: string, requestedPath: string): Promise<void> {
@@ -1645,36 +1864,8 @@ export function renderApp(path: string = window.location.pathname + window.locat
         void renderAiConnectionsSettings(path, user);
       } else if (route.pageId === 'P44') {
         // MCP Client Setup (P44)
-        const connectionId = params.connectionId || 'tok-sample';
-        appEl.innerHTML = renderAppShell({
-          activePath: path,
-          user,
-          headerTitle: 'Connection setup and verification',
-          content: renderMcpClientSetupPage({
-            token: {
-              id: connectionId,
-              tokenIdentifier: 'zat_sample',
-              label: 'Sample Agent',
-              scopes: ['courses:read', 'content:write'],
-              courseRestrictions: null,
-              expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-              isRevoked: false,
-              lastUsedAt: null,
-              createdAt: new Date().toISOString(),
-              status: 'never_used',
-            },
-          }),
-        });
-      } else if (route.pageId === 'P45') {
-        // Agent Activity & Draft Recovery (P45)
-        const courseId = params.courseId || 'course-sample';
-        appEl.innerHTML = renderAgentActivityPage({
-          courseId,
-          courseTitle: 'Course Title',
-          publicationState: 'draft',
-          hasUnpublishedChanges: false,
-          activities: [],
-        });
+        const connectionId = params.connectionId || '';
+        void renderAiConnectionSetupPage(path, user, connectionId);
       } else {
 
         // Default Student Dashboard (P09)
@@ -1956,6 +2147,179 @@ print(val * 2)
                 <button class="btn btn-secondary" onclick="window.location.reload()">Retry</button>
               </div>
             `,
+          });
+        });
+        break;
+      }
+
+      if (route.pageId === 'P45') {
+        const courseId = params.courseId || 'course-python-foundations';
+        const page = Number(searchParams.get('page') || 1);
+        const toolName = searchParams.get('toolName') || undefined;
+        const outcome = searchParams.get('outcome') || undefined;
+        const tokenId = searchParams.get('tokenId') || undefined;
+        const date = searchParams.get('date') || undefined;
+        const mutationId = searchParams.get('mutationId') || undefined;
+        const showRestoreConfirmModal = searchParams.get('restore') === 'true';
+
+        appEl.innerHTML = renderAgentActivityPage({
+          courseId,
+          courseTitle: 'Loading...',
+          publicationState: 'draft',
+          hasUnpublishedChanges: false,
+          activities: [],
+        });
+
+        const actParams = new URLSearchParams({ page: String(page) });
+        if (toolName) actParams.set('toolName', toolName);
+        if (outcome) actParams.set('outcome', outcome);
+        if (tokenId) actParams.set('tokenId', tokenId);
+        if (date) actParams.set('date', date);
+
+        let recoveryRevisions: any[] | undefined = undefined;
+        let recoveryError: string | undefined = undefined;
+
+        Promise.all([
+          s2Request(`/api/author/courses/${courseId}`),
+          s2Request(`/api/author/courses/${courseId}/activity?${actParams.toString()}`),
+          mutationId ? s2Request(`/api/author/courses/${courseId}/activity/${mutationId}`) : Promise.resolve(null),
+          s2Request(`/api/author/courses/${courseId}/recovery`)
+            .then((recoveryData) => {
+              recoveryRevisions = recoveryData?.revisions || [];
+            })
+            .catch((recErr: any) => {
+              recoveryError = recErr?.message || 'Could not verify draft recovery snapshots.';
+            }),
+        ]).then(([courseData, activityData, selectedMutation]) => {
+          if (window.location.pathname.replace(/\/+$/, '') !== path.split('?')[0].replace(/\/+$/, '')) return;
+
+          const courseTitle = courseData?.title || 'Course Activity';
+          const pubStatus = (courseData?.publicationStatus || 'draft') as any;
+          const currentDraftRevision = courseData?.draftRevision ?? courseData?.draft_revision ?? 1;
+
+          appEl.innerHTML = renderAgentActivityPage({
+            courseId,
+            courseTitle,
+            publicationState: pubStatus,
+            hasUnpublishedChanges: false,
+            currentDraftRevision,
+            connections: activityData?.connections || [],
+            filterConnection: tokenId,
+            filterDate: date,
+            filterTool: toolName,
+            filterOutcome: outcome,
+            activities: (activityData?.items || []).map((item: any) => ({
+              id: item.id,
+              tokenId: item.tokenId,
+              tokenLabel: item.tokenLabel,
+              toolName: item.toolName,
+              baseRevision: item.baseRevision,
+              newRevision: item.newRevision,
+              affectedEntities: item.affectedEntities,
+              outcome: item.outcome,
+              correlationId: item.correlationId,
+              createdAt: item.createdAt,
+            })),
+            totalActivities: activityData?.total,
+            currentPage: activityData?.page,
+            totalPages: activityData?.totalPages,
+            selectedMutation,
+            recoveryRevisions,
+            recoveryError,
+            showRestoreConfirmModal,
+          });
+
+          appEl.querySelector('.activity-filters-card form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const form = e.currentTarget as HTMLFormElement;
+            const fd = new FormData(form);
+            const q = new URLSearchParams();
+            for (const [k, v] of fd.entries()) {
+              if (v) q.set(k, String(v));
+            }
+            const targetUrl = `/teach/${courseId}/activity${q.toString() ? `?${q.toString()}` : ''}`;
+            window.history.pushState({}, '', targetUrl);
+            renderApp();
+          });
+
+          appEl.querySelector('form[action*="/recovery/"]')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.currentTarget as HTMLFormElement;
+            const action = form.getAttribute('action')!;
+            const expectedRevision = (form.querySelector('input[name="expectedRevision"]') as HTMLInputElement)?.value;
+            const confirmBtn = form.querySelector('#confirm-restore-btn') as HTMLButtonElement | null;
+            try {
+              if (confirmBtn) confirmBtn.disabled = true;
+              await s2Request(action, 'POST', { expectedRevision: Number(expectedRevision) });
+              window.history.pushState({}, '', `/teach/${courseId}/content`);
+              renderApp();
+            } catch (err: any) {
+              if (
+                err.status === 409 ||
+                err.statusCode === 409 ||
+                err.code === 'STALE_REVISION' ||
+                err.code === 'REVISION_CONFLICT' ||
+                String(err.message).toLowerCase().includes('modified') ||
+                String(err.message).toLowerCase().includes('conflict')
+              ) {
+                const modal = form.closest('.modal-card') || form.parentElement;
+                if (modal) {
+                  let conflictAlert = modal.querySelector('#restore-conflict-msg');
+                  if (!conflictAlert) {
+                    conflictAlert = document.createElement('div');
+                    conflictAlert.id = 'restore-conflict-msg';
+                    conflictAlert.className = 'restore-conflict-alert mb-3';
+                    conflictAlert.setAttribute('role', 'alert');
+                    conflictAlert.setAttribute('aria-live', 'assertive');
+                    modal.insertBefore(conflictAlert, form);
+                  }
+                  conflictAlert.innerHTML = `
+                    <div style="background: rgba(216, 59, 1, 0.1); border: 1px solid var(--danger); border-radius: var(--radius-sm); padding: 0.75rem 1rem;">
+                      <strong style="color: var(--danger); display: block; margin-bottom: 0.25rem;">Revision Conflict (Concurrent modification detected)</strong>
+                      <p style="margin: 0 0 0.5rem 0; font-size: 0.875rem; color: var(--fg-default);">
+                        ${escapeHtml(err.message || 'The course draft has been modified since it was loaded. Please review changes before restoring.')}
+                      </p>
+                      <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <a href="/teach/${escapeHtml(courseId)}/activity" id="btn-reload-current-revision" class="btn btn-secondary btn-compact">Reload latest draft state</a>
+                      </div>
+                    </div>
+                  `;
+                  document.getElementById('btn-reload-current-revision')?.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    window.history.pushState({}, '', `/teach/${courseId}/activity`);
+                    renderApp();
+                  });
+                  if (confirmBtn) {
+                    confirmBtn.disabled = true;
+                    confirmBtn.title = 'Stale revision: reload draft before restoring.';
+                  }
+                  return;
+                }
+              }
+              if (confirmBtn) confirmBtn.disabled = false;
+              alert(err.message);
+            }
+          });
+        }).catch((err: any) => {
+          appEl.innerHTML = renderAuthorWorkspaceShell({
+            courseId,
+            courseTitle: 'Agent Activity',
+            publicationState: 'draft',
+            hasUnpublishedChanges: false,
+            activeTab: 'content',
+            editorContent: `
+              <div class="p-8 text-center text-danger" id="activity-load-error">
+                <p class="font-bold text-lg mb-2">Failed to load agent activity</p>
+                <p class="text-sm text-secondary mb-4">${escapeHtml(err?.message || 'Failed to load agent activity data')}</p>
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                  <button type="button" class="btn btn-primary" id="btn-retry-activity">Retry</button>
+                  <a href="/teach/${escapeHtml(courseId)}/content" class="btn btn-secondary">← Back to Course Builder</a>
+                </div>
+              </div>
+            `,
+          });
+          document.getElementById('btn-retry-activity')?.addEventListener('click', () => {
+            renderApp();
           });
         });
         break;

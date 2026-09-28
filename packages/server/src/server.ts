@@ -169,7 +169,7 @@ export function createServer(
     res.end(payload);
   }
 
-  return http.createServer(async (req, res) => {
+  const server = http.createServer(async (req, res) => {
     const requestStartedAt = performance.now();
     const requestId = crypto.randomUUID();
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
@@ -1011,7 +1011,12 @@ export function createServer(
         const page = Number(url.searchParams.get('page') || 1);
         const limit = Number(url.searchParams.get('limit') || 20);
         const toolName = url.searchParams.get('toolName') || undefined;
-        const result = agentActivityService.listAgentActivity(user.id, courseId, { page, limit, toolName });
+        const outcome = url.searchParams.get('outcome') || undefined;
+        const tokenId = url.searchParams.get('tokenId') || undefined;
+        const date = url.searchParams.get('date') || undefined;
+        const dateFrom = url.searchParams.get('dateFrom') || undefined;
+        const dateTo = url.searchParams.get('dateTo') || undefined;
+        const result = agentActivityService.listAgentActivity(user.id, courseId, { page, limit, toolName, outcome, tokenId, date, dateFrom, dateTo });
         sendJson(res, 200, result);
         return;
       }
@@ -1972,4 +1977,8 @@ export function createServer(
       }
     }
   });
+  (server as any).mcpServer = mcpServer;
+  (server as any).mcpAuthService = mcpServer.getAuthService();
+  (server as any).mcpTokenService = mcpTokenService;
+  return server;
 }

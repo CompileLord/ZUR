@@ -35,6 +35,7 @@ export interface AiConnectionsPageOptions {
   courses?: AuthorCourseOption[];
   activeFilter?: 'all' | 'active' | 'expired' | 'revoked';
   showCreateModal?: boolean;
+  replacingToken?: ConnectionTokenItem;
   revealedToken?: RevealedTokenData;
   revokingToken?: ConnectionTokenItem;
   error?: string;
@@ -261,12 +262,10 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                         ${token.isRevoked || token.status === 'expired'
                           ? '<button type="button" class="btn btn-secondary btn-compact" disabled aria-label="Setup unavailable for inactive connection">Setup</button>'
                           : `<a href="/settings/ai-connections/${token.id}/setup" class="btn btn-secondary btn-compact" aria-label="Setup ${token.label}">Setup</a>`}
+                        <button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>
                         ${
                           !token.isRevoked
-                            ? `
-                          <button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>
-                          <button type="button" class="btn btn-destructive btn-compact" data-action="revoke-token" data-token-id="${token.id}" aria-label="Revoke ${token.label}">Revoke</button>
-                        `
+                            ? `<button type="button" class="btn btn-destructive btn-compact" data-action="revoke-token" data-token-id="${token.id}" aria-label="Revoke ${token.label}">Revoke</button>`
                             : ''
                         }
                       </div>
@@ -330,23 +329,17 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                     <span class="text-secondary font-medium">Courses: </span>
                     <span class="text-secondary">${formatCourseRestrictions(token.courseRestrictions, coursesMap)}</span>
                   </div>
-                  <div class="connection-mobile-row-meta flex flex-wrap gap-x-4 text-muted pt-1">
-                    <span>Last used: ${lastUsedText}</span>
-                    <span>Expires: ${expiryDate}</span>
+                  <div class="connection-mobile-row-field connection-mobile-row-meta" style="display: flex; flex-direction: column; gap: 0.125rem; padding-top: 0.25rem;">
+                    <div><span class="text-secondary font-medium">Last used: </span><span class="text-muted">${lastUsedText}</span></div>
+                    <div><span class="text-secondary font-medium">Expires: </span><span class="text-muted">${expiryDate}</span></div>
                   </div>
                 </div>
                 <div class="connection-mobile-actions">
                   ${token.isRevoked || token.status === 'expired'
-                    ? '<button type="button" class="btn btn-secondary btn-compact" disabled aria-label="Setup unavailable for inactive connection">Setup</button>'
-                    : `<a href="/settings/ai-connections/${token.id}/setup" class="btn btn-secondary btn-compact" aria-label="Setup ${token.label}">Setup</a>`}
-                  ${
-                    !token.isRevoked
-                      ? `
-                    <button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>
-                    <button type="button" class="btn btn-destructive btn-compact" data-action="revoke-token" data-token-id="${token.id}" aria-label="Revoke ${token.label}">Revoke</button>
-                  `
-                      : ''
-                  }
+                    ? `<button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>`
+                    : `<a href="/settings/ai-connections/${token.id}/setup" class="btn btn-secondary btn-compact" aria-label="Setup ${token.label}">Setup</a>
+                       <button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>
+                       <button type="button" class="btn btn-destructive btn-compact" data-action="revoke-token" data-token-id="${token.id}" aria-label="Revoke ${token.label}">Revoke</button>`}
                 </div>
               </article>
             `;
@@ -357,59 +350,150 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
       }
 
       ${opts.showCreateModal ? renderCreateTokenModal(opts.courses || [], opts.error) : ''}
+      ${opts.replacingToken ? renderReplaceTokenModal(opts.replacingToken, opts.courses || [], opts.error) : ''}
       ${opts.revealedToken ? renderTokenRevealModal(opts.revealedToken) : ''}
       ${opts.revokingToken ? renderRevokeConfirmationModal(opts.revokingToken) : ''}
     </div>
   `;
 }
 
-function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): string {
+function renderReplaceTokenModal(token: ConnectionTokenItem, courses: AuthorCourseOption[], error?: string): string {
+  const allowedScopes = token.scopes;
+  const isAllCourses = token.courseRestrictions === null;
+  const restrictedCourses = token.courseRestrictions || [];
+  const selectableCourses = courses.filter((c) => isAllCourses || restrictedCourses.includes(c.id));
+
   return `
-    <div id="create-token-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="create-token-title">
-      <div class="modal-dialog" tabindex="-1" style="max-width: 560px;">
-        <header class="dialog-header">
-          <h2 id="create-token-title" class="dialog-title">Create access token</h2>
-          <p class="text-xs text-secondary mt-1">Issue a scoped credential for an external AI agent using MCP.</p>
+    <div id="replace-token-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="replace-token-title" style="overflow-y: auto;">
+      <div class="modal-dialog" tabindex="-1" style="max-width: 520px; max-height: calc(100vh - 2rem); margin: auto; padding: var(--space-4); display: flex; flex-direction: column;">
+        <header class="dialog-header mb-1">
+          <h2 id="replace-token-title" class="dialog-title text-base font-semibold">Replace access token</h2>
+          <p class="text-xs text-secondary">Reauthenticate to rotate this token. The existing token (${escapeHtml(token.label)}) will be revoked immediately and cannot be reused.</p>
         </header>
 
-        ${error ? `<div id="create-token-error" class="form-error p-3 border border-danger rounded" role="alert">${escapeHtml(error)}</div>` : ''}
+        ${error ? `<div id="replace-token-error" class="form-error p-2 text-xs border border-danger rounded" role="alert">${escapeHtml(error)}</div>` : ''}
 
-        <form id="create-token-form" class="space-y-4 py-3" novalidate>
-          ${renderTextInput({
-            id: 'connection-name',
-            name: 'label',
-            label: 'Connection name',
-            type: 'text',
-            placeholder: 'e.g. My course-writing agent',
-            required: true,
-            hint: 'A descriptive name for your client configuration.',
-          })}
-
-          ${renderTextInput({
-            id: 'connection-password',
-            name: 'password',
-            label: 'Current password',
-            type: 'password',
-            required: true,
-            hint: 'Re-authenticate with your account password before issuing access.',
-          })}
+        <form id="replace-token-form" data-token-id="${escapeHtml(token.id)}" style="display: flex; flex-direction: column; gap: 0.625rem; overflow-y: auto; flex: 1; padding: 0.25rem 0;" novalidate>
+          <div class="form-group">
+            <label class="form-label text-xs font-semibold" for="replace-connection-name">Connection name *</label>
+            <input type="text" id="replace-connection-name" name="label" class="form-input text-sm" value="${escapeHtml(token.label)}" required />
+          </div>
 
           <div class="form-group">
-            <label class="form-label" for="permission-preset">Permission preset</label>
-            <select id="permission-preset" name="preset" class="form-input">
+            <label class="form-label text-xs font-semibold" for="replace-connection-password">Current password *</label>
+            <input type="password" id="replace-connection-password" name="password" class="form-input text-sm" placeholder="Re-enter password to authorize" required autocomplete="current-password" />
+          </div>
+
+          <details class="border border-subtle rounded-md p-2" open>
+            <summary class="text-xs font-semibold cursor-pointer text-primary">Allowed scope permissions (narrowing only)</summary>
+            <p class="text-xs text-muted mt-1 mb-2">Replacement tokens cannot widen scope grants. You may keep or narrow existing scopes.</p>
+            <div class="grid grid-cols-1 gap-1.5 text-xs" id="replace-scopes-checklist">
+              ${allowedScopes.map((scope) => `
+                <label class="flex items-center gap-2">
+                  <input type="checkbox" name="scopes" value="${escapeHtml(scope)}" checked />
+                  <span><code>${escapeHtml(scope)}</code></span>
+                </label>
+              `).join('')}
+            </div>
+          </details>
+
+          <div class="form-group">
+            <label class="form-label text-xs font-semibold">Course access</label>
+            ${isAllCourses ? `
+              <div class="space-y-1 mt-0.5">
+                <label class="flex items-center gap-2 text-xs">
+                  <input type="radio" name="courseScopeType" value="all" checked />
+                  <span>All owned courses (including future courses)</span>
+                </label>
+                <label class="flex items-center gap-2 text-xs">
+                  <input type="radio" name="courseScopeType" value="selected" />
+                  <span>Selected courses</span>
+                </label>
+              </div>
+              ${selectableCourses.length > 0 ? `
+                <div id="replace-selected-courses-container" class="mt-1 pl-4 border-l border-subtle hidden space-y-1 max-h-24 overflow-y-auto">
+                  ${selectableCourses.map((c) => `
+                    <label class="flex items-center gap-2 text-xs">
+                      <input type="checkbox" name="selectedCourses" value="${escapeHtml(c.id)}" />
+                      <span>${escapeHtml(c.title)}</span>
+                    </label>
+                  `).join('')}
+                </div>
+              ` : ''}
+            ` : `
+              <p class="text-xs text-secondary mt-0.5">Course access cannot be expanded to all owned courses. You may select among currently authorized courses:</p>
+              <input type="hidden" name="courseScopeType" value="selected" />
+              <div id="replace-selected-courses-container" class="mt-1 pl-4 border-l border-subtle space-y-1 max-h-24 overflow-y-auto">
+                ${selectableCourses.length > 0 ? selectableCourses.map((c) => `
+                  <label class="flex items-center gap-2 text-xs">
+                    <input type="checkbox" name="selectedCourses" value="${escapeHtml(c.id)}" checked />
+                    <span>${escapeHtml(c.title)}</span>
+                  </label>
+                `).join('') : `
+                  <p class="text-xs text-muted">No specific courses assigned to this token.</p>
+                `}
+              </div>
+            `}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label text-xs font-semibold" for="replace-expiry-days">Expiry duration</label>
+            <select id="replace-expiry-days" name="expiryDays" class="form-input text-sm">
+              <option value="1">1 day</option>
+              <option value="7">7 days</option>
+              <option value="30" selected>30 days (Default)</option>
+              <option value="90">90 days</option>
+            </select>
+          </div>
+
+          <footer class="dialog-footer flex justify-end gap-3 pt-3 border-t border-subtle mt-1" style="position: sticky; bottom: 0; background: var(--bg-raised, #1c2128);">
+            <button type="button" class="btn btn-secondary btn-compact" data-dialog-action="cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-compact" id="btn-submit-replace-token">Replace token</button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): string {
+  return `
+    <div id="create-token-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="create-token-title" style="overflow-y: auto;">
+      <div class="modal-dialog" tabindex="-1" style="max-width: 520px; max-height: calc(100vh - 2rem); margin: auto; padding: var(--space-4); display: flex; flex-direction: column;">
+        <header class="dialog-header mb-1">
+          <h2 id="create-token-title" class="dialog-title text-base font-semibold">Create access token</h2>
+          <p class="text-xs text-secondary">Issue a scoped credential for external AI agents using MCP.</p>
+        </header>
+
+        ${error ? `<div id="create-token-error" class="form-error p-2 text-xs border border-danger rounded" role="alert">${escapeHtml(error)}</div>` : ''}
+
+        <form id="create-token-form" style="display: flex; flex-direction: column; gap: 0.625rem; overflow-y: auto; flex: 1; padding: 0.25rem 0;" novalidate>
+          <div class="form-group">
+            <label class="form-label text-xs font-semibold" for="connection-name">Connection name *</label>
+            <input type="text" id="connection-name" name="label" class="form-input text-sm" placeholder="e.g. My course-writing agent" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label text-xs font-semibold" for="connection-password">Current password *</label>
+            <input type="password" id="connection-password" name="password" class="form-input text-sm" placeholder="Re-enter password to authorize" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label text-xs font-semibold" for="permission-preset">Permission preset</label>
+            <select id="permission-preset" name="preset" class="form-input text-sm">
               <option value="draft_authoring" selected>Draft authoring (Recommended)</option>
               <option value="read_only">Read only</option>
               <option value="full_course_control">Full course control</option>
               <option value="custom">Custom</option>
             </select>
-            <p class="form-hint mt-1 text-xs text-muted">
-              Draft authoring permits editing drafts, uploading images, and validating exercises. Publishing and deletion remain off by default.
+            <p class="form-hint text-xs text-muted" style="margin-top: 0.125rem;">
+              Draft edits, media uploads, and exercise validation. Publishing & deletion off by default.
             </p>
           </div>
 
-          <details class="border border-subtle rounded-md p-3">
+          <details class="border border-subtle rounded-md p-2">
             <summary class="text-xs font-semibold cursor-pointer text-primary">Detailed scope permissions</summary>
-            <div class="grid grid-cols-1 gap-2 mt-3 text-xs" id="scopes-checklist">
+            <div class="grid grid-cols-1 gap-1.5 mt-2 text-xs" id="scopes-checklist">
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="scopes" value="courses:read" checked />
                 <span><code>courses:read</code> — Read course metadata and drafts</span>
@@ -446,13 +530,13 @@ function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): 
           </details>
 
           <div class="form-group">
-            <label class="form-label">Course access</label>
-            <div class="space-y-2 mt-1">
-              <label class="flex items-center gap-2 text-sm">
+            <label class="form-label text-xs font-semibold">Course access</label>
+            <div class="space-y-1 mt-0.5">
+              <label class="flex items-center gap-2 text-xs">
                 <input type="radio" name="courseScopeType" value="all" checked />
                 <span>All owned courses (including future courses)</span>
               </label>
-              <label class="flex items-center gap-2 text-sm">
+              <label class="flex items-center gap-2 text-xs">
                 <input type="radio" name="courseScopeType" value="selected" />
                 <span>Selected courses</span>
               </label>
@@ -460,7 +544,7 @@ function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): 
             ${
               courses.length > 0
                 ? `
-              <div id="selected-courses-container" class="mt-2 pl-4 border-l border-subtle hidden space-y-1 max-h-32 overflow-y-auto">
+              <div id="selected-courses-container" class="mt-1 pl-4 border-l border-subtle hidden space-y-1 max-h-24 overflow-y-auto">
                 ${courses
                   .map(
                     (c) => `
@@ -475,14 +559,11 @@ function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): 
             `
                 : ''
             }
-            <p class="form-hint mt-1 text-xs text-muted">
-              New courses created by this connection are automatically added to its allowed list.
-            </p>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="expiry-days">Expiry duration</label>
-            <select id="expiry-days" name="expiryDays" class="form-input">
+            <label class="form-label text-xs font-semibold" for="expiry-days">Expiry duration</label>
+            <select id="expiry-days" name="expiryDays" class="form-input text-sm">
               <option value="1">1 day</option>
               <option value="7">7 days</option>
               <option value="30" selected>30 days (Default)</option>
@@ -490,9 +571,9 @@ function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): 
             </select>
           </div>
 
-          <footer class="dialog-footer flex justify-end gap-3 pt-4 border-t border-subtle">
-            <button type="button" class="btn btn-secondary" data-dialog-action="cancel">Cancel</button>
-            <button type="submit" class="btn btn-primary" id="btn-submit-create-token">Create token</button>
+          <footer class="dialog-footer flex justify-end gap-3 pt-3 border-t border-subtle mt-1" style="position: sticky; bottom: 0; background: var(--bg-raised, #1c2128);">
+            <button type="button" class="btn btn-secondary btn-compact" data-dialog-action="cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-compact" id="btn-submit-create-token">Create token</button>
           </footer>
         </form>
       </div>

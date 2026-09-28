@@ -325,6 +325,16 @@ export async function executeCourseMutationTool(
   activityService?: AgentActivityService,
   recoveryService?: DraftRecoveryService
 ): Promise<McpToolResult> {
+function assertSafeMarkdown(text?: string): void {
+  if (!text || typeof text !== 'string') return;
+  if (/<script/i.test(text) || /javascript:/i.test(text) || /<\/?(iframe|object|embed)/i.test(text)) {
+    throw new ValidationError('Unsafe Markdown containing dangerous script or HTML tags is rejected.');
+  }
+  if (/!\[.*?\]\((https?:\/\/[^)]+)\)/i.test(text)) {
+    throw new ValidationError('External image URLs in Markdown are rejected. Use zur-asset references.');
+  }
+}
+
   const actService = activityService || new AgentActivityService(db);
   const recService = recoveryService || new DraftRecoveryService(db);
 
@@ -644,6 +654,10 @@ export async function executeCourseMutationTool(
 
       const priorCourse = courseService.getCourse(token.authorId, courseId);
 
+      if (args.content) {
+        assertSafeMarkdown(args.content.markdown || args.content.instructionsMarkdown || args.content.prompt);
+      }
+
       const step = structureService.addStep(token.authorId, courseId, lessonId, {
         title,
         type,
@@ -707,6 +721,10 @@ export async function executeCourseMutationTool(
       authService.verifyMcpPermission(token, 'content:write', courseId);
 
       const priorCourse = courseService.getCourse(token.authorId, courseId);
+
+      if (args.content) {
+        assertSafeMarkdown(args.content.markdown || args.content.instructionsMarkdown || args.content.prompt);
+      }
 
       const step = structureService.updateStep(token.authorId, courseId, stepId, {
         title: args.title,

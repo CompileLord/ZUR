@@ -983,7 +983,7 @@
       "id": "S3",
       "name": "P0 extension — external AI authoring through MCP",
       "phase": "B–C",
-      "status": "in_progress",
+      "status": "done",
       "gate": "A real SDK client creates and edits a course with Markdown, an uploaded image, quiz, and validated Python exercise, resolves a builder conflict, and publishes using an explicitly granted token; MCP-01–MCP-12 pass.",
       "modules": [
         {
@@ -1024,7 +1024,7 @@
             {
               "id": "T055",
               "title": "Build AI connections settings",
-              "status": "in_progress",
+              "status": "done",
               "priority": "P0",
               "description": "Implement P43 list/filter/detail, creation grant summary, reauthentication, masked one-time secret/copy, replacement with same-or-narrower grant, revocation confirmation, expired/revoked history, and safe token-free instrumentation.",
               "evidence": [
@@ -1046,7 +1046,7 @@
               ]
             }
           ],
-          "status": "in_progress"
+          "status": "done"
         },
         {
           "id": "S3-M02",
@@ -1098,7 +1098,7 @@
             {
               "id": "T060",
               "title": "Implement MCP image workflow",
-              "status": "in_progress",
+              "status": "done",
               "priority": "P0",
               "description": "Provide bounded create/complete upload, get/update image, attach/detach tools; validate actual bytes/checksum/MIME/dimensions, never forward author bearer tokens to storage, resolve stable zur-asset references, and enforce course ownership/readiness.",
               "evidence": [
@@ -1162,7 +1162,7 @@
               ]
             }
           ],
-          "status": "in_progress"
+          "status": "done"
         },
         {
           "id": "S3-M03",
@@ -1210,7 +1210,7 @@
             {
               "id": "T067",
               "title": "Build agent activity and builder update UI",
-              "status": "in_progress",
+              "status": "done",
               "priority": "P0",
               "description": "Implement P45 filters, receipt/diff drawer, recovery review and conflict states; show remote update attribution in builder without overriding local save status, preserve unsynced edits, and handle deleted selected nodes safely.",
               "evidence": [
@@ -1223,7 +1223,7 @@
             {
               "id": "T068",
               "title": "Verify MCP end to end and adversarial cases",
-              "status": "in_progress",
+              "status": "done",
               "priority": "P0",
               "description": "Run MCP-01–MCP-12 with a real SDK client, including cross-author IDs, restricted scopes, pending-write revocation, stale/repeated batches, unsafe Markdown/images, UI/MCP round trips, recovery, invalid reference, and unsupported OAuth-only client messaging.",
               "evidence": [
@@ -1231,7 +1231,7 @@
               ]
             }
           ],
-          "status": "in_progress"
+          "status": "done"
         }
       ]
     },

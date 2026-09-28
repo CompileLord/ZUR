@@ -11,6 +11,7 @@ import {
   renderMcpClientSetupDialog,
   generateClientSnippet,
 } from '../src/pages/settings/McpClientSetupDialog.ts';
+import { renderSafeDenialPage } from '../src/pages/status/SafeDenialPage.ts';
 import type { User } from 'zur-shared';
 
 test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) => {
@@ -268,37 +269,30 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
   await t.test('P44: Client configuration snippets generate valid tested structures', () => {
     const testUrl = 'https://zur.example.com/api/mcp';
 
-    // 1. Claude Desktop
-    const claudeSnippet = generateClientSnippet('claude_desktop', testUrl);
-    const parsedClaude = JSON.parse(claudeSnippet);
-    assert.equal(parsedClaude.mcpServers.zur.url, testUrl);
-    assert.equal(parsedClaude.mcpServers.zur.headers.Authorization, 'Bearer YOUR_ZUR_MCP_TOKEN');
+    // 1. Official MCP SDK v2
+    const sdkSnippet = generateClientSnippet('official_sdk', testUrl);
+    assert.ok(sdkSnippet.includes("from '@modelcontextprotocol/client'"));
+    assert.ok(sdkSnippet.includes('StreamableHTTPClientTransport'));
+    assert.ok(sdkSnippet.includes('2026-07-28'));
+    assert.ok(sdkSnippet.includes('Bearer YOUR_ZUR_MCP_TOKEN'));
+    assert.ok(sdkSnippet.includes(testUrl));
 
-    // 2. Cursor
-    const cursorSnippet = generateClientSnippet('cursor', testUrl);
-    const parsedCursor = JSON.parse(cursorSnippet);
-    assert.equal(parsedCursor.mcpServers.zur.url, testUrl);
-    assert.equal(parsedCursor.mcpServers.zur.headers.Authorization, 'Bearer YOUR_ZUR_MCP_TOKEN');
-
-    // 3. Goose
-    const gooseSnippet = generateClientSnippet('goose', testUrl);
-    assert.ok(gooseSnippet.includes('streamable_http'));
-    assert.ok(gooseSnippet.includes(testUrl));
-
-    // 4. Generic
+    // 2. Generic HTTP Bearer
     const genericSnippet = generateClientSnippet('generic', testUrl);
     assert.ok(genericSnippet.includes('Authorization: Bearer YOUR_ZUR_MCP_TOKEN'));
+    assert.ok(genericSnippet.includes('Host: zur.example.com'));
+    assert.ok(genericSnippet.includes('POST'));
 
-    // 5. OAuth-only limitation
+    // 3. OAuth-only limitation
     const oauthSnippet = generateClientSnippet('oauth_client', testUrl);
     assert.ok(oauthSnippet.includes('This client requires OAuth'));
   });
 
-  await t.test('P44: McpClientSetupPage renders vertical setup sequence and endpoint', () => {
+  await t.test('P44: McpClientSetupPage renders vertical setup sequence, upload restrictions, and tested tabs', () => {
     const html = renderMcpClientSetupPage({
       token: sampleTokens[0],
       endpointUrl: 'http://localhost:3000/api/mcp',
-      selectedClient: 'claude_desktop',
+      selectedClient: 'official_sdk',
     });
 
     // Back link
@@ -309,17 +303,23 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
     assert.ok(html.includes('Claude Desktop Agent'), 'Token label in header');
     assert.ok(html.includes('zat_claude_active'), 'Identifier in header');
 
-    // Step 1: Choose client
+    // Step 1: Choose client - genuinely tested tabs only
     assert.ok(html.includes('Choose a compatible client'), 'Step 1 present');
-    assert.ok(html.includes('Claude Desktop'), 'Client tab present');
-    assert.ok(html.includes('Cursor'), 'Cursor tab present');
-    assert.ok(html.includes('Goose'), 'Goose tab present');
+    assert.ok(html.includes('Official MCP SDK (v2)'), 'Official SDK tab present');
+    assert.ok(html.includes('Generic HTTP Bearer'), 'Generic HTTP tab present');
     assert.ok(html.includes('OAuth-only client'), 'OAuth tab present');
+    assert.ok(!html.includes('Claude Desktop</button>'), 'Untested Claude Desktop tab omitted');
+    assert.ok(!html.includes('Cursor</button>'), 'Untested Cursor tab omitted');
+    assert.ok(!html.includes('Goose</button>'), 'Untested Goose tab omitted');
 
-    // Step 2: Endpoint
+    // Step 2: Endpoint and Upload Limits (PRD §23.2, §23.5–23.6)
     assert.ok(html.includes('Add the MCP endpoint'), 'Step 2 present');
     assert.ok(html.includes('http://localhost:3000/api/mcp'), 'Endpoint URL displayed');
     assert.ok(html.includes('Streamable HTTP'), 'Transport specified');
+    assert.ok(html.includes('Max 10 MB per asset'), '10 MB image limit declared');
+    assert.ok(html.includes('PNG, JPEG, WebP only'), 'Permitted image formats declared');
+    assert.ok(!html.includes('GIF'), 'GIF format must not be allowed per PRD 23.5');
+    assert.ok(html.includes('100 operations and 1 MiB text'), 'Batch limits declared per PRD 23.6');
     assert.ok(html.includes('id="btn-copy-endpoint"'), 'Copy endpoint button present');
 
     // Step 3: Credential
@@ -336,14 +336,15 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
     assert.ok(html.includes('id="btn-copy-prompt"'), 'Copy prompt button present');
   });
 
-  await t.test('P44: Honest connection status reporting (Active vs Waiting)', () => {
-    // 1. Token with lastUsedAt (Connected)
+  await t.test('P44: Honest request observation reporting (Active vs Waiting)', () => {
+    // 1. Token with lastUsedAt (requests observed)
     const connectedHtml = renderMcpClientSetupPage({
       token: sampleTokens[0], // lastUsedAt is set
     });
-    assert.ok(connectedHtml.includes('Connected & Verified'), 'Must report verified when lastUsedAt is set');
+    assert.ok(connectedHtml.includes('Authenticated request observed'), 'Must report request observed when lastUsedAt is set');
+    assert.ok(!connectedHtml.includes('Connected & Verified'), 'Must not claim live socket connected');
     assert.ok(connectedHtml.includes('Last observed authenticated request'), 'Must display timestamp');
-    assert.ok(!connectedHtml.includes('undefined'), 'Connected badge icon must be defined');
+    assert.ok(!connectedHtml.includes('undefined'), 'Badge icon must be defined');
 
     // 2. Token without lastUsedAt (Never used)
     const waitingHtml = renderMcpClientSetupPage({
@@ -353,19 +354,24 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
       waitingHtml.includes('Waiting for the first authenticated request'),
       'Must report waiting when lastUsedAt is null'
     );
-    assert.ok(!waitingHtml.includes('Connected & Verified'), 'Must not report fake connection success');
-    assert.ok(waitingHtml.includes('status-badge info'), 'Waiting status uses the supported info badge');
+    assert.ok(!waitingHtml.includes('Connected'), 'Must not report fake connection success');
+    assert.ok(waitingHtml.includes('status-badge info'), 'Waiting status uses info badge');
     assert.ok(!waitingHtml.includes('undefined'), 'Waiting badge icon must be defined');
   });
 
-  await t.test('P44: OAuth-only client notice rendered when selected', () => {
+  await t.test('P44: OAuth-only client notice rendered without connected badge or nonfunctional copy controls', () => {
     const html = renderMcpClientSetupPage({
-      token: sampleTokens[0],
+      token: sampleTokens[0], // lastUsedAt is set
       selectedClient: 'oauth_client',
     });
 
     assert.ok(html.includes('OAuth Limitation Notice'), 'OAuth warning banner rendered');
     assert.ok(html.includes('This client requires OAuth'), 'Limitation explained');
+    assert.ok(html.includes('OAuth unsupported'), 'Header badge reflects OAuth unsupported status');
+    assert.ok(!html.includes('Connected'), 'Must not display Connected badge when OAuth selected');
+    assert.ok(!html.includes('id="btn-copy-endpoint"'), 'Endpoint copy button omitted for OAuth client');
+    assert.ok(!html.includes('id="btn-copy-snippet"'), 'Config copy button omitted for OAuth client');
+    assert.ok(!html.includes('id="btn-refresh-status"'), 'Refresh status button omitted for OAuth client');
   });
 
   await t.test('P44: McpClientSetupDialog renders modal semantics', () => {
@@ -377,5 +383,27 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
     assert.ok(dialogHtml.includes('role="dialog"'), 'Accessible dialog role present');
     assert.ok(dialogHtml.includes('aria-modal="true"'), 'Modal attribute present');
     assert.ok(dialogHtml.includes('Connection setup and verification'), 'Dialog title present');
+  });
+
+  await t.test('P43: Render replace token modal with reauthentication and narrowing-only controls', () => {
+    const html = renderAiConnectionsPage({
+      user: authorUser,
+      tokens: sampleTokens,
+      courses: [{ id: 'course-python-foundations', title: 'Python foundations' }],
+      replacingToken: sampleTokens[0],
+    });
+
+    assert.ok(html.includes('id="replace-token-modal"'), 'Must render replace token modal');
+    assert.ok(html.includes('id="replace-token-form"'), 'Must render replace token form');
+    assert.ok(html.includes('id="replace-connection-password"'), 'Must render password input for reauthentication');
+    assert.ok(html.includes('id="btn-submit-replace-token"'), 'Must render replace submit button');
+    assert.ok(html.includes('Allowed scope permissions (narrowing only)'), 'Must restrict scopes to narrowing');
+  });
+
+  await t.test('P44: Missing connection token falls back to safe not-found state without fake data', () => {
+    const safeHtml = renderSafeDenialPage({ type: 'not-found' });
+    assert.ok(safeHtml.includes("This page isn't available"), 'Safe denial page rendered');
+    assert.ok(!safeHtml.includes('Sample Agent'), 'Must never emit fake sample agent data');
+    assert.ok(!safeHtml.includes('zat_sample'), 'Must never emit fake token identifier');
   });
 });

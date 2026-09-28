@@ -1030,6 +1030,15 @@ function validateStepContentSchema(content: any, stepType: string, opIndex: numb
   if (typeof content !== 'object' || content === null) {
     throw new ValidationError(`Operation #${opIndex}: content must be an object`);
   }
+  const text = content.markdown || content.instructionsMarkdown || content.prompt || '';
+  if (typeof text === 'string' && text) {
+    if (/<script/i.test(text) || /javascript:/i.test(text) || /<\/?(iframe|object|embed)/i.test(text)) {
+      throw new ValidationError(`Operation #${opIndex}: Unsafe Markdown containing dangerous script or HTML tags is rejected.`);
+    }
+    if (/!\[.*?\]\((https?:\/\/[^)]+)\)/i.test(text)) {
+      throw new ValidationError(`Operation #${opIndex}: External image URLs in Markdown are rejected. Use zur-asset references.`);
+    }
+  }
   if (stepType === 'theory') {
     if (content.markdown !== undefined && typeof content.markdown !== 'string') {
       throw new ValidationError(`Operation #${opIndex} (theory): content.markdown must be a string`);

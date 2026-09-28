@@ -1852,6 +1852,14 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   display: none;
 }
 
+.activity-mobile-list {
+  display: none;
+}
+
+.activity-desktop-table {
+  display: block;
+}
+
 @media (max-width: 768px) {
   .connections-table-wrapper {
     display: none;
@@ -1889,6 +1897,14 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
     gap: var(--space-2);
     border-top: 1px solid var(--border-subtle);
     padding-top: var(--space-2);
+  }
+  .activity-desktop-table {
+    display: none !important;
+  }
+  .activity-mobile-list {
+    display: flex !important;
+    flex-direction: column;
+    gap: var(--space-3);
   }
 }
 

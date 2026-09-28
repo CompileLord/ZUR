@@ -1,7 +1,7 @@
 import { renderButton, renderStatusBadge } from '../../components/common/index.ts';
 import { formatScopeSummary, formatCourseRestrictions, type ConnectionTokenItem } from './AiConnectionsPage.ts';
 
-export type CompatibleClient = 'claude_desktop' | 'cursor' | 'goose' | 'generic' | 'oauth_client';
+export type CompatibleClient = 'official_sdk' | 'generic' | 'oauth_client';
 
 export interface McpClientSetupOptions {
   token: ConnectionTokenItem;
@@ -11,44 +11,37 @@ export interface McpClientSetupOptions {
 }
 
 export function generateClientSnippet(client: CompatibleClient, endpointUrl: string): string {
+  let host = '127.0.0.1:3000';
+  try {
+    host = new URL(endpointUrl).host;
+  } catch {}
+
   switch (client) {
-    case 'claude_desktop':
-      return JSON.stringify(
-        {
-          mcpServers: {
-            zur: {
-              url: endpointUrl,
-              headers: {
-                Authorization: 'Bearer YOUR_ZUR_MCP_TOKEN',
-              },
-            },
-          },
-        },
-        null,
-        2
-      );
-
-    case 'cursor':
-      return JSON.stringify(
-        {
-          mcpServers: {
-            zur: {
-              url: endpointUrl,
-              headers: {
-                Authorization: 'Bearer YOUR_ZUR_MCP_TOKEN',
-              },
-            },
-          },
-        },
-        null,
-        2
-      );
-
-    case 'goose':
-      return `extensions:\n  zur:\n    type: streamable_http\n    uri: "${endpointUrl}"\n    headers:\n      Authorization: "Bearer YOUR_ZUR_MCP_TOKEN"`;
+    case 'official_sdk':
+      return [
+        "import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';",
+        "",
+        "const transport = new StreamableHTTPClientTransport(",
+        `  new URL('${endpointUrl}'),`,
+        "  {",
+        "    requestInit: {",
+        "      headers: {",
+        "        Authorization: 'Bearer YOUR_ZUR_MCP_TOKEN',",
+        "      },",
+        "    },",
+        "  }",
+        ");",
+        "",
+        "const client = new Client(",
+        "  { name: 'author-agent', version: '2.1.0' },",
+        "  { capabilities: {}, versionNegotiation: { mode: { pin: '2026-07-28' } } }",
+        ");",
+        "",
+        "await client.connect(transport);",
+      ].join('\n');
 
     case 'generic':
-      return `POST ${endpointUrl} HTTP/1.1\nHost: localhost:3000\nContent-Type: application/json\nAuthorization: Bearer YOUR_ZUR_MCP_TOKEN`;
+      return `POST ${endpointUrl} HTTP/1.1\nHost: ${host}\nAuthorization: Bearer YOUR_ZUR_MCP_TOKEN\nContent-Type: application/json\nAccept: application/json, text/event-stream\n\n{"jsonrpc":"2.0","method":"tools/list","params":{},"id":1}`;
 
     case 'oauth_client':
       return 'This client requires OAuth. The current connection supports manually configured bearer tokens.';
@@ -57,10 +50,11 @@ export function generateClientSnippet(client: CompatibleClient, endpointUrl: str
 
 export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string {
   const endpoint = opts.endpointUrl || (typeof window !== 'undefined' ? `${window.location.origin}/api/mcp` : 'http://localhost:3000/api/mcp');
-  const selectedClient = opts.selectedClient || 'claude_desktop';
+  const selectedClient = opts.selectedClient || 'official_sdk';
   const token = opts.token;
 
   const isConnected = Boolean(token.lastUsedAt);
+  const isOAuth = selectedClient === 'oauth_client';
 
   const snippet = generateClientSnippet(selectedClient, endpoint);
 
@@ -74,10 +68,12 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
           <div class="flex items-center gap-3">
             <h2 class="text-xl font-semibold text-primary">${token.label}</h2>
             ${
-              token.isRevoked
+              isOAuth
+                ? renderStatusBadge({ status: 'warning', label: 'OAuth unsupported' })
+                : token.isRevoked
                 ? renderStatusBadge({ status: 'danger', label: 'Revoked' })
                 : isConnected
-                ? renderStatusBadge({ status: 'success', label: 'Connected' })
+                ? renderStatusBadge({ status: 'info', label: 'Authenticated request observed' })
                 : renderStatusBadge({ status: 'info', label: 'Waiting for requests' })
             }
           </div>
@@ -95,21 +91,15 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
           <div class="setup-step-main">
             <h3 id="step-1-title" class="text-base font-semibold text-primary">Choose a compatible client</h3>
             <p class="text-xs text-secondary">
-              Select your AI tool to view tested configuration syntax. Clients must support explicit HTTP bearer credentials.
+              Select verified client guide. Clients must support explicit HTTP bearer credentials.
             </p>
 
             <div class="setup-client-tabs mt-2" role="tablist" aria-label="Supported AI clients">
-              <button type="button" class="btn btn-secondary btn-compact client-tab-btn ${selectedClient === 'claude_desktop' ? 'btn-primary active' : ''}" data-client="claude_desktop" role="tab" aria-selected="${selectedClient === 'claude_desktop'}">
-                Claude Desktop
-              </button>
-              <button type="button" class="btn btn-secondary btn-compact client-tab-btn ${selectedClient === 'cursor' ? 'btn-primary active' : ''}" data-client="cursor" role="tab" aria-selected="${selectedClient === 'cursor'}">
-                Cursor
-              </button>
-              <button type="button" class="btn btn-secondary btn-compact client-tab-btn ${selectedClient === 'goose' ? 'btn-primary active' : ''}" data-client="goose" role="tab" aria-selected="${selectedClient === 'goose'}">
-                Goose
+              <button type="button" class="btn btn-secondary btn-compact client-tab-btn ${selectedClient === 'official_sdk' ? 'btn-primary active' : ''}" data-client="official_sdk" role="tab" aria-selected="${selectedClient === 'official_sdk'}">
+                Official MCP SDK (v2)
               </button>
               <button type="button" class="btn btn-secondary btn-compact client-tab-btn ${selectedClient === 'generic' ? 'btn-primary active' : ''}" data-client="generic" role="tab" aria-selected="${selectedClient === 'generic'}">
-                Generic HTTP
+                Generic HTTP Bearer
               </button>
               <button type="button" class="btn btn-secondary btn-compact client-tab-btn ${selectedClient === 'oauth_client' ? 'btn-primary active' : ''}" data-client="oauth_client" role="tab" aria-selected="${selectedClient === 'oauth_client'}">
                 OAuth-only client
@@ -117,10 +107,12 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
             </div>
 
             ${
-              selectedClient === 'oauth_client'
+              isOAuth
                 ? `
-              <div class="p-3 bg-raised border border-warning rounded text-xs text-warning mt-2" role="alert">
-                <strong>OAuth Limitation Notice:</strong> This client requires OAuth. The current connection supports manually configured bearer tokens. OAuth discovery flow will be available in a future update.
+              <div class="p-3 bg-raised border border-warning rounded text-xs text-warning mt-3 space-y-1.5" role="alert">
+                <div class="font-semibold">OAuth Limitation Notice:</div>
+                <p>This client requires OAuth. The current connection supports manually configured bearer tokens.</p>
+                <p class="text-muted">Standard OAuth discovery flow (Authorization Code with PKCE) is currently unsupported. Personal access tokens cannot be used with OAuth-only clients, and no automated connection action is available.</p>
               </div>
             `
                 : ''
@@ -128,6 +120,9 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
           </div>
         </section>
 
+        ${
+          !isOAuth
+            ? `
         <!-- Step 2: Add MCP Endpoint -->
         <section class="setup-step-card" aria-labelledby="step-2-title">
           <div class="setup-step-badge" aria-hidden="true">2</div>
@@ -150,9 +145,17 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
                 Copy endpoint
               </button>
             </div>
-            <p class="text-xs text-muted">
-              Transport: <code>Streamable HTTP</code> · Loopback development mode enabled.
+            <p class="text-xs text-muted mt-1">
+              Transport: <code>Streamable HTTP</code> (protocol <code>2026-07-28</code>) · Loopback development mode enabled.
             </p>
+
+            <div class="mt-3 p-3 bg-surface border border-subtle rounded text-xs space-y-1">
+              <div class="font-semibold text-primary">Verified Protocol & Limits (PRD §23.2, §23.5–23.6):</div>
+              <div class="text-secondary">• <strong>Transport & Revision:</strong> Streamable HTTP, protocol <code>2026-07-28</code>.</div>
+              <div class="text-secondary">• <strong>Image Uploads:</strong> Max 10 MB per asset. Supported formats: PNG, JPEG, WebP only. SVG, executables, and malformed files rejected.</div>
+              <div class="text-secondary">• <strong>Inline Media:</strong> Inline base64 capped at 1 MiB decoded size (use <code>create_image_upload</code> for binary assets).</div>
+              <div class="text-secondary">• <strong>Batch Mutations:</strong> Maximum 100 operations and 1 MiB text per batch.</div>
+            </div>
           </div>
         </section>
 
@@ -170,7 +173,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
               Replace <code>YOUR_ZUR_MCP_TOKEN</code> with the secret generated during creation. Never share your secret or paste it into chat prompts.
             </p>
 
-            <pre class="setup-code-block mt-2"><code>${snippet}</code></pre>
+            <pre class="setup-code-block mt-2 font-mono text-xs"><code>${snippet}</code></pre>
           </div>
         </section>
 
@@ -181,7 +184,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
             <div class="flex items-center justify-between">
               <h3 id="step-4-title" class="text-base font-semibold text-primary">Verify access</h3>
               <button type="button" class="btn btn-secondary btn-compact" id="btn-refresh-status">
-                Refresh connection status
+                Refresh status
               </button>
             </div>
             <p class="text-xs text-secondary">
@@ -194,7 +197,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
                   ? `
                 <div class="space-y-1">
                   <div class="flex items-center gap-2 text-sm font-semibold text-success">
-                    <span>✓</span> Connected & Verified
+                    <span>✓</span> Authenticated request observed
                   </div>
                   <p class="text-xs text-secondary">
                     Last observed authenticated request: <strong>${new Date(token.lastUsedAt!).toLocaleString()}</strong>
@@ -228,6 +231,9 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
             </div>
           </div>
         </section>
+        `
+            : ''
+        }
       </div>
     </div>
   `;

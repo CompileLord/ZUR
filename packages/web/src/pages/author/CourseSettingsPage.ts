@@ -17,6 +17,7 @@ export interface CourseSettingsData {
   enrollmentPolicy: 'open' | 'invitation_only';
   publicationStatus: 'draft' | 'published' | 'archived';
   draftRevision: number;
+  hasUnpublishedChanges?: boolean;
   currentVersionId?: string | null;
   versions?: Array<{ id: string; versionNumber: number; publishedAt: string }>;
 }
@@ -285,7 +286,7 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
     courseId: c.id,
     courseTitle: c.title,
     publicationState: c.publicationStatus,
-    hasUnpublishedChanges: c.draftRevision > 1,
+    hasUnpublishedChanges: c.hasUnpublishedChanges ?? (c.draftRevision > 1),
     saveStatusText,
     activeTab: 'settings',
     editorContent,

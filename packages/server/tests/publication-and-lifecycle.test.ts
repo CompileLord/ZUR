@@ -218,6 +218,10 @@ test('Module S2-M02: Validation, Immutable Publication & Lifecycle (T040–T044)
     assert.equal(updatedCourse.publicationStatus, 'published');
     assert.equal(updatedCourse.currentVersionId, receipt.versionId);
     assert.equal(updatedCourse.draftRevision, publishedRevision + 1);
+    assert.equal(updatedCourse.hasUnpublishedChanges, false, 'Immediately after publication, hasUnpublishedChanges must be false');
+    const listedCourses = courseService.listOwnedCourses(authorId);
+    const listedPublished = listedCourses.courses.find((c) => c.id === courseId);
+    assert.equal(listedPublished?.hasUnpublishedChanges, false, 'Listed course must show hasUnpublishedChanges false right after publish');
 
     // Check course_versions record contains full JSON snapshot
     const versionRow = db
@@ -270,6 +274,7 @@ test('Module S2-M02: Validation, Immutable Publication & Lifecycle (T040–T044)
     ).run('sc-th-2', stepTheory2.id, JSON.stringify({ kind: 'theory', markdown: '# Advanced Topics\nLists and dicts.' }));
 
     const courseBeforeV2 = courseService.getCourse(authorId, courseId);
+    assert.equal(courseBeforeV2.hasUnpublishedChanges, true, 'Draft edits after publication must mark hasUnpublishedChanges true');
     const receiptV2 = await publicationService.publishCourse(authorId, courseId, {
       expectedRevision: courseBeforeV2.draftRevision,
       changeSummary: 'Version 2 with Advanced Topics module',
@@ -277,6 +282,8 @@ test('Module S2-M02: Validation, Immutable Publication & Lifecycle (T040–T044)
 
     assert.equal(receiptV2.versionNumber, 2);
     assert.equal(receiptV2.studentCountPinnedToOldVersions, 1, 'Student 1 is pinned to Version 1');
+    const courseAfterV2 = courseService.getCourse(authorId, courseId);
+    assert.equal(courseAfterV2.hasUnpublishedChanges, false, 'Immediately after publishing v2, hasUnpublishedChanges must be false');
 
     // Student 2 enrolls now: should be pinned to Version 2!
     const enrollment2 = courseService.enrollStudent(student2Id, courseId);

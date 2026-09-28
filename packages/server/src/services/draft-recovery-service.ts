@@ -220,9 +220,16 @@ export class DraftRecoveryService {
       );
     }
 
-    const recoveryRecord = this.db.prepare(`
+    let recoveryRecord = this.db.prepare(`
       SELECT * FROM recovery_revisions WHERE id = ? AND course_id = ?
     `).get(revisionId, courseId) as any;
+
+    if (!recoveryRecord && Number.isInteger(Number(revisionId))) {
+      recoveryRecord = this.db.prepare(`
+        SELECT * FROM recovery_revisions WHERE revision_number = ? AND course_id = ?
+        ORDER BY created_at DESC LIMIT 1
+      `).get(Number(revisionId), courseId) as any;
+    }
 
     if (!recoveryRecord) {
       throw new NotFoundError("This page isn't available.");
