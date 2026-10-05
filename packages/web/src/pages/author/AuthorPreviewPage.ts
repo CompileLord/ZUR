@@ -1,5 +1,5 @@
 import { safeTemplateData } from '../../utils/safe-template-data.ts';
-import { renderMarkdownToHtml } from 'zur-shared';
+import { renderMarkdownToHtml, PYTHON_RUNTIME_LABEL } from 'zur-shared';
 import { deriveEmbedUrl } from './VideoEditorPage.ts';
 
 export interface AuthorPreviewPageOptions {
@@ -193,7 +193,7 @@ export function renderAuthorPreviewPage(opts: AuthorPreviewPageOptions): string 
         <!-- Editor Pane -->
         <div class="editor-pane p-4">
           <div class="editor-toolbar mb-2">
-            <span class="text-secondary text-sm">Python 3.12</span>
+            <span class="text-secondary text-sm">${PYTHON_RUNTIME_LABEL}</span>
             <div class="editor-actions">
               <button type="button" class="btn btn-secondary btn-compact" data-action="run-samples">Run samples</button>
               <button type="button" class="btn btn-primary btn-compact" data-action="submit-solution">Submit solution</button>

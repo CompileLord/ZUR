@@ -5,3 +5,4 @@ export * from './ContentTree.ts';
 export * from './CourseRow.ts';
 export * from './Dialog.ts';
 export * from './Toast.ts';
+export * from './icons.ts';

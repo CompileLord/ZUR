@@ -18,11 +18,12 @@ export function renderAppearanceSettingsPage(opts: AppearanceSettingsPageOptions
   const indent = opts.preferences.indentationSpaces || 4;
 
   return `
-    <div class="settings-container max-w-2xl py-6">
-      <h1 class="h1 mb-2">Appearance settings</h1>
-      <p class="text-sm text-secondary mb-6">Customize the interface theme and Python workspace editor options.</p>
-
-      ${renderSettingsNav('appearance')}
+    <div class="settings-container">
+      <header class="settings-header">
+        <h1 class="settings-title">Settings</h1>
+        ${renderSettingsNav('appearance')}
+      </header>
+      <h2 class="sr-only">Appearance settings</h2>
 
       ${
         opts.error
@@ -44,59 +45,93 @@ export function renderAppearanceSettingsPage(opts: AppearanceSettingsPageOptions
           : ''
       }
 
-      <form id="appearance-settings-form" class="space-y-6" novalidate>
+      <form id="appearance-settings-form" novalidate>
         <!-- Theme Selection (P18) -->
-        <div class="card p-6 bg-surface border border-subtle rounded-lg">
-          <h2 class="text-base font-semibold mb-2">Interface theme</h2>
-          <p class="text-sm text-secondary mb-4">Choose between dark, light, or automatic system appearance.</p>
-
-          <div class="theme-schematic-grid grid grid-cols-3 gap-4" role="radiogroup" aria-label="Interface theme">
-            <!-- Dark Theme Option -->
-            <label class="theme-card border ${currentTheme === 'dark' ? 'border-accent ring-1' : 'border-subtle'} rounded-lg p-4 cursor-pointer hover:border-control transition">
-              <div class="flex items-center justify-between mb-3">
-                <span class="font-semibold text-sm">Dark</span>
-                <input type="radio" name="theme" value="dark" ${currentTheme === 'dark' ? 'checked' : ''} class="theme-radio" />
-              </div>
-              <div class="schematic-preview p-2 rounded bg-[#161715] border border-[#2b2d29] text-[#eceee9] text-xs">
-                <div class="h-2 w-12 bg-[#c5e631] rounded-sm mb-2"></div>
-                <div class="h-2 w-full bg-[#20221e] rounded-sm mb-1"></div>
-                <div class="h-2 w-3/4 bg-[#20221e] rounded-sm"></div>
-              </div>
-            </label>
-
-            <!-- Light Theme Option -->
-            <label class="theme-card border ${currentTheme === 'light' ? 'border-accent ring-1' : 'border-subtle'} rounded-lg p-4 cursor-pointer hover:border-control transition">
-              <div class="flex items-center justify-between mb-3">
-                <span class="font-semibold text-sm">Light</span>
-                <input type="radio" name="theme" value="light" ${currentTheme === 'light' ? 'checked' : ''} class="theme-radio" />
-              </div>
-              <div class="schematic-preview p-2 rounded bg-[#f4f5f1] border border-[#d6dad0] text-[#1c1e19] text-xs">
-                <div class="h-2 w-12 bg-[#5d7300] rounded-sm mb-2"></div>
-                <div class="h-2 w-full bg-[#e6e9e0] rounded-sm mb-1"></div>
-                <div class="h-2 w-3/4 bg-[#e6e9e0] rounded-sm"></div>
-              </div>
-            </label>
-
-            <!-- System Mode Option -->
-            <label class="theme-card border ${currentTheme === 'system' ? 'border-accent ring-1' : 'border-subtle'} rounded-lg p-4 cursor-pointer hover:border-control transition">
-              <div class="flex items-center justify-between mb-3">
-                <span class="font-semibold text-sm">System</span>
-                <input type="radio" name="theme" value="system" ${currentTheme === 'system' ? 'checked' : ''} class="theme-radio" />
-              </div>
-              <div class="schematic-preview p-2 rounded bg-surface border border-subtle text-primary text-xs">
-                <span class="text-xs text-muted block mb-1">Resolved:</span>
-                <span class="text-xs font-semibold uppercase text-secondary">${resolvedSystem}</span>
-              </div>
-            </label>
+        <section class="settings-section" aria-labelledby="appearance-theme-heading">
+          <div class="settings-section-header">
+            <h3 id="appearance-theme-heading" class="settings-section-title">Interface theme</h3>
+            <p class="settings-section-desc">Choose between dark, light, or automatic system appearance.</p>
           </div>
-        </div>
+
+          <div class="settings-section-content">
+            <div class="theme-options-grid" role="radiogroup" aria-labelledby="appearance-theme-heading">
+              <!-- Dark Theme Option -->
+              <label class="theme-card ${currentTheme === 'dark' ? 'active' : ''}">
+                <div class="theme-card-header">
+                  <span class="theme-card-title">Dark</span>
+                  <input type="radio" name="theme" value="dark" ${currentTheme === 'dark' ? 'checked' : ''} class="theme-radio" />
+                </div>
+                <div class="mini-schematic dark" aria-hidden="true">
+                  <div class="mini-schematic-sidebar">
+                    <div class="mini-schematic-sidebar-item active"></div>
+                    <div class="mini-schematic-sidebar-item"></div>
+                    <div class="mini-schematic-sidebar-item"></div>
+                  </div>
+                  <div class="mini-schematic-main">
+                    <div class="mini-schematic-title"></div>
+                    <div class="mini-schematic-line"></div>
+                    <div class="mini-schematic-line" style="width: 55%;"></div>
+                    <div class="mini-schematic-btn"></div>
+                  </div>
+                </div>
+                <span class="text-xs text-muted block mt-2">Consistent dark surface</span>
+              </label>
+
+              <!-- Light Theme Option -->
+              <label class="theme-card ${currentTheme === 'light' ? 'active' : ''}">
+                <div class="theme-card-header">
+                  <span class="theme-card-title">Light</span>
+                  <input type="radio" name="theme" value="light" ${currentTheme === 'light' ? 'checked' : ''} class="theme-radio" />
+                </div>
+                <div class="mini-schematic light" aria-hidden="true">
+                  <div class="mini-schematic-sidebar">
+                    <div class="mini-schematic-sidebar-item active"></div>
+                    <div class="mini-schematic-sidebar-item"></div>
+                    <div class="mini-schematic-sidebar-item"></div>
+                  </div>
+                  <div class="mini-schematic-main">
+                    <div class="mini-schematic-title"></div>
+                    <div class="mini-schematic-line"></div>
+                    <div class="mini-schematic-line" style="width: 55%;"></div>
+                    <div class="mini-schematic-btn"></div>
+                  </div>
+                </div>
+                <span class="text-xs text-muted block mt-2">Consistent light surface</span>
+              </label>
+
+              <!-- System Mode Option -->
+              <label class="theme-card ${currentTheme === 'system' ? 'active' : ''}">
+                <div class="theme-card-header">
+                  <span class="theme-card-title">System</span>
+                  <input type="radio" name="theme" value="system" ${currentTheme === 'system' ? 'checked' : ''} class="theme-radio" />
+                </div>
+                <div class="mini-schematic system" aria-hidden="true">
+                  <div class="mini-schematic-sidebar">
+                    <div class="mini-schematic-sidebar-item active"></div>
+                    <div class="mini-schematic-sidebar-item"></div>
+                    <div class="mini-schematic-sidebar-item"></div>
+                  </div>
+                  <div class="mini-schematic-main">
+                    <div class="mini-schematic-title"></div>
+                    <div class="mini-schematic-line"></div>
+                    <div class="mini-schematic-line" style="width: 55%;"></div>
+                    <div class="mini-schematic-btn"></div>
+                  </div>
+                </div>
+                <span class="text-xs text-muted block mt-2">Follows system (Resolved: ${resolvedSystem})</span>
+              </label>
+            </div>
+          </div>
+        </section>
 
         <!-- Editor Preferences (P18, P15) -->
-        <div class="card p-6 bg-surface border border-subtle rounded-lg">
-          <h2 class="text-base font-semibold mb-2">Python workspace editor</h2>
-          <p class="text-sm text-secondary mb-4">These preferences apply directly to the interactive code editor in exercises.</p>
+        <section class="settings-section" aria-labelledby="appearance-editor-heading">
+          <div class="settings-section-header">
+            <h3 id="appearance-editor-heading" class="settings-section-title">Python workspace editor</h3>
+            <p class="settings-section-desc">These preferences apply directly to the interactive code editor in exercises.</p>
+          </div>
 
-          <div class="grid grid-cols-2 gap-6">
+          <div class="settings-section-content">
             <div class="form-group">
               <label for="editorFontSize" class="form-label mb-1">Font size</label>
               <select id="editorFontSize" name="editorFontSize" class="form-select w-full">
@@ -116,18 +151,24 @@ export function renderAppearanceSettingsPage(opts: AppearanceSettingsPageOptions
               </select>
               <span class="form-hint mt-1 text-xs text-muted">Python indentation depth</span>
             </div>
-          </div>
-        </div>
 
-        <div class="flex justify-end gap-3 mt-6">
-          ${renderButton({
-            id: 'btn-save-appearance',
-            label: opts.isLoading ? 'Saving…' : 'Save preferences',
-            variant: 'primary',
-            type: 'submit',
-            disabled: opts.isLoading,
-          })}
-        </div>
+            <div id="appearance-autosave-status" class="flex items-center gap-2 text-xs text-muted pt-2" role="status" aria-live="polite">
+              <span class="status-indicator"></span>
+              <span class="status-text">All preferences saved automatically</span>
+            </div>
+
+            <!-- Accessible fallback for tests and script submission -->
+            <div class="sr-only">
+              ${renderButton({
+                id: 'btn-save-appearance',
+                label: opts.isLoading ? 'Saving…' : 'Save preferences',
+                variant: 'primary',
+                type: 'submit',
+                disabled: opts.isLoading,
+              })}
+            </div>
+          </div>
+        </section>
       </form>
     </div>
   `;

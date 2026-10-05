@@ -14,11 +14,12 @@ export function renderSecuritySettingsPage(opts: SecuritySettingsPageOptions): s
   const isAdmin = opts.user.capabilities.includes('admin');
 
   return `
-    <div class="settings-container max-w-2xl py-6">
-      <h1 class="h1 mb-2">Security settings</h1>
-      <p class="text-sm text-secondary mb-6">Manage your credentials, active sessions, and authentication security.</p>
-
-      ${renderSettingsNav('security')}
+    <div class="settings-container">
+      <header class="settings-header">
+        <h1 class="settings-title">Settings</h1>
+        ${renderSettingsNav('security')}
+      </header>
+      <h2 class="sr-only">Security settings</h2>
 
       ${
         opts.error
@@ -40,64 +41,77 @@ export function renderSecuritySettingsPage(opts: SecuritySettingsPageOptions): s
           : ''
       }
 
-      <div class="space-y-8">
+      <div>
         <!-- Section 1: Change Password -->
-        <section class="card p-6 bg-surface border border-subtle rounded-lg" aria-labelledby="section-password-title">
-          <h2 id="section-password-title" class="text-base font-semibold mb-2">Change password</h2>
-          <p class="text-sm text-secondary mb-4">Requires reauthentication with your current password. Updating your password will sign out other devices.</p>
+        <section class="settings-section" aria-labelledby="section-password-title">
+          <div class="settings-section-header">
+            <h3 id="section-password-title" class="settings-section-title">Change password</h3>
+            <p class="settings-section-desc">Requires reauthentication with your current password. Updating your password will sign out other devices.</p>
+          </div>
 
-          <form id="change-password-form" class="space-y-4" novalidate>
-            ${renderTextInput({
-              id: 'currentPassword',
-              name: 'currentPassword',
-              label: 'Current password',
-              type: 'password',
-              required: true,
-            })}
+          <div class="settings-section-content">
+            <form id="change-password-form" class="space-y-4" novalidate>
+              <div class="form-group">
+                ${renderTextInput({
+                  id: 'currentPassword',
+                  name: 'currentPassword',
+                  label: 'Current password',
+                  type: 'password',
+                  required: true,
+                })}
+              </div>
 
-            ${renderTextInput({
-              id: 'newPassword',
-              name: 'newPassword',
-              label: 'New password',
-              type: 'password',
-              required: true,
-              hint: 'At least 8 characters with a mix of letters and numbers',
-            })}
+              <div class="form-group">
+                ${renderTextInput({
+                  id: 'newPassword',
+                  name: 'newPassword',
+                  label: 'New password',
+                  type: 'password',
+                  required: true,
+                  hint: 'At least 8 characters with a mix of letters and numbers',
+                })}
+              </div>
 
-            ${renderTextInput({
-              id: 'confirmNewPassword',
-              name: 'confirmNewPassword',
-              label: 'Confirm new password',
-              type: 'password',
-              required: true,
-            })}
+              <div class="form-group">
+                ${renderTextInput({
+                  id: 'confirmNewPassword',
+                  name: 'confirmNewPassword',
+                  label: 'Confirm new password',
+                  type: 'password',
+                  required: true,
+                })}
+              </div>
 
-            <div class="flex justify-end pt-2">
-              ${renderButton({
-                id: 'btn-change-password',
-                label: 'Update password',
-                variant: 'primary',
-                type: 'submit',
-                disabled: opts.isLoading,
-              })}
-            </div>
-          </form>
+              <div class="pt-2">
+                ${renderButton({
+                  id: 'btn-change-password',
+                  label: 'Update password',
+                  variant: 'primary',
+                  type: 'submit',
+                  disabled: opts.isLoading,
+                })}
+              </div>
+            </form>
+          </div>
         </section>
 
         <!-- Section 2: Stronger Admin Authentication (if applicable) -->
         ${
           isAdmin
             ? `
-          <section class="card p-6 bg-surface border border-subtle rounded-lg" aria-labelledby="section-admin-auth">
-            <div class="flex items-center justify-between mb-2">
-              <h2 id="section-admin-auth" class="text-base font-semibold">Elevated administrative authentication</h2>
-              <span class="status-badge success">Enforced</span>
+          <section class="settings-section" aria-labelledby="section-admin-auth">
+            <div class="settings-section-header">
+              <h3 id="section-admin-auth" class="settings-section-title">Elevated authentication</h3>
+              <p class="settings-section-desc">Platform administrators must maintain elevated authentication for destructive mutations.</p>
             </div>
-            <p class="text-sm text-secondary mb-4">
-              As a platform administrator, sensitive operations require short-lived elevated reauthentication within 15 minutes of execution.
-            </p>
-            <div class="p-3 bg-canvas border border-subtle rounded text-xs text-secondary">
-              Current administrative session status: <strong>Active & Verified</strong>
+            <div class="settings-section-content">
+              <div class="settings-action-row">
+                <div class="settings-row-text">
+                  <div class="settings-row-title">Administrative session status</div>
+                  <div class="settings-row-desc">Elevated reauthentication is active and verified.</div>
+                </div>
+                <span class="status-badge success">Enforced</span>
+              </div>
             </div>
           </section>
         `
@@ -105,29 +119,31 @@ export function renderSecuritySettingsPage(opts: SecuritySettingsPageOptions): s
         }
 
         <!-- Section 3: Active Sessions and Revocation -->
-        <section class="card p-6 bg-surface border border-subtle rounded-lg" aria-labelledby="section-sessions-title">
-          <h2 id="section-sessions-title" class="text-base font-semibold mb-2">Session management</h2>
-          <p class="text-sm text-secondary mb-4">
-            If you suspect unauthorized access or lost a device, you can sign out of all active browser sessions immediately.
-          </p>
+        <section class="settings-section" aria-labelledby="section-sessions-title">
+          <div class="settings-section-header">
+            <h3 id="section-sessions-title" class="settings-section-title">Session management</h3>
+            <p class="settings-section-desc">Manage devices where your account is currently signed in.</p>
+          </div>
 
-          <div class="flex justify-between items-center pt-2">
-            <div>
-              <span class="text-sm font-semibold block">All active sessions</span>
-              <span class="text-xs text-muted">Terminates sessions on all devices including this one.</span>
+          <div class="settings-section-content">
+            <div class="settings-danger-row">
+              <div class="settings-row-text">
+                <div class="settings-row-title">All active sessions</div>
+                <div class="settings-row-desc">Terminates browser sessions on all devices including this one.</div>
+              </div>
+              ${renderButton({
+                id: 'btn-sign-out-all',
+                label: 'Sign out of all devices',
+                variant: 'destructive',
+                type: 'button',
+              })}
             </div>
-            ${renderButton({
-              id: 'btn-sign-out-all',
-              label: 'Sign out of all devices',
-              variant: 'destructive',
-              type: 'button',
-            })}
           </div>
         </section>
       </div>
 
       <!-- Confirmation Dialog for Sign Out All Devices -->
-      <div id="sign-out-all-modal" class="modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-signout-title">
+      <div id="sign-out-all-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-signout-title">
         <div class="modal-dialog" tabindex="-1">
           <header class="dialog-header">
             <h2 id="modal-signout-title" class="dialog-title">Sign out of all devices?</h2>

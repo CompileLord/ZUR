@@ -25,6 +25,7 @@ export function getDatabase(dbPath?: string): DatabaseSync {
   const db = new DatabaseSync(targetPath);
 
   // Enforce authoritative invariants: foreign keys and WAL mode
+  db.exec('PRAGMA busy_timeout = 5000;');
   db.exec('PRAGMA foreign_keys = ON;');
   if (targetPath !== ':memory:') {
     db.exec('PRAGMA journal_mode = WAL;');

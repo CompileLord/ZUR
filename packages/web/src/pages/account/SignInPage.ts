@@ -1,6 +1,6 @@
 import { escapeHtml } from '../../utils/escape-html.ts';
 import { renderAccountShell } from '../../components/shells/AccountShell.ts';
-import { renderTextInput, renderButton } from '../../components/common/index.ts';
+import { renderTextInput, renderButton, renderIcon } from '../../components/common/index.ts';
 
 export interface SignInPageOptions {
   email?: string;
@@ -33,23 +33,31 @@ export function renderSignInPage(opts: SignInPageOptions = {}): string {
         placeholder: 'you@example.com',
       })}
 
-      <div class="password-field-wrapper mb-4">
-        ${renderTextInput({
-          id: 'password',
-          name: 'password',
-          label: 'Password',
-          type: 'password',
-          required: true,
-        })}
-        <div class="flex justify-end mt-1">
-          <button type="button" id="toggle-password" class="btn btn-ghost btn-compact text-xs" aria-label="Show password">
-            Show password
+      <div class="form-group mb-6" id="group-password">
+        <div class="flex justify-between items-center mb-1">
+          <label for="password" class="form-label mb-0">
+            Password <span class="text-danger" aria-hidden="true">*</span>
+          </label>
+          <a href="/forgot-password" class="text-xs text-secondary hover-underline">Forgot password?</a>
+        </div>
+        <div class="password-input-wrapper relative">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-input pr-10"
+            required
+          />
+          <button
+            type="button"
+            id="toggle-password"
+            class="password-toggle-btn"
+            aria-label="Show password"
+            title="Show password"
+          >
+            ${renderIcon('eye', { size: 16 })}
           </button>
         </div>
-      </div>
-
-      <div class="flex justify-between items-center mb-6">
-        <a href="/forgot-password" class="text-sm text-secondary hover-underline">Forgot password?</a>
       </div>
 
       <input type="hidden" name="returnTo" value="${escapeHtml(opts.returnTo)}" />
@@ -71,7 +79,6 @@ export function renderSignInPage(opts: SignInPageOptions = {}): string {
 
   return renderAccountShell({
     title: 'Welcome back',
-    subtitle: 'Sign in to your ZUR learning account',
     formContent,
   });
 }

@@ -1,0 +1,29 @@
+--- Starting S4 Real Browser Journey ---
+(node:113027) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/compilelord/new/vibecoding/zur/scripts/verify-s4-browser-journey.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/compilelord/new/vibecoding/zur/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:113027) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+Vite dev server ready at http://127.0.0.1:37629 proxying /api to port 38753
+Journey 1: Testing P02 Desktop Language Filter...
+[Screenshot] /home/compilelord/new/vibecoding/zur/screenshots/app-audit-s4/s4_journey_p02_desktop_spanish.png
+✓ Journey 1 (P02 Desktop Spanish filter) verified successfully.
+Journey 2: Testing P02 Mobile Language Filter...
+[Screenshot] /home/compilelord/new/vibecoding/zur/screenshots/app-audit-s4/s4_journey_p02_mobile_spanish.png
+✓ Journey 2 (P02 Mobile Spanish filter) verified successfully.
+Journey 3: Testing Admin Sign In & P32 Internal-Error Rate...
+[Screenshot] /home/compilelord/new/vibecoding/zur/screenshots/app-audit-s4/s4_journey_p32_admin_overview.png
+✓ Journey 3 (P32 Operations Overview 5m platform error rate, anchor link, and 4xx exclusion) verified successfully.
+Journey 4: Testing P36 Report Detail & Click to P34 Exact Snapshot...
+[Screenshot] /home/compilelord/new/vibecoding/zur/screenshots/app-audit-s4/s4_journey_p36_report_detail.png
+[Screenshot] /home/compilelord/new/vibecoding/zur/screenshots/app-audit-s4/s4_journey_p34_course_inspection.png
+✓ Journey 4 (P36 exact link click -> P34 immutable snapshot inspection) verified successfully.
+Journey 5: Testing P36 Safe Unavailable State (no snapshot)...
+[Screenshot] /home/compilelord/new/vibecoding/zur/screenshots/app-audit-s4/s4_journey_p36_report_unavailable.png
+✓ Journey 5 (P36 Safe Unavailable State) verified successfully.
+Journey 6: Testing Admin Mobile Layouts...
+[Screenshot] /home/compilelord/new/vibecoding/zur/screenshots/app-audit-s4/s4_journey_p32_mobile.png
+[Screenshot] /home/compilelord/new/vibecoding/zur/screenshots/app-audit-s4/s4_journey_p36_mobile.png
+[Screenshot] /home/compilelord/new/vibecoding/zur/screenshots/app-audit-s4/s4_journey_p34_mobile.png
+✓ Journey 6 (Responsive Mobile Admin Screens) verified successfully.
+=== All 6 Real Browser Journeys Completed Successfully ===

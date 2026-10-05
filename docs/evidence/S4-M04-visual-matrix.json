@@ -82,8 +82,8 @@
         "devicePixelRatio": 2.5,
         "visualViewportScale": 1
       },
-      "capture": "screenshots/s4_m04_chrome_ui_zoom200_landing.png",
-      "inspection": "The header, two-line hero, paragraph, and actions remain readable within the zoomed CSS viewport; lower content scrolls vertically.",
+      "capture": "screenshots/s4_t087_p01_landing_200zoom_dark_gui.png",
+      "inspection": "The two-line hero, paragraph, and actions remain readable within the zoomed CSS viewport; lower content scrolls vertically.",
       "details": "docs/evidence/s4-m04-t086-local-probes.json"
     },
     "representativeBrowserZoom200": {
@@ -1091,7 +1091,7 @@
       "evidence": [
         "screenshots/s4_t087_p01_landing_320x844_dark.png",
         "screenshots/s4_t087_p02_catalog_long_content_320x844_light.png",
-        "screenshots/s4_m04_chrome_ui_zoom200_landing.png",
+        "screenshots/s4_t087_p01_landing_200zoom_dark_gui.png",
         "screenshots/s4_t087_p02_catalog_long_content_200zoom_dark_gui.png",
         "screenshots/s4_t087_p02_catalog_long_content_200zoom_light_gui.png"
       ]
@@ -1233,8 +1233,8 @@
         "screenshots/s4_t087_p22_builder_deep_tree_long_titles_200zoom_dark_gui.png",
         "screenshots/s4_t087_p22_builder_deep_tree_long_titles_200zoom_light_gui.png",
         "docs/evidence/s4-m04-interactive-browser-flows.json",
-        "screenshots/s4_t087_p22_live_client_inspector_visible_1440x900_dark.png",
-        "screenshots/s4_t087_p22_live_client_inspector_visible_1440x900_light.png"
+        "screenshots/s4_t087_p22_live_builder_overview_1440x900_dark.png",
+        "screenshots/s4_t087_p22_live_builder_overview_1440x900_light.png"
       ],
       "gap": "The open-inspector visual checkpoint is captured on a real authenticated P22 browser route in both themes. Deep-tree/long-title builder fixtures have measured actual 200% GUI Chrome captures in both themes and responsive captures across the matrix. The remaining zoom gap is the live authenticated route at 200%; fixture captures do not establish that live-route state. Inspector visibility controls are optional behavior and were not exercised."
     },
@@ -1274,7 +1274,7 @@
         "screenshots/s4_t087_p28_roster_students_and_invitations_320x844_dark.png",
         "screenshots/s4_t087_p28_roster_students_and_invitations_200zoom_light_gui.png",
         "screenshots/s4_t087_p30_analytics_sparse_activity_200zoom_light_gui.png",
-        "screenshots/s4_m02_p29_student_detail.png",
+        "screenshots/s4_t087_p29_student_detail_1440x900_dark.png",
         "docs/evidence/s4-m04-roster-layout-checks.json",
         "screenshots/s4_t087_p29_student_detail_320x844_light.png",
         "screenshots/s4_t087_p29_student_detail_200zoom_dark_gui.png",

@@ -92,9 +92,6 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
       <header class="students-header flex justify-between items-center mb-6 pb-4 border-b border-subtle">
         <div>
           <h1 class="page-title text-2xl font-bold tracking-tight">Students and invitations</h1>
-          <p class="text-sm text-secondary mt-1">
-            Manage course enrollments, track student progress, and invite new learners.
-          </p>
         </div>
         <div class="header-actions">
           <button id="btn-open-invite-modal" class="btn btn-primary" type="button" aria-haspopup="dialog">
@@ -135,8 +132,8 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
 
       <!-- Enrolled Panel -->
       <div id="panel-enrolled" role="tabpanel" aria-labelledby="tab-btn-enrolled" class="${activeTab === 'enrolled' ? '' : 'hidden'}">
-        <!-- Toolbar -->
-        <div class="roster-toolbar flex flex-wrap gap-4 items-center justify-between mb-6 p-4 bg-surface border border-subtle rounded-lg">
+        <!-- Plain Filter Toolbar -->
+        <div class="roster-toolbar flex flex-wrap gap-3 items-center justify-between mb-6">
           <div class="flex-1 min-w-[240px]">
             <label for="roster-search" class="sr-only">Search students</label>
             <input
@@ -230,13 +227,13 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
                       </span>
                     </td>
                     <td class="py-3 px-4">
-                      <div class="progress-cell flex flex-col gap-1 min-w-[140px]">
-                        <div class="flex justify-between text-xs text-secondary">
+                      <div class="progress-cell flex flex-col gap-1 min-w-[140px]" role="progressbar" aria-valuenow="${progressPct}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="flex justify-between text-xs text-secondary mb-1">
                           <span>${completedSteps} / ${totalRequired} steps</span>
                           <span class="font-medium">${progressPct}%</span>
                         </div>
-                        <div class="progress-bar-bg h-1.5 w-full bg-raised rounded-full overflow-hidden">
-                          <div class="progress-bar-fill h-full bg-accent rounded-full" style="width: ${Math.min(100, Math.max(0, progressPct))}%"></div>
+                        <div class="progress-track" aria-hidden="true" style="height: 6px; background-color: var(--border-subtle); border-radius: 3px; overflow: hidden; width: 100%;">
+                          <div class="progress-fill" style="width: ${Math.min(100, Math.max(0, progressPct))}%; height: 100%; background-color: var(--accent); border-radius: 3px;"></div>
                         </div>
                       </div>
                     </td>
@@ -251,28 +248,35 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
                         <a href="/teach/${escapeHtml(props.courseId)}/students/${escapeHtml(item.enrollmentId)}" class="btn btn-secondary btn-compact" aria-label="View detail for ${escapeHtml(item.displayName)}">
                           View detail
                         </a>
-                        ${item.status === 'active' ? `
-                          <button
-                            type="button"
-                            class="btn btn-ghost btn-compact text-danger hover:bg-danger-bg"
-                            data-action="open-revoke"
-                            data-enrollment-id="${escapeHtml(item.enrollmentId)}"
-                            data-student-name="${escapeHtml(item.displayName)}"
-                            aria-label="Revoke access for ${escapeHtml(item.displayName)}"
-                          >
-                            Revoke
-                          </button>
-                        ` : item.status === 'revoked' ? `
-                          <button
-                            type="button"
-                            class="btn btn-secondary btn-compact"
-                            data-action="open-reinstate"
-                            data-enrollment-id="${escapeHtml(item.enrollmentId)}"
-                            data-student-name="${escapeHtml(item.displayName)}"
-                            aria-label="Reinstate access for ${escapeHtml(item.displayName)}"
-                          >
-                            Reinstate
-                          </button>
+                        ${item.status === 'active' || item.status === 'revoked' ? `
+                          <details class="action-overflow relative inline-block text-left">
+                            <summary class="btn btn-ghost btn-compact px-2 cursor-pointer list-none select-none text-secondary hover:text-primary" aria-label="More actions for ${escapeHtml(item.displayName)}">⋮</summary>
+                            <div class="overflow-dropdown-menu">
+                              ${item.status === 'active' ? `
+                                <button
+                                  type="button"
+                                  class="dropdown-item text-danger"
+                                  data-action="open-revoke"
+                                  data-enrollment-id="${escapeHtml(item.enrollmentId)}"
+                                  data-student-name="${escapeHtml(item.displayName)}"
+                                  aria-label="Revoke access for ${escapeHtml(item.displayName)}"
+                                >
+                                  Revoke
+                                </button>
+                              ` : `
+                                <button
+                                  type="button"
+                                  class="dropdown-item text-secondary hover:text-primary"
+                                  data-action="open-reinstate"
+                                  data-enrollment-id="${escapeHtml(item.enrollmentId)}"
+                                  data-student-name="${escapeHtml(item.displayName)}"
+                                  aria-label="Reinstate access for ${escapeHtml(item.displayName)}"
+                                >
+                                  Reinstate
+                                </button>
+                              `}
+                            </div>
+                          </details>
                         ` : ''}
                       </div>
                     </td>
@@ -350,7 +354,7 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
                     <td class="py-3 px-4 text-xs text-secondary">${inv.type === 'email' ? escapeHtml(inv.emailDeliveryStatus || 'Not sent') : '—'}</td>
                     <td class="py-3 px-4 text-right">
                       <div class="flex items-center justify-end gap-2">
-                        ${inv.type === 'email' && !inv.isRevoked && !isExpired ? `
+                        ${inv.type === 'email' && !inv.isRevoked ? `
                           <button
                             type="button"
                             class="btn btn-secondary btn-compact"

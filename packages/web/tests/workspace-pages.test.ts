@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { renderPythonWorkspacePage } from '../src/pages/learning/PythonWorkspacePage.ts';
-import { renderAttemptHistoryPage } from '../src/pages/learning/AttemptHistoryPage.ts';
+import { renderAttemptHistoryPage, getAttemptDocumentTitle } from '../src/pages/learning/AttemptHistoryPage.ts';
 import { DraftManager } from '../src/services/draft-manager.ts';
 
 test('Python Workspace Page P15 (design.md §11 P15, T026)', async (t) => {
@@ -34,10 +34,10 @@ test('Python Workspace Page P15 (design.md §11 P15, T026)', async (t) => {
     assert.ok(html.includes('Saved'));
   });
 
-  await t.test('Includes compact screen guidance banner for mobile users (design §14)', () => {
+  await t.test('Keeps compact screens free of desktop-only restrictions', () => {
     const html = renderPythonWorkspacePage(baseOpts);
-    assert.ok(html.includes('desktop-guidance-banner'));
-    assert.ok(html.includes('Open this exercise on a computer to write and run code.'));
+    assert.ok(!html.includes('desktop-guidance-banner'));
+    assert.ok(!html.includes('Open this exercise on a computer to write and run code.'));
   });
 
   await t.test('Hides solution explanation when isCompleted is false, reveals when true', () => {
@@ -50,10 +50,10 @@ test('Python Workspace Page P15 (design.md §11 P15, T026)', async (t) => {
     assert.ok(completedHtml.includes('Modulo 2 returns 0 for even numbers.'));
   });
 
-  await t.test('Renders Run samples, Run custom, and Submit solution actions', () => {
+  await t.test('Renders Run samples, Run code, and Submit solution actions', () => {
     const html = renderPythonWorkspacePage(baseOpts);
     assert.ok(html.includes('Run samples'));
-    assert.ok(html.includes('Run custom'));
+    assert.ok(html.includes('Run code'));
     assert.ok(html.includes('Submit solution'));
   });
 
@@ -62,9 +62,9 @@ test('Python Workspace Page P15 (design.md §11 P15, T026)', async (t) => {
     assert.ok(html.includes('href="/learn/enr-1/steps/step-6/attempts"'));
   });
 
-  await t.test('Compact Python view renders a read-only existing editor snapshot', () => {
+  await t.test('Compact Python view keeps the editor writable', () => {
     const html = renderPythonWorkspacePage({ ...baseOpts, isCompact: true });
-    assert.match(html, /<textarea[\s\S]*?id="code-editor-input"[\s\S]*?readonly/);
+    assert.doesNotMatch(html, /readonly/);
   });
 
   await t.test('Renders public test failure with diff and received output', () => {
@@ -213,7 +213,7 @@ test('Attempt History and Restore P16 (design.md §11 P16, T027)', async (t) => 
     assert.ok(!html.includes('Restore to editor'));
   });
 
-  await t.test('Compact student attempt detail omits desktop-only Restore action', () => {
+  await t.test('Compact student attempt detail offers Restore action', () => {
     const html = renderAttemptHistoryPage({
       ...baseHistoryOpts,
       isCompact: true,
@@ -223,7 +223,22 @@ test('Attempt History and Restore P16 (design.md §11 P16, T027)', async (t) => 
         canRestore: true, runtimeVersion: 'Python 3.14',
       },
     });
-    assert.ok(!html.includes('Restore to editor'));
+    assert.ok(html.includes('Restore to editor'));
+  });
+
+  await t.test('Sets route-specific document titles with exercise and course context', () => {
+    assert.strictEqual(
+      getAttemptDocumentTitle('Check Even or Odd', 'Python Foundations'),
+      'Submission History · Check Even or Odd · Python Foundations · ZUR'
+    );
+    assert.strictEqual(
+      getAttemptDocumentTitle('Check Even or Odd', 'Python Foundations', { attemptNumber: 2 }),
+      'Attempt #2 · Check Even or Odd · Python Foundations · ZUR'
+    );
+    assert.strictEqual(
+      getAttemptDocumentTitle('Check Even or Odd', 'Python Foundations', {}),
+      'Attempt Detail · Check Even or Odd · Python Foundations · ZUR'
+    );
   });
 });
 

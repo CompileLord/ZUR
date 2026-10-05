@@ -83,8 +83,8 @@ test('Reusable Layout Shells S1–S6 (design.md §5, T009)', async (t) => {
     });
 
     assert.strictEqual(html.includes('paired-workspace'), true);
-    assert.strictEqual(html.includes('desktop-guidance-banner'), true);
-    assert.strictEqual(html.includes('Open this exercise on a computer to write and run code.'), true);
+    assert.strictEqual(html.includes('desktop-guidance-banner'), false);
+    assert.strictEqual(html.includes('Open this exercise on a computer to write and run code.'), false);
     assert.strictEqual(html.includes('Saved'), true);
   });
 

@@ -2,6 +2,8 @@ import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
 import { renderProgressLine } from '../../components/common/CourseRow.ts';
 import { renderDialog } from '../../components/common/Dialog.ts';
+import { renderIcon } from '../../components/common/icons.ts';
+import { humanizeEnum } from '../../utils/formatters.ts';
 
 export interface EnrolledCourseItem {
   id: string; // enrollmentId
@@ -82,8 +84,9 @@ export function renderMyCoursesPage(opts: MyCoursesPageOptions): string {
       </div>
     `;
   } else {
+    // Flat rows, no card-in-card
     coursesListHtml = `
-      <div class="enrolled-courses-list" role="feed" aria-label="Enrolled courses">
+      <div class="enrolled-courses-flat-list" role="feed" aria-label="Enrolled courses">
         ${filteredCourses.map((c) => {
           const resumeStepId = c.nextStepId;
           const actionUrl = resumeStepId
@@ -91,37 +94,44 @@ export function renderMyCoursesPage(opts: MyCoursesPageOptions): string {
             : `/learn/${c.id}`;
 
           return `
-            <article class="course-card-row" data-enrollment-id="${c.id}">
-              <div class="course-card-header">
-                <div class="title-version-group">
-                  <a href="/learn/${c.id}" class="course-card-title">${c.courseTitle}</a>
-                  <span class="version-tag">Version ${c.pinnedVersionNumber}</span>
+            <article class="enrolled-course-flat-row" data-enrollment-id="${c.id}">
+              <div class="course-row-info">
+                <div class="course-row-title-line">
+                  <a href="/learn/${c.id}" class="course-row-title">${c.courseTitle}</a>
+                  <span class="version-quiet-meta">v${c.pinnedVersionNumber}</span>
+                  <span class="sr-only">Version ${c.pinnedVersionNumber}</span>
+                  <span class="difficulty-quiet-meta">${humanizeEnum(c.difficulty)}</span>
+                  ${c.isCompleted ? '<span class="status-badge success">Completed</span>' : ''}
                 </div>
-                ${c.isCompleted ? '<span class="status-badge success">Completed</span>' : ''}
-              </div>
 
-              <div class="course-card-body">
-                <div class="progress-block">
+                <div class="course-row-progress-block">
                   ${renderProgressLine({
                     satisfiedRequiredCount: c.completedRequired,
                     totalRequiredCount: c.totalRequired,
                     isCompleted: c.isCompleted,
                   })}
                 </div>
+
                 ${c.nextStepTitle ? `<p class="next-step-indicator">Next: <strong>${c.nextStepTitle}</strong></p>` : ''}
               </div>
 
-              <div class="course-card-footer">
-                <div class="card-footer-left">
-                  <span class="difficulty-label">${c.difficulty}</span>
-                </div>
-                <div class="card-footer-actions">
-                  <button type="button" class="btn btn-ghost btn-compact leave-course-trigger" data-course-id="${c.courseId}" data-course-title="${c.courseTitle}">
-                    Leave course
-                  </button>
-                  <a href="${actionUrl}" class="btn btn-secondary btn-compact">
-                    ${c.isCompleted ? 'Review course' : 'Resume'}
-                  </a>
+              <div class="course-row-actions">
+                <a href="${actionUrl}" class="btn btn-secondary btn-compact">
+                  ${c.isCompleted ? 'Review course' : 'Resume'}
+                </a>
+
+                <div class="row-overflow-wrapper">
+                  <details class="row-overflow-menu">
+                    <summary class="btn-icon btn-compact overflow-trigger" aria-label="More options for ${c.courseTitle}">
+                      ${renderIcon('more-horizontal', { size: 16 })}
+                    </summary>
+                    <div class="overflow-dropdown">
+                      <button type="button" class="overflow-menu-item leave-course-trigger text-danger" data-course-id="${c.courseId}" data-course-title="${c.courseTitle}">
+                        ${renderIcon('logout', { size: 14 })}
+                        <span>Leave course</span>
+                      </button>
+                    </div>
+                  </details>
                 </div>
               </div>
             </article>

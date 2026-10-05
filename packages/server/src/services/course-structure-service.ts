@@ -70,6 +70,45 @@ export class CourseStructureService {
       .run(courseId);
   }
 
+  private getStepInCourse(stepId: string, courseId: string): any {
+    const step = this.db
+      .prepare(
+        `SELECT s.* FROM steps s
+         JOIN lessons l ON s.lesson_id = l.id
+         JOIN modules m ON l.module_id = m.id
+         WHERE s.id = ? AND m.course_id = ?`
+      )
+      .get(stepId, courseId) as any;
+    if (!step) {
+      throw new NotFoundError('Step not found in this course');
+    }
+    return step;
+  }
+
+  private getLessonInCourse(lessonId: string, courseId: string): any {
+    const lesson = this.db
+      .prepare(
+        `SELECT l.* FROM lessons l
+         JOIN modules m ON l.module_id = m.id
+         WHERE l.id = ? AND m.course_id = ?`
+      )
+      .get(lessonId, courseId) as any;
+    if (!lesson) {
+      throw new NotFoundError('Lesson not found in this course');
+    }
+    return lesson;
+  }
+
+  private getModuleInCourse(moduleId: string, courseId: string): any {
+    const mod = this.db
+      .prepare('SELECT id FROM modules WHERE id = ? AND course_id = ?')
+      .get(moduleId, courseId) as any;
+    if (!mod) {
+      throw new NotFoundError('Module not found in this course');
+    }
+    return mod;
+  }
+
   getCourseTree(userId: string, courseId: string): CourseTree {
     this.verifyCourseOwner(userId, courseId);
 
@@ -179,17 +218,55 @@ export class CourseStructureService {
     return { id: moduleId, title: cleanTitle };
   }
 
-  reorderModules(userId: string, courseId: string, moduleIds: string[]): void {
-    this.verifyCourseOwner(userId, courseId);
-    const now = new Date().toISOString();
-
-    for (let i = 0; i < moduleIds.length; i++) {
-      this.db
-        .prepare('UPDATE modules SET position = ?, updated_at = ? WHERE id = ? AND course_id = ?')
-        .run(i, now, moduleIds[i], courseId);
+  reorderModules(userId: string, courseId: string, moduleIds: string[]): { success: boolean; newRevision: number } {
+    if (!Array.isArray(moduleIds)) {
+      throw new ValidationError('moduleIds must be an array of module IDs');
+    }
+    for (const id of moduleIds) {
+      if (typeof id !== 'string' || !id.trim()) {
+        throw new ValidationError('Invalid module ID in reorder list');
+      }
+    }
+    if (new Set(moduleIds).size !== moduleIds.length) {
+      throw new ValidationError('Reorder list contains duplicate module IDs');
     }
 
-    this.bumpCourseRevision(courseId);
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      this.verifyCourseOwner(userId, courseId);
+
+      const existing = this.db
+        .prepare('SELECT id FROM modules WHERE course_id = ?')
+        .all(courseId) as Array<{ id: string }>;
+      if (moduleIds.length !== existing.length) {
+        throw new ValidationError(
+          `Reorder list length (${moduleIds.length}) does not match module count in course (${existing.length})`
+        );
+      }
+      const existingSet = new Set(existing.map((m) => m.id));
+      for (const id of moduleIds) {
+        if (!existingSet.has(id)) {
+          throw new ValidationError(`Module ${id} does not belong to course ${courseId}`);
+        }
+      }
+
+      const now = new Date().toISOString();
+      for (let i = 0; i < moduleIds.length; i++) {
+        this.db
+          .prepare('UPDATE modules SET position = ?, updated_at = ? WHERE id = ? AND course_id = ?')
+          .run(i, now, moduleIds[i], courseId);
+      }
+
+      this.bumpCourseRevision(courseId);
+      const updated = this.db.prepare('SELECT draft_revision FROM courses WHERE id = ?').get(courseId) as any;
+      this.db.exec('COMMIT');
+      return { success: true, newRevision: updated ? updated.draft_revision : 1 };
+    } catch (err) {
+      try {
+        this.db.exec('ROLLBACK');
+      } catch {}
+      throw err;
+    }
   }
 
   deleteModule(userId: string, courseId: string, moduleId: string): { success: boolean; deletedModuleId: string } {
@@ -252,6 +329,7 @@ export class CourseStructureService {
     description?: string
   ): { id: string; title: string; description?: string } {
     this.verifyCourseOwner(userId, courseId);
+    this.getLessonInCourse(lessonId, courseId);
     const cleanTitle = (title || '').trim();
     if (!cleanTitle) {
       throw new ValidationError('Lesson title cannot be empty');
@@ -267,21 +345,61 @@ export class CourseStructureService {
     return { id: lessonId, title: cleanTitle, description };
   }
 
-  reorderLessons(userId: string, courseId: string, moduleId: string, lessonIds: string[]): void {
-    this.verifyCourseOwner(userId, courseId);
-    const now = new Date().toISOString();
-
-    for (let i = 0; i < lessonIds.length; i++) {
-      this.db
-        .prepare('UPDATE lessons SET position = ?, updated_at = ? WHERE id = ? AND module_id = ?')
-        .run(i, now, lessonIds[i], moduleId);
+  reorderLessons(userId: string, courseId: string, moduleId: string, lessonIds: string[]): { success: boolean; newRevision: number } {
+    if (!Array.isArray(lessonIds)) {
+      throw new ValidationError('lessonIds must be an array of lesson IDs');
+    }
+    for (const id of lessonIds) {
+      if (typeof id !== 'string' || !id.trim()) {
+        throw new ValidationError('Invalid lesson ID in reorder list');
+      }
+    }
+    if (new Set(lessonIds).size !== lessonIds.length) {
+      throw new ValidationError('Reorder list contains duplicate lesson IDs');
     }
 
-    this.bumpCourseRevision(courseId);
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      this.verifyCourseOwner(userId, courseId);
+      this.getModuleInCourse(moduleId, courseId);
+
+      const existing = this.db
+        .prepare('SELECT id FROM lessons WHERE module_id = ?')
+        .all(moduleId) as Array<{ id: string }>;
+      if (lessonIds.length !== existing.length) {
+        throw new ValidationError(
+          `Reorder list length (${lessonIds.length}) does not match lesson count in module (${existing.length})`
+        );
+      }
+      const existingSet = new Set(existing.map((l) => l.id));
+      for (const id of lessonIds) {
+        if (!existingSet.has(id)) {
+          throw new ValidationError(`Lesson ${id} does not belong to module ${moduleId}`);
+        }
+      }
+
+      const now = new Date().toISOString();
+      for (let i = 0; i < lessonIds.length; i++) {
+        this.db
+          .prepare('UPDATE lessons SET position = ?, updated_at = ? WHERE id = ? AND module_id = ?')
+          .run(i, now, lessonIds[i], moduleId);
+      }
+
+      this.bumpCourseRevision(courseId);
+      const updated = this.db.prepare('SELECT draft_revision FROM courses WHERE id = ?').get(courseId) as any;
+      this.db.exec('COMMIT');
+      return { success: true, newRevision: updated ? updated.draft_revision : 1 };
+    } catch (err) {
+      try {
+        this.db.exec('ROLLBACK');
+      } catch {}
+      throw err;
+    }
   }
 
   deleteLesson(userId: string, courseId: string, lessonId: string): { success: boolean; deletedLessonId: string } {
     this.verifyCourseOwner(userId, courseId);
+    this.getLessonInCourse(lessonId, courseId);
 
     this.db.prepare('DELETE FROM lessons WHERE id = ?').run(lessonId);
     this.bumpCourseRevision(courseId);
@@ -304,6 +422,7 @@ export class CourseStructureService {
     }
   ): StepTreeSummary {
     this.verifyCourseOwner(userId, courseId);
+    this.getLessonInCourse(lessonId, courseId);
 
     const validTypes: StepType[] = ['theory', 'video', 'quiz', 'python'];
     if (!validTypes.includes(stepData.type)) {
@@ -421,10 +540,7 @@ export class CourseStructureService {
   ): StepTreeSummary {
     this.verifyCourseOwner(userId, courseId);
 
-    const step = this.db.prepare('SELECT * FROM steps WHERE id = ?').get(stepId) as any;
-    if (!step) {
-      throw new NotFoundError('Step not found');
-    }
+    const step = this.getStepInCourse(stepId, courseId);
 
     const title = stepData.title !== undefined ? stepData.title.trim() : step.title;
     if (!title) {
@@ -435,7 +551,7 @@ export class CourseStructureService {
       stepData.isRequired !== undefined ? (stepData.isRequired ? 1 : 0) : step.is_required;
     const duration =
       stepData.estimatedDurationMinutes !== undefined
-        ? Math.max(1, stepData.estimatedDurationMinutes)
+        ? Math.max(1, Number(stepData.estimatedDurationMinutes) || step.estimated_duration_minutes)
         : step.estimated_duration_minutes;
 
     const now = new Date().toISOString();
@@ -459,26 +575,62 @@ export class CourseStructureService {
     };
   }
 
-  reorderSteps(userId: string, courseId: string, lessonId: string, stepIds: string[]): void {
-    this.verifyCourseOwner(userId, courseId);
-    const now = new Date().toISOString();
-
-    for (let i = 0; i < stepIds.length; i++) {
-      this.db
-        .prepare('UPDATE steps SET position = ?, updated_at = ? WHERE id = ? AND lesson_id = ?')
-        .run(i, now, stepIds[i], lessonId);
+  reorderSteps(userId: string, courseId: string, lessonId: string, stepIds: string[]): { success: boolean; newRevision: number } {
+    if (!Array.isArray(stepIds)) {
+      throw new ValidationError('stepIds must be an array of step IDs');
+    }
+    for (const id of stepIds) {
+      if (typeof id !== 'string' || !id.trim()) {
+        throw new ValidationError('Invalid step ID in reorder list');
+      }
+    }
+    if (new Set(stepIds).size !== stepIds.length) {
+      throw new ValidationError('Reorder list contains duplicate step IDs');
     }
 
-    this.bumpCourseRevision(courseId);
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      this.verifyCourseOwner(userId, courseId);
+      this.getLessonInCourse(lessonId, courseId);
+
+      const existing = this.db
+        .prepare('SELECT id FROM steps WHERE lesson_id = ?')
+        .all(lessonId) as Array<{ id: string }>;
+      if (stepIds.length !== existing.length) {
+        throw new ValidationError(
+          `Reorder list length (${stepIds.length}) does not match step count in lesson (${existing.length})`
+        );
+      }
+      const existingSet = new Set(existing.map((s) => s.id));
+      for (const id of stepIds) {
+        if (!existingSet.has(id)) {
+          throw new ValidationError(`Step ${id} does not belong to lesson ${lessonId}`);
+        }
+      }
+
+      const now = new Date().toISOString();
+      for (let i = 0; i < stepIds.length; i++) {
+        this.db
+          .prepare('UPDATE steps SET position = ?, updated_at = ? WHERE id = ? AND lesson_id = ?')
+          .run(i, now, stepIds[i], lessonId);
+      }
+
+      this.bumpCourseRevision(courseId);
+      const updated = this.db.prepare('SELECT draft_revision FROM courses WHERE id = ?').get(courseId) as any;
+      this.db.exec('COMMIT');
+      return { success: true, newRevision: updated ? updated.draft_revision : 1 };
+    } catch (err) {
+      try {
+        this.db.exec('ROLLBACK');
+      } catch {}
+      throw err;
+    }
   }
 
   duplicateStep(userId: string, courseId: string, stepId: string): StepTreeSummary {
     this.verifyCourseOwner(userId, courseId);
 
-    const step = this.db.prepare('SELECT * FROM steps WHERE id = ?').get(stepId) as any;
-    if (!step) {
-      throw new NotFoundError('Step to duplicate not found');
-    }
+    const step = this.getStepInCourse(stepId, courseId);
 
     // Limit check: 1 to 20 steps per lesson
     const countRow = this.db
@@ -549,6 +701,7 @@ export class CourseStructureService {
 
   deleteStep(userId: string, courseId: string, stepId: string): { success: boolean; deletedStepId: string } {
     this.verifyCourseOwner(userId, courseId);
+    this.getStepInCourse(stepId, courseId);
 
     this.db.prepare('DELETE FROM steps WHERE id = ?').run(stepId);
     this.bumpCourseRevision(courseId);

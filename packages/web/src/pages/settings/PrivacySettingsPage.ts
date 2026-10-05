@@ -21,11 +21,12 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
   const isSoleOwner = ownedCount > 0;
 
   return `
-    <div class="settings-container max-w-2xl py-6">
-      <h1 class="h1 mb-2">Privacy and account requests</h1>
-      <p class="text-sm text-secondary mb-6">Exercise your data privacy rights, export your learning records, or request account closure.</p>
-
-      ${renderSettingsNav('privacy')}
+    <div class="settings-container">
+      <header class="settings-header">
+        <h1 class="settings-title">Settings</h1>
+        ${renderSettingsNav('privacy')}
+      </header>
+      <h2 class="sr-only">Privacy and account requests</h2>
 
       ${
         opts.error
@@ -47,113 +48,143 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
           : ''
       }
 
-      <div class="space-y-8">
+      <div>
         <!-- Privacy Overview -->
-        <section class="card p-6 bg-surface border border-subtle rounded-lg">
-          <h2 class="text-base font-semibold mb-2">Your data on ZUR</h2>
-          <p class="text-sm text-secondary mb-4 leading-relaxed">
-            We store only the data required to facilitate your learning: your display name, email, enrollments, step progress, and submitted code attempts. We do not track you across other websites or sell personal information.
-          </p>
-          <a href="/privacy" class="text-sm text-primary underline">Read our complete Data Retention and Privacy Policy</a>
+        <section class="settings-section" aria-labelledby="privacy-overview-heading">
+          <div class="settings-section-header">
+            <h3 id="privacy-overview-heading" class="settings-section-title">Data retention</h3>
+            <p class="settings-section-desc">How ZUR processes records and personal information.</p>
+          </div>
+
+          <div class="settings-section-content">
+            <p class="text-sm text-secondary leading-relaxed">
+              We store only what is required to facilitate learning: display name, email, enrollments, step progress, and submitted code attempts. We do not track activity across external websites or sell personal information.
+            </p>
+            <div>
+              <a href="/privacy" class="text-sm text-primary underline">Read our complete Data Retention and Privacy Policy</a>
+            </div>
+          </div>
         </section>
 
         <!-- Data Export Section -->
-        <section class="card p-6 bg-surface border border-subtle rounded-lg" aria-labelledby="export-heading">
-          <h2 id="export-heading" class="text-base font-semibold mb-2">Request data export</h2>
-          <p class="text-sm text-secondary mb-4">
-            Download a portable copy of all your completed steps, submissions, and account metadata formatted in standard JSON.
-          </p>
+        <section class="settings-section" aria-labelledby="export-heading">
+          <div class="settings-section-header">
+            <h3 id="export-heading" class="settings-section-title">Request data export</h3>
+            <p class="settings-section-desc">Download a portable copy of your account data and learning history.</p>
+          </div>
 
-          <form id="export-data-form">
-            ${renderButton({
-              id: 'btn-export-data',
-              label: opts.isLoading ? 'Exporting…' : 'Export my data',
-              variant: 'secondary',
-              type: 'submit',
-              disabled: opts.isLoading,
-            })}
-          </form>
-
-          ${
-            opts.exportData
-              ? `
-            <div id="export-download-panel" class="mt-4 p-4 bg-canvas border border-subtle rounded">
-              <span class="text-xs font-semibold uppercase text-muted block mb-2">Export ready</span>
-              <p class="text-sm text-secondary mb-3">Your export has been compiled. You can download the JSON payload below.</p>
-              <a
-                id="download-export-link"
-                href="${escapePrivacy(opts.exportDownloadUrl||`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(opts.exportData, null, 2))}`)}"
-                ${opts.exportDownloadUrl?'':'download="zur-learning-export.json"'}
-                class="btn btn-secondary btn-compact"
-              >
-                ${opts.exportDownloadUrl?'Download ZIP export':'Download zur-learning-export.json'}
-              </a>
+          <div class="settings-section-content">
+            <div class="settings-action-row">
+              <div class="settings-row-text">
+                <div class="settings-row-title">Learning records export</div>
+                <div class="settings-row-desc">JSON archive containing completed exercises, code attempts, and progress.</div>
+              </div>
+              <form id="export-data-form">
+                ${renderButton({
+                  id: 'btn-export-data',
+                  label: opts.isLoading ? 'Exporting…' : 'Export my data',
+                  variant: 'secondary',
+                  type: 'submit',
+                  disabled: opts.isLoading,
+                })}
+              </form>
             </div>
-          `
-              : ''
-          }
+
+            ${
+              opts.exportData
+                ? `
+              <div id="export-download-panel" class="p-4 bg-canvas border border-subtle rounded">
+                <span class="text-xs font-semibold uppercase text-muted block mb-2">Export ready</span>
+                <p class="text-sm text-secondary mb-3">Your export has been compiled. You can download the JSON payload below.</p>
+                <a
+                  id="download-export-link"
+                  href="${escapePrivacy(opts.exportDownloadUrl||`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(opts.exportData, null, 2))}`)}"
+                  ${opts.exportDownloadUrl?'':'download="zur-learning-export.json"'}
+                  class="btn btn-secondary btn-compact"
+                >
+                  ${opts.exportDownloadUrl?'Download ZIP export':'Download zur-learning-export.json'}
+                </a>
+              </div>
+            `
+                : ''
+            }
+          </div>
         </section>
 
         <!-- Account Deletion Section -->
-        <section class="card p-6 bg-surface border border-subtle rounded-lg border-l-4 border-l-danger" aria-labelledby="delete-heading">
-          <h2 id="delete-heading" class="text-base font-semibold text-danger mb-2">Request account deletion</h2>
-          
-          ${
-            isSoleOwner
-              ? `
-            <div class="sole-owner-blocker p-4 bg-canvas border border-warning rounded mb-4" role="alert">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-warning" aria-hidden="true">⚠</span>
-                <span class="text-sm font-semibold">Course ownership transfer required</span>
+        <section class="settings-section" aria-labelledby="delete-heading">
+          <div class="settings-section-header">
+            <h3 id="delete-heading" class="settings-section-title">Request account deletion</h3>
+            <p class="settings-section-desc">Permanently close this account and initiate data purge procedures.</p>
+          </div>
+
+          <div class="settings-section-content">
+            ${
+              isSoleOwner
+                ? `
+              <div class="sole-owner-blocker p-4 bg-canvas border border-warning rounded" role="alert">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-warning" aria-hidden="true">⚠</span>
+                  <span class="text-sm font-semibold">Course ownership transfer required</span>
+                </div>
+                <p class="text-xs text-secondary leading-relaxed">
+                  You are currently the sole owner of <strong>${ownedCount}</strong> course(s). Before your account can be deleted, you must transfer ownership to another author or archive the course so active student learning records remain intact.
+                </p>
+                <div class="mt-3">
+                  <a href="/teach" class="btn btn-secondary btn-compact">Manage your courses</a>
+                </div>
               </div>
-              <p class="text-xs text-secondary leading-relaxed">
-                You are currently the sole owner of <strong>${ownedCount}</strong> course(s). Before your account can be deleted, you must transfer ownership to another author or archive the course so active student learning records remain intact.
-              </p>
-              <div class="mt-3">
-                <a href="/teach" class="btn btn-secondary btn-compact">Manage your courses</a>
+            `
+                : `
+              <div class="settings-danger-row destructive">
+                <div class="settings-row-text">
+                  <div class="settings-row-title text-danger">Permanent closure</div>
+                  <div class="settings-row-desc">Revokes active sessions immediately and purges credentials within 30 days under retention policy.</div>
+                </div>
+                ${renderButton({
+                  id: 'btn-open-delete-modal',
+                  label: 'Request account deletion',
+                  variant: 'destructive',
+                  type: 'button',
+                })}
               </div>
-            </div>
-          `
-              : `
-            <p class="text-sm text-secondary mb-4">
-              Permanently close your account. Your personal identity information will be purged, active sessions revoked, and historical learning records scrubbed in accordance with our retention policy.
-            </p>
-            ${renderButton({
-              id: 'btn-open-delete-modal',
-              label: 'Request account deletion',
-              variant: 'destructive',
-              type: 'button',
-            })}
-          `
-          }
+            `
+            }
+          </div>
         </section>
 
         <!-- Past Privacy Requests Log -->
         ${
           requests.length > 0
             ? `
-          <section class="card p-6 bg-surface border border-subtle rounded-lg">
-            <h2 class="text-base font-semibold mb-3">Recent requests</h2>
-            <div class="space-y-3">
-              ${requests
-                .map(
-                  (req) => `
-                <div class="flex justify-between items-center py-2 border-b border-subtle text-sm">
-                  <div>
-                    <span class="font-semibold capitalize">${req.requestType} request</span>
-                    <span class="text-xs text-muted block">${new Date(req.createdAt).toLocaleDateString()}</span>
-                    ${req.blockerReason ? `<span class="text-xs text-danger block mt-1">${escapePrivacy(req.blockerReason)}</span>` : ''}
+          <section class="settings-section" aria-labelledby="recent-requests-heading">
+            <div class="settings-section-header">
+              <h3 id="recent-requests-heading" class="settings-section-title">Recent requests</h3>
+              <p class="settings-section-desc">Audit history of your recent data export and account requests.</p>
+            </div>
+
+            <div class="settings-section-content">
+              <div class="space-y-3">
+                ${requests
+                  .map(
+                    (req) => `
+                  <div class="flex justify-between items-center py-2 border-b border-subtle text-sm">
+                    <div>
+                      <span class="font-semibold capitalize">${req.requestType} request</span>
+                      <span class="text-xs text-muted block">${new Date(req.createdAt).toLocaleDateString()}</span>
+                      ${req.blockerReason ? `<span class="text-xs text-danger block mt-1">${escapePrivacy(req.blockerReason)}</span>` : ''}
+                    </div>
+                    <div>
+                      <span class="status-badge ${req.status === 'completed' ? 'success' : req.status === 'failed' ? 'danger' : 'info'}">
+                        ${req.status}
+                      </span>
+                      ${req.requestType==='export'&&req.exportExpiresAt&&new Date(req.exportExpiresAt).getTime()>Date.now()?`<a class="text-primary underline block mt-2" href="/api/settings/privacy/exports/${encodeURIComponent(req.id)}">Download export · expires ${escapePrivacy(new Date(req.exportExpiresAt).toLocaleString())}</a>`:''}
+                    </div>
                   </div>
-                  <div>
-                    <span class="status-badge ${req.status === 'completed' ? 'success' : req.status === 'failed' ? 'danger' : 'info'}">
-                      ${req.status}
-                    </span>
-                    ${req.requestType==='export'&&req.exportExpiresAt&&new Date(req.exportExpiresAt).getTime()>Date.now()?`<a class="text-primary underline block mt-2" href="/api/settings/privacy/exports/${encodeURIComponent(req.id)}">Download export · expires ${escapePrivacy(new Date(req.exportExpiresAt).toLocaleString())}</a>`:''}
-                  </div>
-                </div>
-              `
-                )
-                .join('')}
+                `
+                  )
+                  .join('')}
+              </div>
             </div>
           </section>
         `

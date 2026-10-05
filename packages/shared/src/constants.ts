@@ -16,6 +16,8 @@ export const EXECUTION_BUDGETS = {
   MAX_ACTIVE_JOBS_PER_USER: 2,
 } as const;
 
+export const PYTHON_RUNTIME_LABEL = 'Python 3.14.7';
+
 export const MEDIA_BUDGETS = {
   MAX_IMAGE_BYTES: 10 * 1024 * 1024, // 10 MB
   ALLOWED_IMAGE_MIME_TYPES: ['image/png', 'image/jpeg', 'image/webp'] as const,

@@ -38,7 +38,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
             <a href="/teach/${encodeURIComponent(opts.courseId)}/content">← Back to Course Builder</a>
           </div>
           <h1 class="page-title">Publication Receipt</h1>
-          <p class="text-secondary mt-1">Your changes have been recorded into an immutable version snapshot.</p>
+          <p class="text-secondary mt-1">Your changes are released and recorded as Version ${opts.receipt.versionNumber}.</p>
         </header>
 
         <section class="card p-4 receipt-card" aria-label="Release Information" style="border: 1px solid var(--success); background-color: var(--bg-surface);">
@@ -106,7 +106,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
       </section>
     `
     : `
-      <section class="card mb-4 p-3" aria-label="Pre-publish Checklist Passed" style="border-left: 4px solid var(--success);">
+      <section class="status-strip mb-4 p-3 bg-surface border border-subtle rounded-md" aria-label="Pre-publish Checklist Passed" style="border-left: 4px solid var(--success);">
         <p class="text-success m-0" style="font-weight: 600;">✓ Pre-publish checklist passed with 0 blocking errors</p>
       </section>
     `;
@@ -151,7 +151,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
         <div class="dialog-card p-4" style="background-color: var(--bg-surface); border: 1px solid var(--border-control); border-radius: var(--radius-lg); max-width: 500px; width: 90%;">
           <h2 id="publish-dialog-title" class="mb-2" style="font-size: 1.25rem;">Confirm Publication</h2>
           <p class="text-secondary mb-3">
-            Publishing creates an immutable snapshot (Version ${opts.newVersionNumber}).
+            Publishing releases Version ${opts.newVersionNumber}.
             Existing students will continue on their enrolled version.
           </p>
           <div class="dialog-actions" style="display: flex; justify-content: flex-end; gap: 0.75rem;">
@@ -162,6 +162,18 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
       </div>
     `
     : '';
+
+  const visibilityLabel =
+    opts.visibility === 'public'
+      ? 'Public'
+      : opts.visibility === 'unlisted'
+      ? 'Unlisted'
+      : 'Private';
+
+  const enrollmentPolicyLabel =
+    opts.enrollmentPolicy === 'open'
+      ? 'Open enrollment'
+      : 'Invitation only';
 
   const editorContent = `
     <div class="publish-review-container" style="max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem;">
@@ -184,54 +196,61 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
       ${errorsHtml}
       ${warningsHtml}
 
-      <!-- Course Summary -->
-      <section class="card mb-4 p-4" aria-label="Course Summary" style="background-color: var(--bg-surface); border: 1px solid var(--border-subtle);">
-        <h2 class="section-title mb-3" style="font-size: 1.125rem;">Course Summary</h2>
-        <div class="summary-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+      <!-- Course Summary (Definition List) -->
+      <section class="publish-summary-section mb-6" aria-label="Course Summary">
+        <h2 class="section-title mb-3 text-base font-semibold">Course summary</h2>
+        <dl class="summary-definition-list grid grid-cols-1 sm:grid-cols-3 gap-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 0;">
           <div>
-            <span class="text-muted" style="font-size: 0.75rem; text-transform: uppercase;">Course Title</span>
-            <p style="font-weight: 600; margin: 0.25rem 0 0;">${escapeHtml(opts.courseTitle)}</p>
+            <dt class="text-muted text-xs font-medium">Course title</dt>
+            <dd class="font-semibold text-sm mt-1 text-primary" style="margin: 0.25rem 0 0;">${escapeHtml(opts.courseTitle)}</dd>
           </div>
           <div>
-            <span class="text-muted" style="font-size: 0.75rem; text-transform: uppercase;">Discoverability</span>
-            <p style="font-weight: 600; margin: 0.25rem 0 0; text-transform: capitalize;">${opts.visibility || 'Private'}</p>
+            <dt class="text-muted text-xs font-medium">Discoverability</dt>
+            <dd class="font-semibold text-sm mt-1 text-primary" style="margin: 0.25rem 0 0;">${escapeHtml(visibilityLabel)}</dd>
           </div>
           <div>
-            <span class="text-muted" style="font-size: 0.75rem; text-transform: uppercase;">Enrollment Policy</span>
-            <p style="font-weight: 600; margin: 0.25rem 0 0; text-transform: capitalize;">${(opts.enrollmentPolicy || 'invitation_only').replace('_', ' ')}</p>
+            <dt class="text-muted text-xs font-medium">Enrollment policy</dt>
+            <dd class="font-semibold text-sm mt-1 text-primary" style="margin: 0.25rem 0 0;">${escapeHtml(enrollmentPolicyLabel)}</dd>
           </div>
-        </div>
+        </dl>
       </section>
+
+      <hr class="section-divider my-6" />
 
       <!-- Version Impact Summary (PRD §9, design P27) -->
-      <section class="card mb-4 p-4 impact-card" aria-label="Version Impact Statement" style="background-color: var(--bg-surface); border: 1px solid var(--border-subtle);">
-        <h2 class="section-title mb-2" style="font-size: 1.125rem;">Version Impact Summary</h2>
-        <p class="impact-statement mb-3" style="font-size: 0.9375rem; line-height: 1.5;">
+      <section class="publish-impact-section mb-6 impact-card" aria-label="Version Impact Statement">
+        <div class="flex items-center gap-3 mb-2">
+          <h2 class="section-title text-base font-semibold m-0">Version impact summary</h2>
+          <span class="version-delta-badge inline-flex items-center gap-1 font-mono text-xs px-2 py-0.5 rounded bg-raised border border-subtle">
+            ${opts.currentVersionNumber ? `v${opts.currentVersionNumber}` : 'draft'} → v${opts.newVersionNumber}
+          </span>
+        </div>
+        <p class="impact-statement mb-3 text-sm text-secondary" style="line-height: 1.5;">
           <strong>Existing students will continue on their current version. New enrollments will receive this update.</strong>
         </p>
-        <div class="impact-metrics" style="display: flex; gap: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        <div class="impact-metrics flex flex-wrap gap-6 pt-3 border-t border-subtle text-sm">
           <div>
-            <span class="text-muted" style="font-size: 0.8125rem;">Current published version:</span>
-            <span style="font-weight: 600; margin-left: 0.5rem;">${opts.currentVersionNumber ? `Version ${opts.currentVersionNumber}` : 'None (Initial release)'}</span>
+            <span class="text-muted text-xs">Current published version:</span>
+            <span class="font-semibold ml-1 text-secondary">${opts.currentVersionNumber ? `Version ${opts.currentVersionNumber}` : 'None (Initial release)'}</span>
           </div>
           <div>
-            <span class="text-muted" style="font-size: 0.8125rem;">New version to publish:</span>
-            <span style="font-weight: 600; margin-left: 0.5rem; color: var(--accent);">Version ${opts.newVersionNumber}</span>
+            <span class="text-muted text-xs">New version to publish:</span>
+            <span class="font-semibold ml-1 text-accent">Version ${opts.newVersionNumber}</span>
           </div>
           <div>
-            <span class="text-muted" style="font-size: 0.8125rem;">Active enrolled students:</span>
-            <span style="font-weight: 600; margin-left: 0.5rem;">${opts.activeEnrolledStudents}</span>
+            <span class="text-muted text-xs">Active enrolled students:</span>
+            <span class="font-semibold ml-1 text-secondary">${opts.activeEnrolledStudents}</span>
           </div>
         </div>
       </section>
 
-      <!-- Publication Action Bar -->
-      <footer class="publish-actions-footer card p-4" style="background-color: var(--bg-surface); border: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+      <!-- Publication Action Bar (Sticky) -->
+      <footer class="publish-actions-footer p-4 sticky bottom-0 z-10 bg-raised border-t border-subtle flex justify-between items-center rounded-lg shadow-sm">
         <div>
           ${
             hasBlockingErrors
-              ? '<span class="text-danger" style="font-size: 0.875rem;">Fix blocking issues before publishing.</span>'
-              : '<span class="text-secondary" style="font-size: 0.875rem;">Ready to publish immutable release snapshot.</span>'
+              ? '<span class="text-danger text-sm font-medium">Fix blocking issues before publishing.</span>'
+              : '<span class="text-secondary text-sm">Ready to publish.</span>'
           }
         </div>
         <form id="publish-form" style="margin: 0;">
@@ -256,7 +275,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
     courseTitle: opts.courseTitle,
     publicationState: opts.publicationState,
     hasUnpublishedChanges: opts.hasUnpublishedChanges,
-    saveStatusText: opts.saveStatus === 'saving' ? 'Saving...' : 'Saved',
+    saveStatusText: opts.saveStatus === 'saving' ? 'Saving...' : undefined,
     activeTab: 'content',
     editorContent,
   });

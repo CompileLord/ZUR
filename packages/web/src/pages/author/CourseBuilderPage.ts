@@ -1,5 +1,6 @@
 import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
+import { renderIcon, type IconName } from '../../components/common/icons.ts';
 
 export interface StepSummary {
   id: string;
@@ -75,6 +76,15 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
                   ? 'Quiz'
                   : 'Python';
 
+              const iconName: IconName =
+                st.type === 'theory'
+                  ? 'file-text'
+                  : st.type === 'video'
+                  ? 'video'
+                  : st.type === 'quiz'
+                  ? 'list-checks'
+                  : 'code';
+
               const editHref =
                 st.type === 'theory'
                   ? `/teach/${opts.courseId}/content/theory/${st.id}`
@@ -87,12 +97,14 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
               return `
                 <li class="tree-item tree-step ${isStSelected ? 'selected' : ''}" role="treeitem" aria-selected="${isStSelected}">
                   <div class="tree-node-content">
-                    <span class="step-type-badge badge-${st.type}">${typeLabel}</span>
+                    <span class="tree-type-icon step-type-${st.type}" aria-label="${typeLabel}" title="${typeLabel}">
+                      ${renderIcon(iconName, { size: 14 })}
+                    </span>
                     <a href="/teach/${opts.courseId}/content?type=step&id=${st.id}" class="tree-label">${st.title}</a>
                   </div>
                   <div class="tree-node-actions">
-                    <a href="${editHref}" class="btn-icon" aria-label="Edit ${st.title}">✏️</a>
-                    <a href="/teach/${opts.courseId}/preview/${st.id}" class="btn-icon" aria-label="Preview ${st.title}">👁️</a>
+                    <a href="${editHref}" class="btn-icon" aria-label="Edit ${st.title}" title="Edit">${renderIcon('edit', { size: 14 })}</a>
+                    <a href="/teach/${opts.courseId}/preview/${st.id}" class="btn-icon" aria-label="Preview ${st.title}" title="Preview">${renderIcon('eye', { size: 14 })}</a>
                   </div>
                 </li>
               `;
@@ -119,7 +131,7 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
         <li class="tree-item tree-module ${isModSelected ? 'selected' : ''}" role="treeitem" aria-selected="${isModSelected}">
           <div class="tree-node-header">
             <a href="/teach/${opts.courseId}/content?type=module&id=${mod.id}" class="tree-label">
-              <strong>Module ${mIdx + 1}: ${mod.title}</strong>
+              <strong>Module ${mIdx + 1}: ${mod.title.replace(/^Module\s+\d+\s*:\s*/i, '')}</strong>
             </a>
           </div>
           <ul class="tree-children" role="group">
@@ -130,14 +142,13 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
     })
     .join('');
 
+  const totalStepsCount = opts.modules.reduce((acc, m) => acc + m.lessons.reduce((lAcc, l) => lAcc + l.steps.length, 0), 0);
+
   const treeContent = `
     <div class="builder-tree-container">
-      <div class="tree-header" style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
-        <div>
-          <h2 class="tree-title">Structure</h2>
-          <span class="text-secondary text-sm">${opts.modules.reduce((acc, m) => acc + m.lessons.reduce((lAcc, l) => lAcc + l.steps.length, 0), 0)} steps</span>
-        </div>
-        <a href="/teach/${opts.courseId}/activity" class="btn btn-secondary btn-compact" title="View agent activity and draft recovery">Recent changes</a>
+      <div class="tree-header flex items-center justify-between pb-2 mb-2 border-b border-subtle">
+        <h2 class="tree-title text-sm font-semibold m-0">Structure</h2>
+        <span class="text-secondary text-xs">${totalStepsCount} steps</span>
       </div>
 
       <ul class="tree-root" role="tree" aria-label="Course Content Tree">
@@ -149,13 +160,16 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
         ${treeItemsHtml}
       </ul>
 
-      <div class="tree-footer">
-        <form method="POST" action="/teach/${opts.courseId}/modules">
-          <div class="input-with-button">
-            <input type="text" name="title" class="text-input input-compact" placeholder="New module title..." required />
-            <button type="submit" class="btn btn-secondary btn-compact">+ Add module</button>
-          </div>
-        </form>
+      <div class="tree-footer mt-2 pt-2 border-t border-subtle">
+        <details class="add-module-disclosure">
+          <summary class="btn btn-secondary btn-compact w-full text-center cursor-pointer list-none">+ Add module</summary>
+          <form method="POST" action="/teach/${opts.courseId}/modules" class="mt-2">
+            <div class="input-with-button flex gap-1">
+              <input type="text" name="title" class="text-input input-compact flex-1" placeholder="Module title..." required autofocus />
+              <button type="submit" class="btn btn-primary btn-compact">Save</button>
+            </div>
+          </form>
+        </details>
       </div>
     </div>
   `;
@@ -181,24 +195,36 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
         </div>
 
         <div class="builder-modules-list mt-4">
-          <h2 class="section-title">Modules in this course</h2>
-          ${opts.modules
-            .map(
-              (m, idx) => `
-              <div class="card module-overview-card">
-                <div class="card-header">
-                  <h3>Module ${idx + 1}: ${m.title}</h3>
-                  <div class="card-actions">
-                    <a href="/teach/${opts.courseId}/content?type=module&id=${m.id}" class="btn btn-secondary btn-compact">Manage</a>
+          <h2 class="section-title text-base font-semibold mb-3">Modules in this course</h2>
+          <div class="module-row-list" role="list">
+            ${opts.modules
+              .map(
+                (m, idx) => `
+                <div class="module-overview-row flex items-center justify-between p-3 border-b border-subtle" role="listitem">
+                  <div class="module-row-title-group flex items-center gap-2">
+                    <form method="POST" action="/teach/${opts.courseId}/modules/reorder" class="reorder-module-form" style="display:inline-flex; gap: 4px;">
+                      <input type="hidden" name="moduleId" value="${m.id}" />
+                      <input type="hidden" name="direction" value="up" />
+                      <button type="submit" class="btn btn-secondary btn-compact move-module-up-btn" aria-label="Move Module ${idx + 1} up" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                    </form>
+                    <form method="POST" action="/teach/${opts.courseId}/modules/reorder" class="reorder-module-form" style="display:inline-flex; gap: 4px;">
+                      <input type="hidden" name="moduleId" value="${m.id}" />
+                      <input type="hidden" name="direction" value="down" />
+                      <button type="submit" class="btn btn-secondary btn-compact move-module-down-btn" aria-label="Move Module ${idx + 1} down" ${idx === opts.modules.length - 1 ? 'disabled' : ''}>↓</button>
+                    </form>
+                    <a href="/teach/${opts.courseId}/content?type=module&id=${m.id}" class="font-medium text-primary">Module ${idx + 1}: ${m.title.replace(/^Module\s+\d+\s*:\s*/i, '')}</a>
                   </div>
+                  <a href="/teach/${opts.courseId}/content?type=module&id=${m.id}" class="module-row-stats text-secondary text-sm flex items-center gap-2">
+                    <span>${m.lessons.length} ${m.lessons.length === 1 ? 'lesson' : 'lessons'}</span>
+                    <span class="meta-separator">·</span>
+                    <span>${m.lessons.reduce((a, l) => a + l.steps.length, 0)} steps</span>
+                    <span class="text-muted ml-1">→</span>
+                  </a>
                 </div>
-                <div class="card-body">
-                  <p class="text-secondary">${m.lessons.length} lessons · ${m.lessons.reduce((a, l) => a + l.steps.length, 0)} steps</p>
-                </div>
-              </div>
-            `
-            )
-            .join('')}
+              `
+              )
+              .join('')}
+          </div>
         </div>
       </div>
     `;
@@ -222,6 +248,9 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
             </div>
           </form>
 
+          <form method="POST" action="/teach/${opts.courseId}/modules/${mod.id}/delete" data-confirm-delete="Delete this module and all its lessons?">
+            <button type="submit" class="btn btn-destructive btn-compact">Delete module</button>
+          </form>
           <hr class="section-divider" />
 
           <section class="module-lessons-section">
@@ -231,9 +260,21 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
                 .map(
                   (l, idx) => `
                   <div class="card lesson-card">
-                    <div class="card-header">
+                    <div class="card-header flex items-center justify-between">
                       <h4>${idx + 1}. ${l.title}</h4>
-                      <a href="/teach/${opts.courseId}/content?type=lesson&id=${l.id}" class="btn btn-secondary btn-compact">Open lesson</a>
+                      <div class="flex gap-1 items-center">
+                        <form method="POST" action="/teach/${opts.courseId}/modules/${mod.id}/lessons/reorder" class="reorder-lesson-form" style="display:inline-flex; gap: 4px;">
+                          <input type="hidden" name="lessonId" value="${l.id}" />
+                          <input type="hidden" name="direction" value="up" />
+                          <button type="submit" class="btn btn-secondary btn-compact move-lesson-up-btn" aria-label="Move lesson ${l.title} up" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                        </form>
+                        <form method="POST" action="/teach/${opts.courseId}/modules/${mod.id}/lessons/reorder" class="reorder-lesson-form" style="display:inline-flex; gap: 4px;">
+                          <input type="hidden" name="lessonId" value="${l.id}" />
+                          <input type="hidden" name="direction" value="down" />
+                          <button type="submit" class="btn btn-secondary btn-compact move-lesson-down-btn" aria-label="Move lesson ${l.title} down" ${idx === mod.lessons.length - 1 ? 'disabled' : ''}>↓</button>
+                        </form>
+                        <a href="/teach/${opts.courseId}/content?type=lesson&id=${l.id}" class="btn btn-secondary btn-compact">Open lesson</a>
+                      </div>
                     </div>
                     <div class="card-body">
                       <p class="text-secondary">${l.description || 'No description provided.'}</p>
@@ -301,6 +342,17 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
             <p class="text-secondary">${targetLesson.description || ''}</p>
           </header>
 
+          <form method="POST" action="/teach/${opts.courseId}/lessons/${targetLesson.id}/rename" class="rename-form">
+            <label for="lesson-rename-input" class="field-label">Lesson title</label>
+            <div class="input-with-button">
+              <input id="lesson-rename-input" type="text" name="title" class="text-input" value="${targetLesson.title}" required />
+              <input type="hidden" name="description" value="${targetLesson.description || ''}" />
+              <button type="submit" class="btn btn-secondary btn-compact">Rename</button>
+            </div>
+          </form>
+          <form method="POST" action="/teach/${opts.courseId}/lessons/${targetLesson.id}/delete" data-confirm-delete="Delete this lesson and all its steps?">
+            <button type="submit" class="btn btn-destructive btn-compact">Delete lesson</button>
+          </form>
           <section class="lesson-steps-section">
             <div class="section-header-row">
               <h2 class="section-title">Steps (${stepCount} of 20)</h2>
@@ -339,10 +391,23 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
                           <td>${s.isRequired ? 'Yes' : 'Optional'}</td>
                           <td>${s.estimatedDurationMinutes} min</td>
                           <td class="action-cell">
+                            <form method="POST" action="/teach/${opts.courseId}/lessons/${targetLesson.id}/steps/reorder" class="reorder-step-form" style="display:inline-flex; gap: 2px;">
+                              <input type="hidden" name="stepId" value="${s.id}" />
+                              <input type="hidden" name="direction" value="up" />
+                              <button type="submit" class="btn btn-secondary btn-compact move-step-up-btn" aria-label="Move ${s.title} up" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                            </form>
+                            <form method="POST" action="/teach/${opts.courseId}/lessons/${targetLesson.id}/steps/reorder" class="reorder-step-form" style="display:inline-flex; gap: 2px;">
+                              <input type="hidden" name="stepId" value="${s.id}" />
+                              <input type="hidden" name="direction" value="down" />
+                              <button type="submit" class="btn btn-secondary btn-compact move-step-down-btn" aria-label="Move ${s.title} down" ${idx === targetLesson.steps.length - 1 ? 'disabled' : ''}>↓</button>
+                            </form>
                             <a href="${editUrl}" class="btn btn-secondary btn-compact">Edit</a>
-                            <a href="/teach/${opts.courseId}/preview/${s.id}" class="btn btn-secondary btn-compact">Preview</a>
+                            <a href="/teach/${opts.courseId}/preview?stepId=${s.id}" class="btn btn-secondary btn-compact">Preview</a>
                             <form method="POST" action="/teach/${opts.courseId}/steps/${s.id}/duplicate" style="display:inline;">
                               <button type="submit" class="btn btn-secondary btn-compact" ${!canAddStep ? 'disabled' : ''}>Duplicate</button>
+                            </form>
+                            <form method="POST" action="/teach/${opts.courseId}/steps/${s.id}/delete" data-confirm-delete="Delete this step?" style="display:inline;">
+                              <button type="submit" class="btn btn-destructive btn-compact">Delete</button>
                             </form>
                           </td>
                         </tr>
@@ -448,6 +513,160 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
     }
   }
 
+  // Contextual inspector content (design.md §5, §12 P22)
+  const totalLessonsAll = opts.modules.reduce((acc, m) => acc + m.lessons.length, 0);
+  const totalStepsAll = opts.modules.reduce((acc, m) => acc + m.lessons.reduce((lAcc, l) => lAcc + l.steps.length, 0), 0);
+  const totalDurationAll = opts.modules.reduce(
+    (acc, m) => acc + m.lessons.reduce((lAcc, l) => lAcc + l.steps.reduce((sAcc, s) => sAcc + (s.estimatedDurationMinutes || 0), 0), 0),
+    0
+  );
+
+  let inspectorContent = `
+    <div class="inspector-box p-4">
+      <div class="inspector-header mb-3">
+        <span class="text-xs text-secondary font-medium">Course overview</span>
+        <h3 class="inspector-title text-base font-semibold mt-0.5">${opts.courseTitle}</h3>
+      </div>
+      <div class="inspector-section mb-3">
+        <span class="field-label text-xs text-secondary">Status</span>
+        <div class="mt-1"><span class="status-badge ${opts.publicationState === 'published' ? 'success' : 'warning'}">${opts.publicationState === 'published' ? 'Published' : 'Draft'}</span></div>
+      </div>
+      <div class="inspector-section mb-3">
+        <span class="field-label text-xs text-secondary">Structure</span>
+        <div class="mt-1 text-sm font-semibold">${opts.modules.length} modules · ${totalLessonsAll} lessons · ${totalStepsAll} steps</div>
+      </div>
+      <div class="inspector-section mb-4">
+        <span class="field-label text-xs text-secondary">Duration</span>
+        <div class="mt-1 text-sm font-semibold">~${totalDurationAll} minutes</div>
+      </div>
+    </div>
+  `;
+
+  if (selectedType === 'module') {
+    const currentMod = opts.modules.find((m) => m.id === selectedId);
+    if (currentMod) {
+      const modStepCount = currentMod.lessons.reduce((acc, l) => acc + l.steps.length, 0);
+      const modDuration = currentMod.lessons.reduce(
+        (acc, l) => acc + l.steps.reduce((sAcc, s) => sAcc + (s.estimatedDurationMinutes || 0), 0),
+        0
+      );
+      inspectorContent = `
+        <div class="inspector-box p-4">
+          <div class="inspector-header mb-3">
+            <span class="text-xs text-secondary font-medium">Module overview</span>
+            <h3 class="inspector-title text-base font-semibold mt-0.5">${currentMod.title}</h3>
+          </div>
+          <div class="inspector-section mb-4">
+            <span class="field-label text-xs text-secondary">Module Scope</span>
+            <ul class="text-sm text-secondary mt-1" style="list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 0.25rem;">
+              <li><strong>${currentMod.lessons.length}</strong> lessons</li>
+              <li><strong>${modStepCount}</strong> steps</li>
+              <li><strong>~${modDuration}</strong> minutes</li>
+            </ul>
+          </div>
+          <div class="inspector-section mb-4">
+            <span class="field-label text-xs text-secondary">Actions</span>
+            <div class="action-links mt-2" style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <a href="/teach/${opts.courseId}/content" class="btn btn-secondary btn-compact" style="width: 100%; text-align: center;">Back to Course</a>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  } else if (selectedType === 'lesson') {
+    let curLes: LessonSummary | null = null;
+    let curMod: ModuleSummary | null = null;
+    for (const m of opts.modules) {
+      const found = m.lessons.find((l) => l.id === selectedId);
+      if (found) {
+        curLes = found;
+        curMod = m;
+        break;
+      }
+    }
+    if (curLes) {
+      const lesDuration = curLes.steps.reduce((acc, s) => acc + (s.estimatedDurationMinutes || 0), 0);
+      const requiredCount = curLes.steps.filter((s) => s.isRequired).length;
+      inspectorContent = `
+        <div class="inspector-box p-4">
+          <div class="inspector-header mb-3">
+            <span class="text-xs text-secondary font-medium">Lesson details</span>
+            <h3 class="inspector-title text-base font-semibold mt-0.5">${curLes.title}</h3>
+            ${curMod ? `<span class="text-xs text-secondary" style="display: block; margin-top: 0.25rem;">Module: ${curMod.title}</span>` : ''}
+          </div>
+          <div class="inspector-section mb-4">
+            <span class="field-label text-xs text-secondary">Lesson Capacity</span>
+            <div class="mt-1 text-sm font-semibold">${curLes.steps.length} / 20 steps</div>
+            <span class="text-xs text-secondary">${20 - curLes.steps.length} steps remaining</span>
+          </div>
+          <div class="inspector-section mb-4">
+            <span class="field-label text-xs text-secondary">Requirements &amp; Duration</span>
+            <ul class="text-sm text-secondary mt-1" style="list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 0.25rem;">
+              <li><strong>${requiredCount}</strong> required steps</li>
+              <li><strong>${curLes.steps.length - requiredCount}</strong> optional steps</li>
+              <li><strong>~${lesDuration}</strong> minutes estimated</li>
+            </ul>
+          </div>
+          <div class="inspector-section mb-4">
+            <span class="field-label text-xs text-secondary">Actions</span>
+            <div class="action-links mt-2" style="display: flex; flex-direction: column; gap: 0.5rem;">
+              ${curMod ? `<a href="/teach/${opts.courseId}/content?type=module&id=${curMod.id}" class="btn btn-secondary btn-compact" style="width: 100%; text-align: center;">View Module</a>` : ''}
+              <a href="/teach/${opts.courseId}/content" class="btn btn-secondary btn-compact" style="width: 100%; text-align: center;">Course Overview</a>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  } else if (selectedType === 'step') {
+    let curStep: StepSummary | null = null;
+    for (const m of opts.modules) {
+      for (const l of m.lessons) {
+        const found = l.steps.find((s) => s.id === selectedId);
+        if (found) {
+          curStep = found;
+          break;
+        }
+      }
+    }
+    if (curStep) {
+      const editUrl =
+        curStep.type === 'theory'
+          ? `/teach/${opts.courseId}/content/theory/${curStep.id}`
+          : curStep.type === 'video'
+          ? `/teach/${opts.courseId}/content/video/${curStep.id}`
+          : curStep.type === 'quiz'
+          ? `/teach/${opts.courseId}/content/quiz/${curStep.id}`
+          : `/teach/${opts.courseId}/content/python/${curStep.id}`;
+
+      inspectorContent = `
+        <div class="inspector-box p-4">
+          <div class="inspector-header mb-3">
+            <span class="text-xs text-secondary font-medium">Step settings</span>
+            <h3 class="inspector-title text-base font-semibold mt-0.5">${curStep.title}</h3>
+            <span class="status-badge neutral mt-1" style="text-transform: capitalize;">${curStep.type}</span>
+          </div>
+          <div class="inspector-section mb-4">
+            <span class="field-label text-xs text-secondary">Completion Requirement</span>
+            <div class="mt-1">
+              <span class="status-badge ${curStep.isRequired ? 'badge-primary' : 'badge-neutral'}">${curStep.isRequired ? 'Required step' : 'Optional step'}</span>
+            </div>
+          </div>
+          <div class="inspector-section mb-4">
+            <span class="field-label text-xs text-secondary">Estimated Duration</span>
+            <div class="mt-1 text-sm font-semibold">${curStep.estimatedDurationMinutes} minutes</div>
+          </div>
+          <div class="inspector-section mb-4">
+            <span class="field-label text-xs text-secondary">Actions</span>
+            <div class="action-links mt-2" style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <a href="${editUrl}" class="btn btn-primary btn-compact" style="width: 100%; text-align: center;">Open Editor</a>
+              <a href="/teach/${opts.courseId}/preview/${curStep.id}" class="btn btn-secondary btn-compact" style="width: 100%; text-align: center;">Preview Step</a>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
   const remoteUpdateHtml = opts.remoteUpdate
     ? `
       <aside class="remote-update-strip" role="status" aria-live="polite" aria-label="Remote update notice" style="margin-bottom: 1rem; padding: 0.75rem 1rem; background-color: var(--bg-surface); border: 1px solid var(--border-default); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
@@ -478,5 +697,6 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
     activeTab: 'content',
     treeContent,
     editorContent: `${remoteUpdateHtml}${editorContent}`,
+    inspectorContent,
   });
 }

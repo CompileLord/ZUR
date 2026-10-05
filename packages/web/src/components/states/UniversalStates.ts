@@ -1,3 +1,5 @@
+import { renderIcon } from '../common/icons.ts';
+
 export interface StatePresentationOptions {
   title?: string;
   message: string;
@@ -60,10 +62,16 @@ export function renderAccessDeniedState(reason?: string): string {
 export function renderNotFoundState(): string {
   return `
     <div class="state-container state-not-found" role="alert">
-      <h2 class="state-heading">This page isn't available.</h2>
-      <p class="state-message">The link you followed may be broken or the page may have been removed.</p>
-      <div class="state-actions mt-4">
-        <a href="/courses" class="btn btn-secondary btn-compact">Return to courses</a>
+      <div class="state-icon text-muted mb-4" aria-hidden="true">
+        ${renderIcon('compass', { size: 36, strokeWidth: 1.5 })}
+      </div>
+      <h1 class="state-heading page-title text-xl font-semibold mb-2">This page isn't available.</h1>
+      <p class="state-message text-secondary text-sm mb-6 max-w-sm mx-auto">
+        The link you followed may be broken or the page may have been removed.
+      </p>
+      <div class="state-actions flex items-center justify-center gap-3">
+        <a href="/courses" class="btn btn-primary btn-compact">Browse courses</a>
+        <button type="button" class="btn btn-ghost btn-compact" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/courses'">Go back</button>
       </div>
     </div>
   `;

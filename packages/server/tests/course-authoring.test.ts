@@ -387,4 +387,113 @@ test('Course Authoring, Structure & Autosave (T029-T031, T038)', async (t) => {
       'Must reject idempotency key reuse with different payload parameters'
     );
   });
+
+  await t.test('Security: Cross-course step and lesson ID denial prevents unauthorized mutation', async () => {
+    // Author A: Ada Lovelace (owns createdCourseId)
+    // Author B: Charles Babbage (authorId) creates a separate course
+    const babbageCourse = courseService.createCourseDraft(authorId, { title: 'Babbage Separate Course' });
+    const babbageMod = structureService.addModule(authorId, babbageCourse.id, 'Babbage Module');
+    const babbageLesson = structureService.addLesson(authorId, babbageCourse.id, babbageMod.id, 'Babbage Lesson');
+    const babbageStep = structureService.addStep(authorId, babbageCourse.id, babbageLesson.id, {
+      title: 'Protected Babbage Step',
+      type: 'theory',
+      estimatedDurationMinutes: 15,
+      isRequired: true,
+    });
+
+    // 1. Ada tries to update Babbage's step through Ada's course ID -> NotFoundError
+    assert.throws(
+      () => {
+        structureService.updateStep(adaId, createdCourseId, babbageStep.id, {
+          title: 'Hijacked Step Title',
+          estimatedDurationMinutes: 1,
+          isRequired: false,
+        });
+      },
+      NotFoundError,
+      'updateStep must reject mutating a step from another course'
+    );
+
+    // 2. Ada tries to duplicate Babbage's step into Babbage's lesson using Ada's course ID -> NotFoundError
+    assert.throws(
+      () => {
+        structureService.duplicateStep(adaId, createdCourseId, babbageStep.id);
+      },
+      NotFoundError,
+      'duplicateStep must reject duplicating a step from another course'
+    );
+
+    // 3. Ada tries to delete Babbage's step through Ada's course ID -> NotFoundError
+    assert.throws(
+      () => {
+        structureService.deleteStep(adaId, createdCourseId, babbageStep.id);
+      },
+      NotFoundError,
+      'deleteStep must reject deleting a step from another course'
+    );
+
+    // 4. Ada tries to inject a step into Babbage's lesson through Ada's course ID -> NotFoundError
+    assert.throws(
+      () => {
+        structureService.addStep(adaId, createdCourseId, babbageLesson.id, {
+          title: 'Injected Step',
+          type: 'theory',
+        });
+      },
+      NotFoundError,
+      'addStep must reject adding a step to a lesson from another course'
+    );
+
+    // 5. Ada tries to update Babbage's lesson through Ada's course ID -> NotFoundError
+    assert.throws(
+      () => {
+        structureService.updateLesson(adaId, createdCourseId, babbageLesson.id, 'Hijacked Lesson');
+      },
+      NotFoundError,
+      'updateLesson must reject updating a lesson from another course'
+    );
+
+    // 6. Ada tries to delete Babbage's lesson through Ada's course ID -> NotFoundError
+    assert.throws(
+      () => {
+        structureService.deleteLesson(adaId, createdCourseId, babbageLesson.id);
+      },
+      NotFoundError,
+      'deleteLesson must reject deleting a lesson from another course'
+    );
+
+    // 7. Verify via HTTP API with authenticated server
+    const server = createServer(db);
+    await new Promise<void>((resolve) => server.listen(0, resolve));
+    const port = (server.address() as AddressInfo).port;
+    const origin = `http://127.0.0.1:${port}`;
+
+    try {
+      // Sign in Ada
+      const identityService = new IdentityService(db);
+      const adaSession = identityService.signIn({ email: 'ada@zur.internal', password: 'StudentPass123!' });
+
+      const res = await fetch(`${origin}/api/author/courses/${createdCourseId}/steps/${babbageStep.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adaSession.token}`,
+        },
+        body: JSON.stringify({
+          estimatedDurationMinutes: 99,
+          isRequired: false,
+        }),
+      });
+
+      assert.equal(res.status, 404, 'HTTP endpoint must return 404 for cross-course step ID update');
+
+      // Verify Babbage's step remains unchanged in DB
+      const stepRow = db.prepare('SELECT title, is_required, estimated_duration_minutes FROM steps WHERE id = ?').get(babbageStep.id) as any;
+      assert.equal(stepRow.title, 'Protected Babbage Step');
+      assert.equal(stepRow.is_required, 1);
+      assert.equal(stepRow.estimated_duration_minutes, 15);
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+  });
 });

@@ -199,10 +199,10 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                 <th scope="col">Connection</th>
                 <th scope="col">Access summary</th>
                 <th scope="col">Courses</th>
-                <th scope="col">Last used</th>
-                <th scope="col">Expires</th>
+                <th scope="col" class="whitespace-nowrap">Last used</th>
+                <th scope="col" class="whitespace-nowrap">Expires</th>
                 <th scope="col">Status</th>
-                <th scope="col" class="text-right">Actions</th>
+                <th scope="col" class="text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -248,26 +248,31 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                     <td>
                       <span class="text-xs text-secondary">${formatCourseRestrictions(token.courseRestrictions, coursesMap)}</span>
                     </td>
-                    <td>
+                    <td class="whitespace-nowrap">
                       <span class="text-xs text-muted">${lastUsedText}</span>
                     </td>
-                    <td>
+                    <td class="whitespace-nowrap">
                       <span class="text-xs text-secondary">${expiryDate}</span>
                     </td>
-                    <td>
+                    <td class="whitespace-nowrap">
                       ${renderStatusBadge({ status: badgeStatus, label: statusLabel })}
                     </td>
-                    <td class="text-right">
-                      <div class="flex items-center justify-end gap-2">
+                    <td class="text-right whitespace-nowrap">
+                      <div class="flex items-center justify-end gap-1.5 whitespace-nowrap">
                         ${token.isRevoked || token.status === 'expired'
                           ? '<button type="button" class="btn btn-secondary btn-compact" disabled aria-label="Setup unavailable for inactive connection">Setup</button>'
-                          : `<a href="/settings/ai-connections/${token.id}/setup" class="btn btn-secondary btn-compact" aria-label="Setup ${token.label}">Setup</a>`}
-                        <button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>
-                        ${
-                          !token.isRevoked
-                            ? `<button type="button" class="btn btn-destructive btn-compact" data-action="revoke-token" data-token-id="${token.id}" aria-label="Revoke ${token.label}">Revoke</button>`
-                            : ''
-                        }
+                          : `<a href="/settings/ai-connections/${token.id}/setup" class="btn btn-primary btn-compact" aria-label="Setup ${token.label}">Setup</a>`}
+                        <details class="action-overflow relative inline-block text-left">
+                          <summary class="btn btn-ghost btn-compact px-2 cursor-pointer list-none select-none text-secondary hover:text-primary" aria-label="More actions for ${token.label}">⋮</summary>
+                          <div class="overflow-dropdown-menu">
+                            <button type="button" class="dropdown-item text-secondary hover:text-primary" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>
+                            ${
+                              !token.isRevoked
+                                ? `<button type="button" class="dropdown-item text-danger" data-action="revoke-token" data-token-id="${token.id}" aria-label="Revoke ${token.label}">Revoke</button>`
+                                : ''
+                            }
+                          </div>
+                        </details>
                       </div>
                     </td>
                   </tr>

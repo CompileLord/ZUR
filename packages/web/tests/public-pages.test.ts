@@ -17,7 +17,7 @@ test('Public Landing Page P01 (T069)', async (t) => {
 
     // Accurate example workspace fragment
     assert.ok(html.includes('workspace-fragment'));
-    assert.ok(html.includes('Python 3.12'));
+    assert.ok(html.includes('Python 3.14.7'));
     assert.ok(html.includes('solution.py'));
     assert.ok(html.includes('calculate_squares'));
     assert.ok(html.includes('Calculate squares of numbers'));

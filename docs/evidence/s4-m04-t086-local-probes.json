@@ -1,5 +1,6 @@
 {
   "recordedAt": "2026-09-26",
+  "captureRefreshedAt": "2026-09-28",
   "browserUiZoom": {
     "status": "verified",
     "method": "Installed GUI Chrome 154 in an isolated temporary profile. Opened chrome://settings/appearance, selected the browser UI Zoom menu item 200%, then loaded the local ZUR landing page in that profile. No CDP device-metrics or page-scale emulation was applied.",
@@ -13,8 +14,8 @@
       "bodyClientWidth": 760
     },
     "interpretation": "Chrome browser zoom halves the CSS layout width against the 1536 CSS-pixel outer window. DPR 2.5 includes the session's 1.25 display scale multiplied by 200% browser zoom; visualViewport scale remains 1, distinguishing browser zoom from pinch zoom.",
-    "capture": "screenshots/s4_m04_chrome_ui_zoom200_landing.png",
-    "visualInspection": "At the measured 200% browser zoom, the landing page's header, two-line hero, paragraph, and primary/secondary actions remain readable and fit the viewport width; lower content scrolls vertically."
+    "capture": "screenshots/s4_t087_p01_landing_200zoom_dark_gui.png",
+    "visualInspection": "At the measured 200% browser zoom, the landing page's two-line hero, paragraph, and primary/secondary actions remain readable and fit the viewport width; lower content scrolls vertically."
   },
   "orcaAtSpi": {
     "orcaVersion": "50.2",

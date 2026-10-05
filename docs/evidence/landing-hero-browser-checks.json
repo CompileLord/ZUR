@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "before": {
+    "width": 500,
+    "height": 540,
+    "alpha": 1,
+    "padding": "20px 32px",
+    "overflow": false,
+    "load": 100.89999999990687
+  },
+  "scrubbing": {
+    "seeks": 16,
+    "time": 2.699999,
+    "longTasks": []
+  },
+  "screenshots": "/home/compilelord/new/vibecoding/zur/screenshots/polish/landing-round2",
+  "checks": [
+    "video transparency",
+    "dimensions",
+    "layout",
+    "multiselect",
+    "teaching anchor",
+    "pause",
+    "desktop scrubbing",
+    "menu focus trap",
+    "Escape",
+    "mobile autoplay",
+    "reduced motion no video fetch",
+    "route cleanup"
+  ]
+}

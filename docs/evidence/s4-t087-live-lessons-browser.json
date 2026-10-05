@@ -3,8 +3,8 @@
   "fixture": {
     "enrollment": "enr-ada",
     "pinnedVersion": "version-2-snapshot",
-    "attachedAssetId": "7095f553-6eec-459b-a855-856d2a38e06f",
-    "unusedAssetId": "3795b9b5-144a-452f-8b63-066b46ccf60e"
+    "attachedAssetId": "e26d70d4-9585-4883-89ac-781b53812dc3",
+    "unusedAssetId": "96f613ec-06a6-4760-b3dd-44bf2c4f9ee9"
   },
   "authorizationProbes": {
     "pinnedAssetStatus": 200,
@@ -50,7 +50,7 @@
       "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_320x844_dark.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "dark",
       "viewport": [
         320,
@@ -107,7 +107,7 @@
       "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_390x844_dark.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "dark",
       "viewport": [
         390,
@@ -164,7 +164,7 @@
       "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_768x1024_dark.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "dark",
       "viewport": [
         768,
@@ -221,7 +221,7 @@
       "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_1024x768_dark.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "dark",
       "viewport": [
         1024,
@@ -278,7 +278,7 @@
       "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_1440x900_dark.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "dark",
       "viewport": [
         1440,
@@ -335,7 +335,7 @@
       "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_320x844_light.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "light",
       "viewport": [
         320,
@@ -392,7 +392,7 @@
       "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_390x844_light.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "light",
       "viewport": [
         390,
@@ -449,7 +449,7 @@
       "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_768x1024_light.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "light",
       "viewport": [
         768,
@@ -506,7 +506,7 @@
       "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_1024x768_light.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "light",
       "viewport": [
         1024,
@@ -563,7 +563,7 @@
       "screenshot": "screenshots/s4_t087_p12_theory_authorized_image_1440x900_light.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "light",
       "viewport": [
         1440,
@@ -592,7 +592,7 @@
     }
   ],
   "mediaFailureCapture": {
-    "route": "/learn/enr-ada/steps/step-2-video/video",
+    "route": "/learn/enr-ada/steps/step-2-video",
     "theme": "light",
     "viewport": [
       1440,
@@ -608,7 +608,7 @@
     "state": {
       "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
       "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-      "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
+      "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
       "viewport": {
         "width": 1440,
         "height": 900
@@ -617,8 +617,8 @@
       "bodyScrollWidth": 1440
     },
     "retryAction": {
-      "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
-      "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061&zur_retry=1790453537805",
+      "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
+      "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787&zur_retry=1791122170518",
       "fallbackHidden": true
     },
     "horizontalOverflow": false,
@@ -626,7 +626,7 @@
   },
   "mediaFailureCaptures": [
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "dark",
       "viewport": [
         320,
@@ -642,7 +642,7 @@
       "state": {
         "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
         "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
+        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
         "viewport": {
           "width": 320,
           "height": 844
@@ -651,15 +651,15 @@
         "bodyScrollWidth": 320
       },
       "retryAction": {
-        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
-        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061&zur_retry=1790453445895",
+        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
+        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787&zur_retry=1791122078306",
         "fallbackHidden": true
       },
       "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p13_blocked_video_transcript_recovery_320x844_dark.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "dark",
       "viewport": [
         390,
@@ -675,7 +675,7 @@
       "state": {
         "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
         "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
+        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
         "viewport": {
           "width": 390,
           "height": 844
@@ -684,15 +684,15 @@
         "bodyScrollWidth": 390
       },
       "retryAction": {
-        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
-        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061&zur_retry=1790453456154",
+        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
+        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787&zur_retry=1791122088559",
         "fallbackHidden": true
       },
       "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p13_blocked_video_transcript_recovery_390x844_dark.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "dark",
       "viewport": [
         768,
@@ -708,7 +708,7 @@
       "state": {
         "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
         "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
+        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
         "viewport": {
           "width": 768,
           "height": 1024
@@ -717,15 +717,15 @@
         "bodyScrollWidth": 768
       },
       "retryAction": {
-        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
-        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061&zur_retry=1790453466341",
+        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
+        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787&zur_retry=1791122098850",
         "fallbackHidden": true
       },
       "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p13_blocked_video_transcript_recovery_768x1024_dark.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "dark",
       "viewport": [
         1024,
@@ -741,7 +741,7 @@
       "state": {
         "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
         "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
+        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
         "viewport": {
           "width": 1024,
           "height": 768
@@ -750,15 +750,15 @@
         "bodyScrollWidth": 1024
       },
       "retryAction": {
-        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
-        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061&zur_retry=1790453476549",
+        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
+        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787&zur_retry=1791122109105",
         "fallbackHidden": true
       },
       "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p13_blocked_video_transcript_recovery_1024x768_dark.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "dark",
       "viewport": [
         1440,
@@ -774,7 +774,7 @@
       "state": {
         "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
         "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
+        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
         "viewport": {
           "width": 1440,
           "height": 900
@@ -783,15 +783,15 @@
         "bodyScrollWidth": 1440
       },
       "retryAction": {
-        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
-        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061&zur_retry=1790453486805",
+        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
+        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787&zur_retry=1791122119298",
         "fallbackHidden": true
       },
       "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p13_blocked_video_transcript_recovery_1440x900_dark.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "light",
       "viewport": [
         320,
@@ -807,7 +807,7 @@
       "state": {
         "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
         "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
+        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
         "viewport": {
           "width": 320,
           "height": 844
@@ -816,15 +816,15 @@
         "bodyScrollWidth": 320
       },
       "retryAction": {
-        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
-        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061&zur_retry=1790453497002",
+        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
+        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787&zur_retry=1791122129550",
         "fallbackHidden": true
       },
       "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p13_blocked_video_transcript_recovery_320x844_light.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "light",
       "viewport": [
         390,
@@ -840,7 +840,7 @@
       "state": {
         "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
         "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
+        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
         "viewport": {
           "width": 390,
           "height": 844
@@ -849,15 +849,15 @@
         "bodyScrollWidth": 390
       },
       "retryAction": {
-        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
-        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061&zur_retry=1790453507153",
+        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
+        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787&zur_retry=1791122139824",
         "fallbackHidden": true
       },
       "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p13_blocked_video_transcript_recovery_390x844_light.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "light",
       "viewport": [
         768,
@@ -873,7 +873,7 @@
       "state": {
         "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
         "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
+        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
         "viewport": {
           "width": 768,
           "height": 1024
@@ -882,15 +882,15 @@
         "bodyScrollWidth": 768
       },
       "retryAction": {
-        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
-        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061&zur_retry=1790453517381",
+        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
+        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787&zur_retry=1791122150094",
         "fallbackHidden": true
       },
       "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p13_blocked_video_transcript_recovery_768x1024_light.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "light",
       "viewport": [
         1024,
@@ -906,7 +906,7 @@
       "state": {
         "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
         "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
+        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
         "viewport": {
           "width": 1024,
           "height": 768
@@ -915,15 +915,15 @@
         "bodyScrollWidth": 1024
       },
       "retryAction": {
-        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
-        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061&zur_retry=1790453527598",
+        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
+        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787&zur_retry=1791122160344",
         "fallbackHidden": true
       },
       "horizontalOverflow": false,
       "screenshot": "screenshots/s4_t087_p13_blocked_video_transcript_recovery_1024x768_light.png"
     },
     {
-      "route": "/learn/enr-ada/steps/step-2-video/video",
+      "route": "/learn/enr-ada/steps/step-2-video",
       "theme": "light",
       "viewport": [
         1440,
@@ -939,7 +939,7 @@
       "state": {
         "fallback": "Video player unavailable?\n\nIf the player did not load, retry it here. The lesson transcript remains available below.\n\nRetry video",
         "transcript": "Welcome to this lesson on variables. A variable is an identifier that references an object in memory.",
-        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
+        "iframeSrc": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
         "viewport": {
           "width": 1440,
           "height": 900
@@ -948,8 +948,8 @@
         "bodyScrollWidth": 1440
       },
       "retryAction": {
-        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061",
-        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A42061&zur_retry=1790453537805",
+        "before": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787",
+        "after": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=http%3A%2F%2F127.0.0.1%3A41787&zur_retry=1791122170518",
         "fallbackHidden": true
       },
       "horizontalOverflow": false,
@@ -959,7 +959,7 @@
   "completion": {
     "status": 200,
     "isCompleted": true,
-    "route": "/learn/enr-ada/steps/step-2-video/video",
+    "route": "/learn/enr-ada/steps/step-2-video",
     "viewport": [
       1440,
       900
@@ -1001,7 +1001,7 @@
         "screenshot": "screenshots/s4_t087_p12_actual_200zoom_dark_gui.png"
       },
       {
-        "route": "/learn/enr-ada/steps/step-2-video/video",
+        "route": "/learn/enr-ada/steps/step-2-video",
         "theme": "dark",
         "browserZoomPercent": 200,
         "baseline": {
@@ -1047,7 +1047,7 @@
         "screenshot": "screenshots/s4_t087_p12_actual_200zoom_light_gui.png"
       },
       {
-        "route": "/learn/enr-ada/steps/step-2-video/video",
+        "route": "/learn/enr-ada/steps/step-2-video",
         "theme": "light",
         "browserZoomPercent": 200,
         "baseline": {

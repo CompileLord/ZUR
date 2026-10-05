@@ -51,7 +51,7 @@ export function renderPythonExerciseEditorPage(opts: PythonExerciseEditorPageOpt
       ? 'Unsaved edits (offline)'
       : opts.saveStatus === 'conflict'
       ? 'Draft conflict'
-      : 'Saved';
+      : undefined;
 
   const activeTab = opts.activeSubTab || 'problem';
 
@@ -92,16 +92,28 @@ export function renderPythonExerciseEditorPage(opts: PythonExerciseEditorPageOpt
       </div>
 
       <div class="form-group mt-3">
-        <label class="field-label">Hints (up to 3)</label>
-        ${[0, 1, 2]
-          .map(
-            (i) => `
-            <div class="mb-2">
-              <input type="text" class="text-input hint-input" data-hint-index="${i}" value="${opts.hints[i] || ''}" placeholder="Hint ${i + 1} (optional)" />
-            </div>
-          `
-          )
-          .join('')}
+        <div class="section-header-row flex justify-between items-center mb-1">
+          <label class="field-label m-0">Hints (up to 3)</label>
+          <span class="text-xs text-muted">Progressive hints for learners</span>
+        </div>
+        <div class="hints-list flex flex-col gap-2 mt-2">
+          ${[0, 1, 2]
+            .map(
+              (i) => `
+              <div class="hint-row flex items-center gap-2">
+                <span class="hint-index-badge font-mono text-xs text-muted w-5 text-center flex-shrink-0">${i + 1}</span>
+                <input
+                  type="text"
+                  class="text-input hint-input flex-1 text-sm"
+                  data-hint-index="${i}"
+                  value="${opts.hints[i] || ''}"
+                  placeholder="Hint ${i + 1} (optional)..."
+                />
+              </div>
+            `
+            )
+            .join('')}
+        </div>
       </div>
 
       <div class="form-group mt-3">
@@ -288,50 +300,48 @@ export function renderPythonExerciseEditorPage(opts: PythonExerciseEditorPageOpt
     <div class="inspector-box p-3">
       <h3 class="inspector-title">Execution limits</h3>
 
-      <div class="form-group mt-3">
-        <label for="cpu-timeout" class="field-label">CPU Timeout</label>
-        <div class="input-with-unit">
-          <input id="cpu-timeout" type="number" min="1" max="10" class="text-input input-compact" value="${opts.runtimeLimits.cpuTimeoutSeconds}" />
-          <span class="unit-text">s</span>
+      <div class="limits-grid grid grid-cols-3 gap-2 mt-3">
+        <div class="form-group">
+          <label for="cpu-timeout" class="field-label text-xs">CPU</label>
+          <div class="input-with-unit flex items-center">
+            <input id="cpu-timeout" type="number" min="1" max="10" class="text-input input-compact w-full text-sm" value="${opts.runtimeLimits.cpuTimeoutSeconds}" />
+            <span class="unit-text text-xs text-muted ml-1">s</span>
+          </div>
         </div>
-        <p class="field-hint">Range: 1–10 seconds.</p>
-      </div>
 
-      <div class="form-group mt-3">
-        <label for="wall-timeout" class="field-label">Wall Timeout</label>
-        <div class="input-with-unit">
-          <input id="wall-timeout" type="number" min="1" max="20" class="text-input input-compact" value="${opts.runtimeLimits.wallTimeoutSeconds}" />
-          <span class="unit-text">s</span>
+        <div class="form-group">
+          <label for="wall-timeout" class="field-label text-xs">Wall</label>
+          <div class="input-with-unit flex items-center">
+            <input id="wall-timeout" type="number" min="1" max="20" class="text-input input-compact w-full text-sm" value="${opts.runtimeLimits.wallTimeoutSeconds}" />
+            <span class="unit-text text-xs text-muted ml-1">s</span>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group mt-3">
-        <label for="memory-limit" class="field-label">Memory Limit</label>
-        <div class="input-with-unit">
-          <input id="memory-limit" type="number" min="16" max="512" class="text-input input-compact" value="${opts.runtimeLimits.memoryLimitMib}" />
-          <span class="unit-text">MiB</span>
+        <div class="form-group">
+          <label for="memory-limit" class="field-label text-xs">Memory</label>
+          <div class="input-with-unit flex items-center">
+            <input id="memory-limit" type="number" min="16" max="512" class="text-input input-compact w-full text-sm" value="${opts.runtimeLimits.memoryLimitMib}" />
+            <span class="unit-text text-xs text-muted ml-1">MB</span>
+          </div>
         </div>
       </div>
+      <p class="field-hint text-xs text-muted mt-1.5">Range: 1–10s CPU, 1–20s Wall, 16–512 MB RAM.</p>
 
       <hr class="section-divider mt-4" />
 
       <div class="form-group mt-3">
         <label for="step-duration" class="field-label">Estimated duration</label>
-        <div class="input-with-unit">
+        <div class="input-with-unit flex items-center">
           <input id="step-duration" type="number" min="1" max="180" class="text-input input-compact" value="${opts.estimatedDurationMinutes}" />
-          <span class="unit-text">min</span>
+          <span class="unit-text text-xs text-muted ml-1.5">min</span>
         </div>
       </div>
 
       <div class="form-group mt-3">
-        <label class="checkbox-label">
+        <label class="checkbox-label flex items-center gap-2 text-sm text-secondary">
           <input id="step-required" type="checkbox" ${opts.isRequired ? 'checked' : ''} />
           <span>Required step</span>
         </label>
-      </div>
-
-      <div class="action-row mt-4">
-        <a href="/teach/${opts.courseId}/preview/${opts.stepId}" class="btn btn-secondary btn-compact w-full">Preview as student</a>
       </div>
     </div>
   `;

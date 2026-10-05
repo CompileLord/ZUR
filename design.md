@@ -1,10 +1,10 @@
 # ZUR — Interface Design Specification
 
-Version: 1.1  
-Date: September 24, 2026  
-Status: Implementation baseline  
-Product contract: [PRD_V2.md](PRD_V2.md)  
-Audience: Product designers, frontend engineers, and AI implementation agents  
+Version: 1.3
+Date: October 4, 2026
+Status: Implementation baseline (1.3 finalizes all phases P01–P45 UI polish, shells S1–S6, and Step-up modal dialog lifecycle tracked in [UI_POLISH_PLAN.md](UI_POLISH_PLAN.md))
+Product contract: [PRD_V2.md](PRD_V2.md)
+Audience: Product designers, frontend engineers, and AI implementation agents
 Language: English
 
 ## 1. How to use this specification
@@ -186,6 +186,8 @@ Z-index tiers: base 0; local sticky controls 10; shell 20; nonmodal popovers 30;
 
 Use one consistent outline icon set, 18px in navigation and 16px inline, with approximately 1.75px strokes. Controls still have their full hit target. Icons supplement labels; ambiguous icons cannot replace `Run`, `Submit`, or `Publish`.
 
+Icons are inline SVG using `currentColor`. Every sidebar navigation row has a leading icon. Step types use a fixed icon vocabulary everywhere they appear (syllabus, lesson rail, builder tree, analytics): file-text = Theory, video = Video, list-checks = Quiz, code = Python exercise. Type icons use neutral text color; do not use per-type hue chips (purple/red/yellow labels). Emoji are never used as interface icons.
+
 The initial brand asset is a plain `ZUR` typographic wordmark, 20px semibold with slight positive spacing. A small citron vertical bar may sit to its left, relating to the lesson rail. No generated mascot or imitation AI symbol. The favicon can be a simple `Z` on canvas color. These are implementation assets, not a requirement for a separate logo project.
 
 Courses are identified by title and metadata, not mandatory covers. Optional future cover support must not produce empty image placeholders now. Lesson images exist only when teaching requires them. Landing illustrations are accurate interface fragments made from the same components, not decorative raster scenes.
@@ -204,9 +206,13 @@ Wordmark above a 400px form, centered horizontally and positioned approximately 
 
 Receding left navigation, location header, main content. Student navigation: `Continue`, `My courses`, `Explore`. Bottom utilities: Help and account menu. Author-capable accounts get an explicit `Learn / Teach` mode switch; this changes navigation, not identity. Admin appears only for authorized accounts. Avoid duplicated home/dashboard destinations.
 
+The location header carries breadcrumb/context and page-level status only; it MUST NOT repeat the page H1 (leave it empty rather than duplicate). Each page has exactly one H1 at the top of the main region, 40px top padding, left-aligned, within the standard content width. The account menu is a single block: initials avatar, display name, and a menu (or compact icon buttons) for Settings and Sign out. The Learn / Teach switch reflects the current route: `/teach*` and author settings show Teach as active with author navigation.
+
 ### S4 — learning workspace
 
 Replace the global sidebar with a course outline; do not stack two sidebars. Header: back to course, course/lesson context, saved status where relevant, and outline toggle. Step navigation sits within the workspace. Python uses the paired layout; theory/video/quiz uses a reading column. No public footer while studying.
+
+Each step has exactly one task footer, pinned to the bottom of the viewport: `Previous` left, step position (`Step 3 of 7`) or step status center, primary action right. Do not render a second inline Previous/Next row inside the content, and never show `Next` and `Continue` at the same time. Report issue is a quiet ghost or overflow action. Save state appears once (near the editor for Python).
 
 ### S5 — author workspace
 
@@ -214,7 +220,7 @@ Header: back to courses, course title, publication/draft state, save status, Pre
 
 ### S6 — administration shell
 
-Distinct `Administration` label, same tokens. Navigation: Overview, Users, Courses, Categories, Reports, Media, Execution, Audit. Operational density is higher than learning density, but typography and control sizes stay legible. Show the acting admin identity. Support access is explicit, never an invisible student impersonation mode.
+Quiet `Admin` label badge, same tokens. Navigation: Lucide outline SVG icons (16/18px, 1.75 stroke, `currentColor`) paired with Overview, Users, Courses, Categories, Reports, Media, Execution, and Audit, using `aria-current="page"` and quiet active indicator styling. Operational density is higher than learning density, but typography and control sizes stay legible. Top header provides concise location context without repeating page H1s, alongside an explicit `Return to app` link. Account block matches S3 with avatar initials, display name, and acting admin role. Support access is explicit, never an invisible student impersonation mode.
 
 ### Breakpoints and collapse order
 
@@ -258,6 +264,13 @@ Use document scrolling for ordinary pages. Workspaces may have separately scroll
 | Error panel | What happened, what remains saved, next action, optional support reference. Human-readable text precedes technical details. |
 | Code block | Code surface, mono type, copy action with accessible confirmation, local horizontal scroll for long lines. |
 | Report form | Type, concise description, contextual identifiers supplied automatically, optional submitted-code inclusion, Send report. |
+| Filter toolbar | One row above a list/table: search field with leading icon, themed selects or segmented filter, result count right-aligned. Filters apply on change (debounced); no separate `Apply`/`Filter` button unless the query is expensive. No card around the toolbar. |
+| Overflow menu | `More` icon button (accessible name includes the row/entity) holding secondary and destructive row actions (Leave, Revoke, Replace, Remove). The primary row action stays visible as a ghost button. |
+| Settings section | Flat section separated by 32–48px spacing or one divider; optional two-column layout at desktop (label + one-line description left, controls right). Never stack bordered cards edge to edge. |
+| Danger button | Destructive actions use `.btn-danger` / `.btn-destructive` with semantic `--danger` and `--danger-bg` tokens. |
+| Segmented filter | Compact inline segmented button group (`.segmented-control-btn`, `.segmented-tab`) with `role="navigation"` and `aria-current="page"`, retaining server query semantics without dropdown friction. |
+| Step-up confirmation | Sensitive mutations that require a reason and/or password re-entry open a 440–560px modal dialog from a clearly labeled action button (e.g. `New category`, `Review`, `Disable new execution…`). The page itself never shows idle reason/password fields. The dialog uses native HTML `<dialog>` with `margin: auto;` centering, viewport gutters (`max-height: calc(100vh - 48px); overflow-y: auto;`), stable `id` and `aria-labelledby`, and Lucide outline `x` close icon. The confirm button uses danger styling (`.btn-danger`, `--danger` token) when destructive. On any dismissal path (Escape, Cancel, Close icon, or backdrop click), a capture-phase `close` listener strictly purges all password inputs, reasons, and validation errors, restoring focus cleanly to the trigger. |
+| Data formatting | Dates as `Oct 3, 1:50 PM` (relative within 24h, absolute in tooltip); never raw ISO strings. Enums humanized in sentence case (`broken_exercise` → `Broken exercise`). Long IDs truncated in mono with copy. Zero/unknown durations and empty metadata are hidden, not shown as `0m`. |
 
 Navigation rows use a neutral selected surface and short citron leading marker. Avoid filling the entire sidebar item with bright accent. Prose links are underlined; a button or navigation link does not need a prose underline.
 
@@ -283,13 +296,15 @@ Course progress is cumulative satisfaction; an attempt result is a separate fact
 | Progress update | 180ms | Small width transition after server confirmation |
 | Completed step | 160ms | Replace marker with check; no bounce or confetti |
 
-Use `cubic-bezier(0.2, 0, 0, 1)` for entrances. Do not animate width on primary content during typing. Respect reduced motion: eliminate translations and progress animation; use static loading text when appropriate. Never autoplay a landing video.
+Use `cubic-bezier(0.2, 0, 0, 1)` for entrances. Do not animate width on primary content during typing. Respect reduced motion: eliminate translations and progress animation; use static loading text when appropriate. The Landing sculpture uses pointer scrubbing on desktop and muted playback on mobile only while visible, with a pause control. Reduced-motion visitors receive a static poster.
 
 Loading skeletons mirror the actual layout and are static, without continuous shimmer. Keep existing data during refresh and show a small updating state. Network feedback must be truthful: `Queued`, `Running`, and `Checking status` are distinct.
 
 ## 8. Content voice
 
 Write clear, brief English. Use verbs that describe the result: `Create course`, `Run samples`, `Submit solution`, `Review & publish`, `Revoke access`. Prefer `You can try again` to blaming language. Technical detail belongs in expandable diagnostics when it helps troubleshooting.
+
+Brevity rules: a page subtitle appears only when it adds information the title does not, and is at most one line. Helper text appears under a field only when it prevents an error. Internal or system vocabulary (`immutable`, `authoritative records`, `snapshot`, raw enum keys) is replaced with plain words or moved into an info disclosure/tooltip. PRD-defined metric names (e.g. `Learning-active students`) keep their label; their definition moves into a tooltip instead of a visible paragraph. Prefer one sentence over a paragraph; prefer a label over a sentence.
 
 | Situation | Required wording direction |
 |---|---|
@@ -373,11 +388,13 @@ Below the introduction, show one full-width, accurate workspace fragment: a shor
 
 **Responsive/state behavior:** Stack the workspace illustration at mobile width and retain selectable, readable content. No horizontally clipped desktop screenshot. Signed-in visitors see `Continue learning` as the primary header action; do not redirect unexpectedly. All section links must reach actual sections.
 
+**Interactive hero (user-approved update):** Preserve the headline, supporting copy, course routes, semantic palette, and example workspace. Animate the headline once with a reserved two-line height; expose the complete heading to assistive technology immediately. An optional transparent sculpture sits beside the copy on desktop and below it on mobile. Use a small local poster first and defer the optimized video until visible. Limit pointer seek requests, stop offscreen, and cancel route-owned listeners and animations on departure. The multi-select learning-interest pills acknowledge selections; they do not claim to filter or personalize catalog results. Teaching-only selection links to the authoring section; other selections lead to the real catalog. Use a labeled mobile menu with focus containment, Escape dismissal, and background inertness. Keep Tailwind utilities prefixed and omit its global reset so the hero does not alter other pages.
+
 ### P02 — Catalog and search
 
 **Purpose:** Find an appropriate published course.
 
-**Composition:** Page title `Explore courses`, then a full-width search field, then Category, Level, and Language filters in a single toolbar. Search supports title, description, tags, and author according to the PRD. Show the result count beneath the filters. Results are generous text-led rows: title, short description, author, level, content language, approximate duration, and `View course`. Category/tag metadata is quiet; it does not become a wall of chips.
+**Composition:** Page title `Explore courses`, then a full-width search field, then Category, Level, and Language filters in a single toolbar. Search supports title, description, tags, and author according to the PRD. Show the result count at the right of the desktop filter toolbar (with sensible placement on mobile beneath filters/sheet). Results are generous text-led rows: title, short description, author, level, content language, approximate duration, and `View course`. Category/tag metadata is quiet; it does not become a wall of chips.
 
 **Actions:** Selecting a category updates the same page rather than creating a separate category navigation system. Search updates after a short debounce and preserves its query in the URL; Enter also submits. Use clear pagination controls rather than infinite scroll. Relevance applies when a query exists; default catalog ordering is consistent and server-defined, not a fabricated popularity score.
 
@@ -496,7 +513,7 @@ S3 with a settings subnavigation and 640px form column. Show editable display na
 
 ### P18 — Appearance settings
 
-Three labeled radio choices: Dark, Light, System, each with a small schematic preview using real tokens. Preview selection immediately and persist the preference with visible failure handling. Add editor font size and indentation preferences used by P15; make clear they affect the code editor. Avoid a full theme builder, accent picker, or multiple unrelated density sliders. System mode displays the currently resolved theme as secondary text.
+Three labeled radio choices: Dark, Light, System, each with a small schematic preview using real tokens (mini sidebar, heading line, text lines, accent button — never an empty box). Preview selection immediately and persist the preference on change with an inline `Saved` / failure message; no separate `Save preferences` button. Add editor font size and indentation preferences used by P15 (same autosave behavior); make clear they affect the code editor. Avoid a full theme builder, accent picker, or multiple unrelated density sliders. System mode displays the currently resolved theme as secondary text.
 
 ### P19 — Security settings
 
@@ -593,9 +610,11 @@ Show published versions as a read-only list sufficient to identify releases, not
 
 Admin pages inherit the same visual system. They use meaningful tables and explicit actions, not a separate dashboard template. Every sensitive mutation shows scope, affected entity, reason field where required, and an audited confirmation. Narrow screens may use local table scrolling, but confirmations and forms must reflow.
 
+Reason and administrator-password fields live only inside the Step-up confirmation dialog (Section 6) opened by the action; pages lead with their table or status, not an idle mutation form. Tables use the shared Data formatting rules: humanized enums, status badges, readable dates, and truncated identifiers with copy.
+
 ### P32 — Operations overview
 
-S6 with a restrained `Platform status` heading and a timestamp for the last refresh. Show execution availability, oldest queued-job age, internal-error rate, outstanding reports, and email-delivery issues when real data exists. Incidents appear as a prioritized list linking to their operational pages. Healthy state is a small success label, not a green full-screen panel. Missing telemetry says `Unavailable`, not `Healthy`. Keep the execution kill switch on P38 to avoid accidental interruption from the overview.
+S6 with a restrained `Platform status` heading and a relative timestamp for the last refresh (`Updated [relative]` with full ISO datetime tooltip). Status-card grid (2×3 calm cards on desktop): Execution, Queue, Runner telemetry, Internal-error rate, Outstanding reports, and Email delivery, each displaying title, semantic status badge, key metric, hint, and action link. Incidents appear as a prioritized alerts strip linking to operational pages. Healthy state is a concise badge (e.g. `No 5xx errors`), not a full-screen banner. Missing or reset runner telemetry displays `Unavailable` with an explanatory disclosure for volatile memory and heartbeat status, never an invented healthy state. The execution kill switch remains on P38 to avoid accidental interruption from the overview.
 
 ### P33 — Users and user detail
 
@@ -611,27 +630,26 @@ A support-only `Waive broken step` operation requires version, step, affected-en
 
 ### P35 — Categories
 
-Simple table with name, usage count, and Edit. `New category` opens a compact form. Validation catches normalized duplicates. Renaming describes its course-label effect. Removing an in-use category is blocked until an explicit reassignment path is supported; do not orphan required categories. No decorative category thumbnails or unrelated tag-management product.
+Table-first layout with category name, slug, usage count, and an `Edit` action button per row. `New category` (page header action) opens a compact step-up modal dialog with name, reason, and admin password; row `Edit` opens the edit step-up dialog with populated fields, rename controls, and an explicit replacement category selector (`<label for="edit-category-replacement-id">`) required if in use. On dialog dismissal (Escape, Cancel, Close icon, backdrop), sensitive reason and password fields are purged immediately and focus is restored to the trigger button. Validation catches normalized duplicates. Renaming describes its course-label effect. Removing an in-use category requires explicit reassignment; do not orphan required categories.
 
 ### P36 — Reports and report detail
 
-List with Open/Investigating/Resolved filters, type, course/step context, submitted date, and status. Detail shows the submitted report, permission-safe context, optionally attached submitted code, and internal investigation notes if implemented. Status changes are explicit. Links open the exact course version, not the newest revision by assumption.
+List with segmented status filter (`All`, `Open`, `Investigating`, `Resolved`) using nav semantics (`aria-current="page"`) that preserves server query parameters, humanized report type and status badges, course/step context, relative submitted dates, and status. Detail shows the submitted report, permission-safe context, optionally attached submitted code, and internal investigation notes if implemented. Status changes are explicit. Links open the exact immutable course version snapshot, not the newest revision by assumption.
 
 Report resolution requires a clear outcome record. This is private support, not a comments thread or live chat. Any user-facing resolution text must be distinguished from internal notes. Do not add email-send actions unless the product supports and authorizes them. Code supplied with consent remains protected.
 
 ### P37 — Media operations
 
-Table of assets with processing/quarantine state, type, size, owning course, and reference count. Detail shows a safe preview only after authorization and processing checks. Provide review/quarantine actions, with reasons and reference impact. Do not allow an asset referenced by retained published versions to be casually deleted. Failed thumbnails display an icon and reason rather than rendering unsafe content. There is no public media library.
+Table of assets with processing/quarantine state, type, size, owning course, and reference count. Full UUID is truncated in mono with an accessible tooltip and verified clipboard copy feedback. Detail and mutations are housed in a step-up modal dialog opened by row `Review`, containing an authorized safe preview, review verdict, reason, and password (preventing bloated inline table rows). Assets referenced by retained published versions cannot be casually deleted. Failed or pending previews display a placeholder icon rather than rendering unsafe content or bypassing authorization. There is no public media library.
 
 ### P38 — Execution operations
 
-Top: service state and last-updated timestamp; below: queue age, accepted/running counts, worker health, infrastructure failures, and paginated job records. Time-range controls are explicit. Worker details are operational, not exposed to learners. Default job rows do not reveal source code or hidden payloads.
-
-Place `Disable new execution` in a clearly labeled service-control section. Confirmation names the scope: new jobs stop, reading and saved code remain available. Reactivation is a separate explicit action. Show actual backend state after confirmation; do not optimistically claim a service shutdown succeeded. Stale or missing telemetry has warning treatment. No fake gauges, rotating globes, or unreadable log walls.
+Top: compact service status card (`Execution: Enabled` / `Paused`) with a danger-styled `Disable new execution…` button that opens a step-up confirmation modal dialog (reason + password). Confirmation names the scope: new jobs stop, reading and saved code remain available. Below: queue age, accepted/running counts, concise worker health (`Active` / `Unavailable` with explanation tooltip), infrastructure failures, and paginated job records. Stat tiles use `min-width: 0`, box sizing, and wrapped hints to prevent horizontal viewport overflow. Time-range controls are themed. Worker details are operational, not exposed to learners. Default job rows do not reveal source code or hidden payloads.
 
 ### P39 — Audit
 
-Read-only searchable table with time, actor, action, target, reason summary, and correlation identifier. Filters are actor/action/date range; detail reveals permitted structured changes without sensitive payloads. Audit rows cannot be edited or deleted from this interface. Do not show passwords, tokens, hidden tests, or raw code. Empty search and unavailable audit service are distinct states. No CSV export button until implemented in scope.
+Read-only searchable table with relative time, actor, action, target, reason summary, and correlation identifier. Table cells for timestamp, actor, and action prevent awkward wrapping (`.admin-nowrap`). Primary search and reason filter sit on a single row, with additional filters (actor, course, dates) organized into a collapsible "Advanced filters" disclosure, preserving all 8 server query parameters. Action labels are humanized on a single line with raw action codes accessible in tooltips and aria-labels. Detail reveals permitted structured changes without sensitive payloads. Audit rows cannot be edited or deleted from this interface. Do not show passwords, tokens, hidden tests, or raw code. Empty search and unavailable audit service are distinct states.
+
 
 ### P40 — Help and reporting
 
@@ -645,11 +663,11 @@ S1 with 720px reading column, title, effective date, and a simple contents list 
 
 ### P42 — System and access pages
 
-Use a calm, left-aligned message within a 560px region, with a small icon, clear title, explanatory sentence, and one safe action.
+Use a calm message within a 560px region, with a small icon, clear title, explanatory sentence, and safe actions.
 
 | Condition | Presentation |
 |---|---|
-| Unknown or unauthorized private resource | `This page isn't available.` Return to courses; no private title or existence details. |
+| Unknown or unauthorized private resource | `This page isn't available.` Centered within a 560px region with a small icon, safe primary `Browse courses`, and secondary ghost `Go back` that falls back safely when history is unavailable; no private title or existence details. |
 | Signed-out access to known permitted destination | `Sign in to continue.` Preserve only a safe return destination. |
 | Revoked enrollment | `Your access to this course has been removed.` Use authorized context only; no immediate Rejoin. |
 | Course suspended | Explain learning is unavailable and link to support; do not render cached protected content. |

@@ -1,4 +1,4 @@
-import { renderLessonRail } from '../../components/common/LessonRail.ts';
+import { renderIcon, type IconName } from '../../components/common/icons.ts';
 import { renderSafeDenialPage } from '../status/SafeDenialPage.ts';
 
 export interface OverviewStepItem {
@@ -236,43 +236,52 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
         const stepBadgeLine = countBadges.join(' · ') || `${counts.total} steps`;
 
         // Render pure step titles without leaking step bodies or test cases
-        const stepRows = (les.steps || []).map((st, stIdx) => `
-          <div class="syllabus-step-row flex items-center justify-between py-1.5 px-3 text-xs border-b border-subtle last:border-none">
-            <span class="step-title text-secondary">
-              <span class="font-mono text-muted mr-2">${stIdx + 1}.</span>${escapeHtml(st.title)}
-            </span>
-            <span class="step-type-badge text-muted uppercase text-micro font-mono">
-              ${escapeHtml(st.type)}${st.isRequired ? '' : ' · optional'}
-            </span>
-          </div>
-        `).join('');
+        const stepRows = (les.steps || []).map((st) => {
+          const iconName = getStepIcon(st.type);
+          return `
+            <li class="rail-item pending">
+              <div class="rail-marker-column" aria-hidden="true">
+                <span class="rail-marker"></span>
+                <span class="rail-line"></span>
+              </div>
+              <div class="rail-content">
+                <div class="rail-step-row flex items-center justify-between w-full py-1.5">
+                  <div class="flex items-center gap-2">
+                    <span class="rail-step-icon text-muted" aria-hidden="true">${renderIcon(iconName, { size: 15 })}</span>
+                    <span class="rail-title text-sm text-secondary">${escapeHtml(st.title)}</span>
+                  </div>
+                  <span class="rail-step-meta text-xs text-muted">
+                    ${st.isRequired ? '' : '<span class="optional-tag">Optional · </span>'}
+                    ${st.estimatedDurationMinutes ? `${st.estimatedDurationMinutes} mins` : ''}
+                  </span>
+                </div>
+              </div>
+            </li>
+          `;
+        }).join('');
 
         return `
-          <div class="syllabus-lesson mb-4 p-4 bg-surface border border-subtle rounded-lg">
-            <div class="flex justify-between items-start flex-wrap gap-2 mb-2">
-              <h4 class="text-sm font-semibold text-primary">
-                <span class="text-muted font-mono mr-1.5">Lesson ${lesIdx + 1}:</span>
-                ${escapeHtml(les.title)}
+          <div class="lesson-subgroup">
+            <div class="flex justify-between items-center mb-2">
+              <h4 class="lesson-subheading font-medium text-sm text-secondary">
+                Lesson ${lesIdx + 1}: ${withoutOrdinal(les.title, 'Lesson')}
               </h4>
-              <span class="text-xs text-muted font-mono tabular-nums">${stepBadgeLine}</span>
+              <span class="text-xs text-muted tabular-nums">${stepBadgeLine}</span>
             </div>
-            ${les.description ? `<p class="text-xs text-secondary mb-3">${escapeHtml(les.description)}</p>` : ''}
-            <div class="syllabus-steps bg-canvas rounded border border-subtle">
+            ${les.description ? `<p class="lesson-desc text-xs text-secondary mb-3">${escapeHtml(les.description)}</p>` : ''}
+            <ul class="lesson-steps-rail" role="list">
               ${stepRows}
-            </div>
+            </ul>
           </div>
         `;
       }).join('');
 
       return `
-        <div class="syllabus-module mb-8">
-          <div class="syllabus-module-header flex items-center gap-3 mb-4 pb-2 border-b border-subtle">
-            <span class="module-ordinal font-mono text-xs font-semibold text-accent uppercase">
-              Module ${modIdx + 1}
-            </span>
-            <h3 class="text-base font-semibold text-primary">${escapeHtml(mod.title)}</h3>
-          </div>
-          <div class="syllabus-lessons">
+        <div class="module-section">
+          <h3 class="module-heading font-semibold text-sm text-primary mb-3 pb-2 border-b border-subtle">
+            Module ${modIdx + 1}: ${withoutOrdinal(mod.title, 'Module')}
+          </h3>
+          <div class="module-lessons flex flex-col gap-2">
             ${lessonItems}
           </div>
         </div>
@@ -294,38 +303,36 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
 
   return `
     <div class="course-overview-page container py-10" data-course-id="${escapeHtml(course.id)}">
-      <!-- Header -->
-      <header class="course-overview-header mb-8 max-w-reading">
-        ${
-          course.visibility === 'unlisted'
-            ? `<div class="unlisted-notice text-xs text-muted mb-4 flex items-center gap-1.5" role="status">
-                <span class="unlisted-badge font-mono uppercase text-micro px-1.5 py-0.5 rounded bg-surface border border-subtle">Unlisted</span>
-                <span>Accessible via direct link only. Excluded from public catalog.</span>
-               </div>`
-            : `<nav class="breadcrumb text-xs text-muted mb-4" aria-label="Breadcrumb">
-                <a href="/courses" class="text-secondary hover:underline">Courses</a>
-                <span class="mx-2">/</span>
-                <span class="text-primary font-medium" aria-current="page">${escapeHtml(course.title)}</span>
-               </nav>`
-        }
-
-        <h1 class="page-title font-semibold mb-3">${escapeHtml(course.title)}</h1>
-        <p class="prose text-secondary text-base mb-4 leading-relaxed">${escapeHtml(course.description)}</p>
-
-        <div class="course-metadata text-xs text-muted tabular-nums">
-          ${metaParts}
-        </div>
-      </header>
-
-      <!-- Mobile Top Action Button -->
-      <div class="mobile-cta md:hidden mb-8">
-        ${primaryActionHtml}
-      </div>
-
       <!-- 2:1 Main and Secondary Layout (P03) -->
       <div class="overview-grid grid grid-cols-1 md:grid-cols-3 gap-10 items-start">
         <!-- Main Column (2/3 width) -->
         <main class="overview-main md:col-span-2">
+          <!-- Breadcrumb with breathing space -->
+          ${
+            course.visibility === 'unlisted'
+              ? `<div class="unlisted-notice text-xs text-muted mb-6 flex items-center gap-1.5" role="status">
+                  <span class="unlisted-badge font-mono uppercase text-micro px-1.5 py-0.5 rounded bg-surface border border-subtle">Unlisted</span>
+                  <span>Accessible via direct link only. Excluded from public catalog.</span>
+                 </div>`
+              : `<nav class="breadcrumb text-xs text-muted mb-6" aria-label="Breadcrumb">
+                  <a href="/courses" class="text-secondary hover:underline">Courses</a>
+                  <span class="mx-2">/</span>
+                  <span class="text-primary font-medium" aria-current="page">${escapeHtml(course.title)}</span>
+                 </nav>`
+          }
+
+          <h1 class="page-title font-semibold mb-3">${escapeHtml(course.title)}</h1>
+          <p class="prose text-secondary text-base mb-4 leading-relaxed">${escapeHtml(course.description)}</p>
+
+          <div class="course-metadata mb-8 text-xs text-muted tabular-nums flex items-center flex-wrap gap-2">
+            ${metaParts}
+          </div>
+
+          <!-- Mobile Top Action Button -->
+          <div class="mobile-cta md:hidden mb-8">
+            ${primaryActionHtml}
+          </div>
+
           ${outcomesHtml}
           ${prereqHtml}
           ${syllabusHtml}
@@ -337,8 +344,8 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
         </main>
 
         <!-- Secondary Column: Enrollment Summary Card (1/3 width, sticky) -->
-        <aside class="overview-sidebar md:col-span-1 sticky top-20" aria-label="Enrollment details">
-          <div class="enrollment-summary-card p-6 bg-surface border border-subtle rounded-lg flex flex-col gap-5">
+        <aside class="overview-sidebar md:col-span-1 sticky top-10" aria-label="Enrollment details">
+          <div class="enrollment-summary-card p-6 bg-surface border border-subtle rounded-lg flex flex-col gap-6">
             <h3 class="text-base font-semibold text-primary">Course summary</h3>
 
             <div class="summary-details flex flex-col gap-3 text-sm">
@@ -360,18 +367,36 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
               </div>
             </div>
 
-            <div class="sidebar-action-container pt-3 border-t border-subtle">
+            <div class="sidebar-action-container pt-4 border-t border-subtle flex flex-col gap-3">
               ${primaryActionHtml}
-            </div>
-
-            <div class="sidebar-footer-note text-xs text-muted leading-normal">
-              Practice Python with short lessons and browser exercises. No setup required.
+              <p class="sidebar-footer-note text-xs text-muted leading-relaxed text-center">
+                Practice Python with short lessons and browser exercises. No setup required.
+              </p>
             </div>
           </div>
         </aside>
       </div>
     </div>
   `;
+}
+
+function getStepIcon(type: string): IconName {
+  switch (type) {
+    case 'theory':
+      return 'file-text';
+    case 'video':
+      return 'video';
+    case 'quiz':
+      return 'list-checks';
+    case 'python':
+      return 'code';
+    default:
+      return 'file-text';
+  }
+}
+
+function withoutOrdinal(title: string, kind: 'Module' | 'Lesson'): string {
+  return title.replace(new RegExp(`^${kind}\\s+\\d+\\s*:\\s*`, 'i'), '');
 }
 
 function escapeHtml(str: string): string {

@@ -1,4 +1,6 @@
-import { renderContentTree } from '../../components/common/ContentTree.ts';
+import { renderIcon } from '../../components/common/icons.ts';
+import { renderLandingHero } from './LandingHero.ts';
+import { PYTHON_RUNTIME_LABEL } from 'zur-shared';
 
 export interface LandingPageProps {
   isSignedIn?: boolean;
@@ -9,50 +11,23 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
     ? `<a href="/learn" class="btn btn-primary">Continue learning</a>`
     : `<a href="/courses" class="btn btn-primary">Explore courses</a>`;
 
-  const sampleTree = renderContentTree({
-    courseTitle: 'Python foundations',
-    modules: [
-      {
-        id: 'mod-demo-1',
-        title: 'Variables and Types',
-        lessons: [
-          {
-            id: 'les-demo-1',
-            title: 'Naming and Values',
-            steps: [
-              { id: 'st-1', title: 'What is a variable?', type: 'theory' },
-              { id: 'st-2', title: 'Assignment syntax', type: 'quiz' },
-              { id: 'st-3', title: 'Echoing Numbers', type: 'python', isSelected: true },
-            ],
-          },
-        ],
-      },
-    ],
-    selectedId: 'st-3',
-  });
+  const sampleTree = `<ul class="landing-static-tree">
+    <li>${renderIcon('book')}<strong>Python foundations</strong></li>
+    <li>${renderIcon('folder')}Variables and Types</li>
+    <li class="tree-step">${renderIcon('file-text')}What is a variable?</li>
+    <li class="tree-step">${renderIcon('list-checks')}Assignment syntax</li>
+    <li class="tree-step">${renderIcon('code')}Echoing Numbers</li>
+  </ul>`;
 
   return `
     <div class="landing-page">
-      <!-- Hero Introduction (P01) -->
-      <section class="container-landing py-16" aria-labelledby="hero-heading">
-        <div class="hero-grid">
-          <div class="hero-text-col">
-            <h1 id="hero-heading" class="display-title mb-4">Understand it.<br />Then write it.</h1>
-            <p class="prose text-secondary mb-6 max-w-reading">
-              Learn Python through short lessons and real exercises. Create a course that puts practice beside the explanation.
-            </p>
-            <div class="landing-actions flex items-center gap-4">
-              ${primaryCta}
-              <a href="#teaching" class="text-link">See how teaching works</a>
-            </div>
-          </div>
-        </div>
-
+      ${renderLandingHero(Boolean(props.isSignedIn))}
+      <section class="container-landing landing-workspace" aria-label="Example Python workspace">
         <!-- Accurate Example Workspace Fragment (P01) -->
         <div class="workspace-fragment mt-12" aria-label="Example workspace">
           <div class="workspace-fragment-header">
             <span class="workspace-fragment-label">Example workspace</span>
-            <span class="workspace-fragment-meta font-mono text-xs">Python 3.12 · stdin/stdout</span>
+            <span class="workspace-fragment-meta font-mono text-xs">${PYTHON_RUNTIME_LABEL} · stdin/stdout</span>
           </div>
           <div class="workspace-fragment-body">
             <div class="workspace-fragment-problem">
@@ -98,7 +73,7 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
               </div>
               <h3 class="section-title text-lg font-semibold mb-2">Read</h3>
               <p class="text-sm text-secondary leading-relaxed">
-                Focused concept explanations with clear syntax and real examples. No lengthy theory blocks or irrelevant tangents.
+                Focused concept explanations with clear syntax and real examples.
               </p>
             </div>
             <div class="progression-col">
@@ -108,7 +83,7 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
               </div>
               <h3 class="section-title text-lg font-semibold mb-2">Try</h3>
               <p class="text-sm text-secondary leading-relaxed">
-                Write real Python code directly in the browser. Zero software installation, environment configuration, or setup friction.
+                Write real Python code directly in the browser. No setup needed.
               </p>
             </div>
             <div class="progression-col">
@@ -118,7 +93,7 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
               </div>
               <h3 class="section-title text-lg font-semibold mb-2">Check</h3>
               <p class="text-sm text-secondary leading-relaxed">
-                Instant automated feedback against public test cases and protected hidden checks. Learn from clear, honest diagnostics.
+                Instant automated feedback against public test cases and hidden checks.
               </p>
             </div>
           </div>
@@ -131,15 +106,14 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
           <div class="mb-10 max-w-reading">
             <h2 id="teaching-heading" class="page-title font-semibold mb-3">Teach with practice beside explanation</h2>
             <p class="text-secondary leading-relaxed">
-              Build interactive Python courses in a single unified workspace. Combine short explanations, videos, quizzes, and code exercises backed by reference solutions.
+              Bring short explanations, quizzes, and Python exercises together in one course.
             </p>
           </div>
 
           <div class="authoring-grid grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
             <div class="teaching-tree-card p-6 bg-surface border border-subtle rounded-lg" aria-label="Course structure illustration">
               <div class="flex justify-between items-center mb-4">
-                <span class="text-xs font-semibold uppercase tracking-wider text-muted">Course Builder Tree</span>
-                <span class="status-badge success text-xs">Validated</span>
+                <span class="text-sm font-semibold text-secondary">Example course outline</span>
               </div>
               ${sampleTree}
             </div>
@@ -150,7 +124,7 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
                 <div>
                   <h3 class="font-semibold text-primary mb-1">Structure modules and lessons</h3>
                   <p class="text-sm text-secondary leading-relaxed">
-                    Organize your curriculum with clear modules, lessons, and 1–20 focused steps per lesson.
+                    Give each lesson a clear path from reading to practice.
                   </p>
                 </div>
               </div>
@@ -160,7 +134,7 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
                 <div>
                   <h3 class="font-semibold text-primary mb-1">Write explanations and Python exercises</h3>
                   <p class="text-sm text-secondary leading-relaxed">
-                    Embed Theory markdown, verified video transcripts, single or multiple-choice quizzes, and Python challenges.
+                    Combine a focused explanation with a quiz or code challenge.
                   </p>
                 </div>
               </div>
@@ -170,7 +144,7 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
                 <div>
                   <h3 class="font-semibold text-primary mb-1">Validate reference solutions</h3>
                   <p class="text-sm text-secondary leading-relaxed">
-                    Every exercise requires a passing reference solution and hidden checks before publishing is permitted.
+                    Check each exercise against a working solution before publishing.
                   </p>
                 </div>
               </div>
@@ -178,16 +152,16 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
               <div class="teaching-step">
                 <span class="teaching-step-num font-mono text-accent font-semibold">4</span>
                 <div>
-                  <h3 class="font-semibold text-primary mb-1">Publish immutable versioned releases</h3>
+                  <h3 class="font-semibold text-primary mb-1">Publish when you’re ready</h3>
                   <p class="text-sm text-secondary leading-relaxed">
-                    Updates publish as new versions. Existing students stay safely pinned to their enrolled version without interrupted progress.
+                    Release updates while students keep their current version and progress.
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="mt-12 pt-8 border-t border-subtle flex items-center justify-between flex-wrap gap-4">
+          <div class="landing-final-cta border-t border-subtle flex items-center justify-between flex-wrap gap-4">
             <div>
               <h3 class="font-semibold text-primary mb-1">Ready to start?</h3>
               <p class="text-sm text-secondary">Browse published courses and begin practicing immediately.</p>

@@ -1,5 +1,6 @@
 import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
+import { renderIcon } from '../../components/common/icons.ts';
 
 export interface QuizOptionItem {
   id: string;
@@ -36,7 +37,7 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
       ? 'Unsaved edits (offline)'
       : opts.saveStatus === 'conflict'
       ? 'Draft conflict'
-      : 'Saved';
+      : undefined;
 
   const isSingleChoice = opts.quizType === 'single_choice';
   const canAddOption = opts.options.length < 8;
@@ -48,36 +49,39 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
       const inputName = isSingleChoice ? 'correctOption' : `correctOption_${opt.id}`;
 
       return `
-        <div class="quiz-option-row card p-3 mb-2" data-option-id="${opt.id}">
-          <div class="option-header-row">
-            <span class="option-letter">Option ${String.fromCharCode(65 + idx)}</span>
-            <label class="correct-answer-label">
-              <input
-                type="${inputType}"
-                name="${inputName}"
-                value="${opt.id}"
-                ${opt.isCorrect ? 'checked' : ''}
-                aria-label="Mark Option ${String.fromCharCode(65 + idx)} as correct answer"
-              />
-              <span class="correct-text">Correct answer</span>
-            </label>
-          </div>
-          <div class="option-body-row mt-2">
+        <div class="quiz-option-row flex items-center gap-2 p-2.5 mb-2 bg-surface border border-subtle rounded-md" data-option-id="${opt.id}">
+          <span class="drag-handle text-muted cursor-grab flex-shrink-0" aria-hidden="true" title="Reorder option">
+            ${renderIcon('grip-vertical', { size: 14 })}
+          </span>
+          <label class="correct-answer-label flex items-center gap-1.5 cursor-pointer flex-shrink-0" title="Mark as correct answer">
             <input
-              type="text"
-              class="text-input option-text-input"
-              value="${opt.text}"
-              placeholder="Enter answer choice text..."
-              required
+              type="${inputType}"
+              name="${inputName}"
+              value="${opt.id}"
+              ${opt.isCorrect ? 'checked' : ''}
+              aria-label="Mark Option ${String.fromCharCode(65 + idx)} as correct answer"
             />
-            <button
-              type="button"
-              class="btn btn-secondary btn-compact text-danger remove-option-btn"
-              data-option-id="${opt.id}"
-              ${!canRemoveOption ? 'disabled' : ''}
-              aria-label="Remove option ${String.fromCharCode(65 + idx)}"
-            >Remove</button>
-          </div>
+            <span class="correct-text text-xs text-secondary font-medium">Correct answer</span>
+          </label>
+          <span class="option-letter font-mono text-xs font-semibold text-muted w-4 text-center flex-shrink-0">${String.fromCharCode(65 + idx)}</span>
+          <input
+            type="text"
+            class="text-input option-text-input flex-1 text-sm"
+            value="${opt.text}"
+            placeholder="Enter answer choice text..."
+            required
+          />
+          <button
+            type="button"
+            class="btn btn-ghost btn-compact text-danger remove-option-btn p-1.5 flex-shrink-0"
+            data-option-id="${opt.id}"
+            ${!canRemoveOption ? 'disabled' : ''}
+            aria-label="Remove option ${String.fromCharCode(65 + idx)}"
+            title="Remove option"
+          >
+            ${renderIcon('trash', { size: 14 })}
+            <span class="sr-only">Remove</span>
+          </button>
         </div>
       `;
     })
@@ -118,11 +122,21 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
 
       <div class="form-group mt-3">
         <label for="quiz-type-select" class="field-label">Question type</label>
-        <select id="quiz-type-select" class="select-input" style="max-width: 300px;">
+        <div class="segmented-control inline-flex mb-1.5" role="radiogroup" aria-label="Question type">
+          <label class="segmented-control-btn ${isSingleChoice ? 'active' : ''} cursor-pointer px-3 py-1 text-xs font-medium rounded" onclick="const sel = document.getElementById('quiz-type-select'); if (sel) { sel.value='single_choice'; sel.dispatchEvent(new Event('change')); this.parentElement.querySelectorAll('.segmented-control-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); }">
+            <input type="radio" name="quizType" value="single_choice" class="sr-only" ${isSingleChoice ? 'checked' : ''} />
+            <span>Single choice</span>
+          </label>
+          <label class="segmented-control-btn ${!isSingleChoice ? 'active' : ''} cursor-pointer px-3 py-1 text-xs font-medium rounded" onclick="const sel = document.getElementById('quiz-type-select'); if (sel) { sel.value='multiple_choice'; sel.dispatchEvent(new Event('change')); this.parentElement.querySelectorAll('.segmented-control-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); }">
+            <input type="radio" name="quizType" value="multiple_choice" class="sr-only" ${!isSingleChoice ? 'checked' : ''} />
+            <span>Multiple choice</span>
+          </label>
+        </div>
+        <select id="quiz-type-select" class="select-input sr-only" aria-hidden="true" style="max-width: 300px;">
           <option value="single_choice" ${isSingleChoice ? 'selected' : ''}>Single choice (One correct answer)</option>
           <option value="multiple_choice" ${!isSingleChoice ? 'selected' : ''}>Multiple choice (Multiple correct answers)</option>
         </select>
-        <p class="field-hint">
+        <p class="field-hint text-xs text-muted">
           ${
             isSingleChoice
               ? 'Single choice requires exactly 1 correct answer.'
@@ -132,9 +146,9 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
       </div>
 
       <div class="quiz-options-section mt-4">
-        <div class="section-header-row">
+        <div class="section-header-row flex justify-between items-center mb-2">
           <h2 class="section-title text-base font-semibold">Answer choices (${opts.options.length} of 8)</h2>
-          ${!canAddOption ? '<span class="status-badge badge-warning">Max 8 options</span>' : ''}
+          ${!canAddOption ? '<span class="status-badge warning">Max 8 options</span>' : ''}
         </div>
 
         <div class="options-container mt-2">
@@ -145,7 +159,7 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
           canAddOption
             ? `
               <div class="mt-3">
-                <button type="button" class="btn btn-secondary btn-compact" data-action="add-option">+ Add option</button>
+                <button type="button" class="btn btn-ghost btn-compact text-secondary" data-action="add-option">+ Add option</button>
               </div>
             `
             : ''
@@ -156,12 +170,12 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
         <label for="quiz-explanation-input" class="field-label">Post-pass explanation</label>
         <textarea
           id="quiz-explanation-input"
-          class="textarea-input"
+          class="textarea-input w-full text-sm"
           rows="3"
           placeholder="Explain why the correct answer is right..."
           aria-describedby="explanation-hint"
         >${opts.explanation}</textarea>
-        <p id="explanation-hint" class="field-hint">Shown after a correct answer.</p>
+        <p id="explanation-hint" class="field-hint text-xs text-muted mt-1.5">Shown after a correct answer.</p>
       </div>
     </div>
   `;
@@ -172,7 +186,7 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
 
       <div class="form-group mt-3">
         <label for="step-duration" class="field-label">Duration</label>
-        <div class="input-with-unit">
+        <div class="input-with-unit flex items-center">
           <input
             id="step-duration"
             type="number"
@@ -181,12 +195,12 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
             class="text-input input-compact"
             value="${opts.estimatedDurationMinutes}"
           />
-          <span class="unit-text">min</span>
+          <span class="unit-text text-xs text-muted ml-1.5">min</span>
         </div>
       </div>
 
       <div class="form-group mt-3">
-        <label class="checkbox-label">
+        <label class="checkbox-label flex items-center gap-2 text-sm text-secondary">
           <input
             id="step-required"
             type="checkbox"
@@ -194,10 +208,6 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
           />
           <span>Required step for course completion</span>
         </label>
-      </div>
-
-      <div class="action-row mt-4">
-        <a href="/teach/${opts.courseId}/preview/${opts.stepId}" class="btn btn-secondary btn-compact w-full">Preview as student</a>
       </div>
     </div>
   `;

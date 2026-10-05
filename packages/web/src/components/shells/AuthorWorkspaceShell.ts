@@ -30,6 +30,7 @@ export function renderAuthorWorkspaceShell(opts: AuthorWorkspaceShellOptions): s
 
         <div class="author-header-right">
           ${opts.saveStatusText ? `<div class="save-indicator saved" aria-live="polite">${opts.saveStatusText}</div>` : ''}
+          <a href="/teach/${opts.courseId}/activity" class="btn btn-secondary btn-compact" title="View agent activity and draft recovery">Recent changes</a>
           <a href="/teach/${opts.courseId}/preview" class="btn btn-secondary btn-compact">Preview as student</a>
           <a href="/teach/${opts.courseId}/publish" class="btn btn-primary btn-compact">Review & publish</a>
         </div>

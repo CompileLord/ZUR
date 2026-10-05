@@ -86,10 +86,14 @@ export class AuthClient {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
+      if (res.status === 401 && endpoint !== '/api/auth/sign-in') {
+        this.clearSession();
+      }
       const errorMsg = data?.error?.message || "This page isn't available.";
       const error = new Error(errorMsg);
       (error as any).code = data?.error?.code || 'ERROR';
       (error as any).statusCode = res.status;
+      (error as any).status = res.status;
       (error as any).details = data?.error?.details;
       throw error;
     }

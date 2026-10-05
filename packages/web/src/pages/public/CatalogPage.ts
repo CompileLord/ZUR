@@ -1,5 +1,6 @@
 import { renderCourseRow } from '../../components/common/CourseRow.ts';
 import { renderLoadingSkeleton, renderNoMatchesState } from '../../components/states/UniversalStates.ts';
+import { renderIcon } from '../../components/common/icons.ts';
 
 export interface CatalogCourseItem {
   id: string;
@@ -268,7 +269,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
   }
 
   const resultsSummary = !isLoading && !error && courses.length > 0
-    ? `<div class="catalog-results-count text-xs text-muted tabular-nums my-3" aria-live="polite">
+    ? `<div class="catalog-results-count text-xs text-muted tabular-nums ml-auto" aria-live="polite">
         ${total} ${total === 1 ? 'course' : 'courses'} found
        </div>`
     : '';
@@ -287,23 +288,28 @@ export function renderCatalogPage(props: CatalogPageProps): string {
         <div class="search-bar mb-4">
           <form id="catalog-search-form" class="catalog-search-form flex items-center" role="search">
             <label for="catalog-search-input" class="sr-only">Search courses</label>
-            <input
-              id="catalog-search-input"
-              type="search"
-              class="form-input w-full search-input"
-              placeholder="Search courses by title, description, tags, or author…"
-              value="${filters.q ? escapeHtml(filters.q) : ''}"
-              autocomplete="off"
-            />
+            <div class="search-input-wrapper relative w-full">
+              <span class="search-input-icon" aria-hidden="true">
+                ${renderIcon('search', { size: 16 })}
+              </span>
+              <input
+                id="catalog-search-input"
+                type="search"
+                class="form-input w-full search-input"
+                placeholder="Search courses by title, description, tags, or author…"
+                value="${filters.q ? escapeHtml(filters.q) : ''}"
+                autocomplete="off"
+              />
+            </div>
           </form>
         </div>
 
         <div class="filter-toolbar flex items-center justify-between flex-wrap gap-3">
           <!-- Desktop Filter Dropdowns -->
-          <div class="desktop-filters items-center gap-3">
+          <div class="desktop-filters flex items-center gap-3 flex-wrap">
             <div class="filter-group">
               <label for="filter-category" class="sr-only">Category</label>
-              <select id="filter-category" class="form-input form-input-compact">
+              <select id="filter-category" class="form-select form-input-compact">
                 <option value="">All categories</option>
                 ${categoryOptions}
               </select>
@@ -311,7 +317,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
 
             <div class="filter-group">
               <label for="filter-level" class="sr-only">Level</label>
-              <select id="filter-level" class="form-input form-input-compact">
+              <select id="filter-level" class="form-select form-input-compact">
                 <option value="" ${!filters.level ? 'selected' : ''}>All levels</option>
                 <option value="beginner" ${filters.level === 'beginner' ? 'selected' : ''}>Beginner</option>
                 <option value="intermediate" ${filters.level === 'intermediate' ? 'selected' : ''}>Intermediate</option>
@@ -321,7 +327,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
 
             <div class="filter-group">
               <label for="filter-language" class="sr-only">Language</label>
-              <select id="filter-language" class="form-input form-input-compact">
+              <select id="filter-language" class="form-select form-input-compact">
                 <option value="" ${!filters.language ? 'selected' : ''}>All languages</option>
                 ${languageOptions}
               </select>
@@ -345,9 +351,9 @@ export function renderCatalogPage(props: CatalogPageProps): string {
               }
             </button>
           </div>
-        </div>
 
-        ${resultsSummary}
+          ${resultsSummary}
+        </div>
       </section>
 
       <!-- Main Course List Area -->

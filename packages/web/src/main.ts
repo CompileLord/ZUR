@@ -3,6 +3,8 @@ import './styles/typography.css';
 import './styles/layout.css';
 import './styles/components.css';
 import './styles/shells.css';
+import './pages/public/landing-hero.css';
+import { PYTHON_RUNTIME_LABEL, type UserPreferences } from 'zur-shared';
 
 import { matchRoute, getSafeReturnDestination } from './router/routes.ts';
 import { AuthClient } from './services/auth-client.ts';
@@ -20,6 +22,7 @@ import {
   renderLessonRail,
   renderContentTree,
   renderProgressLine,
+  renderIcon,
 } from './components/common/index.ts';
 import { renderSignInPage } from './pages/account/SignInPage.ts';
 import { renderSignUpPage } from './pages/account/SignUpPage.ts';
@@ -29,57 +32,48 @@ import { renderProfileSettingsPage } from './pages/settings/ProfileSettingsPage.
 import { renderAppearanceSettingsPage } from './pages/settings/AppearanceSettingsPage.ts';
 import { renderSecuritySettingsPage } from './pages/settings/SecuritySettingsPage.ts';
 import { renderPrivacySettingsPage } from './pages/settings/PrivacySettingsPage.ts';
-import { renderAiConnectionsPage } from './pages/settings/AiConnectionsPage.ts';
-import { renderMcpClientSetupPage, type CompatibleClient } from './pages/settings/McpClientSetupDialog.ts';
-import { renderAgentActivityPage } from './pages/author/AgentActivityPage.ts';
+import type { CompatibleClient } from './pages/settings/McpClientSetupDialog.ts';
 import { renderSafeDenialPage } from './pages/status/SafeDenialPage.ts';
 import { renderLandingPage } from './pages/public/LandingPage.ts';
 import { renderCatalogPage, type CatalogPageProps } from './pages/public/CatalogPage.ts';
 import { renderCourseOverviewPage, type CourseOverviewPageProps } from './pages/public/CourseOverviewPage.ts';
 import { renderHelpPage, type HelpPageProps } from './pages/public/HelpPage.ts';
 import { renderPolicyPage } from './pages/public/PolicyPage.ts';
-import { renderStudentsAndInvitationsPage } from './pages/author/StudentsAndInvitationsPage.ts';
-import { renderStudentDetailPage } from './pages/author/StudentDetailPage.ts';
-import { renderCourseAnalyticsPage } from './pages/author/CourseAnalyticsPage.ts';
-import { renderCoursePublishPage, type CoursePublishPageOptions } from './pages/author/CoursePublishPage.ts';
+import type { CoursePublishPageOptions } from './pages/author/CoursePublishPage.ts';
 import { renderPythonWorkspacePage, renderPythonExecutionResults, type PythonWorkspacePageOptions } from './pages/learning/PythonWorkspacePage.ts';
 import { renderMarkdownToHtml, type ExecutionResult } from 'zur-shared';
-import { EditorState, Compartment } from '@codemirror/state';
-import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from '@codemirror/view';
-import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
-import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
-import { bracketMatching, HighlightStyle, syntaxHighlighting, indentOnInput, indentUnit } from '@codemirror/language';
-import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
-import { python } from '@codemirror/lang-python';
-import { tags } from '@lezer/highlight';
-import { renderAttemptHistoryPage } from './pages/learning/AttemptHistoryPage.ts';
+import { renderAttemptHistoryPage, getAttemptDocumentTitle } from './pages/learning/AttemptHistoryPage.ts';
 import { DraftManager } from './services/draft-manager.ts';
 import { DraftSaveQueue } from './services/draft-save-queue.ts';
-import { renderAdminPage } from './pages/admin/AdminPages.ts';
+import { AppearanceSaveQueue } from './services/appearance-save-queue.ts';
+import { ProfileGuard } from './services/profile-guard.ts';
 import { CourseClient } from './services/course-client.ts';
 import { renderTheoryStepPage } from './pages/learning/TheoryStepPage.ts';
 import { renderVideoStepPage } from './pages/learning/VideoStepPage.ts';
 import { renderQuizStepPage } from './pages/learning/QuizStepPage.ts';
-import { renderAuthorCoursesPage } from './pages/author/AuthorCoursesPage.ts';
-import { renderCourseBuilderPage } from './pages/author/CourseBuilderPage.ts';
-import { renderTheoryEditorPage } from './pages/author/TheoryEditorPage.ts';
-import { renderVideoEditorPage } from './pages/author/VideoEditorPage.ts';
-import { renderQuizEditorPage } from './pages/author/QuizEditorPage.ts';
-import { renderPythonExerciseEditorPage } from './pages/author/PythonExerciseEditorPage.ts';
-import { renderCourseSettingsPage } from './pages/author/CourseSettingsPage.ts';
-import { renderAuthorPreviewPage } from './pages/author/AuthorPreviewPage.ts';
 import { renderDashboardContinuePage } from './pages/learning/DashboardContinuePage.ts';
 import { renderMyCoursesPage } from './pages/learning/MyCoursesPage.ts';
 import { renderEnrolledCoursePage } from './pages/learning/EnrolledCoursePage.ts';
 import { renderAcceptInvitationPage } from './pages/learning/AcceptInvitationPage.ts';
 
 const appEl = document.getElementById('app')!;
+let cleanupLandingHero: (() => void) | null = null;
 const authClient = AuthClient.getInstance();
 const courseClient = CourseClient.getInstance();
+
+let activeProfileGuard: ProfileGuard | null = null;
+let activeProfileCleanup: (() => void) | null = null;
+let activeAppearanceQueue: AppearanceSaveQueue | null = null;
+let activeAppearanceCleanup: (() => void) | null = null;
 async function s2Request(url: string, method = 'GET', body?: unknown): Promise<any> {
   const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authClient.getToken() || ''}` }, body: body === undefined ? undefined : JSON.stringify(body) });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
+    if (response.status === 401) {
+      authClient.clearSession();
+      const returnTo = getSafeReturnDestination(window.location.pathname + window.location.search);
+      navigateTo(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+    }
     const err: any = new Error(data.error?.message || 'The request failed. Please try again.');
     err.status = response.status;
     err.statusCode = response.status;
@@ -97,11 +91,14 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
   const courseId = params.courseId;
   try {
     if (pageId === 'P21') {
+      const { renderAuthorCoursesPage } = await import('./pages/author/AuthorCoursesPage.ts');
       const data = await s2Request('/api/author/courses?limit=100');
       if (!s2Current(path)) return;
       let modal = false;
       const draw = (error?: string) => {
-        appEl.innerHTML = renderAuthorCoursesPage({ user, courses: data.courses, showNewCourseModal: modal, newCourseError: error });
+        const query = new URLSearchParams(path.split('?')[1] || '');
+        const status = query.get('status') || 'all';
+        appEl.innerHTML = renderAuthorCoursesPage({ user, courses: data.courses, activeFilter: (['all', 'draft', 'published', 'archived'].includes(status) ? status : 'all') as any, searchQuery: query.get('search') || '', showNewCourseModal: modal, newCourseError: error });
         appEl.querySelectorAll('[data-action="open-new-course-modal"]').forEach(el => el.addEventListener('click', () => { modal = true; draw(); }));
         appEl.querySelectorAll('[data-action="close-modal"]').forEach(el => el.addEventListener('click', () => { modal = false; draw(); }));
         appEl.querySelector('form.modal-body[action="/teach"]')?.addEventListener('submit', async event => {
@@ -146,7 +143,30 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
     if (!s2Current(path)) return;
     if (pageId === 'P31') {
       const categories = await s2Request('/api/categories');
+      const { renderCourseSettingsPage } = await import('./pages/author/CourseSettingsPage.ts');
       if (s2Current(path)) appEl.innerHTML = renderCourseSettingsPage({ course, categories });
+      appEl.querySelectorAll<HTMLFormElement>('form[data-course-lifecycle]').forEach(form => form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const action = form.dataset.courseLifecycle;
+        if (!['archive', 'restore', 'delete'].includes(action || '')) return;
+        if (action === 'delete' && !window.confirm('Permanently delete this course draft and all its lessons?')) return;
+        const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+        if (button) button.disabled = true;
+        try {
+          await s2Request(`/api/author/courses/${encodeURIComponent(courseId)}${action === 'delete' ? '' : `/${action}`}`, action === 'delete' ? 'DELETE' : 'POST');
+          if (!s2Current(path)) return;
+          if (action === 'delete') navigateTo('/teach');
+          else renderApp(path);
+        } catch (err: any) {
+          if (!s2Current(path)) return;
+          if (button) button.disabled = false;
+          form.querySelector('[role="alert"]')?.remove();
+          const alert = document.createElement('p');
+          alert.setAttribute('role', 'alert'); alert.className = 'form-error';
+          alert.textContent = err.message || 'Could not update the course. Try again.';
+          form.append(alert);
+        }
+      }));
       appEl.querySelectorAll('form.metadata-form, form.access-form').forEach(form => form.addEventListener('submit', async event => {
         event.preventDefault();
         const target = event.currentTarget as HTMLFormElement;
@@ -179,6 +199,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
           };
         }
       } catch { /* activity optional */ }
+      const { renderCourseBuilderPage } = await import('./pages/author/CourseBuilderPage.ts');
       appEl.innerHTML = renderCourseBuilderPage({ courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, modules: tree.modules, selectedType: (query.get('type') as any) || 'course', selectedId: query.get('id') || courseId, remoteUpdate });
 
       if (sessionStorage.getItem(`zur_builder_unsaved_${courseId}`)) {
@@ -212,10 +233,61 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         const target = event.currentTarget as HTMLFormElement;
         const fields = Object.fromEntries(new FormData(target).entries());
         const action = target.getAttribute('action') || '';
+        const deleting = action.endsWith('/delete');
+        if (deleting && !window.confirm(target.dataset.confirmDelete || 'Delete this item?')) return;
         let route = action.replace(/^\/teach/, '/api/author/courses');
+        if (deleting) route = route.slice(0, -7);
         if (route.endsWith('/rename')) route = route.slice(0, -7);
         if (route.endsWith('/duplicate')) route = route.slice(0, -10) + '/duplicate';
-        try { await s2Request(route, action.endsWith('/rename') ? 'PUT' : 'POST', fields); renderApp(path); }
+        try {
+          if (action.endsWith('/reorder')) {
+            let payload: any = fields;
+            if (fields.direction && (fields.stepId || fields.lessonId || fields.moduleId)) {
+              if (action.includes('/steps/reorder')) {
+                const lessonId = action.split('/lessons/')[1]?.split('/steps/reorder')[0];
+                const lesson = tree.modules.flatMap((m: any) => m.lessons).find((l: any) => l.id === lessonId);
+                if (lesson) {
+                  const ids = lesson.steps.map((s: any) => s.id);
+                  const curIdx = ids.indexOf(fields.stepId);
+                  const targetIdx = fields.direction === 'up' ? curIdx - 1 : curIdx + 1;
+                  if (curIdx >= 0 && targetIdx >= 0 && targetIdx < ids.length) {
+                    const [moved] = ids.splice(curIdx, 1);
+                    ids.splice(targetIdx, 0, moved);
+                    payload = { stepIds: ids };
+                  }
+                }
+              } else if (action.includes('/lessons/reorder')) {
+                const moduleId = action.split('/modules/')[1]?.split('/lessons/reorder')[0];
+                const mod = tree.modules.find((m: any) => m.id === moduleId);
+                if (mod) {
+                  const ids = mod.lessons.map((l: any) => l.id);
+                  const curIdx = ids.indexOf(fields.lessonId);
+                  const targetIdx = fields.direction === 'up' ? curIdx - 1 : curIdx + 1;
+                  if (curIdx >= 0 && targetIdx >= 0 && targetIdx < ids.length) {
+                    const [moved] = ids.splice(curIdx, 1);
+                    ids.splice(targetIdx, 0, moved);
+                    payload = { lessonIds: ids };
+                  }
+                }
+              } else if (action.endsWith('/modules/reorder')) {
+                const ids = tree.modules.map((m: any) => m.id);
+                const curIdx = ids.indexOf(fields.moduleId);
+                const targetIdx = fields.direction === 'up' ? curIdx - 1 : curIdx + 1;
+                if (curIdx >= 0 && targetIdx >= 0 && targetIdx < ids.length) {
+                  const [moved] = ids.splice(curIdx, 1);
+                  ids.splice(targetIdx, 0, moved);
+                  payload = { moduleIds: ids };
+                }
+              }
+            }
+            await s2Request(route, 'POST', payload);
+            renderApp(path);
+            return;
+          }
+          await s2Request(route, deleting ? 'DELETE' : action.endsWith('/rename') ? 'PUT' : 'POST', fields);
+          if (deleting && !/\/steps\//.test(action)) navigateTo(`/teach/${encodeURIComponent(courseId)}/content`);
+          else renderApp(path);
+        }
         catch (err: any) { showRouteFailure(err.message, path); }
       }));
       return;
@@ -227,6 +299,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       if (!step) { showRouteFailure('Add a step before previewing the course.', path); return; }
       const preview = await s2Request(`/api/author/courses/${courseId}/preview/${step.id}`);
       if (!s2Current(path)) return;
+      const { renderAuthorPreviewPage } = await import('./pages/author/AuthorPreviewPage.ts');
       appEl.innerHTML = renderAuthorPreviewPage({ ...preview, returnEditorUrl: `/teach/${courseId}/content/${step.type}/${step.id}` });
       void hydrateDeferredAssets(appEl);
       return;
@@ -240,6 +313,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       const base = { courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, stepId: step.id, stepTitle: detail.title, revision: detail.revision, isRequired: detail.isRequired, estimatedDurationMinutes: detail.estimatedDurationMinutes };
       const c = specialized ? (step.type === 'quiz' ? specialized.quiz : specialized) : detail.content || {};
       if (step.type === 'theory') {
+        const { renderTheoryEditorPage } = await import('./pages/author/TheoryEditorPage.ts');
         appEl.innerHTML = renderTheoryEditorPage({ ...base, markdown: c.markdown || '' });
         void hydrateDeferredAssets(appEl);
         appEl.querySelectorAll<HTMLElement>('.theory-tabs [data-tab]').forEach(button => button.addEventListener('click', () => {
@@ -261,9 +335,18 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
           });
         }));
       }
-      else if (step.type === 'video') appEl.innerHTML = renderVideoEditorPage({ ...base, videoUrl: c.videoUrl || '', provider: c.provider || 'youtube', transcript: c.transcript || '', captionVerified: Boolean(c.captionVerified) });
-      else if (step.type === 'quiz') appEl.innerHTML = renderQuizEditorPage({ ...base, quizType: c.quizType || 'single_choice', prompt: c.prompt || '', options: c.options || [], explanation: c.explanation || '' });
-      else appEl.innerHTML = renderPythonExerciseEditorPage({ ...base, problemStatement: c.problemStatement || '', inputFormat: c.inputFormat || '', outputFormat: c.outputFormat || '', constraints: c.constraints || '', starterCode: c.starterCode || '', referenceSolution: c.referenceSolution || '', hints: c.hints || [], solutionExplanation: c.solutionExplanation || '', publicTests: c.publicTests || [], hiddenTests: c.hiddenTests || [], runtimeLimits: c.runtimeLimits || { cpuTimeoutSeconds: 2, wallTimeoutSeconds: 5, memoryLimitMib: 128 } });
+      else if (step.type === 'video') {
+        const { renderVideoEditorPage } = await import('./pages/author/VideoEditorPage.ts');
+        appEl.innerHTML = renderVideoEditorPage({ ...base, videoUrl: c.videoUrl || '', provider: c.provider || 'youtube', transcript: c.transcript || '', captionVerified: Boolean(c.captionVerified) });
+      }
+      else if (step.type === 'quiz') {
+        const { renderQuizEditorPage } = await import('./pages/author/QuizEditorPage.ts');
+        appEl.innerHTML = renderQuizEditorPage({ ...base, quizType: c.quizType || 'single_choice', prompt: c.prompt || '', options: c.options || [], explanation: c.explanation || '' });
+      }
+      else {
+        const { renderPythonExerciseEditorPage } = await import('./pages/author/PythonExerciseEditorPage.ts');
+        appEl.innerHTML = renderPythonExerciseEditorPage({ ...base, problemStatement: c.problemStatement || '', inputFormat: c.inputFormat || '', outputFormat: c.outputFormat || '', constraints: c.constraints || '', starterCode: c.starterCode || '', referenceSolution: c.referenceSolution || '', hints: c.hints || [], solutionExplanation: c.solutionExplanation || '', publicTests: c.publicTests || [], hiddenTests: c.hiddenTests || [], runtimeLimits: c.runtimeLimits || { cpuTimeoutSeconds: 2, wallTimeoutSeconds: 5, memoryLimitMib: 128 } });
+      }
       if (step.type === 'quiz') {
         appEl.querySelector('[data-action="add-option"]')?.addEventListener('click', () => {
           const container = appEl.querySelector('.options-container');
@@ -326,7 +409,10 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       });
       return;
     }
-  } catch (err: any) { if (s2Current(path)) showRouteFailure(err.message || 'Could not load this page.', path); }
+  } catch (err: any) {
+    if (err?.status === 401 || err?.statusCode === 401) return;
+    if (s2Current(path)) showRouteFailure(err.message || 'Could not load this page.', path);
+  }
 }
 
 async function loadInvitationPage(inviteToken: string, path: string): Promise<void> {
@@ -413,11 +499,34 @@ function initTheme(): void {
   const themeSelect = document.getElementById('theme-select') as HTMLSelectElement | null;
   if (themeSelect) {
     themeSelect.value = savedTheme;
-    themeSelect.addEventListener('change', (e) => {
-      const selected = (e.target as HTMLSelectElement).value as 'dark' | 'light' | 'system';
-      applyTheme(selected);
-    });
+    if (!(themeSelect as any).__listenerAttached) {
+      (themeSelect as any).__listenerAttached = true;
+      themeSelect.addEventListener('change', (e) => {
+        const selected = (e.target as HTMLSelectElement).value as 'dark' | 'light' | 'system';
+        applyTheme(selected);
+        initTheme();
+      });
+    }
   }
+
+  const themeBtns = document.querySelectorAll('.theme-segment-btn');
+  themeBtns.forEach((btn) => {
+    const val = btn.getAttribute('data-theme-value');
+    const isActive = val === savedTheme;
+    btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+    btn.classList.toggle('active', isActive);
+
+    if (!(btn as any).__listenerAttached) {
+      (btn as any).__listenerAttached = true;
+      btn.addEventListener('click', () => {
+        const selected = btn.getAttribute('data-theme-value') as 'dark' | 'light' | 'system';
+        if (selected) {
+          applyTheme(selected);
+          initTheme();
+        }
+      });
+    }
+  });
 }
 
 let activeCatalogRequestId = 0;
@@ -428,11 +537,19 @@ function showRouteLoading(label: string): void {
 }
 
 function showRouteFailure(message: string, retryPath: string): void {
+  const isAuthError = message.toLowerCase().includes('session') || message.toLowerCase().includes('unauthorized') || message.toLowerCase().includes('expired');
+  if (isAuthError) {
+    authClient.clearSession();
+    const returnTo = getSafeReturnDestination(retryPath);
+    navigateTo(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+    return;
+  }
   appEl.innerHTML = `<main class="container py-8"><section class="state-container" role="alert"><h1 class="page-title">Couldn't load this page</h1><p class="text-secondary">${escapeHtml(message)}</p><button class="btn btn-secondary" id="route-retry">Try again</button></section></main>`;
   document.getElementById('route-retry')?.addEventListener('click', () => renderApp(retryPath));
 }
 
 async function renderAiConnectionsSettings(path: string, user: NonNullable<ReturnType<typeof authClient.getUser>>, state: { showCreateModal?: boolean; revealedToken?: any; revokingToken?: any; replacingToken?: any; error?: string; successMessage?: string } = {}): Promise<void> {
+  const { renderAiConnectionsPage } = await import('./pages/settings/AiConnectionsPage.ts');
   if (!user.capabilities.includes('author')) {
     appEl.innerHTML = renderAppShell({ activePath: path.split('?')[0], user, headerTitle: 'AI connections', content: renderAiConnectionsPage({ user, tokens: [] }) });
     return;
@@ -604,6 +721,7 @@ async function renderAiConnectionSetupPage(
     rawClient === 'oauth_client' ? 'oauth_client' :
     'official_sdk';
 
+  const { renderMcpClientSetupPage } = await import('./pages/settings/McpClientSetupDialog.ts');
   const render = () => {
     appEl.innerHTML = renderAppShell({
       activePath: path.split('?')[0],
@@ -668,6 +786,11 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
     const hasRevisionConflict = Boolean(localDraft && localDraft.code !== draft.code && localDraft.revision !== draft.revision);
     const initialCode = hasRecoveredLocal || hasRevisionConflict ? localDraft!.code : draft.code;
     const pageOptions: PythonWorkspacePageOptions = {
+      outlineContent: renderLessonRail({ steps: (stepData.progress?.steps || []).map((step: any, index: number) => ({
+        id: step.id, ordinal: index + 1, title: step.title, type: step.type,
+        isCurrent: step.id === stepId, isCompleted: Boolean(step.isCompleted), isWaived: Boolean(step.isWaived), isRequired: Boolean(step.isRequired),
+        href: `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(step.id)}`,
+      })) }),
       courseTitle: stepData.courseTitle,
       courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
       lessonTitle: stepData.stepMeta?.lessonTitle || 'Lesson',
@@ -699,6 +822,7 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
     }
     const render = (overrides: Partial<PythonWorkspacePageOptions> = {}) => {
       appEl.innerHTML = renderPythonWorkspacePage({ ...pageOptions, ...overrides });
+      document.title = `${pageOptions.stepTitle} · ${pageOptions.courseTitle} · ZUR`;
       initTheme();
     };
     render();
@@ -769,6 +893,7 @@ function renderEnrolledQuiz(data: any, enrollmentId: string, stepId: string, req
     previousStepUrl: data.previousStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.previousStepId)}` : null,
     nextStepUrl: data.nextStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.nextStepId)}` : null,
   });
+  document.title = `${data.step?.title || 'Quiz'} · ${data.courseTitle || 'Course'} · ZUR`;
   const form = appEl.querySelector<HTMLFormElement>('.quiz-form');
   form?.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -816,6 +941,7 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
       nextStepUrl: data.nextStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.nextStepId)}` : null,
     };
     const content = data.step.content || {};
+    document.title = `${common.stepTitle} · ${common.courseTitle} · ZUR`;
     appEl.innerHTML = kind === 'theory'
       ? renderTheoryStepPage({ ...common, markdownContent: String(content.markdown || content.markdownContent || content.body || content.content || '') })
       : renderVideoStepPage({ ...common, videoUrl: String(content.videoUrl || ''), transcript: content.transcript, captionVerified: Boolean(content.captionVerified) });
@@ -942,11 +1068,14 @@ async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptI
     if (!isCurrent()) return;
     const selected = attemptId ? await authClient.fetchApi(`/api/attempts/${encodeURIComponent(attemptId)}`) : null;
     if (!isCurrent()) return;
+    const stepTitle = step.step?.title || 'Exercise';
+    const courseTitle = step.courseTitle || 'Course';
+    document.title = getAttemptDocumentTitle(stepTitle, courseTitle, selected);
     appEl.innerHTML = renderAttemptHistoryPage({
-      courseTitle: step.courseTitle || 'Course',
+      courseTitle,
       courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
       lessonTitle: step.stepMeta?.lessonTitle || 'Lesson',
-      stepTitle: step.step?.title || 'Exercise',
+      stepTitle,
       enrollmentId,
       stepId,
       workspaceUrl: `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`,
@@ -964,7 +1093,6 @@ async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptI
       await navigator.clipboard.writeText(selected.codeSnapshot);
     });
     document.getElementById('restore-to-editor-btn')?.addEventListener('click', () => {
-      if (window.innerWidth < 1024) return;
       const dialog = document.getElementById('restore-confirm-dialog');
       if (dialog) dialog.hidden = false;
     });
@@ -973,7 +1101,7 @@ async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptI
       if (dialog) dialog.hidden = true;
     });
     document.getElementById('confirm-restore-btn')?.addEventListener('click', async () => {
-      if (!selected || window.innerWidth < 1024) return;
+      if (!selected) return;
       const button = document.getElementById('confirm-restore-btn') as HTMLButtonElement;
       button.disabled = true;
       try {
@@ -1010,6 +1138,7 @@ function attachPythonWorkspaceListeners(
   let currentResult = initial.currentResult || null;
   let resultMode = initial.resultMode;
   let activeTab = initial.activeTab || 'results';
+  let customStdin = initial.customStdin || '';
   const pendingJobKey = `zur_job_${userId}_${initial.enrollmentId}_${initial.stepId}`;
   const saveQueue = new DraftSaveQueue({
     revision: startingRevision,
@@ -1082,6 +1211,8 @@ function attachPythonWorkspaceListeners(
     body.setAttribute('aria-live', 'polite');
   };
   const selectTab = (tabName: 'results' | 'custom_input') => {
+    const existingInput = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
+    if (existingInput) customStdin = existingInput.value;
     activeTab = tabName;
     document.querySelectorAll<HTMLButtonElement>('.results-tab-button[role="tab"]').forEach((tab) => {
       const selected = tab.textContent?.trim() === (tabName === 'results' ? 'Results' : 'Custom input');
@@ -1091,62 +1222,45 @@ function attachPythonWorkspaceListeners(
     const body = document.querySelector('.results-body');
     if (!body) return;
     if (tabName === 'custom_input') {
-      body.innerHTML = '<div class="custom-input-box"><label for="custom-stdin-input" class="comparison-label">Custom Standard Input</label><textarea id="custom-stdin-input" class="code-editor-input" style="height: 100px; border: 1px solid var(--border-control); border-radius: var(--radius-sm);" placeholder="Enter custom stdin..."></textarea></div>';
-      document.getElementById('custom-stdin-input')?.focus();
+      body.innerHTML = '<div class="custom-input-box"><label for="custom-stdin-input" class="comparison-label">Input</label><textarea id="custom-stdin-input" class="code-editor-input" style="height: 100px; border: 1px solid var(--border-control); border-radius: var(--radius-sm);" placeholder="Input for your program (optional)"></textarea></div>';
+      const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
+      if (input) { input.value = customStdin; input.focus(); }
     } else {
       setResults();
     }
   };
 
   const textarea = document.getElementById('code-editor-input') as HTMLTextAreaElement | null;
-  let editorView: EditorView | null = null;
-  let suppressEditorChange = false;
-  const readOnlyCompartment = new Compartment();
+  let editorInstance: { editorView: any; setCode: (code: string) => void; destroy: () => void } | null = null;
   if (textarea) {
-    textarea.classList.add('cm-source-backup');
-    document.querySelector('.code-editor-line-numbers')?.remove();
-    editorView = new EditorView({
-      state: EditorState.create({
-        doc: textarea.value,
-        extensions: [
-          lineNumbers(), highlightActiveLineGutter(), history(), highlightActiveLine(),
-          EditorState.tabSize.of(initial.indentationSpaces || 4),
-          indentUnit.of(' '.repeat(initial.indentationSpaces || 4)),
-          indentOnInput(), bracketMatching(), closeBrackets(), highlightSelectionMatches(),
-          syntaxHighlighting(HighlightStyle.define([
-            { tag: tags.keyword, color: 'var(--syntax-keyword)' },
-            { tag: tags.string, color: 'var(--syntax-string)' },
-            { tag: tags.number, color: 'var(--syntax-number)' },
-            { tag: [tags.function(tags.variableName), tags.function(tags.propertyName)], color: 'var(--syntax-function)' },
-            { tag: tags.comment, color: 'var(--syntax-comment)' },
-          ])), python(),
-          keymap.of([
-            { key: 'Mod-Enter', run: () => {
-              const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
-              void execute(activeTab === 'custom_input' ? 'custom' : 'samples', input?.value || '');
-              return true;
-            } },
-            { key: 'Escape', run: () => { document.getElementById('run-samples-btn')?.focus(); return true; } },
-            indentWithTab, ...closeBracketsKeymap, ...searchKeymap, ...historyKeymap, ...defaultKeymap,
-          ]),
-          readOnlyCompartment.of(EditorState.readOnly.of(window.innerWidth < 1024)),
-          EditorView.contentAttributes.of({ 'aria-label': 'Python Source Code', 'aria-multiline': 'true' }),
-          EditorView.updateListener.of((update) => {
-            if (!update.docChanged || suppressEditorChange) return;
-            textarea.value = update.state.doc.toString();
-            textarea.dispatchEvent(new Event('input'));
-          }),
-        ],
-      }),
-      parent: textarea.parentElement || undefined,
+    void import('./pages/learning/codemirror-editor.ts').then(({ createCodeMirrorEditor }) => {
+      if (!textarea.isConnected) return;
+      textarea.classList.add('cm-source-backup');
+      document.querySelector('.code-editor-line-numbers')?.remove();
+      editorInstance = createCodeMirrorEditor({
+        textarea,
+        indentationSpaces: initial.indentationSpaces || 4,
+        editorFontSize: initial.editorFontSize || 14,
+        onModEnter: () => {
+          const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
+          void execute(activeTab === 'custom_input' ? 'custom' : 'samples', input?.value || '');
+        },
+        onEscape: () => {
+          document.getElementById('run-samples-btn')?.focus();
+        },
+        onDocChange: (_val) => {
+          // input event is already dispatched to textarea
+        },
+      });
+    }).catch((err) => {
+      textarea.classList.remove('cm-source-backup');
+      console.warn('CodeMirror dynamic load failed, using fallback textarea', err);
     });
-    editorView.dom.style.fontSize = `${initial.editorFontSize || 14}px`;
   }
   const setEditorCode = (newCode: string) => {
-    if (!editorView) return;
-    suppressEditorChange = true;
-    editorView.dispatch({ changes: { from: 0, to: editorView.state.doc.length, insert: newCode } });
-    suppressEditorChange = false;
+    if (editorInstance) {
+      editorInstance.setCode(newCode);
+    }
   };
   const resolveDraftConflict = async (choice: 'local' | 'server') => {
     if (!textarea) return;
@@ -1188,13 +1302,8 @@ function attachPythonWorkspaceListeners(
   if (textarea) {
     workspaceResizeController?.abort();
     workspaceResizeController = new AbortController();
-    workspaceResizeController.signal.addEventListener('abort', () => editorView?.destroy(), { once: true });
-    const updateCompactMode = () => {
-      textarea.readOnly = window.innerWidth < 1024;
-      editorView?.dispatch({ effects: readOnlyCompartment.reconfigure(EditorState.readOnly.of(window.innerWidth < 1024)) });
-    };
-    updateCompactMode();
-    window.addEventListener('resize', updateCompactMode, { signal: workspaceResizeController.signal });
+    workspaceResizeController.signal.addEventListener('abort', () => editorInstance?.destroy(), { once: true });
+    textarea.readOnly = false;
   }
   const workspaceViewport = document.querySelector<HTMLElement>('.paired-workspace .workspace-viewport');
   const workspaceSplitter = document.getElementById('workspace-splitter');
@@ -1252,16 +1361,24 @@ function attachPythonWorkspaceListeners(
     saveQueue.update(code);
   });
 
+  let executionInFlight = false;
   const execute = async (mode: 'samples' | 'custom' | 'submit', stdin?: string) => {
+    if (executionInFlight) return;
+    executionInFlight = true;
+    const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
+    if (input) customStdin = input.value;
+    if (mode === 'custom') customStdin = stdin ?? customStdin;
     code = textarea?.value ?? code;
-    const runButton = document.getElementById(mode === 'submit' ? 'submit-solution-btn' : mode === 'custom' ? 'run-custom-btn' : 'run-samples-btn') as HTMLButtonElement | null;
-    if (runButton) runButton.disabled = true;
+    resultMode = mode;
+    const actionButtons = document.querySelectorAll<HTMLButtonElement>('.python-execution-actions button');
+    actionButtons.forEach((button) => { button.disabled = true; });
+    selectTab('results');
     setResults({ inFlightStatus: 'queued' });
     try {
       const endpoint = mode === 'samples' ? '/api/execution/run-samples' : mode === 'custom' ? '/api/execution/run-custom' : '/api/execution/submit';
       const response = await authClient.fetchApi(endpoint, {
         method: 'POST',
-        body: JSON.stringify({ enrollmentId: initial.enrollmentId, stepId: initial.stepId, code, stdin, idempotencyKey: crypto.randomUUID() }),
+        body: JSON.stringify({ enrollmentId: initial.enrollmentId, stepId: initial.stepId, code, stdin: mode === 'custom' ? customStdin : undefined, idempotencyKey: crypto.randomUUID() }),
       });
       const jobId = response.job?.id;
       if (!jobId) throw new Error('Execution was not accepted.');
@@ -1274,10 +1391,19 @@ function attachPythonWorkspaceListeners(
       selectTab('results');
       setResults();
       if (mode === 'submit' && currentResult?.verdict === 'PASSED') {
-        const footer = document.querySelector('.learning-task-footer');
-        if (footer && initial.nextStepUrl && !footer.querySelector('[data-python-continue]')) {
-          const link = document.createElement('a'); link.href = initial.nextStepUrl; link.className = 'btn btn-primary btn-compact';
-          link.textContent = 'Continue'; link.dataset.pythonContinue = 'true'; footer.append(link);
+        const submitBtn = document.getElementById('submit-solution-btn');
+        if (submitBtn) {
+          submitBtn.classList.remove('btn-primary');
+          submitBtn.classList.add('btn-secondary');
+        }
+        const rightContainer = document.querySelector('.task-footer-right') || document.querySelector('.learning-task-footer');
+        if (rightContainer && initial.nextStepUrl && !document.querySelector('[data-python-continue]')) {
+          const link = document.createElement('a');
+          link.href = initial.nextStepUrl;
+          link.className = 'btn btn-primary btn-compact';
+          link.textContent = 'Continue';
+          link.dataset.pythonContinue = 'true';
+          rightContainer.append(link);
         }
       }
     } catch (error: any) {
@@ -1289,7 +1415,8 @@ function attachPythonWorkspaceListeners(
       selectTab('results');
       setResults({ executionError: safeMessage });
     } finally {
-      if (runButton) runButton.disabled = false;
+      executionInFlight = false;
+      actionButtons.forEach((button) => { button.disabled = false; });
     }
   };
 
@@ -1321,22 +1448,21 @@ function attachPythonWorkspaceListeners(
   document.getElementById('submit-solution-btn')?.addEventListener('click', () => void execute('submit'));
   document.querySelector('.results-body')?.addEventListener('click', (event) => {
     if ((event.target as HTMLElement).closest('#retry-execution-btn')) {
-      void execute(resultMode === 'submit' ? 'submit' : resultMode === 'custom' ? 'custom' : 'samples');
+      void execute(resultMode === 'submit' ? 'submit' : resultMode === 'custom' ? 'custom' : 'samples', customStdin);
     }
   });
   document.getElementById('run-custom-btn')?.addEventListener('click', () => {
-    if (activeTab !== 'custom_input') {
-      selectTab('custom_input');
-      return;
-    }
     const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
-    void execute('custom', input?.value || '');
+    if (input) customStdin = input.value;
+    void execute('custom', customStdin);
   });
   document.querySelectorAll<HTMLButtonElement>('.results-tab-button[role="tab"]').forEach((tab) => {
     tab.addEventListener('click', () => {
-      if (tab.textContent?.trim() === 'Results') {
+      const isResults = tab.dataset.tab === 'results' || tab.textContent?.trim() === 'Results';
+      const isCustom = tab.dataset.tab === 'custom_input' || tab.textContent?.trim() === 'Custom input';
+      if (isResults) {
         selectTab('results');
-      } else if (tab.textContent?.trim() === 'Custom input') {
+      } else if (isCustom) {
         selectTab('custom_input');
       }
     });
@@ -1349,7 +1475,6 @@ function attachPythonWorkspaceListeners(
     }
   });
   document.getElementById('reset-code-btn')?.addEventListener('click', async () => {
-    if (window.innerWidth < 1024) return;
     if (!window.confirm('Reset your code to the starter version? Your current editor contents will be replaced.')) return;
     const resetButton = document.getElementById('reset-code-btn') as HTMLButtonElement | null;
     if (resetButton) resetButton.disabled = true;
@@ -1409,6 +1534,7 @@ async function loadPublishReview(courseId: string, requestedPath: string, staleR
       validation,
       staleRevision,
     };
+    const { renderCoursePublishPage } = await import('./pages/author/CoursePublishPage.ts');
     const render = (overrides: Partial<CoursePublishPageOptions> = {}) => {
       appEl.innerHTML = renderCoursePublishPage({ ...options, ...overrides });
       initTheme();
@@ -1472,7 +1598,19 @@ function attachPublishReviewListeners(
 
 async function loadAdminPage(path: string, displayName: string, email: string): Promise<void> {
   const headers = { Authorization: `Bearer ${authClient.getToken() || ''}` };
-  const api = async (url: string) => { const res=await fetch(url,{headers}); if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.error?.message||`Admin request failed (${res.status})`);}return res.json(); };
+  const api = async (url: string) => {
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      if (res.status === 401) {
+        authClient.clearSession();
+        const returnTo = getSafeReturnDestination(window.location.pathname + window.location.search);
+        navigateTo(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+      }
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Admin request failed (${res.status})`);
+    }
+    return res.json();
+  };
   try {
     const search = new URL(path,window.location.origin).search;
     let data:any;
@@ -1495,8 +1633,10 @@ async function loadAdminPage(path: string, displayName: string, email: string): 
     else if(path==='/admin/audit') data=await api(`/api/admin/audit${search}`);
     else data={};
     if(window.location.pathname+window.location.search!==path&&window.location.pathname!==path.split('?')[0])return;
+    const { renderAdminPage } = await import('./pages/admin/AdminPages.ts');
     appEl.innerHTML=renderAdminPage(path,data,undefined,{displayName,email});
   } catch(error:any) {
+    const { renderAdminPage } = await import('./pages/admin/AdminPages.ts');
     appEl.innerHTML=renderAdminPage(path,null,error.message,{displayName,email});
   }
 }
@@ -1548,6 +1688,8 @@ export function navigateTo(path: string): void {
 }
 
 export function renderApp(path: string = window.location.pathname + window.location.search): void {
+  cleanupLandingHero?.();
+  cleanupLandingHero = null;
   releaseLessonMediaObjectUrls();
   workspaceResizeController?.abort();
   workspaceResizeController = null;
@@ -1594,6 +1736,10 @@ export function renderApp(path: string = window.location.pathname + window.locat
           user: currentUser,
           content,
         });
+        const hero = appEl.querySelector<HTMLElement>('[data-landing-hero]');
+        if (hero) void import('./pages/public/LandingHeroController.ts').then(({ initLandingHero }) => {
+          if (hero.isConnected) cleanupLandingHero = initLandingHero(hero);
+        }).catch(error => console.error('Landing interactions could not load', error));
         break;
       }
 
@@ -1779,7 +1925,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
         appEl.innerHTML = renderVerifyEmailPage({ email });
         attachVerifyEmailListeners(token);
       } else if (route.pageId === 'P07') {
-        const isReset = path === '/reset-password';
+        const isReset = path.split('?')[0] === '/reset-password';
         if (isReset) {
           const token = searchParams.get('token') || '';
           appEl.innerHTML = renderResetPasswordPage({ token });
@@ -1813,7 +1959,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
         appEl.innerHTML = renderAppShell({
           activePath: path,
           user,
-          headerTitle: 'Profile settings',
+          headerTitle: 'Settings',
           content: renderProfileSettingsPage({ user }),
         });
         attachProfileListeners();
@@ -1824,7 +1970,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
         appEl.innerHTML = renderAppShell({
           activePath: path,
           user,
-          headerTitle: 'Appearance settings',
+          headerTitle: 'Settings',
           content: renderAppearanceSettingsPage({
             preferences: {
               userId: user.id,
@@ -1842,7 +1988,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
         appEl.innerHTML = renderAppShell({
           activePath: path,
           user,
-          headerTitle: 'Security settings',
+          headerTitle: 'Settings',
           content: renderSecuritySettingsPage({ user }),
         });
         attachSecurityListeners();
@@ -1851,14 +1997,14 @@ export function renderApp(path: string = window.location.pathname + window.locat
         appEl.innerHTML = renderAppShell({
           activePath: path,
           user,
-          headerTitle: 'Privacy and account requests',
+          headerTitle: 'Settings',
           content: renderPrivacySettingsPage({}),
         });
         attachPrivacyListeners();
         const privacyPath=window.location.pathname+window.location.search;
         void authClient.getPrivacyStatus().then((status)=>{
           if(window.location.pathname+window.location.search!==privacyPath)return;
-          appEl.innerHTML=renderAppShell({activePath:path,user,headerTitle:'Privacy and account requests',content:renderPrivacySettingsPage(status)});
+          appEl.innerHTML=renderAppShell({activePath:path,user,headerTitle:'Settings',content:renderPrivacySettingsPage(status)});
           attachPrivacyListeners();
         }).catch((error:any)=>{
           if(window.location.pathname+window.location.search!==privacyPath)return;
@@ -1935,7 +2081,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
           <div class="code-pane p-4 flex flex-col">
             <div class="code-editor-header flex justify-between items-center mb-2">
               <span class="text-xs text-muted">solution.py</span>
-              <span class="text-xs text-muted">Python 3.12</span>
+              <span class="text-xs text-muted">${PYTHON_RUNTIME_LABEL}</span>
             </div>
             <textarea class="form-input flex-1 font-mono text-sm" style="resize: none;" aria-label="Python code editor">import sys
 val = int(sys.stdin.read().strip())
@@ -1985,7 +2131,8 @@ print(val * 2)
           courseClient.getCourseOverview(courseId).catch(() => null),
           courseClient.getRoster(courseId, { search, status, version, offset }),
           courseClient.listInvitations(courseId),
-        ]).then(([overview, rosterRes, invRes]) => {
+          import('./pages/author/StudentsAndInvitationsPage.ts'),
+        ]).then(([overview, rosterRes, invRes, { renderStudentsAndInvitationsPage }]) => {
           if (window.location.pathname.replace(/\/+$/, '') !== path.split('?')[0].replace(/\/+$/, '')) return;
 
           const courseTitle = overview?.course?.title || 'Python foundations';
@@ -2045,7 +2192,8 @@ print(val * 2)
         Promise.all([
           courseClient.getCourseOverview(courseId).catch(() => null),
           courseClient.getStudentDetail(courseId, enrollmentId),
-        ]).then(async ([overview, detailData]) => {
+          import('./pages/author/StudentDetailPage.ts'),
+        ]).then(async ([overview, detailData, { renderStudentDetailPage }]) => {
           if (window.location.pathname.replace(/\/+$/, '') !== path.split('?')[0].replace(/\/+$/, '')) return;
 
           selectedStepId ||= detailData.curriculum?.[0]?.lessons?.[0]?.steps?.[0]?.id;
@@ -2121,7 +2269,8 @@ print(val * 2)
         Promise.all([
           courseClient.getCourseOverview(courseId).catch(() => null),
           courseClient.getCourseAnalytics(courseId, { versionNumber, windowDays }),
-        ]).then(([overview, analyticsData]) => {
+          import('./pages/author/CourseAnalyticsPage.ts'),
+        ]).then(([overview, analyticsData, { renderCourseAnalyticsPage }]) => {
           if (window.location.pathname.replace(/\/+$/, '') !== path.split('?')[0].replace(/\/+$/, '')) return;
 
           const courseTitle = overview?.course?.title || 'Python foundations';
@@ -2167,12 +2316,17 @@ print(val * 2)
         const mutationId = searchParams.get('mutationId') || undefined;
         const showRestoreConfirmModal = searchParams.get('restore') === 'true';
 
-        appEl.innerHTML = renderAgentActivityPage({
+        appEl.innerHTML = renderAuthorWorkspaceShell({
           courseId,
           courseTitle: 'Loading...',
           publicationState: 'draft',
           hasUnpublishedChanges: false,
-          activities: [],
+          activeTab: 'activity' as any,
+          editorContent: `
+            <div class="p-8 text-center text-secondary">
+              <p class="font-medium text-base mb-1">Loading agent activity and draft recovery…</p>
+            </div>
+          `,
         });
 
         const actParams = new URLSearchParams({ page: String(page) });
@@ -2195,7 +2349,8 @@ print(val * 2)
             .catch((recErr: any) => {
               recoveryError = recErr?.message || 'Could not verify draft recovery snapshots.';
             }),
-        ]).then(([courseData, activityData, selectedMutation]) => {
+          import('./pages/author/AgentActivityPage.ts'),
+        ]).then(([courseData, activityData, selectedMutation, _, { renderAgentActivityPage }]) => {
           if (window.location.pathname.replace(/\/+$/, '') !== path.split('?')[0].replace(/\/+$/, '')) return;
 
           const courseTitle = courseData?.title || 'Course Activity';
@@ -2382,7 +2537,7 @@ print(val * 2)
 
     case 'S6': {
       const actor = currentUser!;
-      appEl.innerHTML = renderAdminPage(path, null, undefined, { displayName: actor.displayName, email: actor.email });
+      showRouteLoading('Admin');
       void loadAdminPage(path, actor.displayName, actor.email);
       break;
     }
@@ -2726,8 +2881,10 @@ function attachSignInListeners(): void {
     togglePass.addEventListener('click', () => {
       const isPass = passInput.type === 'password';
       passInput.type = isPass ? 'text' : 'password';
-      togglePass.textContent = isPass ? 'Hide password' : 'Show password';
-      togglePass.setAttribute('aria-label', isPass ? 'Hide password' : 'Show password');
+      const label = isPass ? 'Hide password' : 'Show password';
+      togglePass.setAttribute('aria-label', label);
+      togglePass.setAttribute('title', label);
+      togglePass.innerHTML = renderIcon(isPass ? 'eye-off' : 'eye', { size: 16 });
     });
   }
 
@@ -2780,8 +2937,10 @@ function attachSignUpListeners(): void {
     togglePass.addEventListener('click', () => {
       const isPass = passInput.type === 'password';
       passInput.type = isPass ? 'text' : 'password';
-      togglePass.textContent = isPass ? 'Hide password' : 'Show password';
-      togglePass.setAttribute('aria-label', isPass ? 'Hide password' : 'Show password');
+      const label = isPass ? 'Hide password' : 'Show password';
+      togglePass.setAttribute('aria-label', label);
+      togglePass.setAttribute('title', label);
+      togglePass.innerHTML = renderIcon(isPass ? 'eye-off' : 'eye', { size: 16 });
     });
   }
 
@@ -2976,103 +3135,216 @@ function attachResetPasswordListeners(): void {
 }
 
 function attachProfileListeners(): void {
+  if (activeProfileCleanup) {
+    activeProfileCleanup();
+    activeProfileCleanup = null;
+  }
+
   const form = document.getElementById('profile-settings-form') as HTMLFormElement | null;
   const saveBtn = document.getElementById('btn-save-profile') as HTMLButtonElement | null;
   const errorEl = document.getElementById('profile-error');
+  const input = form?.elements.namedItem('displayName') as HTMLInputElement | null;
 
-  if (form) {
-    form.addEventListener('submit', async (e) => {
+  if (!input || !saveBtn || !form) return;
+
+  const guard = new ProfileGuard(input.value);
+  activeProfileGuard = guard;
+  saveBtn.disabled = true;
+
+  const checkDirty = () => {
+    if (!guard.isSaving) {
+      saveBtn.disabled = !guard.isDirty(input.value);
+    }
+  };
+  input.addEventListener('input', checkDirty);
+
+  const onBeforeUnload = (e: BeforeUnloadEvent) => {
+    if (!input.isConnected) {
+      window.removeEventListener('beforeunload', onBeforeUnload);
+      return;
+    }
+    if (guard.shouldBlockNavigation(input.value)) {
       e.preventDefault();
-      const displayName = (form.elements.namedItem('displayName') as HTMLInputElement).value;
+      e.returnValue = '';
+    }
+  };
+  window.addEventListener('beforeunload', onBeforeUnload);
 
-      if (saveBtn) {
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving…';
+  activeProfileCleanup = () => {
+    window.removeEventListener('beforeunload', onBeforeUnload);
+    activeProfileGuard = null;
+  };
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const displayName = input.value;
+
+    if (!guard.startSave(displayName)) {
+      return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+    if (errorEl) {
+      errorEl.className = 'hidden';
+      errorEl.innerHTML = '';
+    }
+
+    try {
+      const updated = await authClient.updateProfile(displayName);
+      guard.markSaveSuccess(updated.displayName);
+      if (activeProfileCleanup) {
+        activeProfileCleanup();
+        activeProfileCleanup = null;
       }
-
-      try {
-        const updated = await authClient.updateProfile(displayName);
-        appEl.innerHTML = renderAppShell({
-          activePath: '/settings/profile',
+      appEl.innerHTML = renderAppShell({
+        activePath: '/settings/profile',
+        user: updated,
+        headerTitle: 'Settings',
+        content: renderProfileSettingsPage({
           user: updated,
-          headerTitle: 'Profile settings',
-          content: renderProfileSettingsPage({
-            user: updated,
-            successMessage: 'Profile display name updated successfully.',
-          }),
-        });
-        attachProfileListeners();
-      } catch (err: any) {
-        if (errorEl) {
-          errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Failed to update profile.')}</span>`;
-        }
-        if (saveBtn) {
-          saveBtn.disabled = false;
-          saveBtn.textContent = 'Save changes';
-        }
+          successMessage: 'Profile display name updated successfully.',
+        }),
+      });
+      attachProfileListeners();
+    } catch (err: any) {
+      guard.markSaveFailure();
+      if (errorEl) {
+        errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
+        errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Failed to update profile.')}</span>`;
       }
-    });
-  }
+      saveBtn.disabled = !guard.isDirty(input.value);
+      saveBtn.textContent = 'Save changes';
+      input.focus();
+    }
+  });
 }
 
 function attachAppearanceListeners(): void {
+  if (activeAppearanceCleanup) {
+    activeAppearanceCleanup();
+    activeAppearanceCleanup = null;
+  }
+
   const form = document.getElementById('appearance-settings-form') as HTMLFormElement | null;
   const radioInputs = document.querySelectorAll<HTMLInputElement>('input[name="theme"]');
+  const fontSizeSelect = document.getElementById('editorFontSize') as HTMLSelectElement | null;
+  const indentSelect = document.getElementById('indentationSpaces') as HTMLSelectElement | null;
+  const statusEl = document.getElementById('appearance-autosave-status');
+  const saveBtn = document.getElementById('btn-save-appearance') as HTMLButtonElement | null;
 
-  radioInputs.forEach((radio) => {
-    radio.addEventListener('change', () => {
-      const selected = radio.value as 'dark' | 'light' | 'system';
-      applyTheme(selected);
-    });
-  });
+  const currentThemeRadio = document.querySelector<HTMLInputElement>('input[name="theme"]:checked');
+  const currentPrefs: Partial<UserPreferences> = {
+    theme: (currentThemeRadio?.value || 'system') as 'dark' | 'light' | 'system',
+    editorFontSize: Number(fontSizeSelect?.value || 14),
+    indentationSpaces: Number(indentSelect?.value || 4),
+  };
 
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const themeRadio = form.querySelector<HTMLInputElement>('input[name="theme"]:checked');
-      const theme = (themeRadio?.value || 'system') as 'dark' | 'light' | 'system';
-      const fontSize = Number((form.elements.namedItem('editorFontSize') as HTMLSelectElement).value);
-      const indent = Number((form.elements.namedItem('indentationSpaces') as HTMLSelectElement).value);
-      const saveBtn = document.getElementById('btn-save-appearance') as HTMLButtonElement | null;
-
+  const queue = new AppearanceSaveQueue({
+    delayMs: 200,
+    save: async (prefs) => {
+      return authClient.saveAppearance(prefs);
+    },
+    onSaving: () => {
+      if (statusEl) {
+        statusEl.innerHTML = '<span class="status-indicator"></span> <span>Saving preferences…</span>';
+      }
       if (saveBtn) {
         saveBtn.disabled = true;
         saveBtn.textContent = 'Saving…';
       }
-
-      try {
-        const updated = await authClient.saveAppearance({
-          theme,
-          editorFontSize: fontSize,
-          indentationSpaces: indent,
-        });
-
-        const user = authClient.getUser()!;
-        const resolvedSystem = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-
-        appEl.innerHTML = renderAppShell({
-          activePath: '/settings/appearance',
-          user,
-          headerTitle: 'Appearance settings',
-          content: renderAppearanceSettingsPage({
-            preferences: updated,
-            resolvedSystemTheme: resolvedSystem,
-            successMessage: 'Appearance preferences saved.',
-          }),
-        });
-        attachAppearanceListeners();
-      } catch (err: any) {
+    },
+    onSuccess: (_saved, isLatest) => {
+      if (isLatest) {
+        if (statusEl) {
+          statusEl.innerHTML = '<span class="status-indicator success"></span> <span class="text-success">All preferences saved</span>';
+        }
         const errorEl = document.getElementById('appearance-error');
         if (errorEl) {
-          errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Failed to save appearance settings.')}</span>`;
+          errorEl.className = 'hidden';
+          errorEl.innerHTML = '';
         }
         if (saveBtn) {
           saveBtn.disabled = false;
           saveBtn.textContent = 'Save preferences';
         }
       }
+    },
+    onError: (err) => {
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="status-indicator error"></span> <span class="text-danger">${escapeHtml(err.message || 'Failed to save')}</span>`;
+      }
+      const errorEl = document.getElementById('appearance-error');
+      if (errorEl) {
+        errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
+        errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Failed to save appearance settings.')}</span>`;
+      }
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save preferences';
+      }
+    },
+  });
+
+  activeAppearanceQueue = queue;
+
+  const onBeforeUnload = (e: BeforeUnloadEvent) => {
+    if (activeAppearanceQueue && activeAppearanceQueue.isPending) {
+      void activeAppearanceQueue.flush();
+      if (activeAppearanceQueue.hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    }
+  };
+  const onPageHide = () => {
+    if (activeAppearanceQueue && activeAppearanceQueue.isPending) {
+      void activeAppearanceQueue.flush();
+    }
+  };
+  window.addEventListener('pagehide', onPageHide);
+  window.addEventListener('beforeunload', onBeforeUnload);
+
+  activeAppearanceCleanup = () => {
+    window.removeEventListener('pagehide', onPageHide);
+    window.removeEventListener('beforeunload', onBeforeUnload);
+    activeAppearanceQueue = null;
+  };
+
+  radioInputs.forEach((radio) => {
+    radio.addEventListener('change', () => {
+      const selected = radio.value as 'dark' | 'light' | 'system';
+      applyTheme(selected);
+
+      // Update active styling on cards
+      document.querySelectorAll('.theme-card').forEach((card) => {
+        const inp = card.querySelector('input[type="radio"]') as HTMLInputElement | null;
+        if (inp?.checked) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      });
+
+      currentPrefs.theme = selected;
+      queue.update({ ...currentPrefs });
+    });
+  });
+
+  fontSizeSelect?.addEventListener('change', () => {
+    currentPrefs.editorFontSize = Number(fontSizeSelect.value || 14);
+    queue.update({ ...currentPrefs });
+  });
+
+  indentSelect?.addEventListener('change', () => {
+    currentPrefs.indentationSpaces = Number(indentSelect.value || 4);
+    queue.update({ ...currentPrefs });
+  });
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await queue.flush();
     });
   }
 }
@@ -3083,17 +3355,17 @@ function attachSecurityListeners(): void {
   const btnSignoutAll = document.getElementById('btn-sign-out-all');
   const modal = document.getElementById('sign-out-all-modal');
   const btnCancelSignout = document.getElementById('btn-cancel-signout-all');
-  const btnConfirmSignout = document.getElementById('btn-confirm-signout-all');
+  const btnConfirmSignout = document.getElementById('btn-confirm-signout-all') as HTMLButtonElement | null;
 
   if (btnSignoutAll && modal) {
     btnSignoutAll.addEventListener('click', () => {
-      modal.style.display = 'flex';
+      modal.classList.remove('hidden');
     });
   }
 
   if (btnCancelSignout && modal) {
     btnCancelSignout.addEventListener('click', () => {
-      modal.style.display = 'none';
+      modal.classList.add('hidden');
     });
   }
 
@@ -3101,8 +3373,20 @@ function attachSecurityListeners(): void {
     btnConfirmSignout.addEventListener('click', async () => {
       const user = authClient.getUser();
       if (user && !await confirmUnsyncedSignOut(user.id)) return;
-      await authClient.signOutAll();
-      navigateTo('/sign-in');
+      btnConfirmSignout.disabled = true;
+      btnConfirmSignout.textContent = 'Signing out…';
+      try {
+        await authClient.signOutAll();
+        navigateTo('/sign-in');
+      } catch (err: any) {
+        btnConfirmSignout.disabled = false;
+        btnConfirmSignout.textContent = 'Sign out of all devices';
+        modal?.classList.add('hidden');
+        if (errorEl) {
+          errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Failed to sign out of all devices.')}</span>`;
+        }
+      }
     });
   }
 
@@ -3133,7 +3417,7 @@ function attachSecurityListeners(): void {
         appEl.innerHTML = renderAppShell({
           activePath: '/settings/security',
           user,
-          headerTitle: 'Security settings',
+          headerTitle: 'Settings',
           content: renderSecuritySettingsPage({
             user,
             successMessage: 'Password updated successfully.',
@@ -3190,7 +3474,11 @@ function attachPrivacyListeners(): void {
         navigateTo('/sign-in');
       } catch (err: any) {
         const errorEl = document.getElementById('privacy-error');
-        if (deleteModal) deleteModal.style.display = 'none';
+        if (deleteModal) deleteModal.classList.add('hidden');
+        if (btnConfirmDelete) {
+          btnConfirmDelete.disabled = !ackCheckbox?.checked;
+          btnConfirmDelete.textContent = 'Confirm deletion';
+        }
         if (errorEl) {
           errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
           errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Deletion request blocked.')}</span>`;
@@ -3214,7 +3502,7 @@ function attachPrivacyListeners(): void {
         appEl.innerHTML = renderAppShell({
           activePath: '/settings/privacy',
           user,
-          headerTitle: 'Privacy and account requests',
+          headerTitle: 'Settings',
           content: renderPrivacySettingsPage({
             exportData: result.exportPayload,
             exportDownloadUrl: result.downloadUrl,
@@ -3226,7 +3514,7 @@ function attachPrivacyListeners(): void {
         const errorEl = document.getElementById('privacy-error');
         if (errorEl) {
           errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Export failed.')}</span>`;
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Failed to export data.')}</span>`;
         }
         if (exportBtn) {
           exportBtn.disabled = false;
@@ -3711,8 +3999,24 @@ document.addEventListener('submit', async (event) => {
   const previewForm=(event.target as HTMLElement).closest('form[data-admin-preview]') as HTMLFormElement|null;
   if(previewForm){
     event.preventDefault();const values=Object.fromEntries(new FormData(previewForm).entries());const button=previewForm.querySelector('button') as HTMLButtonElement|null;if(button){button.disabled=true;button.textContent='Checking and loading…';}
-    try{const response=await fetch(previewForm.getAttribute('action')||'',{method:'POST',headers:{Authorization:`Bearer ${authClient.getToken()||''}`,'Content-Type':'application/json'},body:JSON.stringify(values)});if(!response.ok){const err=await response.json().catch(()=>({}));throw new Error(err.error?.message||'Preview is unavailable.');}const blob=await response.blob();if(!blob.type.startsWith('image/'))throw new Error('The preview did not contain a safe image.');const src=URL.createObjectURL(blob);const dialog=document.createElement('dialog');dialog.className='admin-media-preview-dialog';dialog.innerHTML=`<form method="dialog"><button class="btn btn-secondary">Close preview</button></form><img alt="Authorized media preview" src="${src}">`;document.body.append(dialog);dialog.addEventListener('close',()=>{URL.revokeObjectURL(src);dialog.remove();});dialog.showModal();}
-    catch(error:any){const feedback=document.createElement('p');feedback.className='text-danger';feedback.setAttribute('role','alert');feedback.textContent=error.message;previewForm.append(feedback);}finally{if(button){button.disabled=false;button.textContent='Safe preview';}}
+    previewForm.querySelectorAll('.text-danger').forEach((f) => f.remove());
+    try{
+      const response=await fetch(previewForm.getAttribute('action')||'',{method:'POST',headers:{Authorization:`Bearer ${authClient.getToken()||''}`,'Content-Type':'application/json'},body:JSON.stringify(values)});
+      if(!response.ok){const err=await response.json().catch(()=>({}));throw new Error(err.error?.message||'Preview is unavailable.');}
+      const blob=await response.blob();
+      if(!blob.type.startsWith('image/'))throw new Error('The preview did not contain a safe image.');
+      const src=URL.createObjectURL(blob);
+      const dialog=document.createElement('dialog');
+      dialog.className='admin-media-preview-dialog';
+      dialog.setAttribute('aria-label', 'Authorized media preview');
+      dialog.innerHTML=`<form method="dialog"><button class="btn btn-secondary">Close preview</button></form><img alt="Authorized media preview" src="${src}">`;
+      document.body.append(dialog);
+      dialog.addEventListener('close',()=>{URL.revokeObjectURL(src);dialog.remove();});
+      dialog.showModal();
+      previewForm.querySelectorAll<HTMLInputElement>('input[type="password"]').forEach((p) => { p.value = ''; });
+    }
+    catch(error:any){const feedback=document.createElement('p');feedback.className='text-danger';feedback.setAttribute('role','alert');feedback.textContent=error.message;previewForm.append(feedback);}
+    finally{if(button){button.disabled=false;button.textContent='Safe preview';}}
     return;
   }
   const exportForm=(event.target as HTMLElement).closest('form[data-admin-export]') as HTMLFormElement|null;
@@ -3756,9 +4060,191 @@ document.addEventListener('change', async (event) => {
   catch(error:any){if(countField)countField.value='0';if(output)output.textContent=error.message;if(button)button.disabled=true;}
 });
 
-document.addEventListener('click', (e) => {
+async function confirmAppearanceDeparture(timeoutMs = 2000): Promise<boolean> {
+  if (!activeAppearanceQueue || (!activeAppearanceQueue.isPending && !activeAppearanceQueue.hasUnsavedChanges)) {
+    if (activeAppearanceCleanup) {
+      activeAppearanceCleanup();
+      activeAppearanceCleanup = null;
+    }
+    return true;
+  }
+
+  try {
+    await Promise.race([
+      activeAppearanceQueue.flush(),
+      new Promise((resolve) => setTimeout(resolve, timeoutMs)),
+    ]);
+  } catch (err) {
+    console.warn('Failed to flush appearance preferences before navigation', err);
+  }
+
+  if (activeAppearanceQueue.hasUnsavedChanges || activeAppearanceQueue.isPending) {
+    const discard = window.confirm(
+      'Appearance settings could not be saved. Leave this page and discard unsaved preferences?'
+    );
+    if (!discard) {
+      return false; // User wants to stay on appearance page to retry
+    }
+  }
+
+  if (activeAppearanceCleanup) {
+    activeAppearanceCleanup();
+    activeAppearanceCleanup = null;
+  }
+  return true;
+}
+
+let lastActiveAdminTrigger: HTMLElement | null = null;
+
+function clearAdminDialogState(dialog: HTMLDialogElement): void {
+  dialog.querySelectorAll<HTMLInputElement>('input[type="password"]').forEach((input) => {
+    input.value = '';
+  });
+  dialog.querySelectorAll<HTMLInputElement>('input[name="reason"]').forEach((input) => {
+    input.value = '';
+  });
+  dialog.querySelectorAll<HTMLElement>('.form-error').forEach((err) => {
+    err.textContent = '';
+    err.classList.add('hidden');
+  });
+  dialog.querySelectorAll<HTMLButtonElement>('button[type="submit"]').forEach((btn) => {
+    btn.disabled = false;
+    if (btn.dataset.label) {
+      btn.textContent = btn.dataset.label;
+    }
+  });
+}
+
+document.addEventListener(
+  'close',
+  (event) => {
+    const dialog = event.target as HTMLDialogElement | null;
+    if (!dialog || dialog.tagName !== 'DIALOG') return;
+    clearAdminDialogState(dialog);
+    if (lastActiveAdminTrigger && typeof lastActiveAdminTrigger.focus === 'function') {
+      try {
+        lastActiveAdminTrigger.focus();
+      } catch {}
+      lastActiveAdminTrigger = null;
+    }
+  },
+  true
+);
+
+document.addEventListener('click', async (e) => {
+  const outlineToggle = (e.target as HTMLElement).closest('.outline-toggle-btn');
+  if (outlineToggle) {
+    const drawer = document.getElementById('course-outline-panel');
+    const open = drawer?.classList.toggle('open') || false;
+    outlineToggle.setAttribute('aria-expanded', String(open));
+    return;
+  }
+
   const retry=(e.target as HTMLElement).closest('[data-admin-retry]');
   if(retry){renderApp(window.location.pathname+window.location.search);return;}
+
+  const openDialogBtn = (e.target as HTMLElement).closest('[data-open-dialog]') as HTMLElement | null;
+  if (openDialogBtn) {
+    lastActiveAdminTrigger = openDialogBtn;
+    const dialogId = openDialogBtn.dataset.openDialog;
+    const dialog = dialogId ? (document.getElementById(dialogId) as HTMLDialogElement | null) : null;
+    if (dialog && typeof dialog.showModal === 'function') {
+      clearAdminDialogState(dialog);
+      dialog.showModal();
+    }
+    return;
+  }
+
+  const closeDialogBtn = (e.target as HTMLElement).closest('[data-close-dialog]') as HTMLElement | null;
+  if (closeDialogBtn) {
+    const dialog = closeDialogBtn.closest('dialog') as HTMLDialogElement | null;
+    if (dialog && typeof dialog.close === 'function') {
+      clearAdminDialogState(dialog);
+      dialog.close();
+    }
+    return;
+  }
+
+  const editCatBtn = (e.target as HTMLElement).closest('[data-edit-category-id]') as HTMLElement | null;
+  if (editCatBtn) {
+    lastActiveAdminTrigger = editCatBtn;
+    const id = editCatBtn.dataset.editCategoryId;
+    const name = editCatBtn.dataset.editCategoryName || '';
+    const usage = Number(editCatBtn.dataset.editCategoryUsage || 0);
+    const dialog = document.getElementById('edit-category-dialog') as HTMLDialogElement | null;
+    if (dialog) {
+      clearAdminDialogState(dialog);
+      const editForm = dialog.querySelector('#edit-category-form') as HTMLFormElement | null;
+      if (editForm) {
+        editForm.reset();
+        if (id) editForm.action = `/api/admin/categories/${encodeURIComponent(id)}`;
+      }
+      const deleteForm = dialog.querySelector('#delete-category-form') as HTMLFormElement | null;
+      if (deleteForm) {
+        deleteForm.reset();
+        if (id) deleteForm.action = `/api/admin/categories/${encodeURIComponent(id)}`;
+      }
+      const nameInput = dialog.querySelector('#edit-category-name') as HTMLInputElement | null;
+      if (nameInput) nameInput.value = name;
+      const replaceGroup = dialog.querySelector('#replacement-category-group') as HTMLElement | null;
+      const replaceInput = dialog.querySelector('[name="replacementId"]') as HTMLInputElement | null;
+      const usageWarning = dialog.querySelector('#edit-category-usage-warning') as HTMLElement | null;
+      if (usage > 0) {
+        if (replaceGroup) replaceGroup.classList.remove('hidden');
+        if (replaceInput) {
+          replaceInput.required = true;
+          replaceInput.value = '';
+        }
+        if (usageWarning) usageWarning.textContent = `In use by ${usage} course(s). Reassign before removal.`;
+      } else {
+        if (replaceGroup) replaceGroup.classList.add('hidden');
+        if (replaceInput) {
+          replaceInput.required = false;
+          replaceInput.value = '';
+        }
+        if (usageWarning) usageWarning.textContent = 'Not currently in use by any courses.';
+      }
+      if (typeof dialog.showModal === 'function') {
+        dialog.showModal();
+      }
+    }
+    return;
+  }
+
+  const copyBtn = (e.target as HTMLElement).closest('[data-copy-text]') as HTMLElement | null;
+  if (copyBtn) {
+    const text = copyBtn.dataset.copyText;
+    if (text) {
+      const originalTitle = copyBtn.getAttribute('title') || '';
+      if (!navigator.clipboard?.writeText) {
+        copyBtn.setAttribute('title', 'Clipboard unavailable');
+        setTimeout(() => copyBtn.setAttribute('title', originalTitle), 2000);
+        return;
+      }
+      navigator.clipboard.writeText(text).then(
+        () => {
+          copyBtn.setAttribute('title', 'Copied!');
+          setTimeout(() => copyBtn.setAttribute('title', originalTitle), 1500);
+        },
+        () => {
+          copyBtn.setAttribute('title', 'Copy failed');
+          setTimeout(() => copyBtn.setAttribute('title', originalTitle), 2000);
+        }
+      );
+    }
+    return;
+  }
+
+  if ((e.target as HTMLElement).tagName === 'DIALOG') {
+    const dialog = e.target as HTMLDialogElement;
+    const rect = dialog.getBoundingClientRect();
+    const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height
+      && rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+    if (!isInDialog && typeof dialog.close === 'function') {
+      clearAdminDialogState(dialog);
+      dialog.close();
+    }
+  }
   const hintTrigger = (e.target as HTMLElement).closest('.hint-trigger') as HTMLButtonElement | null;
   if (hintTrigger) {
     const isExpanded = hintTrigger.getAttribute('aria-expanded') === 'true';
@@ -3794,11 +4280,43 @@ document.addEventListener('click', (e) => {
   }
 
   const target = (e.target as HTMLElement).closest('a');
-  if (target && target.href && !target.hasAttribute('download') && target.origin === window.location.origin) {
+  if (
+    target &&
+    target.href &&
+    !target.hasAttribute('download') &&
+    target.origin === window.location.origin &&
+    (!target.target || target.target === '_self') &&
+    !e.ctrlKey && !e.metaKey && !e.shiftKey && !e.altKey && e.button === 0
+  ) {
     const pathname = target.pathname;
     if (pathname.startsWith('/api/')) return; // Allow direct API endpoints
+
+    // Synchronously prevent default for all internal SPA navigation before any async operations
+    e.preventDefault();
+
+    // Profile guard check
+    if (activeProfileGuard) {
+      const profileInput = document.querySelector('#profile-settings-form input[name="displayName"]') as HTMLInputElement | null;
+      const currentVal = profileInput ? profileInput.value : '';
+      const promptMsg = activeProfileGuard.getNavigationPrompt(currentVal);
+      if (promptMsg) {
+        if (!window.confirm(promptMsg)) {
+          return; // Stay on current page, default already prevented
+        }
+        if (activeProfileCleanup) {
+          activeProfileCleanup();
+          activeProfileCleanup = null;
+        }
+      }
+    }
+
+    // Appearance departure check
+    const canLeaveAppearance = await confirmAppearanceDeparture(2000);
+    if (!canLeaveAppearance) {
+      return; // Stay on appearance settings page
+    }
+
     if (pathname === '/sign-out') {
-      e.preventDefault();
       const user = authClient.getUser();
       void (async () => {
         if (user && !await confirmUnsyncedSignOut(user.id)) return;
@@ -3808,12 +4326,16 @@ document.addEventListener('click', (e) => {
       return;
     }
 
-    e.preventDefault();
     navigateTo(pathname + target.search);
   }
 });
 
-window.addEventListener('popstate', () => {
+window.addEventListener('popstate', async () => {
+  const canLeaveAppearance = await confirmAppearanceDeparture(1500);
+  if (!canLeaveAppearance) {
+    window.history.pushState(null, '', '/settings/appearance');
+    return;
+  }
   renderApp();
 });
 

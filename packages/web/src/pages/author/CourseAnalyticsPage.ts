@@ -1,4 +1,5 @@
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
+import { renderIcon } from '../../components/common/icons.ts';
 
 export interface CourseAnalyticsPageProps {
   courseId: string;
@@ -115,16 +116,20 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
               <option value="90" ${currentWindowDays === 90 ? 'selected' : ''}>Last 90 days</option>
             </select>
           </div>
-
-          <button id="btn-apply-analytics-filters" class="btn btn-secondary btn-compact" type="button">
-            Apply
-          </button>
         </div>
       </header>
 
-      <p class="analytics-version-scope text-sm text-secondary" role="note">
-        Enrollment metrics follow the selected version scope. Exercise insights show one immutable version${filters?.versionId ? `, Version ${escapeHtml(filters.versionId)}` : `; latest release, Version ${escapeHtml(String(an.versionNumber ?? 'unavailable'))}`}.
-      </p>
+      <details class="disclosure-card mb-6" style="margin-bottom: 1.5rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+        <summary style="padding: 0.5rem 0.75rem; font-size: 0.8125rem; font-weight: 500; cursor: pointer; color: var(--text-secondary);">Methodology and scope</summary>
+        <div style="padding: 0 0.75rem 0.75rem; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5;">
+          <p class="analytics-version-scope" role="note" style="margin: 0 0 0.25rem;">
+            Enrollment metrics follow the selected version scope. Exercise insights show one immutable version${filters?.versionId ? `, Version ${escapeHtml(filters.versionId)}` : `; latest release, Version ${escapeHtml(String(an.versionNumber ?? 'unavailable'))}`}.
+          </p>
+          <p style="margin: 0;">
+            Exercise results use one immutable release at a time and are never combined across versions. The reporting window is ${currentWindowDays} days. Excludes infrastructure failures and admin waivers.
+          </p>
+        </div>
+      </details>
 
       <!-- Horizontal Definition List of Metrics (Design §12 P30 & PRD §14) -->
       <section class="horizontal-metrics-section mb-8" aria-label="Course summary metrics">
@@ -164,17 +169,15 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
         <div class="flex justify-between items-end pb-2">
           <div>
             <h2 id="insights-heading" class="text-lg font-bold text-primary">Exercise insights — Version ${escapeHtml(String(an.versionNumber ?? 'latest'))}${!filters?.versionId ? ' (latest release)' : ''}</h2>
-            <p class="text-xs text-secondary mt-0.5">
-              Exercise results use one immutable release at a time and are never combined across versions. The reporting window is ${currentWindowDays} days. Excludes infrastructure failures and admin waivers.
-            </p>
+            <p class="text-xs text-secondary mt-0.5">Assessed exercises with activity in the last ${currentWindowDays} days.</p>
           </div>
         </div>
 
         <div class="data-table-wrapper border border-subtle rounded-xl bg-surface overflow-x-auto shadow-sm">
           <table class="data-table w-full text-left border-collapse text-sm" aria-label="Exercise performance metrics">
             <thead>
-              <tr class="border-b border-subtle bg-raised text-secondary font-semibold text-xs uppercase tracking-wider">
-                <th scope="col" class="py-3 px-4">Exercise / Step</th>
+              <tr class="border-b border-subtle bg-raised text-secondary font-medium text-xs">
+                <th scope="col" class="py-3 px-4">Exercise / step</th>
                 <th scope="col" class="py-3 px-4 text-center">Participants</th>
                 <th scope="col" class="py-3 px-4">Pass rate</th>
                 <th scope="col" class="py-3 px-4 text-center">Median attempts to pass</th>
@@ -201,13 +204,15 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
                 const waivers = ex.waiverCount ?? 0;
                 const infraFailures = ex.infrastructureFailureCount ?? ex.infraFailureCount ?? 0;
                 const stepType = ex.type || ex.stepType || 'exercise';
+                const typeIcon = stepType === 'python' ? 'code' : 'list-checks';
 
                 return `
                   <tr class="hover:bg-hover transition-colors">
                     <td class="py-3.5 px-4">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span class="badge-${escapeHtml(stepType)} text-[10px] font-mono uppercase px-1.5 py-0.5 rounded">
-                          ${escapeHtml(stepType)}
+                      <div class="exercise-header-meta flex items-center mb-1" style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <span class="inline-flex items-center gap-1 font-mono text-[11px] px-1.5 py-0.5 rounded bg-raised border border-subtle text-secondary" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; font-size: 11px; background: var(--bg-raised); border: 1px solid var(--border-subtle); margin-right: 6px;">
+                          ${renderIcon(typeIcon, { size: 11 })}
+                          <span style="text-transform: capitalize;">${escapeHtml(stepType)}</span>
                         </span>
                         <span class="text-xs text-muted truncate">${escapeHtml(ex.lessonTitle || '')}</span>
                       </div>
@@ -276,9 +281,12 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
           </table>
         </div>
 
-        <div class="p-4 bg-surface border border-subtle rounded-lg text-xs text-secondary leading-relaxed">
-          <strong>Metric notes:</strong> Admin and preview activity is excluded from product metrics. Pass rates reflect distinct students with a verified pass over distinct students with at least one non-infrastructure submission. Waivers are tracked separately and never counted as passed student submissions.
-        </div>
+        <details class="disclosure-card p-3 bg-surface border border-subtle rounded-lg text-xs text-secondary mt-4">
+          <summary class="cursor-pointer font-medium text-primary">Methodology &amp; metric notes</summary>
+          <p class="mt-2 text-muted leading-relaxed">
+            Admin and preview activity is excluded from product metrics. Pass rates reflect distinct students with a verified pass over distinct students with at least one non-infrastructure submission. Waivers are tracked separately and never counted as passed student submissions.
+          </p>
+        </details>
       </section>
     </div>
   `;

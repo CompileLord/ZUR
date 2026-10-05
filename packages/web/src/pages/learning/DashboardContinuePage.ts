@@ -1,6 +1,7 @@
 import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
 import { renderProgressLine } from '../../components/common/CourseRow.ts';
+import { humanizeEnum } from '../../utils/formatters.ts';
 
 export interface DashboardContinuePageOptions {
   user: {
@@ -21,6 +22,7 @@ export interface DashboardContinuePageOptions {
     nextIncompleteStepId?: string | null;
     lastVisitedStepId?: string | null;
     nextStepTitle?: string;
+    lessonTitle?: string;
   } | null;
   recentCourses?: Array<{
     courseId: string;
@@ -66,7 +68,7 @@ export function renderDashboardContinuePage(opts: DashboardContinuePageOptions):
           You have satisfied all required steps in your enrolled courses. You can review past lessons or explore new topics.
         </p>
         <div class="resume-hero-actions">
-          <a href="/learn/courses" class="btn btn-secondary">Review courses</a>
+          <a href="/learn/courses" class="btn btn-ghost btn-compact">Review courses</a>
           <a href="/courses" class="btn btn-primary">Explore courses</a>
         </div>
       </section>
@@ -79,15 +81,23 @@ export function renderDashboardContinuePage(opts: DashboardContinuePageOptions):
       ? `/learn/${c.enrollmentId}/steps/${resumeStepId}`
       : `/learn/${c.enrollmentId}`;
 
+    const stepLabel = c.nextStepTitle
+      ? (c.lessonTitle ? `${c.lessonTitle} · ${c.nextStepTitle}` : c.nextStepTitle)
+      : '';
+
     mainContentHtml = `
       <section class="resume-hero-card" aria-label="Resume current course">
+        <span class="sr-only">Version ${c.pinnedVersionNumber}</span>
         <div class="resume-hero-header">
-          <span class="resume-context-label">Current course</span>
-          <span class="version-label">Version ${c.pinnedVersionNumber}</span>
+          <h2 class="resume-hero-title">${c.title}</h2>
         </div>
-        <h2 class="resume-hero-title">${c.title}</h2>
-        ${c.nextStepTitle ? `<p class="resume-step-line">Next: <strong>${c.nextStepTitle}</strong></p>` : ''}
-        
+        ${stepLabel ? `
+          <div class="resume-step-line">
+            <span class="resume-step-context">${stepLabel}</span>
+            <span class="sr-only">Next: <strong>${c.nextStepTitle}</strong></span>
+          </div>
+        ` : ''}
+
         <div class="resume-progress-container">
           ${renderProgressLine({
             satisfiedRequiredCount: c.completedRequired,
@@ -97,25 +107,34 @@ export function renderDashboardContinuePage(opts: DashboardContinuePageOptions):
         </div>
 
         <div class="resume-hero-actions">
-          <a href="${resumeUrl}" class="btn btn-primary btn-large">
+          <a href="${resumeUrl}" class="btn btn-primary">
             Continue learning
           </a>
-          <a href="/learn/${c.enrollmentId}" class="btn btn-secondary">
-            Course overview
+          <a href="/learn/${c.enrollmentId}" class="btn btn-ghost btn-compact text-secondary">
+            Overview
           </a>
         </div>
       </section>
     `;
   }
 
-  // Secondary courses list
-  const recentCourses = opts.recentCourses || [];
+  // Filter out the resume course from recent courses to avoid redundant duplicate
+  const rawRecent = opts.recentCourses || [];
+  const recentCourses = rawRecent.filter((rc) => {
+    if (opts.continueCourse) {
+      if (rc.courseId === opts.continueCourse.courseId || rc.enrollmentId === opts.continueCourse.enrollmentId) {
+        return false;
+      }
+    }
+    return true;
+  });
+
   let recentCoursesHtml = '';
   if (recentCourses.length > 0) {
     recentCoursesHtml = `
       <section class="recent-courses-section" aria-label="Enrolled courses">
         <div class="section-header-row">
-          <h3 class="section-title">Enrolled courses</h3>
+          <h3 class="section-title">Other courses</h3>
           <a href="/learn/courses" class="section-link">View all courses</a>
         </div>
 
@@ -132,13 +151,13 @@ export function renderDashboardContinuePage(opts: DashboardContinuePageOptions):
                     ${rc.isCompleted ? '<span class="status-badge success">Completed</span>' : ''}
                   </div>
                   <div class="course-row-meta tabular-nums">
-                    <span>${rc.difficulty}</span>
+                    <span>${humanizeEnum(rc.difficulty)}</span>
                     <span>·</span>
                     <span>${rc.percentage}% complete</span>
                   </div>
                 </div>
                 <div class="course-row-action">
-                  <a href="${nextUrl}" class="btn btn-secondary btn-compact">
+                  <a href="${nextUrl}" class="btn btn-ghost btn-compact">
                     ${rc.isCompleted ? 'Review' : 'Resume'}
                   </a>
                 </div>

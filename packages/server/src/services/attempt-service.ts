@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import {
   NotFoundError,
   AuthorizationError,
+  PYTHON_RUNTIME_LABEL,
   type PaginatedResult,
 } from 'zur-shared';
 import { DraftService } from './draft-service.ts';
@@ -136,7 +137,7 @@ export class AttemptService {
       isInfrastructureFailure: Boolean(row.is_infrastructure_failure),
       createdAt: row.created_at,
       canRestore: isOwnerStudent,
-      runtimeVersion: 'Python 3.14',
+      runtimeVersion: PYTHON_RUNTIME_LABEL,
     };
   }
 

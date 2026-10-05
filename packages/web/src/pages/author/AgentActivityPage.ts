@@ -121,6 +121,24 @@ function formatToolName(toolName: string): string {
   }
 }
 
+function formatEntityString(str: string, toolName?: string): string {
+  const prefixMatch = str.match(/^(?:mod|module|lesson|step)[-_0-9]+[-_](.+)$/i);
+  if (prefixMatch) {
+    const rawName = prefixMatch[1].replace(/[-_]+/g, ' ');
+    const humanName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+    return `<span title="${escapeHtml(str)}" class="entity-name">${escapeHtml(humanName)}</span>`;
+  }
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+  if (isUuid) {
+    if (toolName === 'update_course_metadata' || toolName === 'create_course') return 'Course metadata';
+    if (toolName?.includes('step')) return 'Step content';
+    if (toolName?.includes('lesson')) return 'Lesson';
+    if (toolName?.includes('module')) return 'Module';
+    return 'Course content';
+  }
+  return escapeHtml(str);
+}
+
 function formatAffectedEntities(entities: any, toolName?: string): string {
   if (!entities) {
     if (toolName === 'update_course_metadata') return 'Course metadata';
@@ -151,31 +169,14 @@ function formatAffectedEntities(entities: any, toolName?: string): string {
         if (item.title) return escapeHtml(String(item.title));
         if (item.name) return escapeHtml(String(item.name));
       }
-      const str = String(item);
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-      if (isUuid) {
-        if (toolName === 'update_course_metadata' || toolName === 'create_course') return 'Course metadata';
-        if (toolName?.includes('step')) return 'Step content';
-        if (toolName?.includes('lesson')) return 'Lesson';
-        if (toolName?.includes('module')) return 'Module';
-        return 'Course content';
-      }
-      return escapeHtml(str);
+      return formatEntityString(String(item), toolName);
     }
 
     return `${entities.length} items`;
   }
 
   const str = String(entities);
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)) {
-    if (toolName === 'update_course_metadata' || toolName === 'create_course') return 'Course metadata';
-    if (toolName?.includes('step')) return 'Step content';
-    if (toolName?.includes('lesson')) return 'Lesson';
-    if (toolName?.includes('module')) return 'Module';
-    return 'Course content';
-  }
-
-  return escapeHtml(str);
+  return formatEntityString(str, toolName);
 }
 
 function sanitizeDiffValue(val: any): any {
@@ -476,24 +477,24 @@ export function renderAgentActivityPage(opts: AgentActivityPageOptions): string 
 
   // Filter toolbar
   const filterToolbarHtml = `
-    <section class="activity-filters-card card p-3 mb-3" aria-label="Activity Filters" style="background-color: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-sm);">
+    <section class="activity-filters-card mb-4" aria-label="Activity Filters">
       <form method="GET" action="/teach/${opts.courseId}/activity" style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end;">
         <div class="form-group" style="min-width: 140px; flex: 1;">
-          <label for="filter-connection" class="field-label" style="font-size: 0.8125rem; font-weight: 600; display: block; margin-bottom: 0.25rem;">Connection</label>
-          <select id="filter-connection" name="tokenId" class="select-input" style="width: 100%; padding: 0.375rem 0.5rem; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--fg-default);">
+          <label for="filter-connection" class="field-label" style="font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Connection</label>
+          <select id="filter-connection" name="tokenId" class="select-input" style="width: 100%; height: 32px; padding: 0 0.5rem; border: 1px solid var(--border-control); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--text-primary); font-size: 0.8125rem;">
             <option value="">All connections</option>
             ${(opts.connections || []).map((c) => `<option value="${escapeHtml(c.id)}" ${opts.filterConnection === c.id ? 'selected' : ''}>${escapeHtml(c.label)}</option>`).join('')}
           </select>
         </div>
 
         <div class="form-group" style="min-width: 130px;">
-          <label for="filter-date" class="field-label" style="font-size: 0.8125rem; font-weight: 600; display: block; margin-bottom: 0.25rem;">Date</label>
-          <input type="date" id="filter-date" name="date" class="date-input" value="${escapeHtml(opts.filterDate || '')}" style="width: 100%; padding: 0.375rem 0.5rem; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--fg-default); font-size: 0.8125rem;" />
+          <label for="filter-date" class="field-label" style="font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Date</label>
+          <input type="date" id="filter-date" name="date" class="date-input" value="${escapeHtml(opts.filterDate || '')}" style="width: 100%; height: 32px; padding: 0 0.5rem; border: 1px solid var(--border-control); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--text-primary); font-size: 0.8125rem;" />
         </div>
 
         <div class="form-group" style="min-width: 150px; flex: 1;">
-          <label for="filter-tool" class="field-label" style="font-size: 0.8125rem; font-weight: 600; display: block; margin-bottom: 0.25rem;">Operation</label>
-          <select id="filter-tool" name="toolName" class="select-input" style="width: 100%; padding: 0.375rem 0.5rem; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--fg-default);">
+          <label for="filter-tool" class="field-label" style="font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Operation</label>
+          <select id="filter-tool" name="toolName" class="select-input" style="width: 100%; height: 32px; padding: 0 0.5rem; border: 1px solid var(--border-control); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--text-primary); font-size: 0.8125rem;">
             <option value="">All operations</option>
             <option value="batch_author" ${opts.filterTool === 'batch_author' ? 'selected' : ''}>Batch authoring</option>
             <option value="apply_course_changes" ${opts.filterTool === 'apply_course_changes' ? 'selected' : ''}>Batch authoring (apply changes)</option>
@@ -513,17 +514,17 @@ export function renderAgentActivityPage(opts: AgentActivityPageOptions): string 
         </div>
 
         <div class="form-group" style="min-width: 120px;">
-          <label for="filter-outcome" class="field-label" style="font-size: 0.8125rem; font-weight: 600; display: block; margin-bottom: 0.25rem;">Outcome</label>
-          <select id="filter-outcome" name="outcome" class="select-input" style="width: 100%; padding: 0.375rem 0.5rem; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--fg-default);">
+          <label for="filter-outcome" class="field-label" style="font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Outcome</label>
+          <select id="filter-outcome" name="outcome" class="select-input" style="width: 100%; height: 32px; padding: 0 0.5rem; border: 1px solid var(--border-control); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--text-primary); font-size: 0.8125rem;">
             <option value="">All outcomes</option>
             <option value="success" ${opts.filterOutcome === 'success' ? 'selected' : ''}>Success</option>
             <option value="failure" ${opts.filterOutcome === 'failure' ? 'selected' : ''}>Failure</option>
           </select>
         </div>
 
-        <div style="display: flex; gap: 0.5rem;">
-          <button type="submit" id="apply-filters-btn" class="btn btn-secondary btn-compact">Apply filters</button>
-          <a href="/teach/${opts.courseId}/activity" id="reset-filters-btn" class="btn btn-ghost btn-compact">Reset</a>
+        <div style="display: flex; gap: 0.5rem; height: 32px; align-items: center;">
+          <button type="submit" id="apply-filters-btn" class="btn btn-secondary btn-compact" style="height: 32px;">Apply filters</button>
+          <a href="/teach/${opts.courseId}/activity" id="reset-filters-btn" class="btn btn-ghost btn-compact text-secondary" style="height: 32px; line-height: 30px;">Reset</a>
         </div>
       </form>
     </section>
@@ -533,10 +534,9 @@ export function renderAgentActivityPage(opts: AgentActivityPageOptions): string 
   let tableContent = '';
   if (activities.length === 0) {
     tableContent = `
-      <section class="card p-5 text-center empty-state" aria-label="No activity" style="background-color: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-sm); text-align: center; padding: 3rem 1rem;">
-        <span style="font-size: 2.5rem; display: block; margin-bottom: 1rem;" aria-hidden="true">🤖</span>
-        <h2 class="section-title mb-2" style="font-size: 1.25rem;">No agent activity recorded</h2>
-        <p class="text-secondary mb-4" style="max-width: 480px; margin-left: auto; margin-right: auto;">
+      <section class="card p-8 text-center empty-state bg-surface border border-subtle rounded-md" aria-label="No activity" style="text-align: center; padding: 3rem 1rem;">
+        <h2 class="section-title mb-2 text-lg font-semibold">No agent activity recorded</h2>
+        <p class="text-secondary mb-4 text-sm" style="max-width: 480px; margin-left: auto; margin-right: auto;">
           External AI mutations made through your author tokens will appear here with before/after diffs and draft recovery options.
         </p>
         <a href="/teach/${opts.courseId}/content" class="btn btn-primary">Return to Course Builder</a>
@@ -566,7 +566,9 @@ export function renderAgentActivityPage(opts: AgentActivityPageOptions): string 
               ${formatAffectedEntities(item.affectedEntities, item.toolName)}
             </td>
             <td style="padding: 0.75rem 1rem; font-family: var(--font-mono); font-size: 0.8125rem; white-space: nowrap;">
-              r${item.baseRevision} → r${item.newRevision}
+              <span class="revision-badge inline-flex items-center font-mono text-xs px-2 py-0.5 rounded bg-raised border border-subtle">
+                r${item.baseRevision} → r${item.newRevision}
+              </span>
             </td>
             <td style="padding: 0.75rem 1rem;">
               ${outcomeBadge}
@@ -636,7 +638,7 @@ export function renderAgentActivityPage(opts: AgentActivityPageOptions): string 
           <thead style="background-color: var(--bg-canvas); border-bottom: 2px solid var(--border-default);">
             <tr>
               <th scope="col" style="padding: 0.75rem 1rem; font-size: 0.8125rem; font-weight: 600;">Time</th>
-              <th scope="col" style="padding: 0.75rem 1rem; font-size: 0.8125rem; font-weight: 600;">Token / Agent</th>
+              <th scope="col" style="padding: 0.75rem 1rem; font-size: 0.8125rem; font-weight: 600;">Connection</th>
               <th scope="col" style="padding: 0.75rem 1rem; font-size: 0.8125rem; font-weight: 600;">Operation</th>
               <th scope="col" style="padding: 0.75rem 1rem; font-size: 0.8125rem; font-weight: 600;">Affected Content</th>
               <th scope="col" style="padding: 0.75rem 1rem; font-size: 0.8125rem; font-weight: 600;">Revision</th>

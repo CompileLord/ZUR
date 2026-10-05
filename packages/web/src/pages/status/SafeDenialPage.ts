@@ -48,7 +48,11 @@ export function renderSafeDenialPage(opts: SafeDenialPageOptions): string {
       break;
   }
 
+  const wrapperClass = opts.type === 'not-found'
+    ? 'not-found-page container flex flex-col items-center justify-center py-24 text-center'
+    : 'container py-12';
+
   return renderPublicShell({
-    content: `<div class="container py-12">${content}</div>`,
+    content: `<div class="${wrapperClass}">${content}</div>`,
   });
 }

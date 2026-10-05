@@ -1,7 +1,7 @@
 {
   "method": "GUI Chrome Appearance Zoom setting selected 200% in an isolated temporary Chrome profile. Chrome CDP was used only to navigate, read browser metrics, and capture PNGs; no Emulation.setDeviceMetricsOverride, setDeviceScaleFactor, setPageScaleFactor, or forced zoom command was used.",
   "chromeVersion": "154.0.8037.57",
-  "measuredAt": "2026-09-26T21:15:21.506Z",
+  "measuredAt": "2026-10-04T14:16:25.687Z",
   "baseline": {
     "innerWidth": 1536,
     "innerHeight": 746,

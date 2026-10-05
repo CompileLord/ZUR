@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-04",
+  "command": "npm test",
+  "total": 555,
+  "passed": 542,
+  "failed": 13,
+  "failures": [
+    {
+      "test": "18 - Audit: tasks.json Module S1-M02 completion status and evidence files",
+      "error": "error: \"ENOENT: no such file or directory, stat '/home/compilelord/new/vibecoding/zur/screenshots/s4_m04_python_unsaved_public_failure_1440.png'\""
+    },
+    {
+      "test": "105 - T087 viewport matrix has both themes and real captures at each required CSS size",
+      "error": "error: \"ENOENT: no such file or directory, open '/home/compilelord/new/vibecoding/zur/screenshots/s4_m04_matrix_operations_1440x900_dark.png'\""
+    },
+    {
+      "test": "106 - T087 high-DPR reflow proxy declares and matches its verified viewport dimensions",
+      "error": "error: \"ENOENT: no such file or directory, open '/home/compilelord/new/vibecoding/zur/screenshots/s4_m04_matrix_python_dpr2_320css_dark.png'\""
+    },
+    {
+      "test": "107 - T087 actual Chrome 200% UI zoom has separately captured browser metrics and evidence",
+      "error": "error: \"ENOENT: no such file or directory, open '/home/compilelord/new/vibecoding/zur/screenshots/s4_t087_p01_landing_200zoom_dark_gui.png'\""
+    },
+    {
+      "test": "108 - T087 representative journeys have GUI Chrome 200% zoom captures with measured viewport/DPR",
+      "error": "error: \"ENOENT: no such file or directory, open '/home/compilelord/new/vibecoding/zur/screenshots/s4_t087_p01_landing_200zoom_dark_gui.png'\""
+    },
+    {
+      "test": "109 - T087 P28 roster header and filters fit the 320px and 390px viewports in both themes",
+      "error": "error: \"ENOENT: no such file or directory, open '/home/compilelord/new/vibecoding/zur/screenshots/s4_t087_p28_roster_students_and_invitations_390x844_dark.png'\""
+    },
+    {
+      "test": "110 - T087 real P15/P27 browser flows have authenticated API and screenshot evidence",
+      "error": "error: \"ENOENT: no such file or directory, open '/home/compilelord/new/vibecoding/zur/screenshots/s4_t087_p27_publish_receipt_390x844_dark.png'\""
+    },
+    {
+      "test": "111 - T087 live P12/P13 lessons, media authorization, and failure recovery have browser evidence",
+      "error": "error: \"ENOENT: no such file or directory, open '/home/compilelord/new/vibecoding/zur/screenshots/s4_t087_p12_theory_authorized_image_320x844_dark.png'\""
+    },
+    {
+      "test": "112 - T087 live P43 lifecycle at actual Chrome UI 200% keeps recovery actions and statuses visible",
+      "error": "error: 'screenshots/s4_t087_p43_live_reauth_error_200zoom_dark_gui.png'"
+    },
+    {
+      "test": "113 - T087 P43 authenticated token lifecycle captures a masked one-time value and revoked status",
+      "error": "error: \"ENOENT: no such file or directory, open '/home/compilelord/new/vibecoding/zur/screenshots/s4_t087_p43_reauth_error_1440x900_dark.png'\""
+    },
+    {
+      "test": "114 - T087 checkpoint gaps are explicit and evidence links resolve",
+      "error": "error: 'screenshots/s4_t087_p01_landing_320x844_dark.png exists'"
+    },
+    {
+      "test": "115 - T087 expanded journey captures resolve at their declared themes and CSS viewports",
+      "error": "error: \"ENOENT: no such file or directory, open '/home/compilelord/new/vibecoding/zur/screenshots/s4_t087_p01_landing_1440x900_dark.png'\""
+    },
+    {
+      "test": "117 - T087 admin waiver review screenshots come from the authenticated client/API flow",
+      "error": "error: \"ENOENT: no such file or directory, open '/home/compilelord/new/vibecoding/zur/screenshots/s4_t087_p34_waiver_scope_review_1440x900_dark.png'\""
+    }
+  ],
+  "build": "passed; Vite warns main chunk exceeds 500kB"
+}

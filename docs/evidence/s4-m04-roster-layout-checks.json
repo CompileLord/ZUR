@@ -9,32 +9,32 @@
       "documentWidth": 390,
       "documentClientWidth": 390,
       "headerWidth": 358,
-      "headerTitleBottom": 243,
-      "headerActionTop": 255,
+      "headerTitleBottom": 319,
+      "headerActionTop": 331,
       "headerActionRight": 374,
       "headerRight": 374,
-      "toolbarWidth": 356,
-      "toolbarScrollWidth": 356,
+      "toolbarWidth": 358,
+      "toolbarScrollWidth": 358,
       "controls": [
         {
-          "left": 29,
-          "right": 361
+          "left": 28,
+          "right": 362
         },
         {
-          "left": 29,
-          "right": 361
+          "left": 28,
+          "right": 362
         },
         {
-          "left": 29,
-          "right": 361
+          "left": 28,
+          "right": 362
         },
         {
-          "left": 29,
-          "right": 361
+          "left": 28,
+          "right": 362
         },
         {
-          "left": 29,
-          "right": 361
+          "left": 28,
+          "right": 362
         }
       ]
     },
@@ -46,32 +46,32 @@
       "documentWidth": 320,
       "documentClientWidth": 320,
       "headerWidth": 288,
-      "headerTitleBottom": 311,
-      "headerActionTop": 323,
+      "headerTitleBottom": 389,
+      "headerActionTop": 401,
       "headerActionRight": 304,
       "headerRight": 304,
-      "toolbarWidth": 286,
-      "toolbarScrollWidth": 286,
+      "toolbarWidth": 288,
+      "toolbarScrollWidth": 288,
       "controls": [
         {
-          "left": 29,
-          "right": 291
+          "left": 28,
+          "right": 292
         },
         {
-          "left": 29,
-          "right": 291
+          "left": 28,
+          "right": 292
         },
         {
-          "left": 29,
-          "right": 291
+          "left": 28,
+          "right": 292
         },
         {
-          "left": 29,
-          "right": 291
+          "left": 28,
+          "right": 292
         },
         {
-          "left": 29,
-          "right": 291
+          "left": 28,
+          "right": 292
         }
       ]
     },
@@ -83,32 +83,32 @@
       "documentWidth": 390,
       "documentClientWidth": 390,
       "headerWidth": 358,
-      "headerTitleBottom": 243,
-      "headerActionTop": 255,
+      "headerTitleBottom": 319,
+      "headerActionTop": 331,
       "headerActionRight": 374,
       "headerRight": 374,
-      "toolbarWidth": 356,
-      "toolbarScrollWidth": 356,
+      "toolbarWidth": 358,
+      "toolbarScrollWidth": 358,
       "controls": [
         {
-          "left": 29,
-          "right": 361
+          "left": 28,
+          "right": 362
         },
         {
-          "left": 29,
-          "right": 361
+          "left": 28,
+          "right": 362
         },
         {
-          "left": 29,
-          "right": 361
+          "left": 28,
+          "right": 362
         },
         {
-          "left": 29,
-          "right": 361
+          "left": 28,
+          "right": 362
         },
         {
-          "left": 29,
-          "right": 361
+          "left": 28,
+          "right": 362
         }
       ]
     },
@@ -120,32 +120,32 @@
       "documentWidth": 320,
       "documentClientWidth": 320,
       "headerWidth": 288,
-      "headerTitleBottom": 311,
-      "headerActionTop": 323,
+      "headerTitleBottom": 389,
+      "headerActionTop": 401,
       "headerActionRight": 304,
       "headerRight": 304,
-      "toolbarWidth": 286,
-      "toolbarScrollWidth": 286,
+      "toolbarWidth": 288,
+      "toolbarScrollWidth": 288,
       "controls": [
         {
-          "left": 29,
-          "right": 291
+          "left": 28,
+          "right": 292
         },
         {
-          "left": 29,
-          "right": 291
+          "left": 28,
+          "right": 292
         },
         {
-          "left": 29,
-          "right": 291
+          "left": 28,
+          "right": 292
         },
         {
-          "left": 29,
-          "right": 291
+          "left": 28,
+          "right": 292
         },
         {
-          "left": 29,
-          "right": 291
+          "left": 28,
+          "right": 292
         }
       ]
     }

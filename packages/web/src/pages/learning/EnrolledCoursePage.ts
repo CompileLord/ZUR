@@ -1,6 +1,8 @@
 import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
 import { renderProgressLine } from '../../components/common/CourseRow.ts';
+import { renderIcon, type IconName } from '../../components/common/icons.ts';
+import { humanizeEnum, formatDuration } from '../../utils/formatters.ts';
 
 export interface EnrolledCourseModule {
   id: string;
@@ -47,6 +49,21 @@ export interface EnrolledCoursePageOptions {
   modules: EnrolledCourseModule[];
 }
 
+function getStepIcon(type: 'theory' | 'video' | 'quiz' | 'python'): IconName {
+  switch (type) {
+    case 'theory':
+      return 'file-text';
+    case 'video':
+      return 'video';
+    case 'quiz':
+      return 'list-checks';
+    case 'python':
+      return 'code';
+    default:
+      return 'file-text';
+  }
+}
+
 export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): string {
   opts = safeTemplateData(opts);
   const withoutOrdinal = (title: string, kind: 'Module' | 'Lesson') =>
@@ -70,7 +87,7 @@ export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): strin
       <div class="completion-banner" role="region" aria-label="Course completion status">
         <div class="completion-header-row">
           <span class="status-badge success">Course complete</span>
-          <span class="completion-date">${completedDateText}</span>
+          <span class="completion-date text-muted">${completedDateText}</span>
         </div>
         <p class="completion-stats">
           All <strong>${opts.completedRequired} of ${opts.totalRequired}</strong> required steps satisfied${waiverText}.
@@ -89,21 +106,21 @@ export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): strin
     `;
   }
 
-  // Syllabus Tree / Lesson Rail
+  // Syllabus Tree / Lesson Rail (design.md §6)
   const syllabusHtml = `
     <div class="syllabus-container" role="region" aria-label="Course Syllabus">
       <h2 class="syllabus-heading">Course Syllabus</h2>
 
       <div class="syllabus-modules">
         ${opts.modules.map((mod, modIdx) => `
-          <div class="module-group" data-module-id="${mod.id}">
-            <h3 class="module-title">Module ${modIdx + 1}: ${withoutOrdinal(mod.title, 'Module')}</h3>
+          <div class="module-section" data-module-id="${mod.id}">
+            <h3 class="module-heading">Module ${modIdx + 1}: ${withoutOrdinal(mod.title, 'Module')}</h3>
 
             <div class="module-lessons">
               ${mod.lessons.map((les, lesIdx) => `
-                <div class="lesson-group" data-lesson-id="${les.id}">
-                  <h4 class="lesson-title">Lesson ${lesIdx + 1}: ${withoutOrdinal(les.title, 'Lesson')}</h4>
-                  ${les.description ? `<p class="lesson-desc">${les.description}</p>` : ''}
+                <div class="lesson-subgroup" data-lesson-id="${les.id}">
+                  <h4 class="lesson-subheading">Lesson ${lesIdx + 1}: ${withoutOrdinal(les.title, 'Lesson')}</h4>
+                  ${les.description ? `<p class="lesson-desc text-secondary">${les.description}</p>` : ''}
 
                   <ul class="lesson-steps-rail" role="list">
                     ${les.steps.map((stp) => {
@@ -121,27 +138,27 @@ export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): strin
                         statusLabel = 'Current step';
                       }
 
-                      const typeDisplay = stp.type.charAt(0).toUpperCase() + stp.type.slice(1);
                       const stepUrl = `/learn/${opts.enrollmentId}/steps/${stp.id}`;
+                      const iconName = getStepIcon(stp.type);
+                      const durationStr = formatDuration(stp.estimatedDurationMinutes);
 
                       return `
                         <li class="rail-item ${statusClass}" ${stp.isCurrent ? 'aria-current="step"' : ''}>
                           <div class="rail-marker-column" aria-hidden="true">
-                            <span class="rail-marker"></span>
+                            <span class="rail-marker">
+                              ${stp.isCompleted ? renderIcon('check', { size: 10, strokeWidth: 2.5 }) : ''}
+                            </span>
                             <span class="rail-line"></span>
                           </div>
                           <div class="rail-content">
                             <a href="${stepUrl}" class="rail-step-link">
+                              <span class="rail-step-icon" aria-hidden="true">${renderIcon(iconName, { size: 15 })}</span>
                               <span class="rail-title">${stp.title}</span>
                               <span class="rail-step-meta">
                                 <span class="sr-only">${statusLabel}. </span>
-                                <span>${typeDisplay}</span>
-                                <span>·</span>
-                                <span>${stp.isRequired ? 'Required' : 'Optional'}</span>
-                                <span>·</span>
-                                <span>${stp.estimatedDurationMinutes}m</span>
+                                ${!stp.isRequired ? '<span class="optional-tag">Optional</span>' : ''}
+                                ${durationStr ? `<span>${durationStr}</span>` : ''}
                                 ${stp.isWaived ? '<span class="status-badge warning">Waived</span>' : ''}
-                                ${stp.isCompleted ? '<span class="status-badge success">✓</span>' : ''}
                               </span>
                             </a>
                           </div>
@@ -158,18 +175,20 @@ export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): strin
     </div>
   `;
 
+  const durationStr = formatDuration(opts.estimatedDurationMinutes);
+
   const content = `
     <div class="enrolled-course-page">
       <div class="enrolled-course-container">
         ${archivedNoticeHtml}
         ${completionBannerHtml}
 
-        <header class="course-header-card">
-          <div class="course-header-meta">
-            <span class="version-tag">Version ${opts.pinnedVersionNumber}</span>
+        <header class="course-plain-header">
+          <div class="course-plain-meta">
+            <span class="version-quiet-tag">Version ${opts.pinnedVersionNumber}</span>
             <span>·</span>
-            <span>${opts.difficulty}</span>
-            ${opts.estimatedDurationMinutes > 0 ? `<span>·</span><span>~${opts.estimatedDurationMinutes} mins</span>` : ''}
+            <span>${humanizeEnum(opts.difficulty)}</span>
+            ${durationStr ? `<span>·</span><span>${durationStr}</span>` : ''}
           </div>
 
           <h1 class="course-title">${opts.title}</h1>
@@ -183,11 +202,11 @@ export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): strin
             })}
           </div>
 
-          <div class="course-header-actions">
+          <div class="course-plain-actions">
             ${
               resumeUrl
                 ? `
-                  <a href="${resumeUrl}" class="btn btn-primary btn-large">
+                  <a href="${resumeUrl}" class="btn btn-primary">
                     ${opts.isCompleted ? 'Review lessons' : opts.completedRequired > 0 ? 'Resume learning' : 'Start course'}
                   </a>
                 `

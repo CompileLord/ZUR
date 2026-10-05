@@ -491,7 +491,7 @@ export function createServer(
       if (method === 'GET' && pathname === '/api/admin/execution/status') {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
-        authService.requireAdmin(user);
+        adminService.requireAdmin(user.id);
         const overview = adminService.getOperationsOverview(user.id);
         sendJson(res, 200, { executionPaused: overview.execution.paused, updatedAt: overview.execution.updatedAt });
         return;
@@ -500,7 +500,7 @@ export function createServer(
       if (method === 'POST' && pathname === '/api/admin/execution/pause') {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
-        authService.requireAdmin(user);
+        adminService.requireAdmin(user.id);
         const body = await parseJsonBody(req);
         identityService.verifyCurrentPassword(user.id, body.currentPassword);
         sendJson(res, 200, adminService.setExecutionPaused(user.id, true, body.reason));
@@ -510,7 +510,7 @@ export function createServer(
       if (method === 'POST' && pathname === '/api/admin/execution/resume') {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
-        authService.requireAdmin(user);
+        adminService.requireAdmin(user.id);
         const body = await parseJsonBody(req);
         identityService.verifyCurrentPassword(user.id, body.currentPassword);
         sendJson(res, 200, adminService.setExecutionPaused(user.id, false, body.reason));
@@ -1154,6 +1154,21 @@ export function createServer(
         return;
       }
 
+      // Author: Reorder Modules
+      const authorCourseModulesReorderMatch = pathname.match(
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/modules\/reorder$/
+      );
+      if ((method === 'POST' || method === 'PUT') && authorCourseModulesReorderMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseModulesReorderMatch[1];
+        const body = await parseJsonBody(req);
+        const moduleIds = body.moduleIds || body.ids;
+        const result = courseStructureService.reorderModules(user.id, courseId, moduleIds);
+        sendJson(res, 200, result);
+        return;
+      }
+
       // 37. Author: Update / Delete Module (T031)
       const authorCourseModuleItemMatch = pathname.match(
         /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/modules\/([a-zA-Z0-9_-]+)$/
@@ -1200,6 +1215,22 @@ export function createServer(
         return;
       }
 
+      // Author: Reorder Lessons
+      const authorCourseLessonsReorderMatch = pathname.match(
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/modules\/([a-zA-Z0-9_-]+)\/lessons\/reorder$/
+      );
+      if ((method === 'POST' || method === 'PUT') && authorCourseLessonsReorderMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseLessonsReorderMatch[1];
+        const moduleId = authorCourseLessonsReorderMatch[2];
+        const body = await parseJsonBody(req);
+        const lessonIds = body.lessonIds || body.ids;
+        const result = courseStructureService.reorderLessons(user.id, courseId, moduleId, lessonIds);
+        sendJson(res, 200, result);
+        return;
+      }
+
       // 39. Author: Update / Delete Lesson (T031)
       const authorCourseLessonItemMatch = pathname.match(
         /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/lessons\/([a-zA-Z0-9_-]+)$/
@@ -1236,6 +1267,22 @@ export function createServer(
         const body = await parseJsonBody(req);
         const step = courseStructureService.addStep(user.id, courseId, lessonId, body);
         sendJson(res, 201, step);
+        return;
+      }
+
+      // Author: Reorder Steps
+      const authorCourseStepsReorderMatch = pathname.match(
+        /^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/lessons\/([a-zA-Z0-9_-]+)\/steps\/reorder$/
+      );
+      if ((method === 'POST' || method === 'PUT') && authorCourseStepsReorderMatch) {
+        if (!token) throw new AuthenticationError();
+        const { user } = identityService.authenticateSession(token);
+        const courseId = authorCourseStepsReorderMatch[1];
+        const lessonId = authorCourseStepsReorderMatch[2];
+        const body = await parseJsonBody(req);
+        const stepIds = body.stepIds || body.ids;
+        const result = courseStructureService.reorderSteps(user.id, courseId, lessonId, stepIds);
+        sendJson(res, 200, result);
         return;
       }
 
@@ -1966,7 +2013,7 @@ export function createServer(
       if (err instanceof ZURError) {
         sendJson(res, err.statusCode, err.toJSON());
       } else {
-        console.error(JSON.stringify({ level: 'error', event: 'http.unhandled', requestId }));
+        console.error(JSON.stringify({ level: 'error', event: 'http.unhandled', requestId, err: err.stack }));
         sendJson(res, 500, {
           error: {
             code: 'INFRASTRUCTURE_ERROR',

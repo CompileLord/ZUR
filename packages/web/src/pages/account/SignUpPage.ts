@@ -1,6 +1,6 @@
 import { escapeHtml } from '../../utils/escape-html.ts';
 import { renderAccountShell } from '../../components/shells/AccountShell.ts';
-import { renderTextInput, renderButton } from '../../components/common/index.ts';
+import { renderTextInput, renderButton, renderIcon } from '../../components/common/index.ts';
 
 export interface SignUpPageOptions {
   displayName?: string;
@@ -32,7 +32,6 @@ export function renderSignUpPage(opts: SignUpPageOptions = {}): string {
         value: opts.displayName || '',
         required: true,
         placeholder: 'Ada Lovelace',
-        hint: 'Your public name on course rosters',
       })}
 
       ${renderTextInput({
@@ -45,24 +44,37 @@ export function renderSignUpPage(opts: SignUpPageOptions = {}): string {
         placeholder: 'you@example.com',
       })}
 
-      <div class="password-field-wrapper mb-4">
-        ${renderTextInput({
-          id: 'password',
-          name: 'password',
-          label: 'Password',
-          type: 'password',
-          required: true,
-          hint: 'At least 8 characters',
-        })}
-        <div class="flex justify-end mt-1">
-          <button type="button" id="toggle-password" class="btn btn-ghost btn-compact text-xs" aria-label="Show password">
-            Show password
+      <div class="form-group mb-4" id="group-password">
+        <label for="password" class="form-label">
+          Password <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <div class="password-input-wrapper relative">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-input pr-10"
+            required
+            aria-describedby="password-hint"
+          />
+          <button
+            type="button"
+            id="toggle-password"
+            class="password-toggle-btn"
+            aria-label="Show password"
+            title="Show password"
+          >
+            ${renderIcon('eye', { size: 16 })}
           </button>
         </div>
+        <span id="password-hint" class="form-hint">At least 8 characters</span>
       </div>
 
-      <div class="pilot-eligibility-note mb-4 p-3 bg-surface border border-subtle rounded text-xs text-secondary">
-        <label><input type="checkbox" name="adultConfirmed" required /> I confirm that I am at least 18 years of age and agree to the <a href="/terms" class="text-primary underline">Terms of Service</a> and <a href="/privacy" class="text-primary underline">Privacy Policy</a>.</label>
+      <div class="consent-row">
+        <input type="checkbox" id="adultConfirmed" name="adultConfirmed" class="consent-checkbox" required />
+        <label for="adultConfirmed" class="consent-label">
+          I confirm that I am at least 18 years of age and agree to the <a href="/terms" class="consent-link">Terms of Service</a> and <a href="/privacy" class="consent-link">Privacy Policy</a>.
+        </label>
       </div>
 
       <input type="hidden" name="returnTo" value="${escapeHtml(opts.returnTo)}" />
@@ -84,7 +96,6 @@ export function renderSignUpPage(opts: SignUpPageOptions = {}): string {
 
   return renderAccountShell({
     title: 'Create your account',
-    subtitle: 'Start learning and practicing Python in the browser',
     formContent,
   });
 }

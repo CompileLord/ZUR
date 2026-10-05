@@ -1,0 +1,16 @@
+{
+  "scope": "desktop 1440x900 dark/light only; obsolete S4 scripts removed",
+  "tests": {
+    "passed": 565,
+    "failed": 0,
+    "skipped": 0
+  },
+  "build": "passed",
+  "entry_kb": 318.77,
+  "git_diff_check": "passed",
+  "browser_probe": "failed Journey0 sign-in field null before render",
+  "agy_status": "ERROR",
+  "agy_error": "RESOURCE_EXHAUSTED429 individual quota",
+  "conversation_id": "2aa23021-8b22-4b8e-95f4-da8b22d717ef",
+  "broader_acceptance": "incomplete"
+}

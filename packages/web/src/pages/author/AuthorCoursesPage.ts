@@ -1,5 +1,7 @@
 import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
+import { renderIcon } from '../../components/common/icons.ts';
+import { formatDate } from '../../utils/formatters.ts';
 
 export interface AuthorCourseItem {
   id: string;
@@ -101,10 +103,10 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
 
         <div class="sample-tree-preview" aria-hidden="true">
           <div class="sample-tree-title">Sample Course Structure</div>
-          <div class="sample-tree-node">📁 Module 1: Foundations</div>
-          <div class="sample-tree-node child">📄 Lesson 1: Introduction (Theory)</div>
-          <div class="sample-tree-node child">⚡ Lesson 2: Logic Quiz</div>
-          <div class="sample-tree-node child">🐍 Lesson 3: First Python Exercise</div>
+          <div class="sample-tree-node">${renderIcon('folder', { size: 14 })} Module 1: Foundations</div>
+          <div class="sample-tree-node child">${renderIcon('file-text', { size: 14 })} Lesson 1: Introduction (Theory)</div>
+          <div class="sample-tree-node child">${renderIcon('list-checks', { size: 14 })} Lesson 2: Logic Quiz</div>
+          <div class="sample-tree-node child">${renderIcon('code', { size: 14 })} Lesson 3: First Python Exercise</div>
         </div>
       </div>
     `;
@@ -123,23 +125,26 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
           .map((c) => {
             const isDraft = c.publicationStatus === 'draft';
             const isPublished = c.publicationStatus === 'published';
-            const statusBadgeClass = isPublished ? 'badge-success' : isDraft ? 'badge-warning' : 'badge-neutral';
+            const statusBadgeClass = isPublished ? 'status-badge success' : isDraft ? 'status-badge warning' : 'status-badge muted';
             const actionLabel = isDraft ? 'Continue editing' : 'Open course';
             const studentText = c.studentCount === 1 ? '1 student' : `${c.studentCount} students`;
+            const editDateFormatted = c.lastEditTime ? (formatDate(c.lastEditTime) || new Date(c.lastEditTime).toLocaleDateString()) : '';
 
             return `
               <article class="course-card author-course-row" aria-labelledby="course-heading-${c.id}">
                 <div class="course-row-main">
                   <div class="course-row-meta">
-                    <span class="status-badge ${statusBadgeClass}">${c.publicationStatus}</span>
-                    ${c.hasUnpublishedChanges ? '<span class="status-badge badge-info">Unpublished changes</span>' : ''}
-                    <span class="meta-separator">·</span>
-                    <span class="student-count-text">${studentText}</span>
+                    <span class="${statusBadgeClass}">${c.publicationStatus === 'published' ? 'Published' : c.publicationStatus === 'draft' ? 'Draft' : 'Archived'}</span>
+                    ${c.hasUnpublishedChanges ? '<span class="status-badge info">Unpublished changes</span>' : ''}
+                    ${c.studentCount > 0 ? `
+                      <span class="meta-separator">·</span>
+                      <span class="student-count-text">${studentText}</span>
+                    ` : ''}
                   </div>
                   <h2 id="course-heading-${c.id}" class="course-row-title">
                     <a href="/teach/${c.id}/content">${c.title}</a>
                   </h2>
-                  <div class="course-row-date">Edited ${new Date(c.lastEditTime).toLocaleDateString()}</div>
+                  ${editDateFormatted ? `<div class="course-row-date text-xs text-muted">Edited ${editDateFormatted}</div>` : ''}
                 </div>
                 <div class="course-row-actions">
                   <a href="/teach/${c.id}/content" class="btn btn-secondary btn-compact">${actionLabel}</a>
@@ -164,24 +169,29 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
         </div>
       </header>
 
-      <div class="author-toolbar">
-        <nav class="filter-tabs" role="tablist" aria-label="Course Status Filters">
-          <a href="/teach?status=all" class="filter-tab ${activeFilter === 'all' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'all'}">All</a>
-          <a href="/teach?status=draft" class="filter-tab ${activeFilter === 'draft' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'draft'}">Drafts</a>
-          <a href="/teach?status=published" class="filter-tab ${activeFilter === 'published' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'published'}">Published</a>
-          <a href="/teach?status=archived" class="filter-tab ${activeFilter === 'archived' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'archived'}">Archived</a>
+      <div class="author-toolbar flex flex-wrap items-center justify-between gap-3 mb-6">
+        <nav class="segmented-control segmented-tabs" role="tablist" aria-label="Course Status Filters">
+          <a href="/teach?status=all" class="segmented-control-btn filter-tab ${activeFilter === 'all' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'all'}">All</a>
+          <a href="/teach?status=draft" class="segmented-control-btn filter-tab ${activeFilter === 'draft' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'draft'}">Drafts</a>
+          <a href="/teach?status=published" class="segmented-control-btn filter-tab ${activeFilter === 'published' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'published'}">Published</a>
+          <a href="/teach?status=archived" class="segmented-control-btn filter-tab ${activeFilter === 'archived' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'archived'}">Archived</a>
         </nav>
 
         <form class="search-form" method="GET" action="/teach">
           <input type="hidden" name="status" value="${activeFilter}" />
-          <input
-            type="search"
-            name="search"
-            class="text-input search-input"
-            placeholder="Search courses..."
-            value="${searchQuery}"
-            aria-label="Search courses by title"
-          />
+          <div class="search-input-wrapper">
+            <span class="search-input-icon" aria-hidden="true">
+              ${renderIcon('search', { size: 14 })}
+            </span>
+            <input
+              type="search"
+              name="search"
+              class="text-input search-input"
+              placeholder="Search courses..."
+              value="${searchQuery}"
+              aria-label="Search courses by title"
+            />
+          </div>
         </form>
       </div>
 
@@ -196,6 +206,7 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
   return renderAppShell({
     user: opts.user as any,
     activeMode: 'teach',
+    activePath: '/teach',
     content: pageContent,
   });
 }

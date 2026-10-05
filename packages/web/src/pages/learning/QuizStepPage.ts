@@ -1,5 +1,6 @@
 import { renderLearningWorkspaceShell } from '../../components/shells/LearningWorkspaceShell.ts';
 import { escapeHtml } from '../../components/escape-html.ts';
+import { formatDuration } from '../../utils/formatters.ts';
 
 export interface QuizOptionItem {
   id: string;
@@ -72,21 +73,21 @@ export function renderQuizStepPage(opts: QuizStepPageOptions): string {
   if (opts.isCompleted && !isEvaluated) {
     practiceBannerHtml = `
       <div class="practice-notice" role="note">
-        <span>Step completed ✓ — You can practice without affecting your completed status.</span>
+        <span>Step completed — You can practice without affecting your completed status.</span>
       </div>
     `;
   }
 
+  const durationStr = formatDuration(opts.estimatedDurationMinutes);
+
   const workspaceContent = `
     <article class="quiz-step-content" role="region" aria-label="Quiz Assessment">
       <div class="reading-meta-bar">
-        <span class="step-ordinal">${opts.stepOrdinalText}</span>
+        <span class="step-ordinal">${escapeHtml(opts.stepOrdinalText)}</span>
         <span>·</span>
         <span>Quiz assessment</span>
-        <span>·</span>
-        <span>${opts.isRequired ? 'Required' : 'Optional'}</span>
-        <span>·</span>
-        <span>~${opts.estimatedDurationMinutes}m</span>
+        ${!opts.isRequired ? '<span>·</span><span class="optional-tag">Optional</span>' : ''}
+        ${durationStr ? `<span>·</span><span>${durationStr}</span>` : ''}
       </div>
 
       <h1 class="quiz-title">${escapeHtml(opts.stepTitle)}</h1>
@@ -103,6 +104,7 @@ export function renderQuizStepPage(opts: QuizStepPageOptions): string {
       </div>
 
       <form
+        id="quiz-form"
         method="POST"
         action="/api/steps/${encodeURIComponent(opts.stepId)}/quiz/submit"
         class="quiz-form"
@@ -110,7 +112,7 @@ export function renderQuizStepPage(opts: QuizStepPageOptions): string {
       >
         <input type="hidden" name="enrollmentId" value="${escapeHtml(opts.enrollmentId)}" />
         <div class="quiz-options-group" role="group" aria-label="Answer options">
-          ${opts.options.map((opt, idx) => {
+          ${opts.options.map((opt) => {
             const isSelected = selectedSet.has(opt.id);
             const isCorrect = correctSet.has(opt.id);
 
@@ -135,40 +137,32 @@ export function renderQuizStepPage(opts: QuizStepPageOptions): string {
         </div>
 
         ${feedbackPanelHtml}
-
-        <footer class="step-navigation-footer">
-          <div class="footer-left">
-            ${
-              opts.previousStepUrl
-                ? `<a href="${opts.previousStepUrl}" class="btn btn-secondary btn-compact">Previous</a>`
-                : ''
-            }
-          </div>
-
-          <div class="footer-center">
-            <a href="/help" class="report-issue-link">
-              Report issue
-            </a>
-          </div>
-
-          <div class="footer-right">
-            ${
-              isPassed && opts.nextStepUrl
-                ? `<a href="${opts.nextStepUrl}" class="btn btn-primary btn-compact">Next step →</a>`
-                : isPassed && opts.courseOverviewUrl
-                ? `<a href="${opts.courseOverviewUrl}" class="btn btn-secondary btn-compact">Course overview</a>`
-                : ''
-            }
-            <button
-              type="submit"
-              class="btn btn-primary check-answer-btn"
-            >
-              ${isPassed ? 'Check again' : 'Check answer'}
-            </button>
-          </div>
-        </footer>
       </form>
+
+      <div class="quiz-footer-quiet-action">
+        <a href="/help?report=broken_exercise&stepId=${encodeURIComponent(opts.stepId)}&enrollmentId=${encodeURIComponent(opts.enrollmentId)}" class="report-issue-link btn-ghost btn-compact text-muted">
+          Report issue
+        </a>
+      </div>
     </article>
+  `;
+
+  // Single footer action controls
+  const taskActions = `
+    ${
+      isPassed && opts.nextStepUrl
+        ? `<a href="${escapeHtml(opts.nextStepUrl)}" class="btn btn-primary btn-compact">Next step →</a>`
+        : isPassed && opts.courseOverviewUrl
+        ? `<a href="${escapeHtml(opts.courseOverviewUrl)}" class="btn btn-secondary btn-compact">Course overview</a>`
+        : ''
+    }
+    <button
+      type="submit"
+      form="quiz-form"
+      class="btn ${isPassed ? 'btn-secondary' : 'btn-primary'} btn-compact check-answer-btn"
+    >
+      ${isPassed ? 'Check again' : 'Check answer'}
+    </button>
   `;
 
   return renderLearningWorkspaceShell({
@@ -181,6 +175,7 @@ export function renderQuizStepPage(opts: QuizStepPageOptions): string {
     outlineContent: opts.outlineContent || '<p class="outline-empty">Outline available</p>',
     workspaceContent,
     previousStepUrl: opts.previousStepUrl,
-    nextStepUrl: opts.nextStepUrl,
+    nextStepUrl: null, // Unified through taskActions
+    taskActions,
   });
 }

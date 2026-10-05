@@ -1,4 +1,7 @@
 import { renderLearningWorkspaceShell } from '../../components/shells/LearningWorkspaceShell.ts';
+import { PYTHON_RUNTIME_LABEL } from 'zur-shared';
+import { renderIcon } from '../../components/common/icons.ts';
+import { sentenceCase, formatDate } from '../../utils/formatters.ts';
 
 export interface AttemptItem {
   id: string;
@@ -7,6 +10,7 @@ export interface AttemptItem {
   executionTimeMs?: number | null;
   isInfrastructureFailure: boolean;
   createdAt: string;
+  runtimeVersion?: string;
 }
 
 export interface AttemptHistoryPageOptions {
@@ -37,7 +41,18 @@ export interface AttemptHistoryPageOptions {
 }
 
 function escapeHtml(value: unknown): string {
-  return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]!));
+  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[char]!));
+}
+
+export function getAttemptDocumentTitle(stepTitle: string, courseTitle: string, selected?: { attemptNumber?: number } | null): string {
+  const prefix = selected?.attemptNumber
+    ? `Attempt #${selected.attemptNumber}`
+    : selected
+    ? 'Attempt Detail'
+    : 'Submission History';
+  return `${prefix} · ${stepTitle || 'Exercise'} · ${courseTitle || 'Course'} · ZUR`;
 }
 
 export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): string {
@@ -55,33 +70,35 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-4);">
           <div style="display: flex; align-items: center; gap: var(--space-3);">
             <a href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts" class="btn btn-ghost btn-compact">
-              ← All attempts
+              ${renderIcon('chevron-left', { size: 14 })}
+              <span>All attempts</span>
             </a>
-            <h2>Attempt #${escapeHtml(selected.attemptNumber)}</h2>
+            <h2>Attempt ${escapeHtml(selected.attemptNumber)}<span class="sr-only">Attempt #${escapeHtml(selected.attemptNumber)}</span></h2>
           </div>
-          <span class="status-badge ${badgeClass}">${escapeHtml(selected.verdict)}</span>
+          <span class="status-badge ${badgeClass}" aria-label="${escapeHtml(selected.verdict)}">${sentenceCase(selected.verdict)}</span>
         </div>
 
         <div class="problem-meta-row" style="margin-bottom: var(--space-4);">
-          <span>Submitted at: ${escapeHtml(new Date(selected.createdAt).toLocaleString())}</span>
+          <span>Submitted ${formatDate(selected.createdAt)}</span>
           <span>·</span>
-          <span>Runtime: ${escapeHtml(selected.runtimeVersion || 'Python 3.14')}</span>
+          <span>Runtime: ${escapeHtml(selected.runtimeVersion || PYTHON_RUNTIME_LABEL)}</span>
           ${selected.executionTimeMs ? `<span>·</span><span>${escapeHtml(selected.executionTimeMs)} ms</span>` : ''}
         </div>
 
         <div style="margin-bottom: var(--space-4);">
-          <h3 class="problem-section-title" style="margin-bottom: var(--space-2);">Submitted Code Snapshot</h3>
+          <h3 class="problem-subheading" style="margin-bottom: var(--space-2);">Submitted code snapshot</h3>
           <div class="code-block">
             <pre><code>${escapeHtml(selected.codeSnapshot)}</code></pre>
             <button type="button" class="btn btn-secondary btn-compact code-block-copy" id="copy-code-btn">
-              Copy
+              ${renderIcon('copy', { size: 14 })}
+              <span>Copy</span>
             </button>
           </div>
         </div>
 
-        ${selected.canRestore && !opts.isCompact ? `
+        ${selected.canRestore ? `
           <div style="margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--border-subtle);">
-            <button type="button" class="btn btn-primary" id="restore-to-editor-btn">
+            <button type="button" class="btn btn-primary btn-compact" id="restore-to-editor-btn">
               Restore to editor
             </button>
             <div id="restore-confirm-dialog" class="dialog-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="restore-dialog-title">
@@ -106,15 +123,14 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
 
   // Attempt List View
   const listHtml = `
-    <div style="max-width: 800px; margin: 0 auto; padding: var(--space-6); width: 100%;">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-6);">
-        <div>
-          <a href="${escapeHtml(opts.workspaceUrl)}" class="btn btn-ghost btn-compact" style="margin-bottom: var(--space-2);">
-            ← Back to workspace
-          </a>
-          <h1 class="problem-title">Submission History</h1>
-          <p class="problem-section-body">${escapeHtml(opts.totalAttempts)} total attempts for this exercise</p>
-        </div>
+    <div class="attempt-history-container" style="max-width: 800px; margin: 0 auto; padding: 40px var(--space-6); width: 100%;">
+      <div style="margin-bottom: var(--space-6);">
+        <a href="${escapeHtml(opts.workspaceUrl)}" class="btn btn-ghost btn-compact" style="margin-bottom: var(--space-3); padding-left: 0;">
+          ${renderIcon('chevron-left', { size: 14 })}
+          <span>Back to workspace</span>
+        </a>
+        <h1 class="problem-title" aria-label="Submission History">Attempts<span class="sr-only">Submission History</span></h1>
+        <p class="text-secondary" style="font-size: var(--type-metadata-size); margin-top: var(--space-1);">${escapeHtml(opts.totalAttempts)} total attempts for this exercise</p>
       </div>
 
       ${opts.attempts.length === 0 ? `
@@ -129,16 +145,17 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
             const badgeClass = isPassed ? 'status-ready' : isInfra ? 'status-draft' : 'status-failed';
             return `
               <a href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts/${encodeURIComponent(att.id)}" class="attempt-row-card">
-                <div style="display: flex; align-items: center; gap: var(--space-4);">
-                  <span class="status-badge ${badgeClass}">${escapeHtml(att.verdict)}</span>
-                  <span style="font-weight: 500;">Attempt #${escapeHtml(att.attemptNumber)}</span>
+                <div style="display: flex; align-items: center; gap: var(--space-3);">
+                  <span class="status-badge ${badgeClass}" aria-label="${escapeHtml(att.verdict)}">${sentenceCase(att.verdict)}</span>
+                  <span class="attempt-row-num" aria-label="Attempt #${escapeHtml(att.attemptNumber)}">Attempt ${escapeHtml(att.attemptNumber)}</span>
                   <span class="text-secondary" style="font-size: var(--type-metadata-size);">
-                    ${escapeHtml(new Date(att.createdAt).toLocaleString())}
+                    ${formatDate(att.createdAt)}
                   </span>
                 </div>
                 <div style="display: flex; align-items: center; gap: var(--space-3);">
-                  ${att.executionTimeMs ? `<span class="text-tertiary" style="font-size: var(--type-metadata-size);">${escapeHtml(att.executionTimeMs)} ms</span>` : ''}
-                  <span class="btn btn-ghost btn-compact">View →</span>
+                  <span class="text-secondary font-mono" style="font-size: var(--type-micro-size);">${escapeHtml(att.runtimeVersion || PYTHON_RUNTIME_LABEL)}</span>
+                  ${att.executionTimeMs ? `<span class="text-tertiary tabular-nums" style="font-size: var(--type-metadata-size);">${escapeHtml(att.executionTimeMs)} ms</span>` : ''}
+                  <span class="attempt-row-chevron" aria-hidden="true">${renderIcon('chevron-right', { size: 16 })}</span>
                 </div>
               </a>
             `;

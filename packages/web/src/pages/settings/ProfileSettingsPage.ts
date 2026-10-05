@@ -12,11 +12,12 @@ export interface ProfileSettingsPageOptions {
 
 export function renderProfileSettingsPage(opts: ProfileSettingsPageOptions): string {
   return `
-    <div class="settings-container max-w-2xl py-6">
-      <h1 class="h1 mb-2">Profile settings</h1>
-      <p class="text-sm text-secondary mb-6">Manage how you are identified on rosters and course submissions.</p>
-
-      ${renderSettingsNav('profile')}
+    <div class="settings-container">
+      <header class="settings-header">
+        <h1 class="settings-title">Settings</h1>
+        ${renderSettingsNav('profile')}
+      </header>
+      <h2 class="sr-only">Profile settings</h2>
 
       ${
         opts.error
@@ -38,52 +39,59 @@ export function renderProfileSettingsPage(opts: ProfileSettingsPageOptions): str
           : ''
       }
 
-      <form id="profile-settings-form" class="space-y-6" novalidate>
-        <div class="card p-6 bg-surface border border-subtle rounded-lg">
-          <h2 class="text-base font-semibold mb-4">Identity</h2>
-
-          ${renderTextInput({
-            id: 'displayName',
-            name: 'displayName',
-            label: 'Display name',
-            type: 'text',
-            value: opts.user.displayName,
-            required: true,
-            hint: 'Visible to teachers and peers in enrolled courses.',
-          })}
-
-          <div class="email-info-group mt-6">
-            <label class="form-label mb-1">Email address</label>
-            <div class="flex items-center gap-3">
-              <input
-                type="email"
-                id="profile-email"
-                class="form-input bg-canvas text-secondary cursor-not-allowed"
-                value="${opts.user.email}"
-                readonly
-                disabled
-              />
-              ${
-                opts.user.emailVerified
-                  ? renderStatusBadge({ status: 'success', label: 'Verified' })
-                  : renderStatusBadge({ status: 'warning', label: 'Unverified' })
-              }
-            </div>
-            <p class="form-hint mt-2 text-xs text-muted">
-              Email addresses cannot be changed directly in the pilot. Contact <a href="/help" class="text-primary underline">support</a> for assistance.
-            </p>
+      <form id="profile-settings-form" novalidate>
+        <section class="settings-section" aria-labelledby="profile-identity-heading">
+          <div class="settings-section-header">
+            <h3 id="profile-identity-heading" class="settings-section-title">Identity</h3>
+            <p class="settings-section-desc">Manage how you are identified on rosters, submissions, and course discussions.</p>
           </div>
-        </div>
 
-        <div class="flex justify-end gap-3 mt-6">
-          ${renderButton({
-            id: 'btn-save-profile',
-            label: opts.isLoading ? 'Saving…' : 'Save changes',
-            variant: 'primary',
-            type: 'submit',
-            disabled: opts.isLoading,
-          })}
-        </div>
+          <div class="settings-section-content">
+            <div class="form-group">
+              ${renderTextInput({
+                id: 'displayName',
+                name: 'displayName',
+                label: 'Display name',
+                type: 'text',
+                value: opts.user.displayName,
+                required: true,
+                hint: 'Visible to teachers and peers in enrolled courses.',
+              })}
+            </div>
+
+            <div class="form-group">
+              <label for="profile-email" class="form-label mb-1">Email address</label>
+              <div class="flex items-center gap-3">
+                <input
+                  type="email"
+                  id="profile-email"
+                  class="form-input bg-canvas text-secondary cursor-not-allowed"
+                  value="${opts.user.email}"
+                  readonly
+                  disabled
+                />
+                ${
+                  opts.user.emailVerified
+                    ? renderStatusBadge({ status: 'success', label: 'Verified' })
+                    : renderStatusBadge({ status: 'warning', label: 'Unverified' })
+                }
+              </div>
+              <p class="form-hint mt-1 text-xs text-muted">
+                Email addresses cannot be changed directly in the pilot. Contact <a href="/help" class="text-primary underline">support</a> for assistance.
+              </p>
+            </div>
+
+            <div class="pt-2">
+              ${renderButton({
+                id: 'btn-save-profile',
+                label: opts.isLoading ? 'Saving…' : 'Save changes',
+                variant: 'primary',
+                type: 'submit',
+                disabled: opts.isLoading ?? true,
+              })}
+            </div>
+          </div>
+        </section>
       </form>
     </div>
   `;

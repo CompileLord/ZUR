@@ -1,6 +1,7 @@
 import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
 import { renderMarkdownToHtml } from 'zur-shared';
+import { renderIcon } from '../../components/common/icons.ts';
 
 export interface TheoryEditorPageOptions {
   courseId: string;
@@ -28,7 +29,7 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
       ? 'Unsaved edits (offline)'
       : opts.saveStatus === 'conflict'
       ? 'Draft conflict'
-      : 'Saved';
+      : undefined;
 
   const previewHtml = renderMarkdownToHtml(rawMarkdown || '');
 
@@ -54,18 +55,18 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
       ${opts.saveMessage ? `<div class="alert alert-info mt-2" role="status">${opts.saveMessage}</div>` : ''}
 
       <!-- Modest formatting toolbar (design §12 P23) -->
-      <div class="markdown-toolbar mt-3" role="toolbar" aria-label="Text Formatting">
+      <div class="markdown-toolbar mt-3 flex flex-wrap gap-1 p-2 bg-surface border border-subtle rounded-md" role="toolbar" aria-label="Text Formatting">
         <button type="button" class="btn btn-secondary btn-compact" data-format="bold" aria-label="Bold"><strong>B</strong></button>
         <button type="button" class="btn btn-secondary btn-compact" data-format="italic" aria-label="Italic"><em>I</em></button>
         <button type="button" class="btn btn-secondary btn-compact" data-format="heading" aria-label="Heading">H</button>
         <button type="button" class="btn btn-secondary btn-compact" data-format="code" aria-label="Code block">&lt;/&gt;</button>
-        <button type="button" class="btn btn-secondary btn-compact" data-format="list" aria-label="Bullet list">• List</button>
-        <button type="button" class="btn btn-secondary btn-compact" data-format="table" aria-label="Table">▦ Table</button>
-        <button type="button" class="btn btn-secondary btn-compact" data-format="callout" aria-label="Callout">📌 Callout</button>
-        <button type="button" class="btn btn-secondary btn-compact" data-format="image" aria-label="Insert image">🖼️ Image</button>
+        <button type="button" class="btn btn-secondary btn-compact" data-format="list" aria-label="Bullet list" title="Bullet list">${renderIcon('list', { size: 14 })}</button>
+        <button type="button" class="btn btn-secondary btn-compact" data-format="table" aria-label="Table" title="Table">${renderIcon('table', { size: 14 })}</button>
+        <button type="button" class="btn btn-secondary btn-compact" data-format="callout" aria-label="Callout" title="Callout">${renderIcon('callout', { size: 14 })}</button>
+        <button type="button" class="btn btn-secondary btn-compact" data-format="image" aria-label="Insert image" title="Insert image">${renderIcon('image', { size: 14 })}</button>
       </div>
 
-      <div class="theory-tabs mt-2" role="tablist">
+      <div class="theory-tabs mt-3" role="tablist">
         <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="edit">Edit</button>
         <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="preview">Preview</button>
       </div>
@@ -74,16 +75,16 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
         <label for="theory-markdown-input" class="visually-hidden">Theory Content (Markdown)</label>
         <textarea
           id="theory-markdown-input"
-          class="textarea-input theory-markdown-textarea"
+          class="textarea-input theory-markdown-textarea w-full font-mono text-sm leading-relaxed"
           rows="18"
           placeholder="Write explanation in Markdown..."
           aria-describedby="markdown-help"
         >${opts.markdown}</textarea>
-        <p id="markdown-help" class="field-hint">Supports standard Markdown, tables, code blocks, callouts (> [!NOTE]), and images.</p>
+        <p id="markdown-help" class="field-hint text-xs text-muted mt-1.5">Supports standard Markdown, tables, code blocks, callouts (> [!NOTE]), and images.</p>
       </div>
 
       <div class="theory-preview-pane mt-2" style="display:none;" role="region" aria-label="Theory Preview">
-        <div class="rendered-markdown-content rich-text-body">
+        <div class="rendered-markdown-content rich-text-body p-4 bg-surface border border-subtle rounded-md">
           ${previewHtml}
         </div>
       </div>
@@ -96,7 +97,7 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
 
       <div class="form-group mt-3">
         <label for="step-duration" class="field-label">Estimated duration</label>
-        <div class="input-with-unit">
+        <div class="input-with-unit flex items-center">
           <input
             id="step-duration"
             type="number"
@@ -105,12 +106,12 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
             class="text-input input-compact"
             value="${opts.estimatedDurationMinutes}"
           />
-          <span class="unit-text">min</span>
+          <span class="unit-text text-xs text-muted ml-1.5">min</span>
         </div>
       </div>
 
       <div class="form-group mt-3">
-        <label class="checkbox-label">
+        <label class="checkbox-label flex items-center gap-2 text-sm text-secondary">
           <input
             id="step-required"
             type="checkbox"
@@ -125,10 +126,6 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
       <h4 class="text-sm font-semibold text-secondary">Asset tools</h4>
       <p class="text-secondary text-xs mt-1">Upload PNG, JPEG, or WebP images up to 10 MB.</p>
       <button type="button" class="btn btn-secondary btn-compact mt-2" data-action="open-asset-modal">Upload asset</button>
-
-      <div class="action-row mt-4">
-        <a href="/teach/${opts.courseId}/preview/${opts.stepId}" class="btn btn-secondary btn-compact w-full">Preview as student</a>
-      </div>
     </div>
   `;
 
