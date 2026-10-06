@@ -1,6 +1,6 @@
 import { EditorState } from '@codemirror/state';
-import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from '@codemirror/view';
-import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
+import { EditorView, keymap, lineNumbers } from '@codemirror/view';
+import { defaultKeymap, history, historyKeymap, indentWithTab, undo, redo } from '@codemirror/commands';
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
 import { bracketMatching, HighlightStyle, syntaxHighlighting, indentOnInput, indentUnit } from '@codemirror/language';
 import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
@@ -19,12 +19,15 @@ export interface CodeMirrorSetupOptions {
 export interface CodeMirrorInstance {
   editorView: EditorView;
   setCode: (newCode: string) => void;
+  undo: () => boolean;
+  redo: () => boolean;
   destroy: () => void;
 }
 
 export function createCodeMirrorEditor(options: CodeMirrorSetupOptions): CodeMirrorInstance {
   const { textarea, indentationSpaces = 4, editorFontSize = 14, onModEnter, onEscape, onDocChange } = options;
   let suppressEditorChange = false;
+  let currentFontSize = editorFontSize;
 
   textarea.classList.add('cm-source-backup');
   textarea.parentElement?.querySelector('.code-editor-line-numbers')?.remove();
@@ -34,9 +37,17 @@ export function createCodeMirrorEditor(options: CodeMirrorSetupOptions): CodeMir
       doc: textarea.value,
       extensions: [
         lineNumbers(),
-        highlightActiveLineGutter(),
+        EditorView.domEventHandlers({
+          keydown(event, view) {
+            if (!event.ctrlKey || event.altKey || event.metaKey || !['+', '=', '-'].includes(event.key)) return false;
+            event.preventDefault();
+            currentFontSize = Math.max(10, Math.min(32, currentFontSize + (event.key === '-' ? -2 : 2)));
+            view.dom.style.fontSize = `${currentFontSize}px`;
+            view.requestMeasure();
+            return true;
+          },
+        }),
         history(),
-        highlightActiveLine(),
         EditorState.tabSize.of(indentationSpaces),
         indentUnit.of(' '.repeat(indentationSpaces)),
         indentOnInput(),
@@ -45,10 +56,12 @@ export function createCodeMirrorEditor(options: CodeMirrorSetupOptions): CodeMir
         highlightSelectionMatches(),
         syntaxHighlighting(
           HighlightStyle.define([
-            { tag: tags.keyword, color: 'var(--syntax-keyword)' },
+            { tag: [tags.keyword, tags.operatorKeyword], color: 'var(--syntax-keyword)' },
             { tag: tags.string, color: 'var(--syntax-string)' },
             { tag: tags.number, color: 'var(--syntax-number)' },
             { tag: [tags.function(tags.variableName), tags.function(tags.propertyName)], color: 'var(--syntax-function)' },
+            { tag: tags.variableName, color: 'var(--syntax-variable)' },
+            { tag: tags.bool, color: 'var(--syntax-keyword)' },
             { tag: tags.comment, color: 'var(--syntax-comment)' },
           ])
         ),
@@ -101,6 +114,8 @@ export function createCodeMirrorEditor(options: CodeMirrorSetupOptions): CodeMir
       });
       suppressEditorChange = false;
     },
+    undo: () => undo(editorView),
+    redo: () => redo(editorView),
     destroy: () => {
       editorView.destroy();
     },

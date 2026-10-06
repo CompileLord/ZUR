@@ -260,3 +260,149 @@ test('report detail links to exact immutable course version and step, never assu
   // Dropdown should have selected option for historical version
   assert.match(coursePage, /value="ver-historical-1\|step-echo-1" selected/);
 });
+
+test('user detail implements one-action confirmation pattern with focused dialogs and clean entity summary (P33)', () => {
+  // Case 1: Active user
+  const activePage = renderAdminPage('/admin/users/user-ada-1', {
+    user: {
+      id: 'user-ada-1',
+      displayName: 'Ada Lovelace',
+      email: 'ada@example.test',
+      emailVerified: true,
+      capabilities: ['student'],
+      accountStatus: 'active',
+      createdAt: '2026-09-01T00:00:00Z',
+    },
+    enrollments: [
+      { courseId: 'course-py', title: 'Python Foundations', status: 'active', pinnedVersionId: 'v1' },
+    ],
+    privacyRequests: [],
+  });
+
+  // Identity and entity summary
+  assert.match(activePage, /<h1 class="page-title">Ada Lovelace<\/h1>/);
+  assert.match(activePage, /data-copy-text="user-ada-1"/);
+  assert.match(activePage, /<span class="status-badge success">Verified<\/span>/);
+
+  // Focused action entry points (buttons opening dialogs instead of open forms with passwords)
+  assert.match(activePage, /data-open-dialog="dialog-suspend-user"/);
+  assert.match(activePage, /data-open-dialog="dialog-manage-roles"/);
+  assert.match(activePage, /data-open-dialog="dialog-support-access"/);
+
+  // Suspend action dialog content
+  assert.match(activePage, /<dialog id="dialog-suspend-user"/);
+  assert.match(activePage, /Suspend Ada Lovelace/);
+  assert.match(activePage, /<span class="status-badge danger">Suspended<\/span>/);
+  assert.match(activePage, /Suspends account authentication and active sessions/);
+  assert.match(activePage, /btn-danger/);
+
+  // Case 2: Suspended user
+  const suspendedPage = renderAdminPage('/admin/users/user-alan-1', {
+    user: {
+      id: 'user-alan-1',
+      displayName: 'Alan Turing',
+      email: 'alan@example.test',
+      emailVerified: true,
+      capabilities: ['student', 'author'],
+      accountStatus: 'suspended',
+      createdAt: '2026-09-01T00:00:00Z',
+    },
+    enrollments: [],
+    privacyRequests: [],
+  });
+
+  // Shows restore action instead of suspend
+  assert.match(suspendedPage, /data-open-dialog="dialog-restore-user"/);
+  assert.doesNotMatch(suspendedPage, /data-open-dialog="dialog-suspend-user"/);
+  assert.match(suspendedPage, /<dialog id="dialog-restore-user"/);
+  assert.match(suspendedPage, /Restore Alan Turing/);
+  assert.match(suspendedPage, /<span class="status-badge success">Active<\/span>/);
+});
+
+test('course detail uses focused dialogs for availability and waivers, and published versions summary (P34)', () => {
+  const coursePage = renderAdminPage('/admin/courses/course-py', {
+    id: 'course-py',
+    title: 'Python Foundations',
+    ownerName: 'Guido van Rossum',
+    ownerEmail: 'guido@example.test',
+    latestVersion: 2,
+    activeEnrollments: 12,
+    openReports: 0,
+    isSuspended: false,
+    versions: [
+      { id: 'v1', versionNumber: 1, createdAt: '2026-09-01', steps: [] },
+      { id: 'v2', versionNumber: 2, createdAt: '2026-09-15', steps: [{ id: 's1', title: 'Variables', isRequired: true }] },
+    ],
+  });
+
+  // Heading and entity summary
+  assert.match(coursePage, /<h1 class="page-title">Python Foundations<\/h1>/);
+  assert.match(coursePage, /data-copy-text="course-py"/);
+
+  // Action buttons opening focused dialogs
+  assert.match(coursePage, /data-open-dialog="dialog-course-availability"/);
+  assert.match(coursePage, /data-open-dialog="dialog-course-waiver"/);
+
+  // Dialogs present
+  assert.match(coursePage, /<dialog id="dialog-course-availability"/);
+  assert.match(coursePage, /<dialog id="dialog-course-waiver"/);
+  assert.match(coursePage, /Waive broken step · Python Foundations/);
+  assert.match(coursePage, /Published versions/);
+  assert.doesNotMatch(coursePage, /Immutable published releases/);
+});
+
+test('overview distinguishes execution admission from worker telemetry and avoids misleading green badges (P32)', () => {
+  const overview = renderAdminPage('/admin', {
+    refreshedAt: '2026-10-06T12:00:00Z',
+    execution: { paused: false },
+    queue: { queued: 0, running: 0, oldestQueuedAt: null },
+    workers: { health: 'Unavailable', lastObservedAt: null },
+    internalErrors: 0,
+    openReports: 1,
+    emailDeliveryIssues: 0,
+    email: { status: 'No delivery data', lastSentAt: null },
+    telemetry: { queue: 'available', workerHeartbeat: 'unavailable', email: 'no data', internalErrorRate: 'available' },
+  });
+
+  // Distinguishes "Accepting jobs" from repeating "Available"
+  assert.match(overview, /Accepting jobs/);
+  // Email delivery with no data remains neutral "No telemetry", not green Normal
+  assert.match(overview, /No telemetry/);
+  assert.doesNotMatch(overview, /<span class="status-badge success">Normal<\/span>/);
+  // Runner telemetry shortened metric value to Unknown/Unavailable with short supporting reason
+  assert.match(overview, /<div class="card-metric-value"><strong>Unavailable<\/strong><\/div>/);
+  assert.match(overview, /No separate worker heartbeat configured/);
+  // Attention section for open report
+  assert.match(overview, /1 open report/);
+});
+
+test('media and execution empty states omit redundant zero-count footer (P37, P38)', () => {
+  const media = renderAdminPage('/admin/media', { items: [] });
+  assert.match(media, /<h1 class="page-title">Media<\/h1>/);
+  assert.match(media, /No media assets\./);
+  assert.doesNotMatch(media, /Showing 0–0 of 0/);
+
+  const execution = renderAdminPage('/admin/execution', {
+    overview: {
+      execution: { paused: false },
+      queue: { queued: 0, running: 0, oldestQueuedAt: null },
+      workers: { health: 'Unavailable', lastObservedAt: null },
+    },
+    jobs: { items: [], total: 0, limit: 20 },
+  });
+  assert.match(execution, /<h1 class="page-title">Execution<\/h1>/);
+  assert.match(execution, /Pause new runs…/);
+  assert.match(execution, /No execution jobs in this time range\./);
+  assert.doesNotMatch(execution, /Showing 0–0 of 0/);
+});
+
+test('adminStyles scopes generic selectors under .shell-admin and sets dialog containment', async () => {
+  const { adminStyles } = await import('../src/pages/admin/admin-styles.ts');
+  assert.match(adminStyles, /\.shell-admin \.data-table-wrapper/);
+  assert.match(adminStyles, /\.shell-admin \.data-table/);
+  assert.match(adminStyles, /\.shell-admin \.search-input-wrapper/);
+  assert.match(adminStyles, /\.shell-admin \.status-badge/);
+  assert.match(adminStyles, /\.shell-admin \.form-error/);
+  assert.match(adminStyles, /max-height: calc\(100vh - 48px\)/);
+  assert.match(adminStyles, /max-height: calc\(100vh - 180px\)/);
+});

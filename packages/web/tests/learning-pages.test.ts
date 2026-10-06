@@ -250,7 +250,7 @@ test('Learning Pages & Shell Workspaces (P08–P14, S2–S4)', async (t) => {
     assert.ok(html.includes('Report issue'));
     assert.equal((html.match(/>Previous<\/a>/g) || []).length, 0);
     assert.equal((html.match(/>Next<\/a>/g) || []).length, 0, 'the reading view has one task footer, without duplicate Previous/Next controls');
-    assert.equal((html.match(/class="learning-task-footer"/g) || []).length, 1);
+    assert.equal((html.match(/class="learning-task-footer"/g) || []).length, 0);
   });
 
   await t.test('P12 canonical media remains deferred for authenticated browser loading', () => {
@@ -292,7 +292,7 @@ test('Learning Pages & Shell Workspaces (P08–P14, S2–S4)', async (t) => {
     assert.ok(html.includes('data-video-retry'));
     assert.equal((html.match(/>Previous<\/a>/g) || []).length, 0);
     assert.equal((html.match(/>Next<\/a>/g) || []).length, 0, 'the video view has one task footer, without duplicate Previous/Next controls');
-    assert.equal((html.match(/class="learning-task-footer"/g) || []).length, 1);
+    assert.equal((html.match(/class="learning-task-footer"/g) || []).length, 0);
   });
 
   // --- P14: Quiz Step Page ---

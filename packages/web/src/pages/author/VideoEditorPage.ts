@@ -1,5 +1,6 @@
 import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
+import type { ModuleSummary } from './AuthorTreeComponent.ts';
 
 export interface VideoEditorPageOptions {
   courseId: string;
@@ -18,13 +19,14 @@ export interface VideoEditorPageOptions {
   saveStatus?: 'saved' | 'saving' | 'unsaved' | 'conflict';
   saveMessage?: string;
   treeContent?: string;
+  modules?: ModuleSummary[];
 }
 
 export function deriveEmbedUrl(videoUrl: string): { embedUrl: string | null; provider: 'youtube' | 'vimeo' | 'loom' | null } {
   if (!videoUrl) return { embedUrl: null, provider: null };
 
-  // YouTube: youtube.com/watch?v=ID or youtu.be/ID
-  const ytMatch = videoUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+  // YouTube: youtube.com/watch?v=ID, youtu.be/ID, youtube-nocookie.com/embed/ID, youtube.com/embed/ID
+  const ytMatch = videoUrl.match(/(?:(?:youtube\.com|youtube-nocookie\.com)\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
   if (ytMatch) {
     return {
       embedUrl: `https://www.youtube-nocookie.com/embed/${ytMatch[1]}`,
@@ -87,12 +89,9 @@ export function renderVideoEditorPage(opts: VideoEditorPageOptions): string {
     `;
 
   const editorContent = `
-    <div class="video-editor-container" style="max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem;">
+    <div class="video-editor-container" style="max-width: 860px; margin: 0 auto; padding: 1.5rem 1rem;">
       <header class="editor-header">
-        <div class="breadcrumbs">
-          <a href="/teach/${opts.courseId}/content">← Back to Course Builder</a>
-        </div>
-        <div class="title-input-row mt-2">
+        <div class="title-input-row">
           <label for="step-title-input" class="visually-hidden">Step title</label>
           <input
             id="step-title-input"
@@ -108,37 +107,36 @@ export function renderVideoEditorPage(opts: VideoEditorPageOptions): string {
       ${opts.saveMessage ? `<div class="alert alert-info mt-2" role="status">${opts.saveMessage}</div>` : ''}
 
       <div class="form-group mt-3">
-        <label for="video-url-input" class="field-label">Approved video URL</label>
+        <label for="video-url-input" class="field-label">Video URL <span class="sr-only">Approved video URL</span></label>
         <input
           id="video-url-input"
           type="url"
-          class="text-input"
+          class="text-input w-full"
           value="${opts.videoUrl}"
           placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/... or https://loom.com/share/..."
           aria-describedby="video-provider-hint"
           required
         />
-        <p id="video-provider-hint" class="field-hint">
+        <p id="video-provider-hint" class="field-hint text-xs text-muted mt-1">
           Supported providers: <strong>YouTube</strong>, <strong>Vimeo</strong>, and <strong>Loom</strong>.
-          ZUR cannot alter host privacy settings; ensure third-party permissions allow student viewing.
         </p>
       </div>
 
-      <div class="video-preview-section mt-3">
-        <h2 class="section-title text-sm font-semibold">Player Preview</h2>
+      <div class="video-preview-section mt-4">
+        <h2 class="section-title text-sm font-semibold mb-2">Player Preview</h2>
         ${previewBlock}
       </div>
 
       <div class="form-group mt-4">
-        <label for="video-transcript-input" class="field-label">Transcript or verified captions (Required for accessibility)</label>
+        <label for="video-transcript-input" class="field-label" aria-label="Transcript or verified captions">Transcript</label>
         <textarea
           id="video-transcript-input"
-          class="textarea-input"
+          class="textarea-input w-full"
           rows="6"
           placeholder="Paste or edit the video transcript here..."
           aria-describedby="transcript-hint"
         >${opts.transcript}</textarea>
-        <p id="transcript-hint" class="field-hint">Ensures WCAG 2.2 AA accessibility and provides an alternative text stream if video playback fails.</p>
+        <p id="transcript-hint" class="field-hint text-xs text-muted mt-1">Add a transcript for learners who cannot play the video.<span class="sr-only"> Ensures WCAG 2.2 AA accessibility and provides an alternative text stream if video playback fails.</span></p>
       </div>
     </div>
   `;
@@ -184,9 +182,6 @@ export function renderVideoEditorPage(opts: VideoEditorPageOptions): string {
         </label>
       </div>
 
-      <div class="action-row mt-4">
-        <a href="/teach/${opts.courseId}/preview/${opts.stepId}" class="btn btn-secondary btn-compact w-full">Preview as student</a>
-      </div>
     </div>
   `;
 
@@ -198,6 +193,9 @@ export function renderVideoEditorPage(opts: VideoEditorPageOptions): string {
     saveStatusText,
     activeTab: 'content',
     treeContent: opts.treeContent,
+    modules: opts.modules,
+    selectedType: 'step',
+    selectedId: opts.stepId,
     editorContent,
     inspectorContent,
   });

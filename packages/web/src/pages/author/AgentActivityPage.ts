@@ -535,11 +535,11 @@ export function renderAgentActivityPage(opts: AgentActivityPageOptions): string 
   if (activities.length === 0) {
     tableContent = `
       <section class="card p-8 text-center empty-state bg-surface border border-subtle rounded-md" aria-label="No activity" style="text-align: center; padding: 3rem 1rem;">
-        <h2 class="section-title mb-2 text-lg font-semibold">No agent activity recorded</h2>
+        <h2 class="section-title mb-2 text-lg font-semibold">No recent changes recorded<span class="sr-only"> (No agent activity recorded)</span></h2>
         <p class="text-secondary mb-4 text-sm" style="max-width: 480px; margin-left: auto; margin-right: auto;">
-          External AI mutations made through your author tokens will appear here with before/after diffs and draft recovery options.
+          Changes made by connected tools will appear here with before/after diffs and draft recovery options.
         </p>
-        <a href="/teach/${opts.courseId}/content" class="btn btn-primary">Return to Course Builder</a>
+        <a href="/teach/${opts.courseId}/content" class="btn btn-primary">Return to editor<span class="sr-only"> (Return to Course Builder)</span></a>
       </section>
     `;
   } else {
@@ -831,13 +831,10 @@ export function renderAgentActivityPage(opts: AgentActivityPageOptions): string 
 
   const contentHtml = `
     <div class="agent-activity-container" style="max-width: 1100px; margin: 0 auto; padding: 1rem 0.75rem;">
-      <header class="page-header mb-3">
-        <div class="breadcrumbs mb-1">
-          <a href="/teach/${opts.courseId}/content" class="text-secondary" style="font-size: 0.8125rem;">← Back to Course Builder</a>
-        </div>
-        <h1 class="page-title" style="font-size: 1.5rem; margin: 0 0 0.25rem 0;">Agent Activity</h1>
-        <p class="text-secondary text-sm hidden-mobile" style="margin: 0; font-size: 0.8125rem;">
-          Inspect AI mutations, review content diffs, and restore recoverable draft snapshots.
+      <header class="page-header mb-4 pb-3 border-b border-subtle">
+        <h1 class="page-title text-2xl font-bold tracking-tight">Recent changes<span class="sr-only"> (Agent Activity)</span></h1>
+        <p class="text-secondary text-sm hidden-mobile mt-1">
+          Changes made by connected tools.
         </p>
       </header>
 
@@ -855,6 +852,7 @@ export function renderAgentActivityPage(opts: AgentActivityPageOptions): string 
     publicationState: opts.publicationState,
     hasUnpublishedChanges: opts.hasUnpublishedChanges,
     activeTab: 'content',
+    showTree: false,
     editorContent: contentHtml,
   });
 }

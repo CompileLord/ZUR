@@ -23,15 +23,21 @@ export function renderSignInPage(opts: SignInPageOptions = {}): string {
           : '<div id="sign-in-error" class="sr-only" role="alert" aria-live="polite"></div>'
       }
 
-      ${renderTextInput({
-        id: 'email',
-        name: 'email',
-        label: 'Email',
-        type: 'email',
-        value: opts.email || '',
-        required: true,
-        placeholder: 'you@example.com',
-      })}
+      <div class="form-group mb-4" id="group-email">
+        <label for="email" class="form-label">
+          Email <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input"
+          value="${escapeHtml(opts.email || '')}"
+          placeholder="you@example.com"
+          autocomplete="username"
+          required
+        />
+      </div>
 
       <div class="form-group mb-6" id="group-password">
         <div class="flex justify-between items-center mb-1">
@@ -46,6 +52,7 @@ export function renderSignInPage(opts: SignInPageOptions = {}): string {
             id="password"
             name="password"
             class="form-input pr-10"
+            autocomplete="current-password"
             required
           />
           <button

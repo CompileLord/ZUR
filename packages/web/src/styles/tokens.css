@@ -46,11 +46,12 @@
 
   /* Syntax Tokens (At most six colors, design §3.3) */
   --syntax-default: #e2e7d9;
-  --syntax-keyword: #d4e88b;
-  --syntax-string: #b7d5ab;
-  --syntax-number: #e7c17e;
-  --syntax-function: #a9c8eb;
-  --syntax-comment: #a0a898;
+  --syntax-variable: #9cdcfe;
+  --syntax-keyword: #569cd6;
+  --syntax-string: #ce9178;
+  --syntax-number: #b5cea8;
+  --syntax-function: #dcdcaa;
+  --syntax-comment: #6a9955;
 
   /* Overlay */
   --overlay: rgb(0 0 0 / 60%);
@@ -102,11 +103,12 @@
 
   /* Syntax Tokens */
   --syntax-default: #273021;
-  --syntax-keyword: #485d18;
-  --syntax-string: #365e2e;
-  --syntax-number: #79520e;
-  --syntax-function: #315d8a;
-  --syntax-comment: #5c6754;
+  --syntax-variable: #001080;
+  --syntax-keyword: #0000ff;
+  --syntax-string: #a31515;
+  --syntax-number: #098658;
+  --syntax-function: #795e26;
+  --syntax-comment: #008000;
 
   /* Overlay */
   --overlay: rgb(20 22 19 / 35%);

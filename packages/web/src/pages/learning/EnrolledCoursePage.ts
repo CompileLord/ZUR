@@ -3,6 +3,7 @@ import { renderAppShell } from '../../components/shells/AppShell.ts';
 import { renderProgressLine } from '../../components/common/CourseRow.ts';
 import { renderIcon, type IconName } from '../../components/common/icons.ts';
 import { humanizeEnum, formatDuration } from '../../utils/formatters.ts';
+import { getLastVisitedStep } from './learning-navigation.ts';
 
 export interface EnrolledCourseModule {
   id: string;
@@ -27,10 +28,13 @@ export interface EnrolledCourseModule {
 
 export interface EnrolledCoursePageOptions {
   user: {
+    id?: string;
     displayName: string;
     email: string;
     capabilities: ('student' | 'author' | 'admin')[];
   };
+  userId?: string;
+  courseVersionId?: string;
   enrollmentId: string;
   courseId: string;
   title: string;
@@ -112,14 +116,31 @@ export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): strin
       <h2 class="syllabus-heading">Course Syllabus</h2>
 
       <div class="syllabus-modules">
-        ${opts.modules.map((mod, modIdx) => `
-          <div class="module-section" data-module-id="${mod.id}">
-            <h3 class="module-heading">Module ${modIdx + 1}: ${withoutOrdinal(mod.title, 'Module')}</h3>
+        ${opts.modules.map((mod, modIdx) => {
+          const modTotal = mod.lessons.reduce((acc, l) => acc + l.steps.length, 0);
+          const modCompleted = mod.lessons.reduce((acc, l) => acc + l.steps.filter((s) => s.isCompleted || s.isWaived).length, 0);
+          return `
+          <details class="module-section syllabus-module-card" data-module-id="${mod.id}" open>
+            <summary class="module-heading-summary cursor-pointer select-none flex justify-between items-center mb-3">
+              <h3 class="module-heading m-0">Module ${modIdx + 1}: ${withoutOrdinal(mod.title, 'Module')}</h3>
+              <span class="module-completion-count text-xs text-muted font-mono">${modCompleted}/${modTotal} completed</span>
+            </summary>
 
             <div class="module-lessons">
-              ${mod.lessons.map((les, lesIdx) => `
+              ${mod.lessons.map((les, lesIdx) => {
+                const uid = opts.userId || (opts.user as any)?.id;
+                const lastVisitedId = uid && opts.courseVersionId ? getLastVisitedStep(uid, opts.enrollmentId, opts.courseVersionId, les.id) : null;
+                const targetStep = (lastVisitedId && les.steps.find((s) => s.id === lastVisitedId)) || les.steps.find((s) => !s.isCompleted && !s.isWaived) || les.steps[0];
+                const lessonTargetUrl = targetStep ? `/learn/${opts.enrollmentId}/steps/${targetStep.id}` : '#';
+                const lesCompleted = les.steps.filter((s) => s.isCompleted || s.isWaived).length;
+                return `
                 <div class="lesson-subgroup" data-lesson-id="${les.id}">
-                  <h4 class="lesson-subheading">Lesson ${lesIdx + 1}: ${withoutOrdinal(les.title, 'Lesson')}</h4>
+                  <div class="lesson-header-row flex justify-between items-center mb-1">
+                    <h4 class="lesson-subheading m-0">
+                      <a href="${lessonTargetUrl}" class="hover:underline">Lesson ${lesIdx + 1}: ${withoutOrdinal(les.title, 'Lesson')}</a>
+                    </h4>
+                    <span class="lesson-progress-badge text-xs font-mono text-muted">${lesCompleted}/${les.steps.length}</span>
+                  </div>
                   ${les.description ? `<p class="lesson-desc text-secondary">${les.description}</p>` : ''}
 
                   <ul class="lesson-steps-rail" role="list">
@@ -167,10 +188,12 @@ export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): strin
                     }).join('')}
                   </ul>
                 </div>
-              `).join('')}
+              `;
+            }).join('')}
             </div>
-          </div>
-        `).join('')}
+          </details>
+        `;
+      }).join('')}
       </div>
     </div>
   `;

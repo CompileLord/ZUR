@@ -24,16 +24,16 @@ export function initLandingHero(root: HTMLElement): () => void {
     text.textContent = LANDING_HEADLINE; cursor.hidden = true;
   };
   if (!reducedMotion.matches) {
-    text.textContent = ''; cursor.hidden = false;
-    typingDelay = setTimeout(() => {
-      let index = 0;
-      typingTimer = setInterval(() => {
-        index += 1; text.textContent = LANDING_HEADLINE.slice(0, index);
-        if (index >= LANDING_HEADLINE.length) finishTyping();
-      }, 38);
-    }, 600);
+    cursor.hidden = false;
+    let index = 0;
+    text.textContent = '';
+    typingTimer = setInterval(() => {
+      index += 1;
+      text.textContent = LANDING_HEADLINE.slice(0, index);
+      if (index >= LANDING_HEADLINE.length) finishTyping();
+    }, 20);
     root.querySelectorAll<HTMLElement>('[data-hero-entrance]').forEach(element => {
-      track(animate(element, { opacity: [0, 1], y: [20, 0] }, { duration: .6, delay: Number(element.dataset.heroEntrance), ease: [.2, 0, 0, 1] }));
+      track(animate(element, { opacity: [0, 1], y: [20, 0] }, { duration: .3, delay: Number(element.dataset.heroEntrance), ease: [.2, 0, 0, 1] }));
     });
   }
 

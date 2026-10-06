@@ -62,7 +62,7 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
         .map((les, lIdx) => {
           const isLesSelected = selectedType === 'lesson' && selectedId === les.id;
           const stepCount = les.steps.length;
-          const limitNotice = stepCount >= 20 ? ' (20/20 max)' : ` (${stepCount}/20)`;
+          const limitNotice = ` (${stepCount} steps)<span class="sr-only"> (${stepCount} of 20)</span>`;
 
           const stepsHtml = les.steps
             .map((st, sIdx) => {
@@ -183,9 +183,8 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
 
     editorContent = `
       <div class="builder-center-pane">
-        <header class="pane-header">
+        <header class="pane-header mb-4">
           <h1 class="page-title">${opts.courseTitle}</h1>
-          <p class="text-secondary">Course overview and structure management.</p>
         </header>
 
         <div class="stats-overview-bar">
@@ -521,26 +520,7 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
     0
   );
 
-  let inspectorContent = `
-    <div class="inspector-box p-4">
-      <div class="inspector-header mb-3">
-        <span class="text-xs text-secondary font-medium">Course overview</span>
-        <h3 class="inspector-title text-base font-semibold mt-0.5">${opts.courseTitle}</h3>
-      </div>
-      <div class="inspector-section mb-3">
-        <span class="field-label text-xs text-secondary">Status</span>
-        <div class="mt-1"><span class="status-badge ${opts.publicationState === 'published' ? 'success' : 'warning'}">${opts.publicationState === 'published' ? 'Published' : 'Draft'}</span></div>
-      </div>
-      <div class="inspector-section mb-3">
-        <span class="field-label text-xs text-secondary">Structure</span>
-        <div class="mt-1 text-sm font-semibold">${opts.modules.length} modules · ${totalLessonsAll} lessons · ${totalStepsAll} steps</div>
-      </div>
-      <div class="inspector-section mb-4">
-        <span class="field-label text-xs text-secondary">Duration</span>
-        <div class="mt-1 text-sm font-semibold">~${totalDurationAll} minutes</div>
-      </div>
-    </div>
-  `;
+  let inspectorContent: string | undefined = undefined;
 
   if (selectedType === 'module') {
     const currentMod = opts.modules.find((m) => m.id === selectedId);
@@ -696,6 +676,9 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
     saveStatusText: opts.saveStatusText || 'Saved',
     activeTab: 'content',
     treeContent,
+    modules: opts.modules,
+    selectedType: opts.selectedType,
+    selectedId: opts.selectedId,
     editorContent: `${remoteUpdateHtml}${editorContent}`,
     inspectorContent,
   });

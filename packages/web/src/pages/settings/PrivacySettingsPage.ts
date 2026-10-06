@@ -53,16 +53,18 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
         <section class="settings-section" aria-labelledby="privacy-overview-heading">
           <div class="settings-section-header">
             <h3 id="privacy-overview-heading" class="settings-section-title">Data retention</h3>
-            <p class="settings-section-desc">How ZUR processes records and personal information.</p>
           </div>
 
           <div class="settings-section-content">
-            <p class="text-sm text-secondary leading-relaxed">
-              We store only what is required to facilitate learning: display name, email, enrollments, step progress, and submitted code attempts. We do not track activity across external websites or sell personal information.
-            </p>
-            <div>
-              <a href="/privacy" class="text-sm text-primary underline">Read our complete Data Retention and Privacy Policy</a>
-            </div>
+            <details class="text-sm text-secondary">
+              <summary class="cursor-pointer text-primary underline mb-2">Data retention overview</summary>
+              <p class="mt-2 text-secondary leading-relaxed">
+                We store only what is required to facilitate learning: display name, email, enrollments, step progress, and submitted code attempts. We do not track activity across external websites or sell personal information.
+              </p>
+              <div class="mt-2">
+                <a href="/privacy" class="text-primary underline">Read our complete Data Retention and Privacy Policy</a>
+              </div>
+            </details>
           </div>
         </section>
 

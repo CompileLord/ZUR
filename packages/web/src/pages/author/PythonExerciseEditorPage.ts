@@ -1,6 +1,8 @@
 import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
 
+import type { ModuleSummary } from './AuthorTreeComponent.ts';
+
 export interface TestCaseItem {
   id?: string;
   stdin: string;
@@ -40,6 +42,7 @@ export interface PythonExerciseEditorPageOptions {
   saveMessage?: string;
   errorMessage?: string;
   treeContent?: string;
+  modules?: ModuleSummary[];
 }
 
 export function renderPythonExerciseEditorPage(opts: PythonExerciseEditorPageOptions): string {
@@ -53,14 +56,15 @@ export function renderPythonExerciseEditorPage(opts: PythonExerciseEditorPageOpt
       ? 'Draft conflict'
       : undefined;
 
-  const activeTab = opts.activeSubTab || 'problem';
+  const tabFromQuery = typeof window !== 'undefined' && window.location ? new URLSearchParams(window.location.search).get('tab') : null;
+  const activeTab = (opts.activeSubTab || (['problem', 'code', 'tests', 'validation'].includes(tabFromQuery || '') ? tabFromQuery : 'problem')) as 'problem' | 'code' | 'tests' | 'validation';
 
   // Sub-tabs navigation
   const subTabsNav = `
     <nav class="sub-tabs-bar" role="tablist" aria-label="Exercise Configuration Sections">
       <button type="button" class="sub-tab-btn ${activeTab === 'problem' ? 'active' : ''}" role="tab" aria-selected="${activeTab === 'problem'}" data-tab="problem">Problem</button>
       <button type="button" class="sub-tab-btn ${activeTab === 'code' ? 'active' : ''}" role="tab" aria-selected="${activeTab === 'code'}" data-tab="code">Code</button>
-      <button type="button" class="sub-tab-btn ${activeTab === 'tests' ? 'active' : ''}" role="tab" aria-selected="${activeTab === 'tests'}" data-tab="tests">Tests (${opts.publicTests.length} pub / ${opts.hiddenTests.length} hid)</button>
+      <button type="button" class="sub-tab-btn ${activeTab === 'tests' ? 'active' : ''}" role="tab" aria-selected="${activeTab === 'tests'}" data-tab="tests">Tests (${opts.publicTests.length} public · ${opts.hiddenTests.length} hidden)</button>
       <button type="button" class="sub-tab-btn ${activeTab === 'validation' ? 'active' : ''}" role="tab" aria-selected="${activeTab === 'validation'}" data-tab="validation">
         Validation ${opts.validationStatus === 'passed' ? '✔' : opts.validationStatus === 'failed' ? '✖' : ''}
       </button>
@@ -267,10 +271,7 @@ export function renderPythonExerciseEditorPage(opts: PythonExerciseEditorPageOpt
   const editorContent = `
     <div class="python-editor-container" style="max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem;">
       <header class="editor-header">
-        <div class="breadcrumbs">
-          <a href="/teach/${opts.courseId}/content">← Back to Course Builder</a>
-        </div>
-        <div class="title-input-row mt-2">
+        <div class="title-input-row">
           <label for="step-title-input" class="visually-hidden">Exercise title</label>
           <input
             id="step-title-input"
@@ -298,36 +299,7 @@ export function renderPythonExerciseEditorPage(opts: PythonExerciseEditorPageOpt
 
   const inspectorContent = `
     <div class="inspector-box p-3">
-      <h3 class="inspector-title">Execution limits</h3>
-
-      <div class="limits-grid grid grid-cols-3 gap-2 mt-3">
-        <div class="form-group">
-          <label for="cpu-timeout" class="field-label text-xs">CPU</label>
-          <div class="input-with-unit flex items-center">
-            <input id="cpu-timeout" type="number" min="1" max="10" class="text-input input-compact w-full text-sm" value="${opts.runtimeLimits.cpuTimeoutSeconds}" />
-            <span class="unit-text text-xs text-muted ml-1">s</span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="wall-timeout" class="field-label text-xs">Wall</label>
-          <div class="input-with-unit flex items-center">
-            <input id="wall-timeout" type="number" min="1" max="20" class="text-input input-compact w-full text-sm" value="${opts.runtimeLimits.wallTimeoutSeconds}" />
-            <span class="unit-text text-xs text-muted ml-1">s</span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="memory-limit" class="field-label text-xs">Memory</label>
-          <div class="input-with-unit flex items-center">
-            <input id="memory-limit" type="number" min="16" max="512" class="text-input input-compact w-full text-sm" value="${opts.runtimeLimits.memoryLimitMib}" />
-            <span class="unit-text text-xs text-muted ml-1">MB</span>
-          </div>
-        </div>
-      </div>
-      <p class="field-hint text-xs text-muted mt-1.5">Range: 1–10s CPU, 1–20s Wall, 16–512 MB RAM.</p>
-
-      <hr class="section-divider mt-4" />
+      <h3 class="inspector-title">Step settings</h3>
 
       <div class="form-group mt-3">
         <label for="step-duration" class="field-label">Estimated duration</label>
@@ -343,6 +315,38 @@ export function renderPythonExerciseEditorPage(opts: PythonExerciseEditorPageOpt
           <span>Required step</span>
         </label>
       </div>
+
+      <hr class="section-divider mt-4 mb-3" />
+
+      <details class="advanced-settings-disclosure">
+        <summary class="text-xs font-semibold text-secondary cursor-pointer py-1">Execution limits</summary>
+        <div class="limits-grid grid grid-cols-3 gap-2 mt-2">
+          <div class="form-group">
+            <label for="cpu-timeout" class="field-label text-xs">CPU</label>
+            <div class="input-with-unit flex items-center">
+              <input id="cpu-timeout" type="number" min="1" max="10" class="text-input input-compact w-full text-sm" value="${opts.runtimeLimits.cpuTimeoutSeconds}" />
+              <span class="unit-text text-xs text-muted ml-1">s</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="wall-timeout" class="field-label text-xs">Wall</label>
+            <div class="input-with-unit flex items-center">
+              <input id="wall-timeout" type="number" min="1" max="20" class="text-input input-compact w-full text-sm" value="${opts.runtimeLimits.wallTimeoutSeconds}" />
+              <span class="unit-text text-xs text-muted ml-1">s</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="memory-limit" class="field-label text-xs">Memory</label>
+            <div class="input-with-unit flex items-center">
+              <input id="memory-limit" type="number" min="16" max="512" class="text-input input-compact w-full text-sm" value="${opts.runtimeLimits.memoryLimitMib}" />
+              <span class="unit-text text-xs text-muted ml-1">MB</span>
+            </div>
+          </div>
+        </div>
+        <p class="field-hint text-xs text-muted mt-1.5">Range: 1–10s CPU, 1–20s Wall, 16–512 MB RAM.</p>
+      </details>
     </div>
   `;
 
@@ -354,6 +358,9 @@ export function renderPythonExerciseEditorPage(opts: PythonExerciseEditorPageOpt
     saveStatusText,
     activeTab: 'content',
     treeContent: opts.treeContent,
+    modules: opts.modules,
+    selectedType: 'step',
+    selectedId: opts.stepId,
     editorContent,
     inspectorContent,
   });

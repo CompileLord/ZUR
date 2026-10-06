@@ -515,16 +515,284 @@
   min-height: 0;
 }
 
-.learning-outline-drawer {
-  width: var(--tree-width);
+.learning-outline-drawer,
+.learning-course-sidebar {
+  width: var(--sidebar-learning-width, 248px);
   border-right: 1px solid var(--border-subtle);
   background-color: var(--bg-navigation);
   overflow-y: auto;
-  display: none; /* opened via outline button */
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100%;
+  transition: margin-left var(--transition-medium, 160ms ease);
+}
+
+.learning-outline-drawer {
+  display: none;
 }
 
 .learning-outline-drawer.open {
   display: block;
+}
+
+.learning-course-sidebar.collapsed {
+  margin-left: -248px;
+}
+
+.learning-course-sidebar .sidebar-header {
+  height: 48px;
+  padding: 0 var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.learning-course-sidebar .sidebar-title {
+  font-size: var(--type-metadata-size);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.learning-course-sidebar .sidebar-modules-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2) 0;
+}
+
+.sidebar-module-group {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebar-module-summary {
+  padding: 10px var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  font-size: var(--type-metadata-size);
+}
+
+.sidebar-module-summary::-webkit-details-marker {
+  display: none;
+}
+
+.sidebar-module-summary:hover {
+  background-color: var(--bg-hover);
+}
+
+.sidebar-lessons-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 6px 0;
+}
+
+.sidebar-lesson-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px var(--space-4) 8px var(--space-5);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  transition: all var(--transition-fast, 120ms ease);
+  border-left: 3px solid transparent;
+}
+
+.sidebar-lesson-item:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.sidebar-lesson-item.active {
+  color: var(--text-primary);
+  background-color: var(--bg-selected, rgba(204, 255, 0, 0.08));
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+
+.learning-course-sidebar .sidebar-footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface);
+  flex-shrink: 0;
+}
+
+.sidebar-progress-box .progress-bar-track {
+  height: 4px;
+  background-color: var(--border-subtle);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.sidebar-progress-box .progress-bar-fill {
+  height: 100%;
+  background-color: var(--color-success, #22c55e);
+  border-radius: 2px;
+  transition: width 200ms ease;
+}
+
+.sidebar-progress-box .progress-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+/* 56px Horizontal Task Strip (design.md §6, 2026-10-06-interface-redesign-plan.md) */
+.learning-task-strip {
+  height: 56px;
+  min-height: 56px;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-5);
+  flex-shrink: 0;
+  gap: var(--space-4);
+  z-index: 10;
+}
+
+.task-strip-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.task-strip-lesson-title {
+  font-size: var(--type-control-size, 14px);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 220px;
+}
+
+.task-strip-center {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding: 4px;
+}
+
+.task-square {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-control);
+  transition: all var(--transition-fast, 120ms ease);
+  position: relative;
+}
+
+.task-square:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.task-square:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Completed task squares: green with checkmark */
+.task-square.completed {
+  background-color: var(--color-success-bg, #052e16);
+  border-color: var(--color-success-border, #166534);
+  color: var(--color-success, #22c55e);
+}
+
+.task-square.completed:hover {
+  background-color: rgba(34, 197, 94, 0.2);
+}
+
+/* Selected task square: distinct citron outline / ring */
+.task-square.selected,
+.task-square.current {
+  outline: 2px solid var(--accent, #ccff00);
+  outline-offset: 2px;
+  color: var(--text-primary);
+}
+
+/* BOTH Completed AND Selected: display both states together! */
+.task-square.completed.selected,
+.task-square.completed.current {
+  background-color: var(--color-success-bg, #052e16);
+  border-color: var(--color-success-border, #166534);
+  color: var(--color-success, #22c55e);
+  outline: 2px solid var(--accent, #ccff00);
+  outline-offset: 2px;
+}
+
+.task-square.waived {
+  background-color: var(--bg-surface);
+  border-style: dashed;
+  border-color: var(--border-control);
+  color: var(--text-muted);
+}
+
+.task-square.waived.selected,
+.task-square.waived.current {
+  background-color: var(--bg-surface);
+  border-style: dashed;
+  border-color: var(--border-control);
+  outline: 2px solid var(--accent, #ccff00);
+  outline-offset: 2px;
+}
+
+.task-strip-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.task-nav-arrow {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  text-decoration: none;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-control);
+  cursor: pointer;
+  transition: all var(--transition-fast, 120ms ease);
+}
+
+.task-nav-arrow:hover:not(.disabled) {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.task-nav-arrow.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .learning-workspace-main {
@@ -542,11 +810,11 @@
   min-height: 0;
 }
 
-/* Paired Python Workspace (design §5, §11 P15) */
+/* Paired Python Workspace (design §5, §11 P15, 2026-10-06-interface-redesign-plan.md) */
 .paired-workspace .workspace-viewport {
   flex: 1;
   display: grid;
-  grid-template-columns: var(--problem-pane-width, 40%) 1px minmax(0, 1fr);
+  grid-template-columns: var(--problem-pane-width, 460px) 1px minmax(0, 1fr);
   overflow: hidden;
 }
 
@@ -1090,5 +1358,92 @@
 @media (max-width: 767px) {
   .admin-nav-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; padding: 8px; gap: 4px; }
   .admin-nav-item { min-width: 0; min-height: 44px; height: auto; justify-content: center; white-space: normal; text-align: center; padding: 6px 8px; overflow-wrap: anywhere; }
-  .admin-nav-item.active .nav-indicator { left: 8px; right: 8px; top: auto; bottom: 0; height: 2px; width: auto; }
 }
+
+/* In-Workspace Modal Dialog */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 1000);
+  backdrop-filter: blur(2px);
+  padding: var(--space-4);
+}
+
+.dialog-overlay[hidden] {
+  display: none;
+}
+
+.dialog-overlay .dialog {
+  background-color: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-dialog);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-overlay .dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dialog-overlay .dialog-title {
+  font-size: var(--type-h3-size);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.dialog-overlay .dialog-body {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dialog-overlay .dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+  border-bottom-left-radius: var(--radius-xl);
+  border-bottom-right-radius: var(--radius-xl);
+}
+
+/* Keep task type, position and completion readable together. */
+.task-strip-center { min-width: 0; }
+.task-strip-left, .task-strip-right { flex-shrink: 0; }
+.task-square { width: 40px; height: 40px; min-width: 40px; }
+.task-square .task-type-icon { display: flex; margin-top: -3px; }
+.task-square .ordinal-number { position: absolute; bottom: 1px; left: 4px; font-size: 9px; line-height: 12px; }
+.task-square .task-state-badge { position: absolute; bottom: 1px; right: 1px; display: flex; align-items: center; justify-content: center; width: 13px; height: 13px; border-radius: 50%; background: var(--bg-surface); }
+.task-square.completed { background-color: color-mix(in srgb, #22c55e 12%, var(--bg-surface)); color: #16a34a; }
+.task-square.completed.selected, .task-square.completed.current { background-color: color-mix(in srgb, #22c55e 12%, var(--bg-surface)); color: #16a34a; }
+
+/* Minimal learner navigation and stationary account menu. */
+.inline-task-actions { max-width: 620px; margin: 12px auto 24px; padding: 0 24px; }
+.program-output pre { margin: 0; white-space: pre-wrap; font-family: var(--font-mono); }
+.program-stderr { color: var(--danger); }
+.code-editor-area .cm-activeLine, .code-editor-area .cm-activeLineGutter { background: transparent; }
+@media (min-width: 769px) {
+  .app-sidebar { position: sticky; top: 0; height: 100dvh; align-self: flex-start; overflow: hidden; }
+  .app-sidebar .sidebar-nav { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+}
+
+#python-save-notice { margin: 0; padding: 10px 16px; font-size: 13px; flex-shrink: 0; }
+
+.task-strip-right { gap: 8px; }
+#python-save-indicator.unsaved, #python-save-indicator.conflict { padding: 8px 16px; font-size: 12px; }

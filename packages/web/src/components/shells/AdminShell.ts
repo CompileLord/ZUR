@@ -1,6 +1,7 @@
 import { escapeHtml } from '../escape-html.ts';
 import { renderIcon, type IconName } from '../common/icons.ts';
 import { initials } from '../../utils/formatters.ts';
+import { adminStyles } from '../../pages/admin/admin-styles.ts';
 
 export interface AdminShellOptions {
   activePath: string;
@@ -40,6 +41,7 @@ export function renderAdminShell(opts: AdminShellOptions): string {
     .join('');
 
   return `
+    <style id="admin-styles">${adminStyles}</style>
     <div class="shell-admin">
       <aside class="admin-sidebar" role="navigation" aria-label="Administration Navigation">
         <div class="admin-sidebar-header">
@@ -50,7 +52,7 @@ export function renderAdminShell(opts: AdminShellOptions): string {
           <span class="admin-quiet-badge" title="Administration">Admin<span class="sr-only">istration</span></span>
         </div>
 
-        <nav class="admin-nav-list">
+        <nav class="admin-nav-list" aria-label="Administrative areas">
           ${navHtml}
         </nav>
 
@@ -73,11 +75,11 @@ export function renderAdminShell(opts: AdminShellOptions): string {
 
       <div class="admin-main-area">
         <header class="admin-location-header" role="banner">
-          <div class="admin-location-context">
+          <nav class="admin-location-context" aria-label="Breadcrumb">
             <span class="admin-location-quiet">Admin</span>
             <span class="admin-location-sep" aria-hidden="true">/</span>
-            <span class="admin-location-current">${escapeHtml(opts.headerTitle)}</span>
-          </div>
+            <span class="admin-location-current" aria-current="location">${escapeHtml(opts.headerTitle)}</span>
+          </nav>
         </header>
 
         <main id="main-content" class="admin-content-body" role="main">

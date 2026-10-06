@@ -130,12 +130,13 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
           <span>Back to workspace</span>
         </a>
         <h1 class="problem-title" aria-label="Submission History">Attempts<span class="sr-only">Submission History</span></h1>
-        <p class="text-secondary" style="font-size: var(--type-metadata-size); margin-top: var(--space-1);">${escapeHtml(opts.totalAttempts)} total attempts for this exercise</p>
+        ${opts.attempts.length > 0 ? `<p class="text-secondary" style="font-size: var(--type-metadata-size); margin-top: var(--space-1);">${escapeHtml(opts.totalAttempts)} total attempts for this exercise</p>` : ''}
       </div>
 
       ${opts.attempts.length === 0 ? `
-        <div class="results-empty-notice" style="padding: var(--space-8); text-align: center;">
-          <p>No attempts recorded yet. Submit your solution from the workspace to record an attempt.</p>
+        <div class="results-empty-notice" style="padding: var(--space-8); text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--space-3);">
+          <p class="text-secondary">No submissions yet.</p>
+          <a href="${escapeHtml(opts.workspaceUrl)}" class="btn btn-secondary btn-compact">Return to task</a>
         </div>
       ` : `
         <div class="attempt-history-list">

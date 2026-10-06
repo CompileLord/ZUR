@@ -30,7 +30,7 @@ test('Python Workspace Page P15 (design.md §11 P15, T026)', async (t) => {
     assert.ok(html.includes('editor-pane'));
     assert.ok(html.includes('Check Even or Odd'));
     assert.ok(html.includes('Read an integer and print Even or Odd.'));
-    assert.ok(html.includes('Python 3.14'));
+    assert.ok(!html.includes('runtime-badge'));
     assert.ok(html.includes('Saved'));
   });
 
@@ -52,7 +52,7 @@ test('Python Workspace Page P15 (design.md §11 P15, T026)', async (t) => {
 
   await t.test('Renders Run samples, Run code, and Submit solution actions', () => {
     const html = renderPythonWorkspacePage(baseOpts);
-    assert.ok(html.includes('Run samples'));
+    assert.ok(html.includes('Test samples'));
     assert.ok(html.includes('Run code'));
     assert.ok(html.includes('Submit solution'));
   });

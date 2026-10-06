@@ -42,15 +42,21 @@ export function renderForgotPasswordPage(opts: ForgotPasswordPageOptions = {}): 
         Enter the email address associated with your ZUR account and we'll send you a password reset link.
       </p>
 
-      ${renderTextInput({
-        id: 'email',
-        name: 'email',
-        label: 'Email',
-        type: 'email',
-        value: opts.email || '',
-        required: true,
-        placeholder: 'you@example.com',
-      })}
+      <div class="form-group mb-4" id="group-email">
+        <label for="email" class="form-label">
+          Email <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input"
+          value="${escapeHtml(opts.email || '')}"
+          placeholder="you@example.com"
+          autocomplete="username"
+          required
+        />
+      </div>
 
       ${renderButton({
         id: 'submit-forgot-password',
@@ -69,7 +75,6 @@ export function renderForgotPasswordPage(opts: ForgotPasswordPageOptions = {}): 
 
   return renderAccountShell({
     title: 'Reset password',
-    subtitle: 'Recover access to your account',
     formContent,
   });
 }
@@ -129,25 +134,34 @@ export function renderResetPasswordPage(opts: ResetPasswordPageOptions = {}): st
           : '<div id="reset-error" class="sr-only" role="alert" aria-live="polite"></div>'
       }
 
-      <div class="password-field-wrapper mb-4">
-        ${renderTextInput({
-          id: 'newPassword',
-          name: 'newPassword',
-          label: 'New password',
-          type: 'password',
-          required: true,
-          hint: 'At least 8 characters',
-        })}
+      <div class="form-group mb-4" id="group-newPassword">
+        <label for="newPassword" class="form-label">
+          New password <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <input
+          type="password"
+          id="newPassword"
+          name="newPassword"
+          class="form-input"
+          autocomplete="new-password"
+          required
+          aria-describedby="newPassword-hint"
+        />
+        <span id="newPassword-hint" class="form-hint">At least 8 characters</span>
       </div>
 
-      <div class="password-field-wrapper mb-6">
-        ${renderTextInput({
-          id: 'confirmNewPassword',
-          name: 'confirmNewPassword',
-          label: 'Confirm new password',
-          type: 'password',
-          required: true,
-        })}
+      <div class="form-group mb-6" id="group-confirmNewPassword">
+        <label for="confirmNewPassword" class="form-label">
+          Confirm new password <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <input
+          type="password"
+          id="confirmNewPassword"
+          name="confirmNewPassword"
+          class="form-input"
+          autocomplete="new-password"
+          required
+        />
         <div class="flex justify-end mt-1">
           <button type="button" id="toggle-reset-passwords" class="btn btn-ghost btn-compact text-xs" aria-label="Show passwords">
             Show passwords
@@ -168,7 +182,6 @@ export function renderResetPasswordPage(opts: ResetPasswordPageOptions = {}): st
 
   return renderAccountShell({
     title: 'Update password',
-    subtitle: 'Create a new, strong password',
     formContent,
   });
 }

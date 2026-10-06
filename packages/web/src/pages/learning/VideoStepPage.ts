@@ -1,4 +1,8 @@
-import { renderLearningWorkspaceShell } from '../../components/shells/LearningWorkspaceShell.ts';
+import {
+  renderLearningWorkspaceShell,
+  type CourseModuleItem,
+  type TaskSquareItem,
+} from '../../components/shells/LearningWorkspaceShell.ts';
 import { deriveEmbedUrl, escapeHtml } from 'zur-shared';
 
 export interface VideoStepPageOptions {
@@ -18,16 +22,20 @@ export interface VideoStepPageOptions {
   outlineContent?: string;
   previousStepUrl?: string | null;
   nextStepUrl?: string | null;
+  courseProgressText?: string;
+  courseProgressPercentage?: number;
+  modules?: CourseModuleItem[];
+  taskSquares?: TaskSquareItem[];
 }
 
-export function renderVideoStepPage(opts: VideoStepPageOptions): string {
+export function renderVideoWorkspaceContent(opts: VideoStepPageOptions): { workspaceContent: string; taskActions: string } {
   const derived = deriveEmbedUrl(opts.videoUrl);
   const continueUrl = opts.nextStepUrl || opts.courseOverviewUrl;
   const taskActions = `
-    <a href="/help/report?stepId=${encodeURIComponent(opts.stepId)}&amp;enrollmentId=${encodeURIComponent(opts.enrollmentId)}" class="report-issue-link">Report issue</a>
+    <a href="/help?report=broken_exercise&stepId=${encodeURIComponent(opts.stepId)}&enrollmentId=${encodeURIComponent(opts.enrollmentId)}" class="report-issue-link btn-ghost btn-compact text-muted">Report issue</a>
     ${opts.isCompleted
       ? `<a href="${escapeHtml(continueUrl)}" class="btn btn-primary btn-compact">Continue</a>`
-      : `<form method="POST" action="/api/enrollments/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/complete" class="complete-step-form"><button type="submit" class="btn btn-primary">Mark complete and continue</button></form>`}
+      : `<form method="POST" action="/api/enrollments/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/complete" class="complete-step-form"><button type="submit" class="btn btn-primary btn-compact">Mark complete and continue</button></form>`}
   `;
 
   let videoPlayerHtml = '';
@@ -105,16 +113,34 @@ export function renderVideoStepPage(opts: VideoStepPageOptions): string {
     </article>
   `;
 
+  return { workspaceContent, taskActions };
+}
+
+export function renderVideoStepPage(opts: VideoStepPageOptions): string {
+  const { workspaceContent, taskActions } = renderVideoWorkspaceContent(opts);
+
   return renderLearningWorkspaceShell({
     courseTitle: opts.courseTitle,
     courseOverviewUrl: opts.courseOverviewUrl,
     lessonTitle: opts.lessonTitle,
     stepTitle: opts.stepTitle,
     stepOrdinalText: opts.stepOrdinalText,
+    courseProgressText: opts.courseProgressText,
+    courseProgressPercentage: opts.courseProgressPercentage,
+    modules: opts.modules,
+    taskSquares: opts.taskSquares,
     isPythonWorkspace: false,
     outlineContent: opts.outlineContent || '<p class="outline-empty">Outline available</p>',
     workspaceContent,
     previousStepUrl: opts.previousStepUrl,
+    nextStepUrl: opts.nextStepUrl,
     taskActions,
+    reportContext: {
+      enrollmentId: opts.enrollmentId,
+      stepId: opts.stepId,
+      courseTitle: opts.courseTitle,
+      lessonTitle: opts.lessonTitle,
+      stepTitle: opts.stepTitle,
+    },
   });
 }

@@ -1,5 +1,5 @@
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
-import type { CourseValidationResult, PublicationReceipt } from 'zur-shared';
+import type { CourseValidationResult, PublicationReceipt, ValidationErrorItem } from 'zur-shared';
 
 export interface CoursePublishPageOptions {
   courseId: string;
@@ -17,11 +17,45 @@ export interface CoursePublishPageOptions {
   receipt?: PublicationReceipt | null;
   staleRevision?: boolean;
   showConfirmModal?: boolean;
+  stepTypeMap?: Record<string, string>;
+  modules?: any[];
+  stepTitleMap?: Record<string, string>;
 }
 
 const escapeHtml = (value: unknown): string => String(value ?? '').replace(/[&<>"']/g, (character) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 }[character]!));
+
+export function getStepEditorUrl(courseId: string, stepId: string, stepTypeMap?: Record<string, string>): string {
+  const stepType = stepTypeMap?.[stepId];
+  if (stepType && ['theory', 'video', 'quiz', 'python'].includes(stepType)) {
+    return `/teach/${encodeURIComponent(courseId)}/content/${encodeURIComponent(stepType)}/${encodeURIComponent(stepId)}`;
+  }
+  return `/teach/${encodeURIComponent(courseId)}/content?type=step&id=${encodeURIComponent(stepId)}`;
+}
+
+function getStepTitle(stepId: string, opts: CoursePublishPageOptions): string {
+  if (opts.stepTitleMap?.[stepId]) return opts.stepTitleMap[stepId];
+  if (opts.modules) {
+    for (const m of opts.modules) {
+      for (const l of m.lessons || []) {
+        for (const s of l.steps || []) {
+          if (s.id === stepId && s.title) return s.title;
+        }
+      }
+    }
+  }
+  return 'Exercise';
+}
+
+interface ExerciseGroup {
+  stepId: string;
+  stepType: string;
+  title: string;
+  baseEditorUrl: string;
+  testEditorUrl: string;
+  issues: ValidationErrorItem[];
+}
 
 export function renderCoursePublishPage(opts: CoursePublishPageOptions): string {
   const isInitialRelease = !opts.currentVersionNumber;
@@ -29,7 +63,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
     ? 'Publish course'
     : `Publish Version ${opts.newVersionNumber}`;
 
-  // If receipt is provided, render Release Receipt view
+  // Release Receipt view
   if (opts.receipt) {
     const receiptContent = `
       <div class="publish-review-container" style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
@@ -69,6 +103,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
       publicationState: 'published',
       hasUnpublishedChanges: false,
       activeTab: 'content',
+      isPublishPage: true,
       editorContent: receiptContent,
     });
   }
@@ -78,31 +113,95 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
   const warnings = opts.validation.warnings || [];
   const hasBlockingErrors = errors.length > 0;
 
+  // Group errors into named exercise containers
+  const groupMap = new Map<string, ExerciseGroup>();
+  for (const err of errors) {
+    const sId = err.stepId || 'general';
+    if (!groupMap.has(sId)) {
+      const sType = opts.stepTypeMap?.[sId] || (sId.includes('python') ? 'python' : 'step');
+      const title = sId === 'general' ? 'General Course Requirements' : getStepTitle(sId, opts);
+      const baseEditorUrl = sId === 'general'
+        ? `/teach/${encodeURIComponent(opts.courseId)}/settings`
+        : getStepEditorUrl(opts.courseId, sId, opts.stepTypeMap);
+      const testEditorUrl = `${baseEditorUrl}${sType === 'python' ? '?tab=tests' : ''}`;
+
+      groupMap.set(sId, {
+        stepId: sId,
+        stepType: sType,
+        title,
+        baseEditorUrl,
+        testEditorUrl,
+        issues: [],
+      });
+    }
+    groupMap.get(sId)!.issues.push(err);
+  }
+  const exerciseGroups = Array.from(groupMap.values());
+
+  const exerciseGroupsHtml = exerciseGroups.map(grp => `
+    <div class="issue-exercise-group card mb-3 p-0 overflow-hidden" data-step-id="${grp.stepId}">
+      <div class="issue-exercise-header p-3 bg-surface border-b border-subtle flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <span class="badge neutral text-xs font-mono uppercase">${escapeHtml(grp.stepType)}</span>
+          <h3 class="exercise-group-title text-sm font-semibold m-0">${escapeHtml(grp.title)}</h3>
+        </div>
+        <div class="exercise-actions flex items-center gap-2">
+          <a href="${grp.testEditorUrl}" class="btn btn-secondary btn-compact text-xs font-medium" id="edit-tests-${grp.stepId}">
+            Edit tests →
+          </a>
+          <a href="${grp.baseEditorUrl}" class="jump-link text-xs text-secondary" style="text-decoration: underline;">
+            Edit step →
+          </a>
+        </div>
+      </div>
+      <div class="issue-exercise-body p-3">
+        <ul class="exercise-issues-list flex flex-col gap-2 m-0 p-0 list-none">
+          ${grp.issues.map(err => {
+            const isServiceFailure = err.message.includes('INTERNAL_ERROR') || err.message.toLowerCase().includes('timeout');
+            return `
+              <li class="issue-row ${isServiceFailure ? 'service-failure' : 'failed-assertion'} p-2 rounded bg-hover text-sm">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-danger font-bold" aria-hidden="true">✕</span>
+                    ${isServiceFailure
+                      ? `<strong class="text-danger font-medium">Validation couldn't run</strong> <span class="badge danger text-xs">Service failure</span>`
+                      : `<span class="issue-message text-primary">${escapeHtml(err.message)}</span> <span class="badge warning text-xs">Failed assertion</span>`
+                    }
+                  </div>
+                </div>
+                <details class="issue-diagnostics text-xs text-muted mt-1.5 ml-5">
+                  <summary class="cursor-pointer text-secondary font-medium">Diagnostic details (code &amp; IDs)</summary>
+                  <div class="diagnostic-payload font-mono mt-1 p-2 bg-surface rounded text-xs border border-subtle">
+                    <div><strong>Step ID:</strong> ${escapeHtml(grp.stepId)}</div>
+                    <div><strong>Target:</strong> ${escapeHtml(err.field || 'testCases')}</div>
+                    <div><strong>Diagnostic error:</strong> <code class="text-danger">${escapeHtml(err.message)}</code></div>
+                  </div>
+                </details>
+              </li>
+            `;
+          }).join('')}
+        </ul>
+      </div>
+    </div>
+  `).join('');
+
   const errorsHtml = hasBlockingErrors
     ? `
       <section class="card mb-4 p-4 border-danger" aria-label="Blocking Validation Errors" style="border-left: 4px solid var(--danger);">
-        <h2 class="section-title text-danger mb-2" style="font-size: 1.125rem;">
-          Blocking issues (${errors.length})
-        </h2>
-        <p class="text-secondary mb-3">All blocking issues must be resolved before this draft can be published.</p>
-        <ul class="issues-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
-          ${errors
-            .map((err) => {
-              const jumpLink = err.stepId
-                ? `<a href="/teach/${encodeURIComponent(opts.courseId)}/content" class="jump-link" style="margin-left: 0.5rem; text-decoration: underline;">Edit step →</a>`
-                : '';
-              return `
-                <li class="issue-item error" style="padding: 0.5rem 0.75rem; background-color: var(--bg-hover); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
-                  <div>
-                    <span class="text-danger" style="font-weight: 600; margin-right: 0.5rem;">✕</span>
-                    <span>${escapeHtml(err.message)}</span>
-                  </div>
-                  ${jumpLink}
-                </li>
-              `;
-            })
-            .join('')}
-        </ul>
+        <div class="flex justify-between items-center mb-2">
+          <div>
+            <h2 class="section-title text-danger m-0" style="font-size: 1.125rem;">
+              Blocking issues (${errors.length})
+            </h2>
+            <span class="text-secondary text-xs mt-0.5 block">${exerciseGroups.length} ${exerciseGroups.length === 1 ? 'exercise needs' : 'exercises need'} review</span>
+          </div>
+          <a href="/teach/${encodeURIComponent(opts.courseId)}/publish" class="btn btn-secondary btn-compact text-xs" id="retry-validation-btn" data-action="retry-validation" onclick="window.location.reload();">Retry validation</a>
+        </div>
+        <p class="text-secondary mb-3 text-xs">Fix blocking issues before publishing.</p>
+
+        <div class="exercise-groups-list">
+          ${exerciseGroupsHtml}
+        </div>
       </section>
     `
     : `
@@ -121,14 +220,21 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
         <p class="text-secondary mb-3">These items will not block publication, but reviewing them is recommended.</p>
         <ul class="issues-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
           ${warnings
-            .map(
-              (w) => `
-            <li class="issue-item warning" style="padding: 0.5rem 0.75rem; background-color: var(--bg-hover); border-radius: var(--radius-sm);">
-              <span class="text-warning" style="font-weight: 600; margin-right: 0.5rem;">⚠</span>
-              <span>${escapeHtml(w.message)}</span>
-            </li>
-          `
-            )
+            .map((w) => {
+              const jumpUrl = getStepEditorUrl(opts.courseId, w.stepId, opts.stepTypeMap);
+              const jumpLink = w.stepId
+                ? `<a href="${jumpUrl}" class="jump-link" style="margin-left: 0.5rem; text-decoration: underline;">Edit step →</a>`
+                : '';
+              return `
+                <li class="issue-item warning" style="padding: 0.5rem 0.75rem; background-color: var(--bg-hover); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <span class="text-warning" style="font-weight: 600; margin-right: 0.5rem;">⚠</span>
+                    <span>${escapeHtml(w.message)}</span>
+                  </div>
+                  ${jumpLink}
+                </li>
+              `;
+            })
             .join('')}
         </ul>
       </section>
@@ -184,7 +290,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
           <div>
             <h1 class="page-title">Review publication</h1>
-            <p class="text-secondary mt-1">Validate the saved draft, review issues and warnings, and confirm the version impact.</p>
+            <p class="text-secondary mt-1">Validate the saved draft, review issues, and confirm version release impact.</p>
           </div>
           <div class="revision-badge">
             <span class="status-badge" style="background-color: var(--bg-hover);">Draft Rev ${opts.draftRevision}</span>
@@ -192,79 +298,60 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
         </div>
       </header>
 
+      <nav class="author-workflow-nav mb-3 text-xs" aria-label="Authoring lifecycle">
+        <ol class="workflow-steps flex gap-1 list-none p-0 m-0 text-muted" style="list-style: none">
+          <li><a href="/teach/${encodeURIComponent(opts.courseId)}/settings" class="text-secondary">1. Basics</a> →</li>
+          <li><a href="/teach/${encodeURIComponent(opts.courseId)}/content" class="text-secondary">2. Structure</a> →</li>
+          <li><a href="/teach/${encodeURIComponent(opts.courseId)}/content" class="text-secondary">3. Build steps</a> →</li>
+          <li><a href="/teach/${encodeURIComponent(opts.courseId)}/preview" class="text-secondary">4. Preview</a> →</li>
+          <li class="font-semibold text-primary">5. Publish</li>
+        </ol>
+      </nav>
+
+      <div class="next-action-callout mb-3 p-2 bg-surface border border-subtle rounded text-xs flex items-center justify-between">
+        <div>
+          <strong>Next action:</strong>
+          <span class="text-secondary ml-1">${hasBlockingErrors ? `Resolve ${errors.length} blocking issue${errors.length === 1 ? '' : 's'} before releasing Version ${opts.newVersionNumber}.` : `Pre-publish checklist passed. Click "${escapeHtml(publishButtonLabel)}" to release.`}</span>
+        </div>
+      </div>
+
       ${staleRevisionHtml}
       ${errorsHtml}
       ${warningsHtml}
 
-      <!-- Course Summary (Definition List) -->
-      <section class="publish-summary-section mb-6" aria-label="Course Summary">
-        <h2 class="section-title mb-3 text-base font-semibold">Course summary</h2>
-        <dl class="summary-definition-list grid grid-cols-1 sm:grid-cols-3 gap-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 0;">
-          <div>
-            <dt class="text-muted text-xs font-medium">Course title</dt>
-            <dd class="font-semibold text-sm mt-1 text-primary" style="margin: 0.25rem 0 0;">${escapeHtml(opts.courseTitle)}</dd>
+      <section class="card p-4 publish-impact-card" aria-label="Version and Access Impact" style="background-color: var(--bg-surface);">
+        <h2 class="section-title mb-3" style="font-size: 1.125rem;">Release impact</h2>
+        <div class="impact-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div class="impact-item">
+            <span class="text-secondary text-sm">Release version</span>
+            <div class="font-semibold text-lg">Version ${opts.newVersionNumber}</div>
+            <span class="text-muted text-xs">${isInitialRelease ? 'Initial release' : `Current published version: Version ${opts.currentVersionNumber}`}</span>
           </div>
-          <div>
-            <dt class="text-muted text-xs font-medium">Discoverability</dt>
-            <dd class="font-semibold text-sm mt-1 text-primary" style="margin: 0.25rem 0 0;">${escapeHtml(visibilityLabel)}</dd>
+          <div class="impact-item">
+            <span class="text-secondary text-sm">Active enrolled students</span>
+            <div class="font-semibold text-lg">${opts.activeEnrolledStudents}</div>
+            <span class="text-muted text-xs">Pinned to their current version</span>
           </div>
-          <div>
-            <dt class="text-muted text-xs font-medium">Enrollment policy</dt>
-            <dd class="font-semibold text-sm mt-1 text-primary" style="margin: 0.25rem 0 0;">${escapeHtml(enrollmentPolicyLabel)}</dd>
+          <div class="impact-item">
+            <span class="text-secondary text-sm">Visibility &amp; enrollment</span>
+            <div class="font-semibold text-base">${visibilityLabel}</div>
+            <span class="text-muted text-xs">${enrollmentPolicyLabel}</span>
           </div>
-        </dl>
+        </div>
+        <p class="text-secondary text-xs mt-3">Existing students will continue on their current version. New enrollments will receive this update.</p>
       </section>
 
-      <hr class="section-divider my-6" />
-
-      <!-- Version Impact Summary (PRD §9, design P27) -->
-      <section class="publish-impact-section mb-6 impact-card" aria-label="Version Impact Statement">
-        <div class="flex items-center gap-3 mb-2">
-          <h2 class="section-title text-base font-semibold m-0">Version impact summary</h2>
-          <span class="version-delta-badge inline-flex items-center gap-1 font-mono text-xs px-2 py-0.5 rounded bg-raised border border-subtle">
-            ${opts.currentVersionNumber ? `v${opts.currentVersionNumber}` : 'draft'} → v${opts.newVersionNumber}
-          </span>
-        </div>
-        <p class="impact-statement mb-3 text-sm text-secondary" style="line-height: 1.5;">
-          <strong>Existing students will continue on their current version. New enrollments will receive this update.</strong>
-        </p>
-        <div class="impact-metrics flex flex-wrap gap-6 pt-3 border-t border-subtle text-sm">
-          <div>
-            <span class="text-muted text-xs">Current published version:</span>
-            <span class="font-semibold ml-1 text-secondary">${opts.currentVersionNumber ? `Version ${opts.currentVersionNumber}` : 'None (Initial release)'}</span>
-          </div>
-          <div>
-            <span class="text-muted text-xs">New version to publish:</span>
-            <span class="font-semibold ml-1 text-accent">Version ${opts.newVersionNumber}</span>
-          </div>
-          <div>
-            <span class="text-muted text-xs">Active enrolled students:</span>
-            <span class="font-semibold ml-1 text-secondary">${opts.activeEnrolledStudents}</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Publication Action Bar (Sticky) -->
-      <footer class="publish-actions-footer p-4 sticky bottom-0 z-10 bg-raised border-t border-subtle flex justify-between items-center rounded-lg shadow-sm">
-        <div>
-          ${
-            hasBlockingErrors
-              ? '<span class="text-danger text-sm font-medium">Fix blocking issues before publishing.</span>'
-              : '<span class="text-secondary text-sm">Ready to publish.</span>'
-          }
-        </div>
-        <form id="publish-form" style="margin: 0;">
-          <input type="hidden" name="expectedRevision" value="${opts.draftRevision}" />
-          <button
-            type="button"
-            id="publish-open-confirm"
-            class="btn btn-primary"
-            ${hasBlockingErrors ? 'disabled aria-disabled="true"' : ''}
-          >
-            ${publishButtonLabel}
-          </button>
-        </form>
-      </footer>
+      <div class="publish-action-bar mt-4" style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <a href="/teach/${encodeURIComponent(opts.courseId)}/content" class="btn btn-secondary">Back to editor</a>
+        <button
+          type="button"
+          id="publish-open-confirm"
+          class="btn btn-primary"
+          ${hasBlockingErrors || opts.staleRevision ? 'disabled aria-disabled="true"' : ''}
+        >
+          ${escapeHtml(publishButtonLabel)}
+        </button>
+      </div>
 
       ${confirmModalHtml}
     </div>
@@ -275,8 +362,9 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
     courseTitle: opts.courseTitle,
     publicationState: opts.publicationState,
     hasUnpublishedChanges: opts.hasUnpublishedChanges,
-    saveStatusText: opts.saveStatus === 'saving' ? 'Saving...' : undefined,
+    saveStatusText: opts.saveStatus === 'saved' ? 'Saved' : undefined,
     activeTab: 'content',
+    isPublishPage: true,
     editorContent,
   });
 }

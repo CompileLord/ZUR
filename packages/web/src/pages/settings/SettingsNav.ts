@@ -1,6 +1,6 @@
 export function renderSettingsNav(
   activeTab: 'profile' | 'appearance' | 'security' | 'privacy' | 'ai-connections',
-  isAuthor: boolean = true
+  isAuthor: boolean = false
 ): string {
   const tabs = [
     { id: 'profile', label: 'Profile', href: '/settings/profile' },

@@ -74,7 +74,6 @@ export function renderAppearanceSettingsPage(opts: AppearanceSettingsPageOptions
                     <div class="mini-schematic-btn"></div>
                   </div>
                 </div>
-                <span class="text-xs text-muted block mt-2">Consistent dark surface</span>
               </label>
 
               <!-- Light Theme Option -->
@@ -96,7 +95,6 @@ export function renderAppearanceSettingsPage(opts: AppearanceSettingsPageOptions
                     <div class="mini-schematic-btn"></div>
                   </div>
                 </div>
-                <span class="text-xs text-muted block mt-2">Consistent light surface</span>
               </label>
 
               <!-- System Mode Option -->
@@ -140,7 +138,6 @@ export function renderAppearanceSettingsPage(opts: AppearanceSettingsPageOptions
                 <option value="16" ${fontSize === 16 ? 'selected' : ''}>16px — Large</option>
                 <option value="18" ${fontSize === 18 ? 'selected' : ''}>18px — Extra large</option>
               </select>
-              <span class="form-hint mt-1 text-xs text-muted">Fixed-width code font scaling</span>
             </div>
 
             <div class="form-group">
@@ -149,7 +146,6 @@ export function renderAppearanceSettingsPage(opts: AppearanceSettingsPageOptions
                 <option value="2" ${indent === 2 ? 'selected' : ''}>2 spaces</option>
                 <option value="4" ${indent === 4 ? 'selected' : ''}>4 spaces (PEP 8 standard)</option>
               </select>
-              <span class="form-hint mt-1 text-xs text-muted">Python indentation depth</span>
             </div>
 
             <div id="appearance-autosave-status" class="flex items-center gap-2 text-xs text-muted pt-2" role="status" aria-live="polite">

@@ -135,7 +135,7 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
                 <div class="course-row-main">
                   <div class="course-row-meta">
                     <span class="${statusBadgeClass}">${c.publicationStatus === 'published' ? 'Published' : c.publicationStatus === 'draft' ? 'Draft' : 'Archived'}</span>
-                    ${c.hasUnpublishedChanges ? '<span class="status-badge info">Unpublished changes</span>' : ''}
+                    ${c.hasUnpublishedChanges ? '<span class="status-badge warning status-badge-subtle">Draft changes<span class="sr-only"> (Unpublished changes)</span></span>' : ''}
                     ${c.studentCount > 0 ? `
                       <span class="meta-separator">·</span>
                       <span class="student-count-text">${studentText}</span>
@@ -147,7 +147,7 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
                   ${editDateFormatted ? `<div class="course-row-date text-xs text-muted">Edited ${editDateFormatted}</div>` : ''}
                 </div>
                 <div class="course-row-actions">
-                  <a href="/teach/${c.id}/content" class="btn btn-secondary btn-compact">${actionLabel}</a>
+                  <a href="/teach/${c.id}/content" class="btn btn-secondary btn-compact" aria-label="${actionLabel}">Open<span class="sr-only"> (${actionLabel})</span></a>
                 </div>
               </article>
             `;
@@ -162,7 +162,6 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
       <header class="page-header author-page-header">
         <div class="header-text-group">
           <h1 class="page-title">Your courses</h1>
-          <p class="page-subtitle">Draft, organize, and publish interactive courses.</p>
         </div>
         <div class="header-action-group">
           <button type="button" class="btn btn-primary" data-action="open-new-course-modal">+ New course</button>

@@ -1,14 +1,17 @@
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { getDatabase } from './database.ts';
+import { runMigrations } from './migrate.ts';
 
 export function hashPassword(plain: string): string {
   return crypto.createHash('sha256').update(plain).digest('hex');
 }
 
 export function seedDatabase(dbPath?: string): void {
+  runMigrations(dbPath);
   const db = getDatabase(dbPath);
 
+  db.exec('PRAGMA foreign_keys = OFF;');
   db.exec('BEGIN TRANSACTION;');
   try {
     // Clean existing data for deterministic re-seeding
@@ -17,11 +20,18 @@ export function seedDatabase(dbPath?: string): void {
       'test_cases', 'step_contents', 'steps', 'lessons', 'modules',
       'enrollments', 'invitations', 'course_versions', 'courses', 'categories',
       'author_access_tokens', 'agent_mutations', 'recovery_revisions', 'media_assets', 'admin_support_access',
-      'media_uploads', 'reports', 'audit_events', 'verification_tokens', 'sessions', 'users', 'deletion_registry',
-      'product_analytics_events', 'privacy_requests'
+      'media_uploads', 'reports', 'audit_events', 'verification_tokens', 'sessions',
+      'user_preferences', 'privacy_exports', 'privacy_requests', 'author_validation_admissions',
+      'publication_idempotency', 'course_change_plans', 'auth_request_limits', 'system_settings',
+      'product_analytics_events', 'product_analytics_config', 'deletion_registry', 'users'
     ];
+    const existingTables = new Set(
+      (db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as Array<{ name: string }>).map((r) => r.name)
+    );
     for (const t of tables) {
-      db.exec(`DELETE FROM ${t};`);
+      if (existingTables.has(t)) {
+        db.exec(`DELETE FROM ${t};`);
+      }
     }
 
     const now = new Date().toISOString();
@@ -442,6 +452,8 @@ export function seedDatabase(dbPath?: string): void {
   } catch (err) {
     db.exec('ROLLBACK;');
     throw err;
+  } finally {
+    db.exec('PRAGMA foreign_keys = ON;');
   }
 }
 

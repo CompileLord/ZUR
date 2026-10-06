@@ -184,13 +184,10 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
     `;
   }
 
-  // Metadata items
+  // Metadata items: show compact author/language metadata once
   const metaParts = [
     course.authorName ? `<span>Teacher: ${escapeHtml(course.authorName)}</span>` : null,
-    course.difficulty ? `<span>Level: ${escapeHtml(capitalize(course.difficulty))}</span>` : null,
     course.language ? `<span>Language: ${escapeHtml(course.language.toUpperCase())}</span>` : null,
-    course.estimatedDurationMinutes ? `<span>Duration: ~${Number(course.estimatedDurationMinutes)} mins</span>` : null,
-    course.versionNumber ? `<span>Version ${Number(course.versionNumber)}</span>` : null,
   ].filter(Boolean).join(' · ');
 
   // Learning Outcomes
@@ -225,6 +222,14 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
   let syllabusHtml = '';
   if (syllabus && syllabus.length > 0) {
     const moduleItems = syllabus.map((mod, modIdx) => {
+      const lessonCount = mod.lessons?.length || 0;
+      const totalModuleTasks = (mod.lessons || []).reduce(
+        (acc, les) => acc + (les.stepCounts?.total || les.steps?.length || 0),
+        0
+      );
+      const lessonCountText = `${lessonCount} ${lessonCount === 1 ? 'lesson' : 'lessons'}`;
+      const taskCountText = `${totalModuleTasks} ${totalModuleTasks === 1 ? 'task' : 'tasks'}`;
+
       const lessonItems = (mod.lessons || []).map((les, lesIdx) => {
         const counts = les.stepCounts;
         const countBadges: string[] = [];
@@ -277,14 +282,15 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
       }).join('');
 
       return `
-        <div class="module-section">
-          <h3 class="module-heading font-semibold text-sm text-primary mb-3 pb-2 border-b border-subtle">
-            Module ${modIdx + 1}: ${withoutOrdinal(mod.title, 'Module')}
-          </h3>
-          <div class="module-lessons flex flex-col gap-2">
+        <details class="module-section" ${modIdx === 0 ? 'open' : ''}>
+          <summary class="module-heading cursor-pointer flex justify-between items-center select-none">
+            <span>Module ${modIdx + 1}: ${withoutOrdinal(mod.title, 'Module')}</span>
+            <span class="text-xs text-muted font-normal tabular-nums">${lessonCountText} · ${taskCountText}</span>
+          </summary>
+          <div class="module-lessons flex flex-col gap-2 mt-2">
             ${lessonItems}
           </div>
-        </div>
+        </details>
       `;
     }).join('');
 
@@ -292,9 +298,8 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
       <section class="course-syllabus-section mt-10 pt-8 border-t border-subtle" aria-labelledby="syllabus-heading">
         <div class="syllabus-header mb-6">
           <h2 id="syllabus-heading" class="section-title text-lg font-semibold mb-1">Course syllabus</h2>
-          <p class="text-xs text-muted">Informational outline of modules and step types. Enrollment gives full interactive practice access.</p>
         </div>
-        <div class="syllabus-modules">
+        <div class="syllabus-modules flex flex-col gap-6">
           ${moduleItems}
         </div>
       </section>
@@ -369,9 +374,6 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
 
             <div class="sidebar-action-container pt-4 border-t border-subtle flex flex-col gap-3">
               ${primaryActionHtml}
-              <p class="sidebar-footer-note text-xs text-muted leading-relaxed text-center">
-                Practice Python with short lessons and browser exercises. No setup required.
-              </p>
             </div>
           </div>
         </aside>

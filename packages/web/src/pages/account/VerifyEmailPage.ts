@@ -43,35 +43,57 @@ export function renderVerifyEmailPage(opts: VerifyEmailPageOptions = {}): string
     });
   }
 
+  const errorBanner = opts.error
+    ? `
+      <div id="verify-error" class="form-error mb-4 p-3 border border-danger rounded text-left" role="alert" aria-live="polite">
+        <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
+      </div>
+    `
+    : '<div id="verify-error" class="sr-only" role="alert" aria-live="polite"></div>';
+
+  const infoBanner = opts.infoMessage
+    ? `
+      <div id="verify-info" class="mb-4 p-3 bg-surface border border-accent rounded text-sm text-left" role="status" aria-live="polite">
+        <span>${escapeHtml(opts.infoMessage)}</span>
+      </div>
+    `
+    : '';
+
+  if (!opts.email) {
+    const directContent = `
+      <div class="verification-no-context text-left py-2">
+        ${errorBanner}
+        ${infoBanner}
+        <p class="text-sm text-secondary mb-6">
+          ${
+            opts.error
+              ? 'The verification link may have expired or is invalid. Sign in to your account to request a new verification email, or register for a new account.'
+              : 'No pending email verification context was found. If you have an account or recently registered, please sign in to check your verification status.'
+          }
+        </p>
+        <a href="/sign-in" class="btn btn-primary w-full text-center">Sign in</a>
+        <div class="mt-6 pt-4 border-t border-subtle text-center">
+          <a href="/sign-up" class="text-xs text-secondary hover-underline">Create an account</a>
+        </div>
+      </div>
+    `;
+
+    return renderAccountShell({
+      title: 'Verify your email',
+      formContent: directContent,
+    });
+  }
+
   const masked = maskEmail(opts.email);
   const cooldown = opts.cooldownRemaining || 0;
   const isCooldownActive = cooldown > 0;
 
   const formContent = `
-    <div class="verification-pending text-center py-2">
-      <div class="mail-icon text-3xl mb-3 text-secondary" aria-hidden="true">✉</div>
-      
-      ${
-        opts.error
-          ? `
-        <div id="verify-error" class="form-error mb-4 p-3 border border-danger rounded text-left" role="alert" aria-live="polite">
-          <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
-        </div>
-      `
-          : '<div id="verify-error" class="sr-only" role="alert" aria-live="polite"></div>'
-      }
+    <div class="verification-pending text-left py-2">
+      ${errorBanner}
+      ${infoBanner}
 
-      ${
-        opts.infoMessage
-          ? `
-        <div id="verify-info" class="mb-4 p-3 bg-surface border border-accent rounded text-sm text-left" role="status" aria-live="polite">
-          <span>${escapeHtml(opts.infoMessage)}</span>
-        </div>
-      `
-          : ''
-      }
-
-      <p class="text-sm text-secondary mb-4 text-left">
+      <p class="text-sm text-secondary mb-4">
         We sent a verification link to <strong class="text-primary font-mono">${escapeHtml(masked)}</strong>. Click the link in the message to activate your account.
       </p>
 
@@ -87,7 +109,7 @@ export function renderVerifyEmailPage(opts: VerifyEmailPageOptions = {}): string
         })}
       </form>
 
-      <div class="mt-6 pt-4 border-t border-subtle">
+      <div class="mt-6 pt-4 border-t border-subtle text-center">
         <a href="/api/auth/sign-out" id="use-different-account" class="text-xs text-secondary hover-underline">
           Use a different account
         </a>
@@ -97,7 +119,6 @@ export function renderVerifyEmailPage(opts: VerifyEmailPageOptions = {}): string
 
   return renderAccountShell({
     title: 'Check your email',
-    subtitle: 'Verify your email address to continue',
     formContent,
   });
 }

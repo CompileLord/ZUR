@@ -22,44 +22,7 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
   return `
     <div class="landing-page">
       ${renderLandingHero(Boolean(props.isSignedIn))}
-      <section class="container-landing landing-workspace" aria-label="Example Python workspace">
-        <!-- Accurate Example Workspace Fragment (P01) -->
-        <div class="workspace-fragment mt-12" aria-label="Example workspace">
-          <div class="workspace-fragment-header">
-            <span class="workspace-fragment-label">Example workspace</span>
-            <span class="workspace-fragment-meta font-mono text-xs">${PYTHON_RUNTIME_LABEL} · stdin/stdout</span>
-          </div>
-          <div class="workspace-fragment-body">
-            <div class="workspace-fragment-problem">
-              <span class="problem-kicker text-xs text-muted">Problem</span>
-              <h2 class="problem-title text-base font-semibold mt-1 mb-2">Calculate squares of numbers</h2>
-              <p class="text-sm text-secondary mb-3">
-                Given a list of integers, return a new list containing the square of each integer in order.
-              </p>
-              <div class="example-box text-xs">
-                <span class="text-muted">Example input:</span>
-                <code class="font-mono text-primary block mt-1">[1, 2, 3, 4, 5]</code>
-              </div>
-            </div>
-            <div class="workspace-fragment-code">
-              <div class="code-editor-header flex justify-between text-xs text-muted mb-2">
-                <span>solution.py</span>
-                <span>Read-only illustration</span>
-              </div>
-              <pre class="code-surface"><code><span class="line-num">1</span> <span class="syntax-keyword">def</span> <span class="syntax-function">calculate_squares</span>(numbers):
-<span class="line-num">2</span>     <span class="syntax-comment"># Square each number in the list</span>
-<span class="line-num">3</span>     <span class="syntax-keyword">return</span> [n * n <span class="syntax-keyword">for</span> n <span class="syntax-keyword">in</span> numbers]
-<span class="line-num">4</span> 
-<span class="line-num">5</span> data = [1, 2, 3, 4, 5]
-<span class="line-num">6</span> <span class="syntax-function">print</span>(<span class="syntax-string">"Squares:"</span>, <span class="syntax-function">calculate_squares</span>(data))</code></pre>
-              <div class="sample-output-box mt-3 pt-3 border-t border-subtle">
-                <span class="text-xs text-muted">Sample output:</span>
-                <pre class="font-mono text-sm text-primary mt-1"><code>Squares: [1, 4, 9, 16, 25]</code></pre>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       <!-- Read → Try → Check Section (P01) -->
       <section class="reading-progression-section border-t border-subtle py-16" aria-labelledby="progression-heading">

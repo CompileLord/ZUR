@@ -12,6 +12,9 @@ import {
   renderPublicShell,
   renderAppShell,
   renderLearningWorkspaceShell,
+  renderTaskStripHtml,
+  renderTaskSquareInnerHtml,
+  type LearningWorkspaceShellOptions,
   renderAuthorWorkspaceShell,
   renderAdminShell,
 } from './components/shells/index.ts';
@@ -39,8 +42,13 @@ import { renderCatalogPage, type CatalogPageProps } from './pages/public/Catalog
 import { renderCourseOverviewPage, type CourseOverviewPageProps } from './pages/public/CourseOverviewPage.ts';
 import { renderHelpPage, type HelpPageProps } from './pages/public/HelpPage.ts';
 import { renderPolicyPage } from './pages/public/PolicyPage.ts';
-import type { CoursePublishPageOptions } from './pages/author/CoursePublishPage.ts';
-import { renderPythonWorkspacePage, renderPythonExecutionResults, type PythonWorkspacePageOptions } from './pages/learning/PythonWorkspacePage.ts';
+import { renderCoursePublishPage, type CoursePublishPageOptions } from './pages/author/CoursePublishPage.ts';
+import {
+  renderPythonWorkspacePage,
+  renderPythonWorkspaceContent,
+  renderPythonExecutionResults,
+  type PythonWorkspacePageOptions,
+} from './pages/learning/PythonWorkspacePage.ts';
 import { renderMarkdownToHtml, type ExecutionResult } from 'zur-shared';
 import { renderAttemptHistoryPage, getAttemptDocumentTitle } from './pages/learning/AttemptHistoryPage.ts';
 import { DraftManager } from './services/draft-manager.ts';
@@ -48,9 +56,9 @@ import { DraftSaveQueue } from './services/draft-save-queue.ts';
 import { AppearanceSaveQueue } from './services/appearance-save-queue.ts';
 import { ProfileGuard } from './services/profile-guard.ts';
 import { CourseClient } from './services/course-client.ts';
-import { renderTheoryStepPage } from './pages/learning/TheoryStepPage.ts';
-import { renderVideoStepPage } from './pages/learning/VideoStepPage.ts';
-import { renderQuizStepPage } from './pages/learning/QuizStepPage.ts';
+import { renderTheoryStepPage, renderTheoryWorkspaceContent, type TheoryStepPageOptions } from './pages/learning/TheoryStepPage.ts';
+import { renderVideoStepPage, renderVideoWorkspaceContent, type VideoStepPageOptions } from './pages/learning/VideoStepPage.ts';
+import { renderQuizStepPage, renderQuizWorkspaceContent, type QuizStepPageOptions } from './pages/learning/QuizStepPage.ts';
 import { renderDashboardContinuePage } from './pages/learning/DashboardContinuePage.ts';
 import { renderMyCoursesPage } from './pages/learning/MyCoursesPage.ts';
 import { renderEnrolledCoursePage } from './pages/learning/EnrolledCoursePage.ts';
@@ -113,13 +121,33 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
     }
     if (pageId === 'P09') {
       const data = await s2Request('/api/student/dashboard');
+      if (!s2Current(path)) return;
+      if (data.continueCourse?.enrollmentId && (data.continueCourse.nextIncompleteStepId || data.continueCourse.lastVisitedStepId)) {
+        try {
+          const stepId = data.continueCourse.nextIncompleteStepId || data.continueCourse.lastVisitedStepId;
+          const prog = await s2Request(`/api/enrollments/${data.continueCourse.enrollmentId}/progress`);
+          const targetStep = prog?.steps?.find((s: any) => s.id === stepId);
+          if (targetStep) {
+            data.continueCourse.nextStepTitle = targetStep.title;
+            data.continueCourse.lessonTitle = targetStep.lessonTitle;
+          }
+        } catch { /* optional enrichment */ }
+      }
       if (s2Current(path)) appEl.innerHTML = renderDashboardContinuePage({ user, continueCourse: data.continueCourse, recentCourses: data.recentCourses });
       return;
     }
     if (pageId === 'P10') {
       const data = await s2Request('/api/student/courses');
       if (!s2Current(path)) return;
-      const courses = data.enrollments.map((e: any) => ({ ...e, percentage: e.progress?.percentage || 0, completedRequired: e.progress?.completedRequired || 0, totalRequired: e.progress?.totalRequired || 0, isCompleted: Boolean(e.progress?.isCompleted), nextStepId: e.progress?.nextIncompleteStepId || e.progress?.lastVisitedStepId }));
+      const courses = data.enrollments.map((e: any) => ({
+        ...e,
+        percentage: e.progress?.percentage || 0,
+        completedRequired: e.progress?.completedRequired || 0,
+        totalRequired: e.progress?.totalRequired || 0,
+        isCompleted: Boolean(e.progress?.isCompleted),
+        nextStepId: e.progress?.nextIncompleteStepId || e.progress?.lastVisitedStepId,
+        nextStepTitle: e.progress?.nextIncompleteStepTitle || e.progress?.lastVisitedStepTitle,
+      }));
       appEl.innerHTML = renderMyCoursesPage({ user, courses });
       return;
     }
@@ -135,7 +163,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         lesson.steps.push(step);
       }
       const duration = Number(progress.estimatedDurationMinutes) || progress.steps.reduce((sum: number, step: any) => sum + (Number(step.estimatedDurationMinutes) || 0), 0);
-      appEl.innerHTML = renderEnrolledCoursePage({ user, enrollmentId: params.enrollmentId, courseId: progress.courseId, title: progress.courseTitle, description: progress.description, difficulty: progress.difficulty, estimatedDurationMinutes: duration, pinnedVersionNumber: progress.pinnedVersionNumber, percentage: progress.percentage, completedRequired: progress.completedRequired, totalRequired: progress.totalRequired, waivedRequired: progress.waivedRequired, isCompleted: progress.isCompleted, nextStepId: progress.nextIncompleteStepId, modules });
+      appEl.innerHTML = renderEnrolledCoursePage({ user, userId: user.id, courseVersionId: progress.pinnedVersionId || progress.courseVersionId, enrollmentId: params.enrollmentId, courseId: progress.courseId, title: progress.courseTitle, description: progress.description, difficulty: progress.difficulty, estimatedDurationMinutes: duration, pinnedVersionNumber: progress.pinnedVersionNumber, percentage: progress.percentage, completedRequired: progress.completedRequired, totalRequired: progress.totalRequired, waivedRequired: progress.waivedRequired, isCompleted: progress.isCompleted, nextStepId: progress.nextIncompleteStepId, modules });
       return;
     }
     if (!courseId) return;
@@ -299,8 +327,9 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       if (!step) { showRouteFailure('Add a step before previewing the course.', path); return; }
       const preview = await s2Request(`/api/author/courses/${courseId}/preview/${step.id}`);
       if (!s2Current(path)) return;
-      const { renderAuthorPreviewPage } = await import('./pages/author/AuthorPreviewPage.ts');
-      appEl.innerHTML = renderAuthorPreviewPage({ ...preview, returnEditorUrl: `/teach/${courseId}/content/${step.type}/${step.id}` });
+      const { renderAuthorPreviewPage, initAuthorPreviewInteractions } = await import('./pages/author/AuthorPreviewPage.ts');
+      appEl.innerHTML = renderAuthorPreviewPage({ ...preview, modules: tree.modules, returnEditorUrl: `/teach/${courseId}/content/${step.type}/${step.id}` });
+      initAuthorPreviewInteractions(appEl);
       void hydrateDeferredAssets(appEl);
       return;
     }
@@ -310,7 +339,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       const detail = await s2Request(`/api/author/steps/${step.id}/content`);
       const specialized = step.type === 'quiz' ? await s2Request(`/api/author/steps/${step.id}/quiz`) : step.type === 'python' ? await s2Request(`/api/author/steps/${step.id}/python`) : null;
       if (!s2Current(path)) return;
-      const base = { courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, stepId: step.id, stepTitle: detail.title, revision: detail.revision, isRequired: detail.isRequired, estimatedDurationMinutes: detail.estimatedDurationMinutes };
+      const base = { courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, stepId: step.id, stepTitle: detail.title, revision: detail.revision, isRequired: detail.isRequired, estimatedDurationMinutes: detail.estimatedDurationMinutes, modules: tree.modules };
       const c = specialized ? (step.type === 'quiz' ? specialized.quiz : specialized) : detail.content || {};
       if (step.type === 'theory') {
         const { renderTheoryEditorPage } = await import('./pages/author/TheoryEditorPage.ts');
@@ -334,6 +363,111 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
             b.setAttribute('aria-selected', String(b === button));
           });
         }));
+
+        appEl.querySelector('[data-action="open-asset-modal"]')?.addEventListener('click', () => {
+          let assetModal = document.getElementById('theory-asset-modal');
+          if (!assetModal) {
+            assetModal = document.createElement('div');
+            assetModal.id = 'theory-asset-modal';
+            assetModal.className = 'modal-backdrop';
+            assetModal.setAttribute('role', 'dialog');
+            assetModal.setAttribute('aria-modal', 'true');
+            assetModal.setAttribute('aria-labelledby', 'asset-modal-title');
+            assetModal.innerHTML = `
+              <div class="modal-dialog max-w-dialog" tabindex="-1">
+                <div class="sheet-header flex justify-between items-center pb-3 border-b border-subtle">
+                  <h3 id="asset-modal-title" class="text-base font-semibold">Upload theory image asset</h3>
+                  <button type="button" class="btn btn-ghost btn-compact" id="asset-modal-close" aria-label="Close">✕</button>
+                </div>
+                <div class="modal-body py-4 flex flex-col gap-3">
+                  <div class="form-group">
+                    <label for="asset-file-picker" class="form-label text-xs font-semibold">Image file (PNG, JPEG, WebP up to 10 MB) *</label>
+                    <input type="file" id="asset-file-picker" class="form-input text-sm" accept="image/png,image/jpeg,image/webp" />
+                  </div>
+                  <div class="form-group">
+                    <label for="asset-alt-text" class="form-label text-xs font-semibold">Image description (Alt text) *</label>
+                    <input type="text" id="asset-alt-text" class="form-input text-sm" placeholder="Descriptive alt text for learners…" value="Diagram" />
+                  </div>
+                  <div id="asset-upload-status" class="text-xs text-muted"></div>
+                </div>
+                <div class="modal-footer flex justify-end gap-2 pt-3 border-t border-subtle">
+                  <button type="button" class="btn btn-secondary btn-compact" id="asset-modal-cancel">Cancel</button>
+                  <button type="button" class="btn btn-primary btn-compact" id="asset-modal-submit">Upload & Insert</button>
+                </div>
+              </div>
+            `;
+            document.body.append(assetModal);
+          }
+          assetModal.classList.remove('hidden');
+          assetModal.style.display = 'flex';
+          const fileInput = assetModal.querySelector('#asset-file-picker') as HTMLInputElement | null;
+          const altInput = assetModal.querySelector('#asset-alt-text') as HTMLInputElement | null;
+          const statusEl = assetModal.querySelector('#asset-upload-status') as HTMLElement | null;
+          const submitBtn = assetModal.querySelector('#asset-modal-submit') as HTMLButtonElement | null;
+          const closeBtn = assetModal.querySelector('#asset-modal-close');
+          const cancelBtn = assetModal.querySelector('#asset-modal-cancel');
+          const closeModal = () => {
+            assetModal.remove();
+          };
+          closeBtn?.addEventListener('click', closeModal, { once: true });
+          cancelBtn?.addEventListener('click', closeModal, { once: true });
+
+          if (submitBtn) {
+            submitBtn.onclick = async () => {
+              const file = fileInput?.files?.[0];
+              if (!file) {
+                if (statusEl) { statusEl.className = 'text-xs text-danger'; statusEl.textContent = 'Please select an image file to upload.'; }
+                return;
+              }
+              if (file.size > 10 * 1024 * 1024) {
+                if (statusEl) { statusEl.className = 'text-xs text-danger'; statusEl.textContent = 'Image file exceeds 10 MB maximum size limit.'; }
+                return;
+              }
+              const mime = (file.type || 'image/png').toLowerCase();
+              if (!['image/png', 'image/jpeg', 'image/webp'].includes(mime)) {
+                if (statusEl) { statusEl.className = 'text-xs text-danger'; statusEl.textContent = 'Only PNG, JPEG, and WebP images are supported.'; }
+                return;
+              }
+              const rawAlt = altInput?.value?.trim() || file.name;
+              const sanitizedAlt = rawAlt.replace(/[\[\]]/g, '').trim() || 'image';
+
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Uploading…';
+              if (statusEl) { statusEl.className = 'text-xs text-secondary'; statusEl.textContent = 'Reading file and uploading…'; }
+              try {
+                const arrayBuffer = await file.arrayBuffer();
+                let binary = '';
+                const bytes = new Uint8Array(arrayBuffer);
+                for (let i = 0; i < bytes.byteLength; i++) {
+                  binary += String.fromCharCode(bytes[i]);
+                }
+                const base64 = btoa(binary);
+                const asset = await authClient.fetchApi(`/api/author/courses/${encodeURIComponent(courseId)}/assets`, {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    filename: file.name,
+                    mimeType: mime,
+                    base64,
+                    altText: sanitizedAlt,
+                  }),
+                });
+                const markdownArea = appEl.querySelector('#theory-markdown-input') as HTMLTextAreaElement | null;
+                if (markdownArea) {
+                  const markdownTag = `\n\n![${sanitizedAlt}](/api/assets/${asset.id})\n\n`;
+                  const pos = markdownArea.selectionStart ?? markdownArea.value.length;
+                  markdownArea.value = markdownArea.value.slice(0, pos) + markdownTag + markdownArea.value.slice(pos);
+                  markdownArea.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                closeModal();
+              } catch (err: any) {
+                if (statusEl) { statusEl.className = 'text-xs text-danger'; statusEl.textContent = err.message || 'Upload failed.'; }
+              } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Upload & Insert';
+              }
+            };
+          }
+        });
       }
       else if (step.type === 'video') {
         const { renderVideoEditorPage } = await import('./pages/author/VideoEditorPage.ts');
@@ -379,11 +513,88 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
           section.insertBefore(row, event.currentTarget as Node);
         });
         appEl.querySelector('#tab-tests')?.addEventListener('click', event => { if ((event.target as Element).classList.contains('remove-test')) (event.target as Element).closest('.test-case-card')?.remove(); });
+
+        const checkRefBtn = appEl.querySelector('[data-action="check-reference-solution"]') as HTMLButtonElement | null;
+        checkRefBtn?.addEventListener('click', async () => {
+          const refCode = (appEl.querySelector('#ref-solution-input') as HTMLTextAreaElement | null)?.value || '';
+          if (!refCode.trim()) {
+            window.alert('Please enter a reference solution to validate.');
+            return;
+          }
+          const sections = appEl.querySelectorAll('#tab-tests .test-cases-section');
+          const readCurrentTests = (section: Element | undefined) =>
+            Array.from(section?.querySelectorAll('.test-case-card') || []).map((row) => ({
+              stdin: (row.querySelector('.test-stdin') as HTMLTextAreaElement)?.value || '',
+              expectedStdout: (row.querySelector('.test-stdout') as HTMLTextAreaElement)?.value || '',
+            }));
+          const currentPublicTests = readCurrentTests(sections[0]);
+          const currentHiddenTests = readCurrentTests(sections[1]);
+
+          checkRefBtn.disabled = true;
+          checkRefBtn.textContent = 'Running tests…';
+          try {
+            const result = await authClient.fetchApi(`/api/author/steps/${encodeURIComponent(step.id)}/check-reference`, {
+              method: 'POST',
+              body: JSON.stringify({
+                referenceSolution: refCode,
+                publicTests: currentPublicTests,
+                hiddenTests: currentHiddenTests,
+              }),
+            });
+            const badgeBox = appEl.querySelector('#tab-validation .section-header-row div:last-child');
+            if (badgeBox) {
+              badgeBox.innerHTML = result.allPassed
+                ? '<span class="status-badge badge-success">Reference Solution Validated</span>'
+                : '<span class="status-badge badge-warning">Validation Failed</span>';
+            }
+            let resultsTable = appEl.querySelector('#tab-validation .validation-results-table');
+            if (!resultsTable) {
+              resultsTable = document.createElement('div');
+              resultsTable.className = 'validation-results-table mt-4';
+              appEl.querySelector('#tab-validation')?.append(resultsTable);
+            }
+            resultsTable.innerHTML = `
+              <h3 class="text-sm font-semibold">Test Results</h3>
+              <table class="data-table mt-2">
+                <thead>
+                  <tr>
+                    <th>Test</th>
+                    <th>Result</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${(result.validationResults || [])
+                    .map(
+                      (r: any) => `
+                      <tr>
+                        <td>${escapeHtml(r.name)}</td>
+                        <td>${r.passed ? '<span class="text-success font-semibold">PASS</span>' : '<span class="text-danger font-semibold">FAIL</span>'}</td>
+                        <td>${escapeHtml(r.error || (r.passed ? 'Passed within limits' : 'Failed'))}</td>
+                      </tr>
+                    `
+                    )
+                    .join('')}
+                </tbody>
+              </table>
+            `;
+          } catch (err: any) {
+            window.alert(err.message || 'Reference solution check failed.');
+          } finally {
+            checkRefBtn.disabled = false;
+            checkRefBtn.textContent = 'Check reference solution';
+          }
+        });
       }
       const saveButton = document.createElement('button');
       saveButton.type = 'button'; saveButton.className = 'btn btn-primary btn-compact'; saveButton.textContent = 'Save changes';
       appEl.querySelector('.author-header-right')?.prepend(saveButton);
-      saveButton.addEventListener('click', async () => {
+      const authorShell = appEl.querySelector('.shell-author') as HTMLElement;
+      let authorEditRevision = 0;
+      authorShell.addEventListener('input', () => { authorEditRevision++; });
+      const saveAuthorStep = async (): Promise<boolean> => {
+        if (saveButton.disabled) return false;
+        const savingEditRevision = authorEditRevision;
         const value = (id: string) => (appEl.querySelector(`#${id}`) as HTMLInputElement | HTMLTextAreaElement | null)?.value || '';
         const checked = (id: string) => Boolean((appEl.querySelector(`#${id}`) as HTMLInputElement | null)?.checked);
         const stepMeta = { title: value('step-title-input'), isRequired: checked('step-required'), estimatedDurationMinutes: Number(value('step-duration')) || detail.estimatedDurationMinutes };
@@ -396,17 +607,34 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         if (step.type === 'python') {
           const sections = appEl.querySelectorAll('#tab-tests .test-cases-section');
           const readTests = (section: Element | undefined) => Array.from(section?.querySelectorAll('.test-case-card') || []).map(row => ({ stdin: (row.querySelector('.test-stdin') as HTMLTextAreaElement).value, expectedStdout: (row.querySelector('.test-stdout') as HTMLTextAreaElement).value }));
-          payload = { ...payload, problemStatement: value('problem-stmt-input'), inputFormat: value('input-format-input'), outputFormat: value('output-format-input'), constraints: value('constraints-input'), starterCode: value('starter-code-input'), referenceSolution: value('ref-solution-input'), solutionExplanation: value('explanation-input'), publicTests: readTests(sections[0]), hiddenTests: readTests(sections[1]), runtimeLimits: { cpuTimeoutSeconds: Number(value('cpu-timeout')), wallTimeoutSeconds: Number(value('wall-timeout')), memoryLimitMib: Number(value('memory-limit')) } };
+          const hints = Array.from(appEl.querySelectorAll<HTMLInputElement>('.hint-input'))
+            .map(i => i.value.trim())
+            .filter(Boolean);
+          payload = { ...payload, hints, problemStatement: value('problem-stmt-input'), inputFormat: value('input-format-input'), outputFormat: value('output-format-input'), constraints: value('constraints-input'), starterCode: value('starter-code-input'), referenceSolution: value('ref-solution-input'), solutionExplanation: value('explanation-input'), publicTests: readTests(sections[0]), hiddenTests: readTests(sections[1]), runtimeLimits: { cpuTimeoutSeconds: Number(value('cpu-timeout')) || 2, wallTimeoutSeconds: Number(value('wall-timeout')) || 5, memoryLimitMib: Number(value('memory-limit')) || 128 } };
         }
         saveButton.disabled = true; saveButton.textContent = 'Saving…';
         try {
           const endpoint = step.type === 'quiz' ? `/api/author/steps/${step.id}/quiz` : step.type === 'python' ? `/api/author/steps/${step.id}/python` : `/api/author/steps/${step.id}/content`;
           const body = step.type === 'quiz' ? { expectedRevision: detail.revision, quiz: payload } : step.type === 'python' ? { expectedRevision: detail.revision, exercise: { ...payload, title: stepMeta.title } } : { expectedRevision: detail.revision, payload, stepMeta };
           const result = await s2Request(endpoint, 'PUT', body);
-          detail.revision = result.revision; Object.assign(c, payload); saveButton.textContent = 'Saved';
-        } catch (err: any) { saveButton.textContent = 'Retry save'; window.alert(err.message); }
+          detail.revision = result.revision; Object.assign(c, payload);
+          const stillClean = savingEditRevision === authorEditRevision;
+          saveButton.textContent = stillClean ? 'Saved' : 'Save changes';
+          if (stillClean) authorShell.classList.remove('is-dirty');
+          return stillClean;
+        } catch (err: any) { saveButton.textContent = 'Retry save'; window.alert(err.message); return false; }
         finally { saveButton.disabled = false; }
-      });
+      };
+      saveButton.addEventListener('click', () => { void saveAuthorStep(); });
+      authorShell.addEventListener('click', async event => {
+        const link = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[href]');
+        if (!link || !authorShell.classList.contains('is-dirty') || link.target === '_blank' || link.hasAttribute('download')) return;
+        const target = new URL(link.href, window.location.href);
+        if (target.origin !== window.location.origin || target.pathname === window.location.pathname && target.search === window.location.search) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (await saveAuthorStep()) navigateTo(target.pathname + target.search + target.hash);
+      }, true);
       return;
     }
   } catch (err: any) {
@@ -559,7 +787,7 @@ async function renderAiConnectionsSettings(path: string, user: NonNullable<Retur
     const tokens = response.tokens || [];
     let courses: any[] = [];
     try {
-      const coursesRes = await authClient.fetchApi('/api/courses');
+      const coursesRes = await authClient.fetchApi('/api/author/courses?limit=100');
       courses = (coursesRes.courses || []).map((c: any) => ({ id: c.id, title: c.title }));
     } catch {
       courses = [];
@@ -762,9 +990,185 @@ async function renderAiConnectionSetupPage(
   render();
 }
 
+import {
+  updateMountedLearningWorkspace,
+  getScopedLastVisitedStepKey,
+  recordLastVisitedStep,
+  getLastVisitedStep,
+  parseLearningNavigation,
+} from './pages/learning/learning-navigation.ts';
+
+function attachLearningShellListeners(): void {
+  const shellEl = appEl.querySelector('.shell-learning') as HTMLElement | null;
+  if (!shellEl || shellEl.dataset.shellListenersAttached === 'true') return;
+  shellEl.dataset.shellListenersAttached = 'true';
+
+  shellEl.addEventListener('click', event => {
+    const btn = (event.target as HTMLElement).closest<HTMLElement>('.sidebar-toggle-btn');
+    if (!btn) return;
+    event.stopPropagation();
+    const sidebar = shellEl.querySelector<HTMLElement>('#course-sidebar');
+    if (!sidebar) return;
+    const isCollapsed = sidebar.classList.toggle('collapsed');
+    sidebar.inert = isCollapsed;
+    btn.setAttribute('aria-expanded', String(!isCollapsed));
+    btn.setAttribute('aria-label', isCollapsed ? 'Show modules' : 'Hide modules');
+    btn.setAttribute('title', isCollapsed ? 'Show modules' : 'Hide modules');
+  });
+
+  const reportDialog = document.getElementById('exercise-report-dialog') as HTMLElement | null;
+  const closeBtn = document.getElementById('close-report-dialog-btn');
+  const cancelBtn = document.getElementById('cancel-report-btn');
+  const reportForm = document.getElementById('exercise-report-form') as HTMLFormElement | null;
+  let lastActiveLink: HTMLElement | null = null;
+
+  const closeReportModal = () => {
+    if (reportDialog) reportDialog.hidden = true;
+    const includeCodeInput = document.getElementById('report-include-code') as HTMLInputElement | null;
+    if (includeCodeInput) includeCodeInput.checked = false;
+    lastActiveLink?.focus();
+  };
+
+  shellEl.addEventListener('click', e => {
+    const link = (e.target as HTMLElement).closest<HTMLElement>('.report-issue-link');
+    if (!link) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (reportDialog) {
+      lastActiveLink = link;
+      const includeCodeInput = document.getElementById('report-include-code') as HTMLInputElement | null;
+      if (includeCodeInput && reportDialog.hidden) includeCodeInput.checked = false;
+      reportDialog.hidden = false;
+      (document.getElementById('report-issue-details') as HTMLTextAreaElement | null)?.focus();
+    }
+  });
+
+  closeBtn?.addEventListener('click', closeReportModal);
+  cancelBtn?.addEventListener('click', closeReportModal);
+
+  // Close report modal on Escape key
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && reportDialog && !reportDialog.hidden) {
+      closeReportModal();
+    }
+  });
+
+  // Persist and restore sidebar module groups (<details>) expanded/collapsed state
+  try {
+    const collapsedRaw = sessionStorage.getItem('zur_collapsed_modules');
+    const collapsedSet = new Set<string>(collapsedRaw ? JSON.parse(collapsedRaw) : []);
+    const moduleDetails = appEl.querySelectorAll<HTMLDetailsElement>('.sidebar-module-group');
+    moduleDetails.forEach((details) => {
+      const modId = details.dataset.moduleId;
+      if (modId && collapsedSet.has(modId)) {
+        details.open = false;
+      }
+      details.addEventListener('toggle', () => {
+        if (!modId) return;
+        if (details.open) {
+          collapsedSet.delete(modId);
+        } else {
+          collapsedSet.add(modId);
+        }
+        try {
+          sessionStorage.setItem('zur_collapsed_modules', JSON.stringify([...collapsedSet]));
+        } catch {}
+      });
+    });
+  } catch {}
+
+  // Persist and restore sidebar scroll position
+  const sidebar = document.getElementById('course-sidebar');
+  if (sidebar) {
+    try {
+      const savedScroll = sessionStorage.getItem('zur_sidebar_scroll');
+      if (savedScroll !== null) {
+        sidebar.scrollTop = Number(savedScroll);
+      }
+      sidebar.addEventListener('scroll', () => {
+        try {
+          sessionStorage.setItem('zur_sidebar_scroll', String(sidebar.scrollTop));
+        } catch {}
+      }, { passive: true });
+    } catch {}
+  }
+
+  reportForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = document.getElementById('submit-report-btn') as HTMLButtonElement | null;
+    const feedback = document.getElementById('report-form-feedback');
+    if (submitBtn) submitBtn.disabled = true;
+
+    const courseId = (document.getElementById('report-course-id') as HTMLInputElement)?.value || '';
+    const courseVersionId = (document.getElementById('report-version-id') as HTMLInputElement)?.value || '';
+    const stepId = (document.getElementById('report-step-id') as HTMLInputElement)?.value || '';
+    const enrollmentId = (document.getElementById('report-enrollment-id') as HTMLInputElement)?.value || '';
+    const type = (document.getElementById('report-issue-type') as HTMLSelectElement)?.value || 'other';
+    const details = (document.getElementById('report-issue-details') as HTMLTextAreaElement)?.value || '';
+    const includeCode = Boolean((document.getElementById('report-include-code') as HTMLInputElement)?.checked);
+    const code = includeCode ? ((document.getElementById('code-editor-input') as HTMLTextAreaElement)?.value || '') : undefined;
+
+    try {
+      const payload: Record<string, any> = {
+        courseId,
+        courseVersionId,
+        stepId,
+        enrollmentId,
+        type,
+        details,
+        description: details,
+        includeCodeConsent: includeCode,
+        includeCode,
+      };
+      if (includeCode && code) {
+        payload.code = code;
+        payload.submittedCode = code;
+      }
+      await authClient.fetchApi('/api/reports', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      if (feedback) {
+        feedback.hidden = false;
+        feedback.className = 'alert alert-success text-sm mb-3';
+        feedback.textContent = 'Report submitted. Thank you for your feedback.';
+      }
+      setTimeout(() => {
+        closeReportModal();
+        if (feedback) feedback.hidden = true;
+        if (submitBtn) submitBtn.disabled = false;
+      }, 1000);
+    } catch {
+      if (feedback) {
+        feedback.hidden = false;
+        feedback.className = 'alert alert-danger text-sm mb-3';
+        feedback.textContent = 'Could not submit report. Your message is preserved; try again.';
+      }
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+}
+
 async function loadPythonWorkspace(enrollmentId: string, stepId: string, requestedPath: string): Promise<void> {
   const isCurrent = () => window.location.pathname + window.location.search === requestedPath;
-  showRouteLoading('Python workspace');
+  const isShellMounted = Boolean(appEl.querySelector('.shell-learning') && document.getElementById('course-sidebar') && appEl.querySelector('.learning-workspace-main'));
+  if (!isShellMounted) {
+    showRouteLoading('Python workspace');
+  } else {
+    (window as any).__zur_active_cm_editor?.destroy?.();
+    (window as any).__zur_active_cm_editor = null;
+    workspaceResizeController?.abort();
+    workspaceResizeController = null;
+    if (lessonVideoLoadTimer) {
+      window.clearTimeout(lessonVideoLoadTimer);
+      lessonVideoLoadTimer = undefined;
+    }
+    const viewport = appEl.querySelector('.workspace-viewport');
+    if (viewport) {
+      viewport.setAttribute('aria-busy', 'true');
+      viewport.innerHTML = `<div class="flex items-center justify-center p-8" aria-live="polite"><span class="job-status-spinner"></span><span class="ml-2 text-secondary text-sm">Loading workspace…</span></div>`;
+    }
+  }
   try {
     const [stepData, contentData, accountData] = await Promise.all([
       authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`),
@@ -785,7 +1189,17 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
     const hasRecoveredLocal = Boolean(localDraft && localDraft.code !== draft.code && localDraft.revision === draft.revision);
     const hasRevisionConflict = Boolean(localDraft && localDraft.code !== draft.code && localDraft.revision !== draft.revision);
     const initialCode = hasRecoveredLocal || hasRevisionConflict ? localDraft!.code : draft.code;
+    const courseVersionId = stepData.courseVersionId || stepData.progress?.pinnedVersionId || stepData.progress?.courseVersionId || '';
+    const currentLessonId = stepData.step?.lessonId || stepData.stepMeta?.lessonId || (stepData.progress?.steps || []).find((s: any) => s.id === stepId)?.lessonId || '';
+    if (user.id && currentLessonId && courseVersionId) {
+      recordLastVisitedStep(user.id, enrollmentId, courseVersionId, currentLessonId, stepId);
+    }
+    const nav = parseLearningNavigation(stepData.progress, enrollmentId, stepId, user.id, courseVersionId);
     const pageOptions: PythonWorkspacePageOptions = {
+      modules: nav.modules,
+      taskSquares: nav.taskSquares,
+      courseProgressText: nav.courseProgressText,
+      courseProgressPercentage: nav.courseProgressPercentage,
       outlineContent: renderLessonRail({ steps: (stepData.progress?.steps || []).map((step: any, index: number) => ({
         id: step.id, ordinal: index + 1, title: step.title, type: step.type,
         isCurrent: step.id === stepId, isCompleted: Boolean(step.isCompleted), isWaived: Boolean(step.isWaived), isRequired: Boolean(step.isRequired),
@@ -795,7 +1209,11 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
       courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
       lessonTitle: stepData.stepMeta?.lessonTitle || 'Lesson',
       stepTitle: stepData.step.title,
-      stepOrdinalText: `Step ${Number(stepData.step.position) + 1}`,
+      stepOrdinalText: (stepData.progress?.steps?.length || 0) > 0 && (stepData.progress?.steps || []).findIndex((s: any) => s.id === stepId) >= 0
+        ? `Step ${(stepData.progress.steps || []).findIndex((s: any) => s.id === stepId) + 1} of ${stepData.progress.totalSteps || stepData.progress.steps.length}`
+        : `Step ${Number(stepData.step.position) + 1}`,
+      courseId: stepData.courseId || stepData.progress?.courseId,
+      courseVersionId: stepData.courseVersionId || stepData.progress?.pinnedVersionId,
       enrollmentId,
       stepId,
       problemStatement: content.problemStatement,
@@ -821,9 +1239,44 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
       pageOptions.saveNotice = 'Recovered unsynchronized code from this device. Syncing it now.';
     }
     const render = (overrides: Partial<PythonWorkspacePageOptions> = {}) => {
-      appEl.innerHTML = renderPythonWorkspacePage({ ...pageOptions, ...overrides });
-      document.title = `${pageOptions.stepTitle} · ${pageOptions.courseTitle} · ZUR`;
-      initTheme();
+      const merged = { ...pageOptions, ...overrides };
+      document.title = `${merged.stepTitle} · ${merged.courseTitle} · ZUR`;
+      const stepContent = renderPythonWorkspaceContent(merged);
+      const shellOptions: LearningWorkspaceShellOptions = {
+        courseTitle: merged.courseTitle,
+        courseOverviewUrl: merged.courseOverviewUrl,
+        lessonTitle: merged.lessonTitle,
+        stepTitle: merged.stepTitle,
+        stepOrdinalText: merged.stepOrdinalText,
+        courseProgressText: merged.courseProgressText,
+        courseProgressPercentage: merged.courseProgressPercentage,
+        modules: merged.modules,
+        taskSquares: merged.taskSquares,
+        isPythonWorkspace: true,
+        saveStatusText: stepContent.saveLabel,
+        outlineContent: merged.outlineContent,
+        workspaceContent: stepContent.workspaceContent,
+        previousStepUrl: merged.previousStepUrl,
+        nextStepUrl: null,
+        taskActions: stepContent.taskActions,
+        reportContext: {
+          courseId: merged.courseId,
+          courseVersionId: merged.courseVersionId,
+          enrollmentId: merged.enrollmentId,
+          stepId: merged.stepId,
+          courseTitle: merged.courseTitle,
+          lessonTitle: merged.lessonTitle,
+          stepTitle: merged.stepTitle,
+        },
+      };
+
+      if (isShellMounted && updateMountedLearningWorkspace(shellOptions)) {
+        // Retained shell, in-place viewport update!
+      } else {
+        appEl.innerHTML = renderLearningWorkspaceShell(shellOptions);
+        initTheme();
+        attachLearningShellListeners();
+      }
     };
     render();
     attachPythonWorkspaceListeners(pageOptions, draft.revision, user.id, hasRevisionConflict, requestedPath);
@@ -848,7 +1301,37 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
 }
 
 async function loadEnrolledStep(enrollmentId: string, stepId: string, requestedPath: string): Promise<void> {
-  showRouteLoading('Learning step');
+  const isShellMounted = Boolean(appEl.querySelector('.shell-learning') && document.getElementById('course-sidebar') && appEl.querySelector('.learning-workspace-main'));
+  if (!isShellMounted) {
+    showRouteLoading('Learning step');
+  } else {
+    // Teardown previous editor cleanly to avoid memory leaks or stale listeners
+    (window as any).__zur_active_cm_editor?.destroy?.();
+    (window as any).__zur_active_cm_editor = null;
+    workspaceResizeController?.abort();
+    workspaceResizeController = null;
+    if (lessonVideoLoadTimer) {
+      window.clearTimeout(lessonVideoLoadTimer);
+      lessonVideoLoadTimer = undefined;
+    }
+
+    const viewport = appEl.querySelector('.workspace-viewport');
+    if (viewport) {
+      viewport.setAttribute('aria-busy', 'true');
+      viewport.innerHTML = `<div class="flex items-center justify-center p-8" aria-live="polite"><span class="job-status-spinner"></span><span class="ml-2 text-secondary text-sm">Loading step…</span></div>`;
+    }
+    const targetSquare = appEl.querySelector(`.learning-task-strip .task-square[href*="${encodeURIComponent(stepId)}"]`);
+    if (targetSquare) {
+      appEl.querySelectorAll('.learning-task-strip .task-square').forEach((sq) => {
+        sq.classList.remove('selected', 'current');
+        sq.removeAttribute('aria-current');
+        sq.setAttribute('aria-selected', 'false');
+      });
+      targetSquare.classList.add('selected', 'current');
+      targetSquare.setAttribute('aria-current', 'step');
+      targetSquare.setAttribute('aria-selected', 'true');
+    }
+  }
   try {
     const data = await authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`);
     if (window.location.pathname + window.location.search !== requestedPath) return;
@@ -869,20 +1352,34 @@ async function loadEnrolledStep(enrollmentId: string, stepId: string, requestedP
 }
 
 function renderEnrolledQuiz(data: any, enrollmentId: string, stepId: string, requestedPath: string, selectedOptionIds: string[] = [], feedback: any = null): void {
+  const isShellMounted = Boolean(appEl.querySelector('.shell-learning') && document.getElementById('course-sidebar') && appEl.querySelector('.learning-workspace-main'));
   const progressSteps = data.progress?.steps || [];
   const content = data.step.content || {};
-  appEl.innerHTML = renderQuizStepPage({
+  const user = authClient.getUser() || { id: 'user-guest', displayName: 'Guest' };
+  const courseVersionId = data.courseVersionId || data.progress?.pinnedVersionId || data.progress?.courseVersionId || '';
+  const currentLessonId = data.step?.lessonId || data.stepMeta?.lessonId || progressSteps.find((s: any) => s.id === stepId)?.lessonId || '';
+  if (user?.id && currentLessonId && courseVersionId) {
+    recordLastVisitedStep(user.id, enrollmentId, courseVersionId, currentLessonId, stepId);
+  }
+  const nav = parseLearningNavigation(data.progress, enrollmentId, stepId, user?.id, courseVersionId);
+  const quizPageOptions: QuizStepPageOptions = {
     courseTitle: data.courseTitle || 'Course',
     courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
     lessonTitle: data.stepMeta?.lessonTitle || 'Lesson',
     stepTitle: data.step.title,
-    stepOrdinalText: `Step ${Number(data.step.position) + 1}`,
+    stepOrdinalText: progressSteps.length > 0 && progressSteps.findIndex((s: any) => s.id === stepId) >= 0
+      ? `Step ${progressSteps.findIndex((s: any) => s.id === stepId) + 1} of ${data.progress?.totalSteps || progressSteps.length}`
+      : `Step ${Number(data.step.position) + 1}`,
     isRequired: Boolean(data.step.isRequired),
     estimatedDurationMinutes: Number(data.step.estimatedDurationMinutes || 1),
     quizType: content.quizType,
     prompt: content.prompt || '',
     options: (content.options || []).map((option: any) => ({ id: option.id, text: option.text })),
     enrollmentId, stepId,
+    courseProgressText: nav.courseProgressText,
+    courseProgressPercentage: nav.courseProgressPercentage,
+    modules: nav.modules,
+    taskSquares: nav.taskSquares,
     isCompleted: Boolean(data.stepMeta?.isCompleted) || Boolean(feedback?.isPassed),
     selectedOptionIds, feedback,
     outlineContent: renderLessonRail({ steps: progressSteps.map((step: any, index: number) => ({
@@ -892,8 +1389,40 @@ function renderEnrolledQuiz(data: any, enrollmentId: string, stepId: string, req
     })) }),
     previousStepUrl: data.previousStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.previousStepId)}` : null,
     nextStepUrl: data.nextStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.nextStepId)}` : null,
-  });
+  };
+  const stepContent = renderQuizWorkspaceContent(quizPageOptions);
+  const shellOptions: LearningWorkspaceShellOptions = {
+    courseTitle: quizPageOptions.courseTitle,
+    courseOverviewUrl: quizPageOptions.courseOverviewUrl,
+    lessonTitle: quizPageOptions.lessonTitle,
+    stepTitle: quizPageOptions.stepTitle,
+    stepOrdinalText: quizPageOptions.stepOrdinalText,
+    courseProgressText: nav.courseProgressText,
+    courseProgressPercentage: nav.courseProgressPercentage,
+    modules: nav.modules,
+    taskSquares: nav.taskSquares,
+    isPythonWorkspace: false,
+    outlineContent: quizPageOptions.outlineContent,
+    workspaceContent: stepContent.workspaceContent,
+    previousStepUrl: quizPageOptions.previousStepUrl,
+    nextStepUrl: quizPageOptions.isCompleted ? quizPageOptions.nextStepUrl : null,
+    taskActions: stepContent.taskActions,
+    reportContext: {
+      enrollmentId,
+      stepId,
+      courseTitle: quizPageOptions.courseTitle,
+      lessonTitle: quizPageOptions.lessonTitle,
+      stepTitle: quizPageOptions.stepTitle,
+    },
+  };
   document.title = `${data.step?.title || 'Quiz'} · ${data.courseTitle || 'Course'} · ZUR`;
+  if (isShellMounted && updateMountedLearningWorkspace(shellOptions)) {
+    // Retained shell, updated in-place!
+  } else {
+    appEl.innerHTML = renderLearningWorkspaceShell(shellOptions);
+    initTheme();
+    attachLearningShellListeners();
+  }
   const form = appEl.querySelector<HTMLFormElement>('.quiz-form');
   form?.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -902,14 +1431,34 @@ function renderEnrolledQuiz(data: any, enrollmentId: string, stepId: string, req
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     if (button) button.disabled = true;
     void authClient.fetchApi(`/api/steps/${encodeURIComponent(stepId)}/quiz/submit`, { method: 'POST', body: JSON.stringify({ enrollmentId, selectedOptionIds: selected }) })
-      .then((result) => { if (window.location.pathname + window.location.search === requestedPath) renderEnrolledQuiz(data, enrollmentId, stepId, requestedPath, selected, result); })
+      .then(async (result) => {
+        const progress = await authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/progress`).catch(() => data.progress);
+        if (window.location.pathname + window.location.search === requestedPath && form.isConnected) renderEnrolledQuiz({ ...data, progress }, enrollmentId, stepId, requestedPath, selected, result);
+      })
       .catch(() => { if (button) button.disabled = false; const message = document.createElement('p'); message.setAttribute('role', 'alert'); message.textContent = 'Could not check your answer. Your selection is still here. Try again.'; form.prepend(message); });
   });
 }
 
 async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theory' | 'video', requestedPath: string): Promise<void> {
   const isCurrent = () => window.location.pathname + window.location.search === requestedPath;
-  showRouteLoading(kind === 'video' ? 'Video lesson' : 'Theory lesson');
+  const isShellMounted = Boolean(appEl.querySelector('.shell-learning') && document.getElementById('course-sidebar') && appEl.querySelector('.learning-workspace-main'));
+  if (!isShellMounted) {
+    showRouteLoading(kind === 'video' ? 'Video lesson' : 'Theory lesson');
+  } else {
+    (window as any).__zur_active_cm_editor?.destroy?.();
+    (window as any).__zur_active_cm_editor = null;
+    workspaceResizeController?.abort();
+    workspaceResizeController = null;
+    if (lessonVideoLoadTimer) {
+      window.clearTimeout(lessonVideoLoadTimer);
+      lessonVideoLoadTimer = undefined;
+    }
+    const viewport = appEl.querySelector('.workspace-viewport');
+    if (viewport) {
+      viewport.setAttribute('aria-busy', 'true');
+      viewport.innerHTML = `<div class="flex items-center justify-center p-8" aria-live="polite"><span class="job-status-spinner"></span><span class="ml-2 text-secondary text-sm">Loading ${kind} lesson…</span></div>`;
+    }
+  }
   try {
     const data = await authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`);
     if (!isCurrent()) return;
@@ -918,6 +1467,13 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
       return;
     }
     const progressSteps = data.progress?.steps || [];
+    const user = authClient.getUser() || { id: 'user-guest', displayName: 'Guest' };
+    const courseVersionId = data.courseVersionId || data.progress?.pinnedVersionId || data.progress?.courseVersionId || '';
+    const currentLessonId = data.step?.lessonId || data.stepMeta?.lessonId || progressSteps.find((s: any) => s.id === stepId)?.lessonId || '';
+    if (user?.id && currentLessonId && courseVersionId) {
+      recordLastVisitedStep(user.id, enrollmentId, courseVersionId, currentLessonId, stepId);
+    }
+    const nav = parseLearningNavigation(data.progress, enrollmentId, stepId, user?.id, courseVersionId);
     const outlineContent = renderLessonRail({
       steps: progressSteps.map((step: any, index: number) => ({
         id: step.id, ordinal: index + 1, title: step.title, type: step.type,
@@ -931,10 +1487,16 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
       courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
       lessonTitle: data.stepMeta?.lessonTitle || progressSteps.find((s: any) => s.id === stepId)?.lessonTitle || 'Lesson',
       stepTitle: data.step.title,
-      stepOrdinalText: `Step ${Number(data.step.position) + 1}`,
+      stepOrdinalText: progressSteps.length > 0 && progressSteps.findIndex((s: any) => s.id === stepId) >= 0
+        ? `Step ${progressSteps.findIndex((s: any) => s.id === stepId) + 1} of ${data.progress?.totalSteps || progressSteps.length}`
+        : `Step ${Number(data.step.position) + 1}`,
       isRequired: Boolean(data.step.isRequired),
       estimatedDurationMinutes: Number(data.step.estimatedDurationMinutes || 1),
       enrollmentId, stepId,
+      courseProgressText: nav.courseProgressText,
+      courseProgressPercentage: nav.courseProgressPercentage,
+      modules: nav.modules,
+      taskSquares: nav.taskSquares,
       isCompleted: Boolean(data.stepMeta?.isCompleted),
       outlineContent,
       previousStepUrl: data.previousStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(data.previousStepId)}` : null,
@@ -942,10 +1504,42 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
     };
     const content = data.step.content || {};
     document.title = `${common.stepTitle} · ${common.courseTitle} · ZUR`;
-    appEl.innerHTML = kind === 'theory'
-      ? renderTheoryStepPage({ ...common, markdownContent: String(content.markdown || content.markdownContent || content.body || content.content || '') })
-      : renderVideoStepPage({ ...common, videoUrl: String(content.videoUrl || ''), transcript: content.transcript, captionVerified: Boolean(content.captionVerified) });
-    initTheme();
+    const stepContent = kind === 'theory'
+      ? renderTheoryWorkspaceContent({ ...common, markdownContent: String(content.markdown || content.markdownContent || content.body || content.content || '') })
+      : renderVideoWorkspaceContent({ ...common, videoUrl: String(content.videoUrl || ''), transcript: content.transcript, captionVerified: Boolean(content.captionVerified) });
+
+    const shellOptions: LearningWorkspaceShellOptions = {
+      courseTitle: common.courseTitle,
+      courseOverviewUrl: common.courseOverviewUrl,
+      lessonTitle: common.lessonTitle,
+      stepTitle: common.stepTitle,
+      stepOrdinalText: common.stepOrdinalText,
+      courseProgressText: nav.courseProgressText,
+      courseProgressPercentage: nav.courseProgressPercentage,
+      modules: nav.modules,
+      taskSquares: nav.taskSquares,
+      isPythonWorkspace: false,
+      outlineContent,
+      workspaceContent: stepContent.workspaceContent,
+      previousStepUrl: common.previousStepUrl,
+      nextStepUrl: common.nextStepUrl,
+      taskActions: stepContent.taskActions,
+      reportContext: {
+        stepId,
+        enrollmentId,
+        courseTitle: common.courseTitle,
+        lessonTitle: common.lessonTitle,
+        stepTitle: common.stepTitle,
+      },
+    };
+
+    if (isShellMounted && updateMountedLearningWorkspace(shellOptions)) {
+      // Retained shell, in-place update!
+    } else {
+      appEl.innerHTML = renderLearningWorkspaceShell(shellOptions);
+      initTheme();
+      attachLearningShellListeners();
+    }
     const videoFrame = appEl.querySelector<HTMLIFrameElement>('.video-embed-iframe');
     const videoFailure = appEl.querySelector<HTMLElement>('[data-video-fallback]');
     let videoLoadTimer: number | undefined;
@@ -1179,7 +1773,9 @@ function attachPythonWorkspaceListeners(
       notice.id = 'python-save-notice';
       notice.className = 'alert alert-warning';
       notice.setAttribute('role', 'status');
-      main.insertBefore(notice, region);
+      const editor = region.querySelector('.editor-pane');
+      if (editor) editor.prepend(notice);
+      else main.insertBefore(notice, region);
     }
     notice.textContent = text;
     notice.querySelector('.draft-conflict-actions')?.remove();
@@ -1200,6 +1796,7 @@ function attachPythonWorkspaceListeners(
     }
   };
   const setResults = (overrides: Partial<PythonWorkspacePageOptions> = {}) => {
+    if (window.location.pathname + window.location.search !== requestedPath || !textarea?.isConnected) return;
     const body = document.querySelector('.results-body');
     if (!body) return;
     body.innerHTML = renderPythonExecutionResults({
@@ -1214,6 +1811,8 @@ function attachPythonWorkspaceListeners(
     const existingInput = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
     if (existingInput) customStdin = existingInput.value;
     activeTab = tabName;
+    const modeSelect = document.getElementById('run-mode-select') as HTMLSelectElement | null;
+    if (modeSelect) modeSelect.value = tabName === 'custom_input' ? 'custom' : 'samples';
     document.querySelectorAll<HTMLButtonElement>('.results-tab-button[role="tab"]').forEach((tab) => {
       const selected = tab.textContent?.trim() === (tabName === 'results' ? 'Results' : 'Custom input');
       tab.classList.toggle('active', Boolean(selected));
@@ -1242,8 +1841,9 @@ function attachPythonWorkspaceListeners(
         indentationSpaces: initial.indentationSpaces || 4,
         editorFontSize: initial.editorFontSize || 14,
         onModEnter: () => {
+          const mode = 'custom';
           const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
-          void execute(activeTab === 'custom_input' ? 'custom' : 'samples', input?.value || '');
+          void execute(mode, input?.value ?? customStdin);
         },
         onEscape: () => {
           document.getElementById('run-samples-btn')?.focus();
@@ -1252,6 +1852,7 @@ function attachPythonWorkspaceListeners(
           // input event is already dispatched to textarea
         },
       });
+      (window as any).__zur_active_cm_editor = editorInstance;
     }).catch((err) => {
       textarea.classList.remove('cm-source-backup');
       console.warn('CodeMirror dynamic load failed, using fallback textarea', err);
@@ -1370,7 +1971,7 @@ function attachPythonWorkspaceListeners(
     if (mode === 'custom') customStdin = stdin ?? customStdin;
     code = textarea?.value ?? code;
     resultMode = mode;
-    const actionButtons = document.querySelectorAll<HTMLButtonElement>('.python-execution-actions button');
+    const actionButtons = document.querySelectorAll<HTMLButtonElement>('.editor-toolbar-actions button');
     actionButtons.forEach((button) => { button.disabled = true; });
     selectTab('results');
     setResults({ inFlightStatus: 'queued' });
@@ -1384,6 +1985,7 @@ function attachPythonWorkspaceListeners(
       if (!jobId) throw new Error('Execution was not accepted.');
       localStorage.setItem(pendingJobKey, JSON.stringify({ jobId, mode }));
       const completed = await waitForJob(jobId);
+      if (window.location.pathname + window.location.search !== requestedPath || !textarea?.isConnected) return;
       currentResult = completed.result;
       localStorage.removeItem(pendingJobKey);
       resultMode = mode;
@@ -1396,7 +1998,42 @@ function attachPythonWorkspaceListeners(
           submitBtn.classList.remove('btn-primary');
           submitBtn.classList.add('btn-secondary');
         }
-        const rightContainer = document.querySelector('.task-footer-right') || document.querySelector('.learning-task-footer');
+
+        // Live-update current task square in task strip to completed green
+        const activeSquare = document.querySelector('.learning-task-strip .task-square.selected, .task-square.selected, .task-square.current');
+        if (activeSquare && !activeSquare.classList.contains('completed')) {
+          activeSquare.classList.add('completed');
+          const currentLabel = activeSquare.getAttribute('aria-label') || '';
+          if (!currentLabel.includes('(Completed)')) {
+            activeSquare.setAttribute('aria-label', `${currentLabel} (Completed)`);
+          }
+          activeSquare.innerHTML = renderTaskSquareInnerHtml({
+            ordinal: Number(activeSquare.getAttribute('data-ordinal')) || 1,
+            type: 'python',
+            isCompleted: true,
+          });
+        }
+
+        // Live-update sidebar course progress bar and counter
+        void authClient.fetchApi(`/api/enrollments/${encodeURIComponent(initial.enrollmentId)}/progress`)
+          .then((prog: any) => {
+            if (!prog || window.location.pathname + window.location.search !== requestedPath || !textarea?.isConnected) return;
+            const total = prog.totalSteps || 0;
+            const completed = prog.completedSteps || 0;
+            const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+            const fill = document.querySelector<HTMLElement>('.sidebar-progress-box .progress-bar-fill');
+            const text = document.querySelector<HTMLElement>('.sidebar-progress-box .progress-text');
+            if (fill) fill.style.width = `${pct}%`;
+            if (text) text.textContent = `${completed} of ${total} completed`;
+            const currentUser = authClient.getUser();
+            const navigation = parseLearningNavigation(prog, initial.enrollmentId, initial.stepId, currentUser?.id, initial.courseVersionId);
+            const currentLesson = navigation.modules.flatMap((module: any) => module.lessons).find((lesson: any) => lesson.isCurrent);
+            const badge = document.querySelector('.sidebar-lesson-item.active .lesson-item-count');
+            if (badge && currentLesson) badge.textContent = `${currentLesson.completedCount}/${currentLesson.totalCount}`;
+          })
+          .catch(() => {});
+
+        const rightContainer = document.querySelector('.editor-toolbar-actions');
         if (rightContainer && initial.nextStepUrl && !document.querySelector('[data-python-continue]')) {
           const link = document.createElement('a');
           link.href = initial.nextStepUrl;
@@ -1423,6 +2060,9 @@ function attachPythonWorkspaceListeners(
   const waitForJob = async (jobId: string): Promise<{ result: ExecutionResult }> => {
     while (window.location.pathname + window.location.search === requestedPath) {
       const state = await authClient.fetchApi(`/api/execution/jobs/${encodeURIComponent(jobId)}`);
+      if (window.location.pathname + window.location.search !== requestedPath || !textarea?.isConnected) {
+        throw new Error('Navigation interrupted polling.');
+      }
       if (state.job?.status === 'completed') return state;
       setResults({ inFlightStatus: state.job?.status === 'running' ? 'running' : 'queued', inFlightJobId: jobId });
       await new Promise((resolve) => setTimeout(resolve, 800));
@@ -1444,6 +2084,28 @@ function attachPythonWorkspaceListeners(
     }
   } catch { localStorage.removeItem(pendingJobKey); }
 
+  const isMac = typeof navigator !== 'undefined' && (/Mac|iPhone|iPad|iPod/.test(navigator.platform) || /Mac/.test(navigator.userAgent));
+  const runShortcutText = isMac ? '⌘+Enter' : 'Ctrl+Enter';
+  const runAriaShortcut = isMac ? 'Meta+Enter' : 'Control+Enter';
+  const runCodeBtn = document.getElementById('run-code-btn');
+  if (runCodeBtn) {
+    runCodeBtn.title = `Run code (${runShortcutText})`;
+    runCodeBtn.setAttribute('aria-keyshortcuts', runAriaShortcut);
+  }
+
+  const getSelectedRunMode = (): 'samples' | 'custom' => 'custom';
+
+  runCodeBtn?.addEventListener('click', () => {
+    const mode = getSelectedRunMode();
+    const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
+    if (input) customStdin = input.value;
+    void execute(mode, customStdin);
+  });
+  document.getElementById('run-mode-select')?.addEventListener('change', (e) => {
+    const mode = (e.target as HTMLSelectElement).value;
+    if (mode === 'custom') selectTab('custom_input');
+    else selectTab('results');
+  });
   document.getElementById('run-samples-btn')?.addEventListener('click', () => void execute('samples'));
   document.getElementById('submit-solution-btn')?.addEventListener('click', () => void execute('submit'));
   document.querySelector('.results-body')?.addEventListener('click', (event) => {
@@ -1470,8 +2132,9 @@ function attachPythonWorkspaceListeners(
   textarea?.addEventListener('keydown', (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
       event.preventDefault();
+      const mode = getSelectedRunMode();
       const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
-      void execute(activeTab === 'custom_input' ? 'custom' : 'samples', input?.value || '');
+      void execute(mode, input?.value || '');
     }
   });
   document.getElementById('reset-code-btn')?.addEventListener('click', async () => {
@@ -1514,11 +2177,26 @@ async function loadPublishReview(courseId: string, requestedPath: string, staleR
   const encodedCourseId = encodeURIComponent(courseId);
   showRouteLoading('Review publication');
   try {
-    const course = await authClient.fetchApi(`/api/author/courses/${encodedCourseId}`);
-    const validation = await authClient.fetchApi(`/api/author/courses/${encodedCourseId}/validate`, { method: 'POST', body: JSON.stringify({}) });
+    const [course, validation, structure] = await Promise.all([
+      authClient.fetchApi(`/api/author/courses/${encodedCourseId}`),
+      authClient.fetchApi(`/api/author/courses/${encodedCourseId}/validate`, { method: 'POST', body: JSON.stringify({}) }),
+      authClient.fetchApi(`/api/author/courses/${encodedCourseId}/structure`).catch(() => null),
+    ]);
     if (!isCurrent()) return;
     if (validation.draftRevision !== course.draftRevision) {
       return loadPublishReview(courseId, requestedPath, true);
+    }
+    const stepTypeMap: Record<string, string> = {};
+    if (structure?.modules) {
+      for (const mod of structure.modules) {
+        for (const les of mod.lessons || []) {
+          for (const st of les.steps || []) {
+            if (st.id && st.type) {
+              stepTypeMap[st.id] = st.type;
+            }
+          }
+        }
+      }
     }
     const options: CoursePublishPageOptions = {
       courseId,
@@ -1533,8 +2211,9 @@ async function loadPublishReview(courseId: string, requestedPath: string, staleR
       enrollmentPolicy: course.enrollmentPolicy,
       validation,
       staleRevision,
+      stepTypeMap,
+      modules: structure?.modules,
     };
-    const { renderCoursePublishPage } = await import('./pages/author/CoursePublishPage.ts');
     const render = (overrides: Partial<CoursePublishPageOptions> = {}) => {
       appEl.innerHTML = renderCoursePublishPage({ ...options, ...overrides });
       initTheme();
@@ -1624,13 +2303,13 @@ async function loadAdminPage(path: string, displayName: string, email: string): 
     }
     else if(path.split('?')[0]==='/admin/courses') data=await api(`/api/admin/courses${search}`);
     else if(path.startsWith('/admin/courses/')) data=await api(`/api/admin/courses/${encodeURIComponent(path.split('?')[0].split('/')[3])}`);
-    else if(path==='/admin/categories') data=await api('/api/admin/categories');
+    else if(path.split('?')[0]==='/admin/categories') data=await api('/api/admin/categories');
     else if(path.split('?')[0]==='/admin/reports') data=await api(`/api/admin/reports${search}`);
     else if(path.startsWith('/admin/reports/')) data=await api(`/api/admin/reports/${encodeURIComponent(path.split('?')[0].split('/')[3])}`);
     else if(path.split('?')[0]==='/admin/media') data=await api(`/api/admin/media${search}`);
     else if(path.split('?')[0]==='/admin/execution') { const [overview,jobs]=await Promise.all([api('/api/admin/operations'),api(`/api/admin/execution/jobs${search}`)]);data={overview,jobs}; }
     else if(path.startsWith('/admin/audit/')) data=await api(`/api/admin/audit/${encodeURIComponent(path.split('?')[0].split('/')[3])}`);
-    else if(path==='/admin/audit') data=await api(`/api/admin/audit${search}`);
+    else if(path.split('?')[0]==='/admin/audit') data=await api(`/api/admin/audit${search}`);
     else data={};
     if(window.location.pathname+window.location.search!==path&&window.location.pathname!==path.split('?')[0])return;
     const { renderAdminPage } = await import('./pages/admin/AdminPages.ts');
@@ -1743,6 +2422,11 @@ export function renderApp(path: string = window.location.pathname + window.locat
         break;
       }
 
+      const renderDiscoveryShell = (options: Parameters<typeof renderPublicShell>[0]) =>
+        currentUser
+          ? renderAppShell({ activePath: '/courses', user: currentUser, currentMode: 'learn', content: options.content })
+          : renderPublicShell(options);
+
       if (route.pageId === 'P02') {
         const q = searchParams.get('q') || '';
         const category = searchParams.get('category') || '';
@@ -1761,7 +2445,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
         };
 
         const initialContent = renderCatalogPage(catalogState);
-        appEl.innerHTML = renderPublicShell({
+        appEl.innerHTML = renderDiscoveryShell({
           activePath: '/courses',
           user: currentUser,
           content: initialContent,
@@ -1789,7 +2473,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
             catalogState.isLoading = false;
             catalogState.isMobileFilterOpen = isSheetOpen || Boolean(catalogState.isMobileFilterOpen);
             const updatedContent = renderCatalogPage(catalogState);
-            appEl.innerHTML = renderPublicShell({
+            appEl.innerHTML = renderDiscoveryShell({
               activePath: '/courses',
               user: currentUser,
               content: updatedContent,
@@ -1803,7 +2487,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
             catalogState.error = err.message || 'Failed to load course catalog';
             catalogState.isMobileFilterOpen = isSheetOpen || Boolean(catalogState.isMobileFilterOpen);
             const updatedContent = renderCatalogPage(catalogState);
-            appEl.innerHTML = renderPublicShell({
+            appEl.innerHTML = renderDiscoveryShell({
               activePath: '/courses',
               user: currentUser,
               content: updatedContent,
@@ -1820,7 +2504,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
           return current?.route.pageId === 'P03' && current.params.courseId === courseId;
         };
         const initialContent = renderCourseOverviewPage({ isLoading: true });
-        appEl.innerHTML = renderPublicShell({
+        appEl.innerHTML = renderDiscoveryShell({
           activePath: path,
           user: currentUser,
           content: initialContent,
@@ -1835,7 +2519,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
               currentUser,
               isLoading: false,
             });
-            appEl.innerHTML = renderPublicShell({
+            appEl.innerHTML = renderDiscoveryShell({
               activePath: path,
               user: currentUser,
               content: updatedContent,
@@ -1865,7 +2549,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
                 isLoading: false,
                 isServiceError: true,
               });
-              appEl.innerHTML = renderPublicShell({
+              appEl.innerHTML = renderDiscoveryShell({
                 activePath: path,
                 user: currentUser,
                 content: errorContent,
@@ -1878,7 +2562,18 @@ export function renderApp(path: string = window.location.pathname + window.locat
 
       if (route.pageId === 'P40') {
         const courseId = searchParams.get('courseId') || '';
-        const content = renderHelpPage({ courseId });
+        const courseVersionId = searchParams.get('courseVersionId') || '';
+        const stepId = searchParams.get('stepId') || '';
+        const report = searchParams.get('report') || '';
+        const isReportModalOpen = Boolean(report || courseId || stepId);
+        const type = report === 'broken_exercise' ? 'broken_exercise' : report === 'inappropriate_content' ? 'inappropriate_content' : 'other';
+        const content = renderHelpPage({
+          courseId,
+          courseVersionId,
+          stepId,
+          type,
+          isReportModalOpen,
+        });
         appEl.innerHTML = renderPublicShell({
           activePath: path,
           user: currentUser,
@@ -2058,7 +2753,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
         courseOverviewUrl: '/learn/enr-ada',
         lessonTitle: 'Naming and Values',
         stepTitle: 'Echoing Numbers',
-        stepOrdinalText: 'Step 4 of 4',
+        stepOrdinalText: 'Step 4 of 7',
         isPythonWorkspace: route.pageId === 'P15',
         saveStatusText: 'Saved',
         outlineContent: renderLessonRail({
@@ -4108,11 +4803,19 @@ function clearAdminDialogState(dialog: HTMLDialogElement): void {
     err.classList.add('hidden');
   });
   dialog.querySelectorAll<HTMLButtonElement>('button[type="submit"]').forEach((btn) => {
-    btn.disabled = false;
+    btn.disabled = Boolean(btn.closest('form')?.querySelector('[data-waiver-step]'));
     if (btn.dataset.label) {
       btn.textContent = btn.dataset.label;
     }
   });
+  const waiverSelect = dialog.querySelector<HTMLSelectElement>('[data-waiver-step]');
+  if (waiverSelect) {
+    waiverSelect.value = '';
+    const count = dialog.querySelector<HTMLInputElement>('[name="reviewedAffectedCount"]');
+    if (count) count.value = '0';
+    const review = dialog.querySelector<HTMLElement>('.waiver-review-count');
+    if (review) review.textContent = 'Choose a step to review affected enrollments.';
+  }
 }
 
 document.addEventListener(
@@ -4283,6 +4986,8 @@ document.addEventListener('click', async (e) => {
   if (
     target &&
     target.href &&
+    !e.defaultPrevented &&
+    !target.classList.contains('report-issue-link') &&
     !target.hasAttribute('download') &&
     target.origin === window.location.origin &&
     (!target.target || target.target === '_self') &&

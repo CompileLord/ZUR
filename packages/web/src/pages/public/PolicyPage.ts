@@ -16,22 +16,19 @@ export function renderPolicyPage(props: PolicyPageProps): string {
             <span class="text-primary font-medium" aria-current="page">${title}</span>
           </nav>
           <h1 class="page-title font-semibold mb-2">${title}</h1>
-          <div class="policy-meta text-xs text-muted tabular-nums">
-            Status: Blocked / Pending Legal Review · Not yet in effect
+          <div class="policy-meta text-xs text-muted">
+            Status: Pending publication
           </div>
         </header>
 
-        <div class="banner banner-warning p-6 mb-8 border border-warning rounded-lg text-sm" role="status">
-          <h2 class="text-base font-semibold text-warning mb-2">Pending Final Legal Counsel Approval</h2>
-          <p class="text-secondary text-sm leading-relaxed mb-4">
-            Official public legal terms and customer privacy policy terms are currently undergoing formal legal counsel review prior to general public release (PRD_V2.md §22, design.md P41). In accordance with engineering invariants, placeholder, drafted, or fabricated legal contract text is prohibited.
-          </p>
-          <p class="text-secondary text-sm leading-relaxed mb-4">
-            Public external support contacts and formal legal terms will be published upon conclusion of legal review and operational sign-off.
+        <div class="card p-6 mb-8 border border-subtle bg-surface rounded-lg text-sm" role="status">
+          <h2 class="text-base font-semibold text-primary mb-2">${isPrivacy ? 'The privacy policy is not yet available' : 'The terms of service are not yet available'}</h2>
+          <p class="text-secondary text-sm leading-relaxed mb-6">
+            Official ${isPrivacy ? 'privacy policy' : 'terms of service'} documentation is currently undergoing review prior to public release. Terms will be published here upon completion.
           </p>
           <div class="pt-4 border-t border-subtle flex gap-3">
-            <a href="/courses" class="btn btn-secondary btn-compact">Browse public courses</a>
-            <a href="/help" class="btn btn-ghost btn-compact">Help &amp; support topics</a>
+            <a href="/courses" class="btn btn-secondary btn-compact">Browse courses</a>
+            <a href="/help" class="btn btn-ghost btn-compact">Help and support</a>
           </div>
         </div>
       </div>

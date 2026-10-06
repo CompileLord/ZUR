@@ -88,10 +88,9 @@ export function renderMyCoursesPage(opts: MyCoursesPageOptions): string {
     coursesListHtml = `
       <div class="enrolled-courses-flat-list" role="feed" aria-label="Enrolled courses">
         ${filteredCourses.map((c) => {
-          const resumeStepId = c.nextStepId;
-          const actionUrl = resumeStepId
-            ? `/learn/${c.id}/steps/${resumeStepId}`
-            : `/learn/${c.id}`;
+          const actionUrl = c.isCompleted
+            ? `/learn/${c.id}`
+            : (c.nextStepId ? `/learn/${c.id}/steps/${c.nextStepId}` : `/learn/${c.id}`);
 
           return `
             <article class="enrolled-course-flat-row" data-enrollment-id="${c.id}">

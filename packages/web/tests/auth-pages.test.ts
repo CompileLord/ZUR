@@ -71,6 +71,28 @@ test('Identity and Account Client Pages (S1-M01, P04-P08, P17-P20, P42)', async 
     assert.ok(html.includes('Use a different account'), 'Provides safe exit to switch accounts');
   });
 
+  await t.test('P06: Verify-email expired or invalid token without email renders visible error and actionable sign-in', () => {
+    const html = renderVerifyEmailPage({
+      error: 'Verification link expired or invalid.',
+    });
+
+    assert.ok(html.includes('id="verify-error"'), 'Contains verify-error element');
+    assert.ok(html.includes('Verification link expired or invalid.'), 'Displays the real failure message');
+    assert.ok(html.includes('role="alert"'), 'Announced as alert');
+    assert.ok(!html.includes('We sent a verification link'), 'Does not falsely claim an email was sent');
+    assert.ok(html.includes('href="/sign-in"'), 'Offers actionable sign-in navigation');
+    assert.ok(html.includes('href="/sign-up"'), 'Offers actionable sign-up navigation');
+  });
+
+  await t.test('P06: Verify-email direct entry without context provides truthful unprompted status', () => {
+    const html = renderVerifyEmailPage({});
+
+    assert.ok(html.includes('No pending email verification context was found'), 'Explains missing context truthfully');
+    assert.ok(!html.includes('We sent a verification link'), 'Does not falsely claim an email was sent');
+    assert.ok(html.includes('href="/sign-in"'), 'Provides direct sign-in button');
+    assert.ok(html.includes('href="/sign-up"'), 'Provides sign-up link');
+  });
+
   await t.test('P07: Password recovery renders generic response and reset verification', () => {
     // Forgot password view
     const forgotHtml = renderForgotPasswordPage();

@@ -91,7 +91,7 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
       <!-- Top Header -->
       <header class="students-header flex justify-between items-center mb-6 pb-4 border-b border-subtle">
         <div>
-          <h1 class="page-title text-2xl font-bold tracking-tight">Students and invitations</h1>
+          <h1 class="page-title text-2xl font-bold tracking-tight" aria-label="Students and invitations">Students</h1>
         </div>
         <div class="header-actions">
           <button id="btn-open-invite-modal" class="btn btn-primary" type="button" aria-haspopup="dialog">
@@ -288,10 +288,12 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
         </div>
         <nav class="flex items-center justify-between gap-3 mt-4" aria-label="Roster pages">
           <span class="text-sm text-secondary">${enrolledCount === 0 ? '0 students' : `${pageOffset + 1}–${Math.min(pageOffset + studentList.length, enrolledCount)} of ${enrolledCount} students`}</span>
-          <div class="flex gap-2">
-            <button class="btn btn-secondary" type="button" data-action="roster-page" data-offset="${Math.max(0, pageOffset - pageLimit)}" ${pageOffset === 0 ? 'disabled' : ''}>Previous</button>
-            <button class="btn btn-secondary" type="button" data-action="roster-page" data-offset="${pageOffset + pageLimit}" ${pageOffset + pageLimit >= enrolledCount ? 'disabled' : ''}>Next</button>
-          </div>
+          ${enrolledCount > pageLimit ? `
+            <div class="flex gap-2">
+              <button class="btn btn-secondary" type="button" data-action="roster-page" data-offset="${Math.max(0, pageOffset - pageLimit)}" ${pageOffset === 0 ? 'disabled' : ''}>Previous</button>
+              <button class="btn btn-secondary" type="button" data-action="roster-page" data-offset="${pageOffset + pageLimit}" ${pageOffset + pageLimit >= enrolledCount ? 'disabled' : ''}>Next</button>
+            </div>
+          ` : ''}
         </nav>
       </div>
 

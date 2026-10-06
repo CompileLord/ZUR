@@ -86,9 +86,6 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
       <header class="analytics-header flex flex-wrap justify-between items-center gap-4 mb-6 pb-4 border-b border-subtle">
         <div>
           <h1 class="page-title text-2xl font-bold tracking-tight">Course analytics</h1>
-          <p class="text-sm text-secondary mt-1">
-            Exact learning activity and completion metrics computed strictly from authoritative records.
-          </p>
         </div>
 
         <!-- Filter Controls -->

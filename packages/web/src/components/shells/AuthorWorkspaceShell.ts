@@ -1,3 +1,6 @@
+import { authorStyles } from '../../pages/author/AuthorStyles.ts';
+import { renderAuthorTree, type ModuleSummary } from '../../pages/author/AuthorTreeComponent.ts';
+
 export interface AuthorWorkspaceShellOptions {
   courseId: string;
   courseTitle: string;
@@ -6,33 +9,56 @@ export interface AuthorWorkspaceShellOptions {
   saveStatusText?: string;
   activeTab: 'content' | 'students' | 'analytics' | 'settings';
   treeContent?: string;
+  modules?: ModuleSummary[];
+  selectedType?: 'course' | 'module' | 'lesson' | 'step';
+  selectedId?: string;
   editorContent: string;
   inspectorContent?: string;
+  isPublishPage?: boolean;
+  showTree?: boolean;
 }
 
 export function renderAuthorWorkspaceShell(opts: AuthorWorkspaceShellOptions): string {
-  const isContentTab = opts.activeTab === 'content';
+  const isContentTab = opts.activeTab === 'content' && !opts.isPublishPage && opts.showTree !== false;
 
   const statusBadgeClass = opts.publicationState === 'published' ? 'success' : 'warning';
   const statusBadgeText = opts.publicationState === 'published'
-    ? (opts.hasUnpublishedChanges ? 'Published (Unpublished changes)' : 'Published')
-    : 'Draft';
+    ? `<span class="status-badge ${statusBadgeClass}" title="${opts.hasUnpublishedChanges ? 'Published (Unpublished changes)' : 'Published'}">Published</span>${opts.hasUnpublishedChanges ? ' <span class="status-badge warning status-badge-subtle">Draft changes</span>' : ''}`
+    : `<span class="status-badge ${statusBadgeClass}">${opts.publicationState === 'draft' ? 'Draft' : 'Archived'}</span>`;
+
+  // Pure render of course tree from provided treeContent or modules
+  let treeHtml = '';
+  if (isContentTab) {
+    if (opts.treeContent) {
+      treeHtml = opts.treeContent;
+    } else if (opts.modules && opts.modules.length > 0) {
+      treeHtml = renderAuthorTree({
+        courseId: opts.courseId,
+        courseTitle: opts.courseTitle,
+        modules: opts.modules,
+        selectedType: opts.selectedType || (opts.selectedId ? 'step' : 'course'),
+        selectedId: opts.selectedId,
+        isEditor: true,
+      });
+    }
+  }
 
   return `
-    <div class="shell-author">
+    <style id="author-workspace-styles">${authorStyles}</style>
+    <div class="shell-author" oninput="this.classList.add('is-dirty'); const btn = this.querySelector('.author-header-right > button.btn-primary'); if (btn && btn.textContent === 'Saved') btn.textContent = 'Save changes';">
       <header class="author-header" role="banner">
         <div class="author-header-left">
           <a href="/teach" class="back-link" aria-label="Back to Your courses">← Courses</a>
           <span class="header-divider">/</span>
           <span class="author-course-title">${opts.courseTitle}</span>
-          <span class="status-badge ${statusBadgeClass}">${statusBadgeText}</span>
+          ${statusBadgeText}
         </div>
 
         <div class="author-header-right">
           ${opts.saveStatusText ? `<div class="save-indicator saved" aria-live="polite">${opts.saveStatusText}</div>` : ''}
-          <a href="/teach/${opts.courseId}/activity" class="btn btn-secondary btn-compact" title="View agent activity and draft recovery">Recent changes</a>
-          <a href="/teach/${opts.courseId}/preview" class="btn btn-secondary btn-compact">Preview as student</a>
-          <a href="/teach/${opts.courseId}/publish" class="btn btn-primary btn-compact">Review & publish</a>
+          <a href="/teach/${opts.courseId}/activity" class="btn btn-secondary btn-compact" title="View changes and draft history">Recent changes</a>
+          <a href="/teach/${opts.courseId}/preview${opts.selectedType === 'step' && opts.selectedId ? `?stepId=${encodeURIComponent(opts.selectedId)}` : ''}" class="btn btn-secondary btn-compact">Preview as student</a>
+          ${!opts.isPublishPage ? `<a href="/teach/${opts.courseId}/publish" class="btn btn-secondary btn-compact">Review & publish</a>` : ''}
         </div>
       </header>
 
@@ -46,9 +72,9 @@ export function renderAuthorWorkspaceShell(opts: AuthorWorkspaceShellOptions): s
       </nav>
 
       <main id="main-content" class="author-workspace-main ${isContentTab ? 'has-tree' : 'full-pane'}" role="main">
-        ${isContentTab && opts.treeContent ? `
-          <aside class="author-tree-pane" role="region" aria-label="Course Structure">
-            ${opts.treeContent}
+        ${isContentTab ? `
+          <aside class="author-tree-pane" id="author-tree-pane" role="region" aria-label="Course Structure" data-course-id="${opts.courseId}" data-step-id="${opts.selectedId || ''}">
+            ${treeHtml || '<div class="p-3 text-xs text-secondary">Course structure not loaded</div>'}
           </aside>
         ` : ''}
 
@@ -57,7 +83,7 @@ export function renderAuthorWorkspaceShell(opts: AuthorWorkspaceShellOptions): s
         </div>
 
         ${isContentTab && opts.inspectorContent ? `
-          <aside class="author-inspector-pane" role="complementary" aria-label="Step Settings">
+          <aside class="author-inspector-pane" id="author-inspector-pane" role="complementary" aria-label="Step Settings">
             ${opts.inspectorContent}
           </aside>
         ` : ''}

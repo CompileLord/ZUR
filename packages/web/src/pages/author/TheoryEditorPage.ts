@@ -2,6 +2,7 @@ import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
 import { renderMarkdownToHtml } from 'zur-shared';
 import { renderIcon } from '../../components/common/icons.ts';
+import type { ModuleSummary } from './AuthorTreeComponent.ts';
 
 export interface TheoryEditorPageOptions {
   courseId: string;
@@ -17,6 +18,7 @@ export interface TheoryEditorPageOptions {
   saveStatus?: 'saved' | 'saving' | 'unsaved' | 'conflict';
   saveMessage?: string;
   treeContent?: string;
+  modules?: ModuleSummary[];
 }
 
 export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
@@ -34,12 +36,9 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
   const previewHtml = renderMarkdownToHtml(rawMarkdown || '');
 
   const editorContent = `
-    <div class="theory-editor-container" style="max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem;">
+    <div class="theory-editor-container" style="max-width: 860px; margin: 0 auto; padding: 1.5rem 1rem;">
       <header class="editor-header">
-        <div class="breadcrumbs">
-          <a href="/teach/${opts.courseId}/content">← Back to Course Builder</a>
-        </div>
-        <div class="title-input-row mt-2">
+        <div class="title-input-row">
           <label for="step-title-input" class="visually-hidden">Step title</label>
           <input
             id="step-title-input"
@@ -47,6 +46,7 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
             class="text-input step-title-input"
             value="${opts.stepTitle}"
             placeholder="Step title..."
+            oninput="this.closest('.shell-author')?.classList.add('is-dirty')"
             required
           />
         </div>
@@ -54,16 +54,17 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
 
       ${opts.saveMessage ? `<div class="alert alert-info mt-2" role="status">${opts.saveMessage}</div>` : ''}
 
-      <!-- Modest formatting toolbar (design §12 P23) -->
+      <!-- Modest formatting toolbar with upload action (design §12 P23) -->
       <div class="markdown-toolbar mt-3 flex flex-wrap gap-1 p-2 bg-surface border border-subtle rounded-md" role="toolbar" aria-label="Text Formatting">
-        <button type="button" class="btn btn-secondary btn-compact" data-format="bold" aria-label="Bold"><strong>B</strong></button>
-        <button type="button" class="btn btn-secondary btn-compact" data-format="italic" aria-label="Italic"><em>I</em></button>
-        <button type="button" class="btn btn-secondary btn-compact" data-format="heading" aria-label="Heading">H</button>
-        <button type="button" class="btn btn-secondary btn-compact" data-format="code" aria-label="Code block">&lt;/&gt;</button>
+        <button type="button" class="btn btn-secondary btn-compact" data-format="bold" aria-label="Bold" title="Bold (Ctrl+B)"><strong>B</strong></button>
+        <button type="button" class="btn btn-secondary btn-compact" data-format="italic" aria-label="Italic" title="Italic (Ctrl+I)"><em>I</em></button>
+        <button type="button" class="btn btn-secondary btn-compact" data-format="heading" aria-label="Heading" title="Heading">H</button>
+        <button type="button" class="btn btn-secondary btn-compact" data-format="code" aria-label="Code block" title="Code block">&lt;/&gt;</button>
         <button type="button" class="btn btn-secondary btn-compact" data-format="list" aria-label="Bullet list" title="Bullet list">${renderIcon('list', { size: 14 })}</button>
         <button type="button" class="btn btn-secondary btn-compact" data-format="table" aria-label="Table" title="Table">${renderIcon('table', { size: 14 })}</button>
-        <button type="button" class="btn btn-secondary btn-compact" data-format="callout" aria-label="Callout" title="Callout">${renderIcon('callout', { size: 14 })}</button>
+        <button type="button" class="btn btn-secondary btn-compact" data-format="callout" aria-label="Callout" title="Callout (Note/Tip)">${renderIcon('callout', { size: 14 })}</button>
         <button type="button" class="btn btn-secondary btn-compact" data-format="image" aria-label="Insert image" title="Insert image">${renderIcon('image', { size: 14 })}</button>
+        <button type="button" class="btn btn-secondary btn-compact" data-action="open-asset-modal" aria-label="Upload image asset" title="Upload image asset">${renderIcon('upload', { size: 14 })} Upload image</button>
       </div>
 
       <div class="theory-tabs mt-3" role="tablist">
@@ -79,8 +80,12 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
           rows="18"
           placeholder="Write explanation in Markdown..."
           aria-describedby="markdown-help"
+          oninput="this.closest('.shell-author')?.classList.add('is-dirty')"
         >${opts.markdown}</textarea>
-        <p id="markdown-help" class="field-hint text-xs text-muted mt-1.5">Supports standard Markdown, tables, code blocks, callouts (> [!NOTE]), and images.</p>
+        <div class="flex items-center justify-between text-xs text-muted mt-1.5" id="markdown-help">
+          <span>Supports standard Markdown, tables, and callouts</span>
+          <a href="https://commonmark.org/help/" target="_blank" rel="noopener" class="text-secondary hover:underline">Markdown help ↗</a>
+        </div>
       </div>
 
       <div class="theory-preview-pane mt-2" style="display:none;" role="region" aria-label="Theory Preview">
@@ -105,6 +110,7 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
             max="120"
             class="text-input input-compact"
             value="${opts.estimatedDurationMinutes}"
+            oninput="this.closest('.shell-author')?.classList.add('is-dirty')"
           />
           <span class="unit-text text-xs text-muted ml-1.5">min</span>
         </div>
@@ -116,6 +122,7 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
             id="step-required"
             type="checkbox"
             ${opts.isRequired ? 'checked' : ''}
+            onchange="this.closest('.shell-author')?.classList.add('is-dirty')"
           />
           <span>Required step for course completion</span>
         </label>
@@ -137,6 +144,9 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
     saveStatusText,
     activeTab: 'content',
     treeContent: opts.treeContent,
+    modules: opts.modules,
+    selectedType: 'step',
+    selectedId: opts.stepId,
     editorContent,
     inspectorContent,
   });

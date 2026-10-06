@@ -43,7 +43,6 @@ export function renderProfileSettingsPage(opts: ProfileSettingsPageOptions): str
         <section class="settings-section" aria-labelledby="profile-identity-heading">
           <div class="settings-section-header">
             <h3 id="profile-identity-heading" class="settings-section-title">Identity</h3>
-            <p class="settings-section-desc">Manage how you are identified on rosters, submissions, and course discussions.</p>
           </div>
 
           <div class="settings-section-content">
@@ -77,7 +76,7 @@ export function renderProfileSettingsPage(opts: ProfileSettingsPageOptions): str
                 }
               </div>
               <p class="form-hint mt-1 text-xs text-muted">
-                Email addresses cannot be changed directly in the pilot. Contact <a href="/help" class="text-primary underline">support</a> for assistance.
+                To change your email, contact <a href="/help" class="text-primary underline">support</a>.
               </p>
             </div>
 

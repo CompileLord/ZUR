@@ -1,0 +1,403 @@
+/**
+ * Scoped admin interface styles.
+ * Single source of truth for admin stylesheets (runtime and node test compatible).
+ */
+export const adminStyles = `
+/* ZUR Admin Interface Redesign Styles */
+
+/* Sticky table headings and consistent row heights scoped to admin */
+.shell-admin .data-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  margin-bottom: var(--space-4);
+  max-height: calc(100vh - 280px);
+}
+
+.shell-admin .data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--type-control-size, 14px);
+  line-height: 1.5;
+}
+
+.shell-admin .data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background-color: var(--bg-surface);
+  color: var(--text-muted);
+  font-size: var(--type-metadata-size, 13px);
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  letter-spacing: 0.02em;
+}
+
+.shell-admin .data-table tbody td,
+.shell-admin .data-table tbody th {
+  padding: 12px 16px;
+  min-height: 48px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+  color: var(--text-primary);
+  transition: background-color var(--transition-fast, 120ms);
+}
+
+.shell-admin .data-table tbody tr:last-child td,
+.shell-admin .data-table tbody tr:last-child th {
+  border-bottom: none;
+}
+
+.shell-admin .data-table tbody tr:hover td,
+.shell-admin .data-table tbody tr:hover th {
+  background-color: var(--bg-hover);
+}
+
+/* Action button rhythm & layout */
+.admin-actions-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.admin-actions-bar .actions-title {
+  font-size: var(--type-metadata-size, 13px);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-right: var(--space-2);
+}
+
+/* Entity summary cards */
+.admin-entity-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.admin-definition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.admin-def-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-def-label {
+  font-size: var(--type-micro-size, 12px);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.admin-def-value {
+  font-size: var(--type-control-size, 14px);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Overview Alert Banners */
+.admin-attention-section {
+  margin-bottom: var(--space-5);
+}
+
+.admin-attention-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-surface);
+}
+
+.admin-attention-banner.warning {
+  border-color: rgba(234, 179, 8, 0.4);
+  background-color: rgba(234, 179, 8, 0.08);
+}
+
+.admin-attention-banner.critical {
+  border-color: rgba(239, 68, 68, 0.4);
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.admin-attention-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--type-control-size, 14px);
+}
+
+/* Modal Dialog Redesign with max-height containment for 900px desktop viewports */
+.admin-modal-dialog {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg, 12px);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 0;
+  max-width: 540px;
+  width: 92vw;
+  max-height: calc(100vh - 48px);
+  max-height: min(820px, calc(100vh - 48px));
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  animation: adminModalEnter 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-modal-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+@keyframes adminModalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-modal-dialog {
+    animation: none;
+  }
+  .shell-admin .data-table tbody td,
+  .shell-admin .data-table tbody th,
+  .shell-admin .btn,
+  .admin-modal-dialog .btn {
+    transition: none !important;
+  }
+}
+
+.admin-modal-dialog .dialog-content {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+  overflow: hidden;
+}
+
+.admin-modal-dialog .dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.admin-modal-dialog .dialog-title {
+  font-size: var(--type-section-title-size, 16px);
+  font-weight: 600;
+  margin: 0;
+}
+
+.admin-modal-dialog .dialog-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.admin-modal-dialog .dialog-close-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.admin-modal-dialog .dialog-body {
+  padding: var(--space-5);
+  overflow-y: auto;
+  max-height: calc(100vh - 180px);
+  overscroll-behavior: contain;
+}
+
+.admin-modal-dialog .dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+  flex-shrink: 0;
+}
+
+/* One action confirmation effect card */
+.admin-action-effect-card {
+  background-color: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  font-size: var(--type-metadata-size, 13px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.admin-action-effect-card.danger {
+  border-color: rgba(239, 68, 68, 0.4);
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.admin-action-effect-card .effect-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-action-effect-card .effect-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.admin-action-effect-card .effect-description {
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+/* Copy button & mono IDs */
+.admin-copy-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background-color: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  font-family: var(--font-mono, monospace);
+  font-size: var(--type-micro-size, 12px);
+  color: var(--text-secondary);
+}
+
+.admin-copy-pill .copy-action {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.admin-copy-pill .copy-action:hover {
+  color: var(--text-primary);
+}
+
+/* Compact filter toolbar scoped to admin */
+.shell-admin .admin-filter-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.shell-admin .search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 240px;
+  flex: 1;
+}
+
+.shell-admin .search-input-wrapper .search-input-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.shell-admin .search-input-wrapper .search-input {
+  padding-left: 34px;
+}
+
+/* Badges & statuses scoped to admin shell and dialogs */
+.shell-admin .status-badge,
+.admin-modal-dialog .status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: var(--type-micro-size, 12px);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  line-height: 1.4;
+}
+
+.shell-admin .status-badge.success,
+.admin-modal-dialog .status-badge.success {
+  background-color: rgba(34, 197, 94, 0.14);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.shell-admin .status-badge.warning,
+.admin-modal-dialog .status-badge.warning {
+  background-color: rgba(234, 179, 8, 0.14);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.shell-admin .status-badge.danger,
+.admin-modal-dialog .status-badge.danger {
+  background-color: rgba(239, 68, 68, 0.14);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.shell-admin .status-badge.info,
+.admin-modal-dialog .status-badge.info {
+  background-color: rgba(59, 130, 246, 0.14);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.shell-admin .status-badge.neutral,
+.admin-modal-dialog .status-badge.neutral {
+  background-color: var(--bg-raised);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Form error scoped to admin shell and dialogs */
+.shell-admin .form-error,
+.admin-modal-dialog .form-error {
+  color: var(--danger, #ef4444);
+  font-size: var(--type-metadata-size, 13px);
+  margin-top: var(--space-2);
+}
+.shell-admin .form-error.hidden,
+.admin-modal-dialog .form-error.hidden {
+  display: none;
+}
+`;

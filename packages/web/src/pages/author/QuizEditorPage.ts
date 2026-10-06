@@ -2,6 +2,8 @@ import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
 import { renderIcon } from '../../components/common/icons.ts';
 
+import type { ModuleSummary } from './AuthorTreeComponent.ts';
+
 export interface QuizOptionItem {
   id: string;
   text: string;
@@ -26,6 +28,7 @@ export interface QuizEditorPageOptions {
   saveMessage?: string;
   errorMessage?: string;
   treeContent?: string;
+  modules?: ModuleSummary[];
 }
 
 export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
@@ -49,11 +52,11 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
       const inputName = isSingleChoice ? 'correctOption' : `correctOption_${opt.id}`;
 
       return `
-        <div class="quiz-option-row flex items-center gap-2 p-2.5 mb-2 bg-surface border border-subtle rounded-md" data-option-id="${opt.id}">
+        <div class="quiz-option-row flex items-center gap-2 p-2 mb-2 bg-surface border border-subtle rounded-md" data-option-id="${opt.id}">
           <span class="drag-handle text-muted cursor-grab flex-shrink-0" aria-hidden="true" title="Reorder option">
             ${renderIcon('grip-vertical', { size: 14 })}
           </span>
-          <label class="correct-answer-label flex items-center gap-1.5 cursor-pointer flex-shrink-0" title="Mark as correct answer">
+          <label class="correct-answer-label flex items-center cursor-pointer flex-shrink-0 px-1" title="Mark as correct answer">
             <input
               type="${inputType}"
               name="${inputName}"
@@ -61,9 +64,9 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
               ${opt.isCorrect ? 'checked' : ''}
               aria-label="Mark Option ${String.fromCharCode(65 + idx)} as correct answer"
             />
-            <span class="correct-text text-xs text-secondary font-medium">Correct answer</span>
+            <span class="sr-only">Correct answer</span>
           </label>
-          <span class="option-letter font-mono text-xs font-semibold text-muted w-4 text-center flex-shrink-0">${String.fromCharCode(65 + idx)}</span>
+          <span class="option-letter font-mono text-xs font-semibold text-muted w-5 text-center flex-shrink-0">${String.fromCharCode(65 + idx)}</span>
           <input
             type="text"
             class="text-input option-text-input flex-1 text-sm"
@@ -88,12 +91,9 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
     .join('');
 
   const editorContent = `
-    <div class="quiz-editor-container" style="max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem;">
+    <div class="quiz-editor-container" style="max-width: 860px; margin: 0 auto; padding: 1.5rem 1rem;">
       <header class="editor-header">
-        <div class="breadcrumbs">
-          <a href="/teach/${opts.courseId}/content">← Back to Course Builder</a>
-        </div>
-        <div class="title-input-row mt-2">
+        <div class="title-input-row">
           <label for="step-title-input" class="visually-hidden">Step title</label>
           <input
             id="step-title-input"
@@ -113,7 +113,7 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
         <label for="quiz-prompt-input" class="field-label">Question prompt</label>
         <textarea
           id="quiz-prompt-input"
-          class="textarea-input"
+          class="textarea-input w-full"
           rows="4"
           placeholder="State the question clearly..."
           required
@@ -146,10 +146,11 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
       </div>
 
       <div class="quiz-options-section mt-4">
-        <div class="section-header-row flex justify-between items-center mb-2">
-          <h2 class="section-title text-base font-semibold">Answer choices (${opts.options.length} of 8)</h2>
-          ${!canAddOption ? '<span class="status-badge warning">Max 8 options</span>' : ''}
+        <div class="section-header-row flex justify-between items-center mb-1">
+          <h2 class="section-title text-sm font-semibold">Answer choices (${opts.options.length} of 8)</h2>
+          ${!canAddOption ? '<span class="status-badge warning text-xs">Max 8 options</span>' : ''}
         </div>
+        <p class="text-xs text-secondary mb-2">${isSingleChoice ? 'Select the correct answer choice below.' : 'Select all correct answer choices below.'}</p>
 
         <div class="options-container mt-2">
           ${optionsHtml}
@@ -158,15 +159,15 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
         ${
           canAddOption
             ? `
-              <div class="mt-3">
-                <button type="button" class="btn btn-ghost btn-compact text-secondary" data-action="add-option">+ Add option</button>
+              <div class="mt-2 mb-4">
+                <button type="button" class="btn btn-secondary btn-compact text-secondary" data-action="add-option">+ Add option</button>
               </div>
             `
             : ''
         }
       </div>
 
-      <div class="form-group mt-5">
+      <div class="form-group mt-4">
         <label for="quiz-explanation-input" class="field-label">Post-pass explanation</label>
         <textarea
           id="quiz-explanation-input"
@@ -220,6 +221,9 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
     saveStatusText,
     activeTab: 'content',
     treeContent: opts.treeContent,
+    modules: opts.modules,
+    selectedType: 'step',
+    selectedId: opts.stepId,
     editorContent,
     inspectorContent,
   });

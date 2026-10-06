@@ -24,25 +24,37 @@ export function renderSignUpPage(opts: SignUpPageOptions = {}): string {
           : '<div id="sign-up-error" class="sr-only" role="alert" aria-live="polite"></div>'
       }
 
-      ${renderTextInput({
-        id: 'displayName',
-        name: 'displayName',
-        label: 'Display name',
-        type: 'text',
-        value: opts.displayName || '',
-        required: true,
-        placeholder: 'Ada Lovelace',
-      })}
+      <div class="form-group mb-4" id="group-displayName">
+        <label for="displayName" class="form-label">
+          Display name <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <input
+          type="text"
+          id="displayName"
+          name="displayName"
+          class="form-input"
+          value="${escapeHtml(opts.displayName || '')}"
+          placeholder="Ada Lovelace"
+          autocomplete="name"
+          required
+        />
+      </div>
 
-      ${renderTextInput({
-        id: 'email',
-        name: 'email',
-        label: 'Email',
-        type: 'email',
-        value: opts.email || '',
-        required: true,
-        placeholder: 'you@example.com',
-      })}
+      <div class="form-group mb-4" id="group-email">
+        <label for="email" class="form-label">
+          Email <span class="text-danger" aria-hidden="true">*</span>
+        </label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input"
+          value="${escapeHtml(opts.email || '')}"
+          placeholder="you@example.com"
+          autocomplete="username"
+          required
+        />
+      </div>
 
       <div class="form-group mb-4" id="group-password">
         <label for="password" class="form-label">
@@ -54,6 +66,7 @@ export function renderSignUpPage(opts: SignUpPageOptions = {}): string {
             id="password"
             name="password"
             class="form-input pr-10"
+            autocomplete="new-password"
             required
             aria-describedby="password-hint"
           />

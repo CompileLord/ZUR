@@ -1,4 +1,8 @@
-import { renderLearningWorkspaceShell } from '../../components/shells/LearningWorkspaceShell.ts';
+import {
+  renderLearningWorkspaceShell,
+  type CourseModuleItem,
+  type TaskSquareItem,
+} from '../../components/shells/LearningWorkspaceShell.ts';
 import { escapeHtml, renderMarkdownToHtml } from 'zur-shared';
 import { renderIcon } from '../../components/common/icons.ts';
 import { formatDuration } from '../../utils/formatters.ts';
@@ -18,9 +22,13 @@ export interface TheoryStepPageOptions {
   outlineContent?: string;
   previousStepUrl?: string | null;
   nextStepUrl?: string | null;
+  courseProgressText?: string;
+  courseProgressPercentage?: number;
+  modules?: CourseModuleItem[];
+  taskSquares?: TaskSquareItem[];
 }
 
-export function renderTheoryStepPage(opts: TheoryStepPageOptions): string {
+export function renderTheoryWorkspaceContent(opts: TheoryStepPageOptions): { workspaceContent: string; taskActions: string } {
   // Suppress first markdown H1 if it equals the step title (case insensitive, trimmed)
   let markdown = opts.markdownContent || '';
   const h1Match = markdown.match(/^\s*#\s+([^\n]+)/);
@@ -78,17 +86,34 @@ export function renderTheoryStepPage(opts: TheoryStepPageOptions): string {
     </article>
   `;
 
+  return { workspaceContent, taskActions };
+}
+
+export function renderTheoryStepPage(opts: TheoryStepPageOptions): string {
+  const { workspaceContent, taskActions } = renderTheoryWorkspaceContent(opts);
+
   return renderLearningWorkspaceShell({
     courseTitle: opts.courseTitle,
     courseOverviewUrl: opts.courseOverviewUrl,
     lessonTitle: opts.lessonTitle,
     stepTitle: opts.stepTitle,
     stepOrdinalText: opts.stepOrdinalText,
+    courseProgressText: opts.courseProgressText,
+    courseProgressPercentage: opts.courseProgressPercentage,
+    modules: opts.modules,
+    taskSquares: opts.taskSquares,
     isPythonWorkspace: false,
     outlineContent: opts.outlineContent || '<p class="outline-empty">Outline available</p>',
     workspaceContent,
     previousStepUrl: opts.previousStepUrl,
     nextStepUrl: opts.nextStepUrl,
     taskActions,
+    reportContext: {
+      enrollmentId: opts.enrollmentId,
+      stepId: opts.stepId,
+      courseTitle: opts.courseTitle,
+      lessonTitle: opts.lessonTitle,
+      stepTitle: opts.stepTitle,
+    },
   });
 }

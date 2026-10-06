@@ -278,9 +278,6 @@ export function renderCatalogPage(props: CatalogPageProps): string {
     <div class="catalog-page container py-10" data-catalog-loaded="${!isLoading}">
       <div class="catalog-header mb-8">
         <h1 class="page-title font-semibold mb-2">Explore courses</h1>
-        <p class="text-secondary text-sm">
-          Browse published Python courses, learn through focused lessons, and start practicing in the browser.
-        </p>
       </div>
 
       <!-- Search and Filter Bar (P02) -->
@@ -296,7 +293,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
                 id="catalog-search-input"
                 type="search"
                 class="form-input w-full search-input"
-                placeholder="Search courses by title, description, tags, or author…"
+                placeholder="Search courses"
                 value="${filters.q ? escapeHtml(filters.q) : ''}"
                 autocomplete="off"
               />
@@ -354,6 +351,24 @@ export function renderCatalogPage(props: CatalogPageProps): string {
 
           ${resultsSummary}
         </div>
+        ${(() => {
+          const chips: string[] = [];
+          if (filters.q) chips.push(`Query: "${escapeHtml(filters.q)}"`);
+          if (filters.category) {
+            const cat = categories.find((c) => c.id === filters.category);
+            if (cat) chips.push(`Category: ${escapeHtml(cat.name)}`);
+          }
+          if (filters.level) chips.push(`Level: ${escapeHtml(filters.level.charAt(0).toUpperCase() + filters.level.slice(1))}`);
+          if (filters.language) chips.push(`Language: ${escapeHtml(getLanguageDisplayName(filters.language))}`);
+          if (chips.length === 0) return '';
+          return `
+            <div class="active-filter-chips flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-subtle" aria-label="Active filters">
+              <span class="text-xs text-muted font-medium">${chips.length} active filter${chips.length === 1 ? '' : 's'}:</span>
+              ${chips.map(chip => `<span class="filter-chip text-xs px-2 py-0.5 rounded bg-surface border border-subtle text-secondary font-medium">${chip}</span>`).join('')}
+              <button type="button" class="btn btn-ghost btn-compact text-xs text-primary underline" data-action="clear-filters">Clear all</button>
+            </div>
+          `;
+        })()}
       </section>
 
       <!-- Main Course List Area -->

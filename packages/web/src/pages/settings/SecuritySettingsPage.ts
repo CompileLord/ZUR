@@ -46,7 +46,7 @@ export function renderSecuritySettingsPage(opts: SecuritySettingsPageOptions): s
         <section class="settings-section" aria-labelledby="section-password-title">
           <div class="settings-section-header">
             <h3 id="section-password-title" class="settings-section-title">Change password</h3>
-            <p class="settings-section-desc">Requires reauthentication with your current password. Updating your password will sign out other devices.</p>
+            <p class="settings-section-desc">Updating your password signs out other devices.</p>
           </div>
 
           <div class="settings-section-content">

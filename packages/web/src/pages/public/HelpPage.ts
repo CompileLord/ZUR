@@ -123,11 +123,16 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
 
   return `
     <div class="help-page container py-10">
-      <header class="help-header mb-8">
-        <h1 class="page-title font-semibold mb-2">Help and support</h1>
-        <p class="text-secondary text-sm">
-          Guidance on accounts, enrollment, saving work, evaluation, and support.
-        </p>
+      <header class="help-header flex items-center justify-between flex-wrap gap-4 mb-8 pb-4 border-b border-subtle">
+        <div>
+          <h1 class="page-title font-semibold mb-1">Help and support</h1>
+          <p class="text-secondary text-sm">
+            Answers to common questions about accounts, courses, saving work, and exercises.
+          </p>
+        </div>
+        <button type="button" class="btn btn-secondary btn-compact" data-action="open-report">
+          Report an issue
+        </button>
       </header>
 
       <div class="help-grid">
@@ -136,60 +141,66 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
           <nav class="help-toc">
             <div class="help-toc-heading">On this page</div>
             <ul class="help-toc-list">
-              <li><a href="#account" class="help-toc-link">Account access &amp; verification</a></li>
-              <li><a href="#enrollment" class="help-toc-link">Course enrollment &amp; invitations</a></li>
-              <li><a href="#saving" class="help-toc-link">Saving your work &amp; code drafts</a></li>
-              <li><a href="#run-vs-submit" class="help-toc-link">Run samples versus Submit solution</a></li>
+              <li><a href="#account" class="help-toc-link">I can't sign in</a></li>
+              <li><a href="#enrollment" class="help-toc-link">How do courses and enrollments work?</a></li>
+              <li><a href="#saving" class="help-toc-link">My code didn't save</a></li>
+              <li><a href="#run-vs-submit" class="help-toc-link">Run or Submit?</a></li>
               <li><a href="#reporting" class="help-toc-link">Reporting an issue</a></li>
               <li><a href="#contact" class="help-toc-link">Support channels</a></li>
             </ul>
           </nav>
         </aside>
 
-        <!-- Help Content Prose: Concise sections with disclosures for detail -->
-        <div class="help-content">
+        <!-- Help Content Prose: Concise task-oriented sections with disclosures for detail -->
+        <div class="help-content flex flex-col gap-8">
           <section id="account" class="help-section" aria-labelledby="heading-account">
-            <h2 id="heading-account" class="section-title text-base font-semibold mb-2">Account access & verification</h2>
+            <h2 id="heading-account" class="section-title text-base font-semibold mb-2">I can't sign in</h2>
             <p class="text-secondary text-sm leading-relaxed mb-3">
-              ZUR is currently in a controlled pilot release for adult learners (18 years of age and older). An active, verified email address is required before you can enroll in courses or create course drafts. Visit <a href="/verify-email" class="text-link">Verify Email</a> if you need a fresh verification link.
+              Make sure you are using the email address you registered with. If you haven't confirmed your email yet, visit <a href="/verify-email" class="text-link underline">Verify Email</a> to request an activation link.
             </p>
             <details class="help-disclosure text-xs text-secondary">
-              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Password recovery assistance</summary>
+              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Resetting your password</summary>
               <p class="pt-2 leading-relaxed">
-                If you forgot your password, use the <a href="/forgot-password" class="text-link">password recovery page</a> to receive a single-use reset token.
+                If you forgot your password, visit the <a href="/forgot-password" class="text-link underline">password recovery page</a> to receive a single-use reset link. Recovery links expire after one hour.
               </p>
             </details>
           </section>
 
           <section id="enrollment" class="help-section" aria-labelledby="heading-enrollment">
-            <h2 id="heading-enrollment" class="section-title text-base font-semibold mb-2">Course enrollment & invitations</h2>
+            <h2 id="heading-enrollment" class="section-title text-base font-semibold mb-2">How do courses and enrollments work?</h2>
             <p class="text-secondary text-sm leading-relaxed mb-3">
-              Courses use either open enrollment or invitation-only policies. Verified learners can join open courses directly from the public course overview, while invitation-only courses require an invitation link from the teacher. When you enroll, your progress stays pinned to that version.
+              Explore available courses in the <a href="/courses" class="text-link underline">course catalog</a>. Open courses allow direct enrollment once signed in. Invitation-only courses require an invitation link provided by your teacher.
             </p>
             <details class="help-disclosure text-xs text-secondary">
-              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Version stability policy</summary>
+              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Course versions and progress</summary>
               <p class="pt-2 leading-relaxed">
-                When authors publish course updates, existing students continue learning uninterrupted on their current version. Your exercises and grading criteria remain stable.
+                When you enroll in a course, your progress is tied to that version. When authors publish updates, existing students continue learning uninterrupted on their current version.
               </p>
             </details>
           </section>
 
           <section id="saving" class="help-section" aria-labelledby="heading-saving">
-            <h2 id="heading-saving" class="section-title text-base font-semibold mb-2">Saving your work & code drafts</h2>
-            <p class="text-secondary text-sm leading-relaxed">
-              Student code drafts automatically synchronize with the server every 1–2 seconds during coding pauses. The workspace header indicates <code>Saved</code> only after server acknowledgement. Local drafts clear on sign-out to protect shared computers, and restore on your next sign-in.
+            <h2 id="heading-saving" class="section-title text-base font-semibold mb-2">My code didn't save</h2>
+            <p class="text-secondary text-sm leading-relaxed mb-3">
+              Your code saves automatically. Check the save status in the workspace header before leaving.
             </p>
+            <details class="help-disclosure text-xs text-secondary">
+              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Save status and sync details</summary>
+              <p class="pt-2 leading-relaxed">
+                The workspace header indicates <code>Saved</code> only after server acknowledgement. If connection is temporarily interrupted, local drafts are preserved in the browser until reconnected.
+              </p>
+            </details>
           </section>
 
           <section id="run-vs-submit" class="help-section" aria-labelledby="heading-run-vs-submit">
-            <h2 id="heading-run-vs-submit" class="section-title text-base font-semibold mb-2">Run samples versus Submit solution</h2>
+            <h2 id="heading-run-vs-submit" class="section-title text-base font-semibold mb-2">Run or Submit?</h2>
             <p class="text-secondary text-sm leading-relaxed mb-3">
-              Run samples executes your code against public example test cases and displays output diffs without impacting course progress. Submit solution grades your code against all public and hidden test cases in an isolated execution sandbox, marking the step completed when all tests pass.
+              <strong>Run</strong> tests your code against public sample cases or custom input without affecting course progress. <strong>Submit</strong> evaluates your solution against all required checks and records completion.
             </p>
             <details class="help-disclosure text-xs text-secondary">
-              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Hidden test case evaluation</summary>
+              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Hidden test cases</summary>
               <p class="pt-2 leading-relaxed">
-                Hidden test cases protect evaluation integrity. If a hidden check fails, safe feedback guides you toward edge cases without disclosing secret test values.
+                Hidden tests verify edge cases and prevent hardcoding. If a hidden test fails, feedback points out edge cases and types of errors without exposing secret test data.
               </p>
             </details>
           </section>
@@ -197,7 +208,7 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
           <section id="reporting" class="help-section" aria-labelledby="heading-reporting">
             <h2 id="heading-reporting" class="section-title text-base font-semibold mb-2">Reporting an issue</h2>
             <p class="text-secondary text-sm leading-relaxed mb-4">
-              Encountered a broken exercise, an invalid test case, or inappropriate course material? You can submit an issue report directly for operator triage.
+              Encountered a broken exercise, invalid test case, or platform problem? You can submit an issue report directly for operator triage.
             </p>
             <button type="button" class="btn btn-secondary btn-compact" data-action="open-report">
               Report an issue
@@ -206,12 +217,9 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
 
           <section id="contact" class="help-section border-t border-subtle pt-6" aria-labelledby="heading-contact">
             <h2 id="heading-contact" class="section-title text-base font-semibold mb-2">Support channels</h2>
-            <div class="banner banner-info p-4 bg-surface border border-subtle rounded-lg text-sm">
-              <h3 class="text-sm font-semibold mb-1">Public external support pending launch</h3>
-              <p class="text-secondary text-xs leading-relaxed">
-                Public external support email addresses and ticket desks are currently undergoing infrastructure setup and are pending approval prior to general release. During the pilot phase, authenticated learners should report broken exercises or issues using the Report an issue button above.
-              </p>
-            </div>
+            <p class="text-secondary text-sm leading-relaxed">
+              During the pilot, learners can submit issue reports directly using the Report an issue button on this page, or using the report dialog in any learning workspace.
+            </p>
           </section>
         </div>
       </div>

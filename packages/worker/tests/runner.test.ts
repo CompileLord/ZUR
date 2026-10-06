@@ -54,6 +54,19 @@ print(f"Welcome, {name}!")
     assert.ok(outcome.errorMessage?.includes('timed out'));
   });
 
+  await t.test('Distinguishes CPU time limit from memory limit without wall timeout', async () => {
+    const cpuLoop = 'while True: pass';
+    const outcome = await runPythonIsolated(cpuLoop, '', { cpuTimeoutSeconds: 1, wallTimeoutSeconds: 5 });
+    assert.strictEqual(outcome.verdict, 'TIME_LIMIT');
+    assert.ok(outcome.errorMessage?.includes('CPU time limit exceeded'));
+  });
+
+  await t.test('Enforces memory limit and classifies as MEMORY_LIMIT', async () => {
+    const allocateMem = 'x = b" " * (200 * 1024 * 1024)';
+    const outcome = await runPythonIsolated(allocateMem, '', { memoryLimitMib: 64, wallTimeoutSeconds: 5 });
+    assert.strictEqual(outcome.verdict, 'MEMORY_LIMIT');
+  });
+
   await t.test('Enforces output limits and sets OUTPUT_LIMIT (64 KiB bound)', async () => {
     // Generate output that exceeds budget
     const floodCode = `

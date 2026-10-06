@@ -1,6 +1,9 @@
-import { renderLearningWorkspaceShell } from '../../components/shells/LearningWorkspaceShell.ts';
+import {
+  renderLearningWorkspaceShell,
+  type CourseModuleItem,
+  type TaskSquareItem,
+} from '../../components/shells/LearningWorkspaceShell.ts';
 import type { ExecutionResult } from 'zur-shared';
-import { PYTHON_RUNTIME_LABEL } from 'zur-shared';
 import { renderIcon } from '../../components/common/icons.ts';
 
 export interface PythonWorkspacePageOptions {
@@ -36,6 +39,12 @@ export interface PythonWorkspacePageOptions {
   customStdin?: string;
   editorFontSize?: number;
   indentationSpaces?: number;
+  courseId?: string;
+  courseVersionId?: string;
+  courseProgressText?: string;
+  courseProgressPercentage?: number;
+  modules?: CourseModuleItem[];
+  taskSquares?: TaskSquareItem[];
 }
 
 function escapeHtml(value: unknown): string {
@@ -159,11 +168,23 @@ export function renderPythonExecutionResults(opts: Pick<PythonWorkspacePageOptio
   if (opts.executionError) return `<div class="form-error" role="alert">${escapeHtml(opts.executionError)}</div>`;
   if (opts.inFlightStatus) return `
     <div class="result-card-banner info" role="status" aria-live="polite">
-      <span>${opts.inFlightStatus === 'queued' ? 'Queued for checking.' : opts.inFlightStatus === 'reconnecting' ? 'Checking execution status…' : 'Checking your code…'}</span>
-      ${opts.inFlightJobId ? `<span class="text-tertiary font-mono">${escapeHtml(opts.inFlightJobId)}</span>` : ''}
+      <div class="result-banner-text">
+        <span class="result-headline">${opts.inFlightStatus === 'queued' ? 'Queued…' : opts.inFlightStatus === 'reconnecting' ? 'Checking status…' : 'Running…'}</span>
+      </div>
+      ${opts.inFlightJobId ? `
+        <details class="job-meta-details text-xs text-muted">
+          <summary class="cursor-pointer select-none">Details</summary>
+          <span class="font-mono mt-1">${escapeHtml(opts.inFlightJobId)}</span>
+        </details>
+      ` : ''}
     </div>`;
-  if (!opts.currentResult) return `<div class="results-empty-notice"><span>Run your code to see output.</span></div>`;
+  if (!opts.currentResult) return `<div class="results-empty-notice"><span>Output appears here.</span></div>`;
   const res = opts.currentResult;
+  if (opts.resultMode === 'custom' && !res.isInfrastructureFailure) {
+    const stdout = res.testResults.filter(result => !result.isHidden).map(result => result.actualOutput || '').join('');
+    const stderr = res.testResults.filter(result => !result.isHidden).map(result => result.stderr || '').join('');
+    return `<div class="program-output" role="status" aria-live="polite"><pre class="program-stdout">${escapeHtml(stdout)}</pre>${stderr ? `<pre class="program-stderr">${escapeHtml(sanitizeInternalPaths(stderr))}</pre>` : ''}${res.verdict !== 'PASSED' ? `<span class="text-xs text-danger">${escapeHtml(res.verdict)}</span>` : ''}</div>`;
+  }
   const isPassed = res.verdict === 'PASSED';
   const isInfra = res.isInfrastructureFailure;
   const bannerClass = isPassed && opts.resultMode === 'custom' ? 'info'
@@ -181,9 +202,11 @@ export function renderPythonExecutionResults(opts: Pick<PythonWorkspacePageOptio
     : res.verdict === 'WRONG_ANSWER' ? 'Wrong answer.'
     : res.verdict === 'INTERNAL_ERROR' ? 'Internal execution error.'
     : `Verdict: ${res.verdict}`;
+  const modeLabel = opts.resultMode === 'submit' ? 'Submit (Graded)' : opts.resultMode === 'custom' ? 'Run (Custom Input)' : 'Run (Samples)';
   return `
     <div class="result-card-banner ${bannerClass}" role="status" aria-live="polite">
       <div class="result-banner-text">
+        <span class="result-mode-badge status-badge status-neutral text-xs font-mono mr-2">${escapeHtml(modeLabel)}</span>
         <span class="result-headline">${escapeHtml(headline)}</span>
         <span class="result-verdict-badge sr-only font-mono text-xs">Verdict: ${escapeHtml(res.verdict)}</span>
       </div>
@@ -234,7 +257,11 @@ export function renderPythonExecutionResults(opts: Pick<PythonWorkspacePageOptio
     ${isInfra ? '<p class="text-secondary" style="margin-top: var(--space-3);">Your code is unchanged. You can try again.</p><button type="button" class="btn btn-secondary btn-compact" id="retry-execution-btn">Retry Execution</button>' : ''}`;
 }
 
-export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): string {
+export function renderPythonWorkspaceContent(opts: PythonWorkspacePageOptions): {
+  workspaceContent: string;
+  taskActions: string;
+  saveLabel: string;
+} {
   const saveLabel =
     opts.saveStatus === 'saving'
       ? 'Saving...'
@@ -254,7 +281,6 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
   // Left Panel: Problem Statement
   const leftPanelHtml = `
     <div class="problem-pane" role="region" aria-label="Problem Instructions" data-enrollment-id="${escapeHtml(opts.enrollmentId)}" data-step-id="${escapeHtml(opts.stepId)}">
-      ${saveNoticeHtml}
       <div class="problem-header">
         <div class="problem-meta-row">
           <span>${escapeHtml(opts.stepOrdinalText)}</span>
@@ -327,17 +353,19 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
       ${opts.isCompleted && opts.solutionExplanation ? `
         <div class="problem-section">
           <div class="solution-explanation-card">
-            <h2 class="problem-subheading" aria-label="Solution Explanation">Solution explanation<span class="sr-only">Solution Explanation</span></h2>
-            <div class="problem-section-body">
-              <p>${escapeHtml(opts.solutionExplanation)}</p>
-            </div>
+            <details class="solution-explanation-details" open>
+              <summary class="problem-subheading cursor-pointer select-none" aria-label="Solution Explanation">Solution explanation</summary>
+              <div class="problem-section-body mt-2">
+                <p>${escapeHtml(opts.solutionExplanation)}</p>
+              </div>
+            </details>
           </div>
         </div>
       ` : ''}
 
       <div class="problem-section">
-        <a href="/help?report=broken_exercise&stepId=${encodeURIComponent(opts.stepId)}" class="btn-ghost btn-compact text-muted report-issue-link">
-          Report an issue with this exercise
+        <a href="/help?report=broken_exercise&courseId=${encodeURIComponent(opts.courseId || '')}&courseVersionId=${encodeURIComponent(opts.courseVersionId || '')}&stepId=${encodeURIComponent(opts.stepId)}" class="btn-ghost btn-compact text-muted report-issue-link">
+          Report issue
         </a>
       </div>
     </div>
@@ -351,30 +379,8 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
 
   const rightPanelHtml = `
     <div class="editor-pane" role="region" aria-label="Python Code Editor">
-      <div class="editor-toolbar">
-        <div class="editor-toolbar-left">
-          <span class="runtime-badge">${PYTHON_RUNTIME_LABEL}</span>
-          <div id="python-save-indicator" class="save-indicator ${opts.saveStatus || 'saved'}" aria-live="polite">
-            ${saveLabel}
-          </div>
-        </div>
-
-        <div class="editor-toolbar-right">
-          <div class="editor-menu-wrapper">
-            <details class="editor-overflow-menu">
-              <summary class="btn-icon btn-compact overflow-trigger" title="Editor options" aria-label="Editor options">
-                ${renderIcon('more-horizontal', { size: 16 })}
-              </summary>
-              <div class="overflow-dropdown">
-                <button type="button" class="overflow-menu-item text-danger" id="reset-code-btn" title="Revert to starter code">
-                  ${renderIcon('history', { size: 14 })}
-                  <span>Reset code</span>
-                </button>
-              </div>
-            </details>
-          </div>
-        </div>
-      </div>
+      ${saveNoticeHtml}
+      <div id="python-save-indicator" class="save-indicator ${opts.saveStatus || 'saved'}" aria-live="polite">${saveLabel}</div>
 
       <div class="code-editor-area">
         <div class="code-editor-line-numbers" aria-hidden="true">${lineNumbers}</div>
@@ -416,35 +422,62 @@ export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): str
     </div>
   `;
 
-  // Task footer action buttons
-  // After pass, primary Continue and Submit demoted to secondary; no competing Next.
   const taskActionsHtml = `
-    <button type="button" class="btn btn-secondary btn-compact" id="run-samples-btn" title="Run against public sample tests (Ctrl/⌘+Enter runs selected mode · Esc moves to actions)">
-      <span>Run samples</span>
-      <kbd class="kbd-hint">⌘↵</kbd>
-    </button>
-    <button type="button" class="btn btn-secondary btn-compact" id="run-custom-btn" title="Run with custom standard input">
-      Run code
-    </button>
-    <button type="button" class="btn ${opts.isCompleted ? 'btn-secondary' : 'btn-primary'} btn-compact" id="submit-solution-btn" title="Submit solution for grading">
-      Submit solution
-    </button>
-    ${opts.isCompleted && opts.nextStepUrl ? `<a href="${escapeHtml(opts.nextStepUrl)}" class="btn btn-primary btn-compact" id="continue-next-btn">Continue</a>` : ''}
+          <div class="editor-toolbar-actions">
+            <button type="button" class="btn btn-secondary btn-compact" id="run-samples-btn">Test samples</button>
+
+
+            <button type="button" class="btn btn-secondary btn-compact" id="run-code-btn" title="Run code (Ctrl+Enter)" aria-label="Run code" aria-keyshortcuts="Control+Enter">
+              <span>Run</span>
+            </button>
+
+            <button type="button" id="run-custom-btn" class="sr-only" aria-hidden="true" tabindex="-1">Run code</button>
+
+            <button type="button" class="btn ${opts.isCompleted ? 'btn-secondary' : 'btn-primary'} btn-compact" id="submit-solution-btn" title="Submit solution for grading" aria-label="Submit solution">
+              Submit
+            </button>
+            ${opts.isCompleted && opts.nextStepUrl ? `<a href="${escapeHtml(opts.nextStepUrl)}" class="btn btn-primary btn-compact" id="continue-next-btn" data-python-continue="true">Continue</a>` : ''}
+
+
+          </div>
   `;
 
-  return renderLearningWorkspaceShell({
-    courseTitle: opts.courseTitle,
-    courseOverviewUrl: opts.courseOverviewUrl,
-    lessonTitle: opts.lessonTitle,
-    stepTitle: opts.stepTitle,
-    stepOrdinalText: opts.stepOrdinalText,
-    isPythonWorkspace: true,
-    saveStatusText: saveLabel,
-    outlineContent: opts.outlineContent || '<nav class="outline-nav"><ul><li>' + escapeHtml(opts.stepTitle) + '</li></ul></nav>',
-    workspaceContent: leftPanelHtml +
-      '<div id="workspace-splitter" class="workspace-splitter" role="separator" tabindex="0" aria-label="Resize problem and code panes" aria-orientation="vertical" aria-valuemin="340" aria-valuemax="800" aria-valuenow="400"><div class="splitter-hover-handle" aria-hidden="true"></div></div>' + rightPanelHtml,
-    previousStepUrl: opts.previousStepUrl,
-    nextStepUrl: null, // Avoid competing Next button; Continue is rendered in taskActions
-    taskActions: taskActionsHtml,
-  });
-}
+    return {
+      workspaceContent: leftPanelHtml +
+        '<div id="workspace-splitter" class="workspace-splitter" role="separator" tabindex="0" aria-label="Resize problem and code panes" aria-orientation="vertical" aria-valuemin="340" aria-valuemax="800" aria-valuenow="400"><div class="splitter-hover-handle" aria-hidden="true"></div></div>' + rightPanelHtml,
+      taskActions: taskActionsHtml,
+      saveLabel,
+    };
+  }
+
+  export function renderPythonWorkspacePage(opts: PythonWorkspacePageOptions): string {
+    const { workspaceContent, taskActions, saveLabel } = renderPythonWorkspaceContent(opts);
+
+    return renderLearningWorkspaceShell({
+      courseTitle: opts.courseTitle,
+      courseOverviewUrl: opts.courseOverviewUrl,
+      lessonTitle: opts.lessonTitle,
+      stepTitle: opts.stepTitle,
+      stepOrdinalText: opts.stepOrdinalText,
+      courseProgressText: opts.courseProgressText,
+      courseProgressPercentage: opts.courseProgressPercentage,
+      modules: opts.modules,
+      taskSquares: opts.taskSquares,
+      isPythonWorkspace: true,
+      saveStatusText: saveLabel,
+      outlineContent: opts.outlineContent || '<nav class="outline-nav"><ul><li>' + escapeHtml(opts.stepTitle) + '</li></ul></nav>',
+      workspaceContent,
+      previousStepUrl: opts.previousStepUrl,
+      nextStepUrl: null, // Avoid competing Next button; Continue is rendered in toolbar/banner
+      taskActions,
+      reportContext: {
+        courseId: opts.courseId,
+        courseVersionId: opts.courseVersionId,
+        enrollmentId: opts.enrollmentId,
+        stepId: opts.stepId,
+        courseTitle: opts.courseTitle,
+        lessonTitle: opts.lessonTitle,
+        stepTitle: opts.stepTitle,
+      },
+    });
+  }

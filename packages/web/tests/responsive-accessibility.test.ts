@@ -15,7 +15,7 @@ test('compact Python widths retain editing and execution controls', () => {
   assert.doesNotMatch(html,/Open this exercise on a computer/);
   assert.match(html,/Run code/);
   assert.doesNotMatch(html, /readonly/);
-  assert.match(html,/python-execution-actions/);
+  assert.match(html,/editor-toolbar-actions/);
   assert.doesNotMatch(html,/Run and Submit are available on a computer/);
   assert.match(html,/aria-label="Python Code Editor"/);
   assert.match(html,/aria-label="Execution Results"/);

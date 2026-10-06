@@ -46,11 +46,18 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
       : 'Saved';
 
   const editorContent = `
-    <div class="settings-form-wrapper max-w-4xl mx-auto py-8 px-4">
-      <header class="settings-header mb-8 pb-4 border-b border-subtle">
+    <div class="settings-form-wrapper" style="max-width: 820px; margin: 0 auto; padding: 2rem 1rem;">
+      <header class="settings-header mb-6 pb-4 border-b border-subtle">
         <h1 class="page-title text-2xl font-bold">Course settings</h1>
-        <p class="text-secondary text-sm mt-1">Configure metadata, delivery settings, and access policies.</p>
       </header>
+
+      <nav class="settings-jump-links flex gap-2 p-2 bg-surface border border-subtle rounded-md mb-6 overflow-x-auto" aria-label="Course settings sections">
+        <a href="#basics-heading" class="settings-jump-link text-xs font-medium text-secondary hover:text-primary px-2.5 py-1 rounded">Basics</a>
+        <a href="#catalog-heading" class="settings-jump-link text-xs font-medium text-secondary hover:text-primary px-2.5 py-1 rounded">Catalog</a>
+        <a href="#delivery-heading" class="settings-jump-link text-xs font-medium text-secondary hover:text-primary px-2.5 py-1 rounded">Enrollment</a>
+        <a href="#versions-heading" class="settings-jump-link text-xs font-medium text-secondary hover:text-primary px-2.5 py-1 rounded">Versions</a>
+        <a href="#danger-heading" class="settings-jump-link text-xs font-medium text-secondary hover:text-primary px-2.5 py-1 rounded">Lifecycle</a>
+      </nav>
 
       ${opts.errorMessage ? `<div class="alert alert-danger mb-6 p-3 border border-danger rounded text-sm" role="alert">${opts.errorMessage}</div>` : ''}
       ${opts.saveMessage ? `<div class="alert alert-success mb-6 p-3 border border-success rounded text-sm text-success" role="alert">${opts.saveMessage}</div>` : ''}

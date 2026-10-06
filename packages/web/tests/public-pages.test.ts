@@ -5,6 +5,7 @@ import { renderCatalogPage } from '../src/pages/public/CatalogPage.ts';
 import { renderCourseOverviewPage } from '../src/pages/public/CourseOverviewPage.ts';
 import { renderHelpPage } from '../src/pages/public/HelpPage.ts';
 import { renderPolicyPage } from '../src/pages/public/PolicyPage.ts';
+import { renderVerifyEmailPage } from '../src/pages/account/VerifyEmailPage.ts';
 
 test('Public Landing Page P01 (T069)', async (t) => {
   await t.test('renders headline, value props, and Read-Try-Check progression rail', () => {
@@ -600,10 +601,11 @@ test('Help Page P40 (T072)', async (t) => {
     assert.ok(html.includes('href="#reporting"'));
     assert.ok(html.includes('href="#contact"'));
 
-    // Truthful policy explanations
-    assert.ok(html.includes('Run samples versus Submit solution'));
-    assert.ok(html.includes('Public external support pending launch'));
+    // Truthful policy explanations per redesign plan
+    assert.ok(html.includes('Run or Submit?'));
+    assert.ok(html.includes('Support channels'));
     assert.ok(!html.includes('support@zur.internal'), 'Must not expose internal address as public contact');
+    assert.ok(!html.includes('Public external support pending launch'), 'Must remove operational-launch prose');
 
     // Contextual report modal
     assert.ok(html.includes('id="report-issue-modal"'));
@@ -669,15 +671,15 @@ test('Policy Page P41 (T072)', async (t) => {
     const privacyHtml = renderPolicyPage({ type: 'privacy' });
     const termsHtml = renderPolicyPage({ type: 'terms' });
 
-    // Both pages must display honest blocked notice per instructions
-    assert.ok(privacyHtml.includes('Pending Final Legal Counsel Approval'));
-    assert.ok(privacyHtml.includes('Status: Blocked / Pending Legal Review · Not yet in effect'));
-    assert.ok(privacyHtml.includes('PRD_V2.md §22, design.md P41'));
-    assert.ok(privacyHtml.includes('placeholder, drafted, or fabricated legal contract text is prohibited'));
+    // Both pages must display honest pending notice without internal doc references per redesign plan
+    assert.ok(privacyHtml.includes('The privacy policy is not yet available'));
+    assert.ok(privacyHtml.includes('Status: Pending publication'));
+    assert.ok(!privacyHtml.includes('PRD_V2.md'), 'Must not expose internal document filenames');
+    assert.ok(!privacyHtml.includes('engineering invariants'), 'Must not expose engineering rules');
 
-    assert.ok(termsHtml.includes('Pending Final Legal Counsel Approval'));
-    assert.ok(termsHtml.includes('Status: Blocked / Pending Legal Review · Not yet in effect'));
-    assert.ok(termsHtml.includes('PRD_V2.md §22, design.md P41'));
+    assert.ok(termsHtml.includes('The terms of service are not yet available'));
+    assert.ok(termsHtml.includes('Status: Pending publication'));
+    assert.ok(!termsHtml.includes('PRD_V2.md'), 'Must not expose internal document filenames');
 
     // Assert that internal email is NOT presented as public contact
     assert.ok(!privacyHtml.includes('support@zur.internal'));
@@ -688,5 +690,52 @@ test('Policy Page P41 (T072)', async (t) => {
     assert.ok(!termsHtml.includes('Effective date:'));
     assert.ok(!privacyHtml.includes('/docs'));
     assert.ok(!termsHtml.includes('/docs'));
+  });
+});
+
+test('Verify Email Page P06 (T071)', async (t) => {
+  await t.test('renders expired or invalid token failure prominently and actionably without pretending sent', () => {
+    const errorHtml = renderVerifyEmailPage({
+      error: 'Verification link expired or invalid.',
+    });
+
+    assert.ok(errorHtml.includes('id="verify-error"'), 'Contains verify-error element');
+    assert.ok(errorHtml.includes('Verification link expired or invalid.'), 'Displays the real failure message');
+    assert.ok(errorHtml.includes('role="alert"'), 'Announced as alert');
+    assert.ok(!errorHtml.includes('We sent a verification link'), 'Does not falsely claim an email was sent');
+    assert.ok(errorHtml.includes('href="/sign-in"'), 'Offers actionable sign-in navigation');
+    assert.ok(errorHtml.includes('href="/sign-up"'), 'Offers actionable sign-up navigation');
+  });
+
+  await t.test('renders truthful unprompted status on direct entry without context', () => {
+    const directHtml = renderVerifyEmailPage({});
+
+    assert.ok(directHtml.includes('No pending email verification context was found'));
+    assert.ok(!directHtml.includes('We sent a verification link'));
+    assert.ok(directHtml.includes('href="/sign-in"'));
+    assert.ok(directHtml.includes('href="/sign-up"'));
+  });
+
+  await t.test('renders masked destination, cooldown resend, and change account when email is provided', () => {
+    const pendingHtml = renderVerifyEmailPage({
+      email: 'alex@example.org',
+      cooldownRemaining: 30,
+    });
+
+    assert.ok(pendingHtml.includes('Check your email'));
+    assert.ok(pendingHtml.includes('a***x@e***.org'));
+    assert.ok(pendingHtml.includes('Resend email (30s)'));
+    assert.ok(pendingHtml.includes('disabled'));
+    assert.ok(pendingHtml.includes('Use a different account'));
+  });
+
+  await t.test('renders verified success state with destination link', () => {
+    const verifiedHtml = renderVerifyEmailPage({
+      isVerified: true,
+      returnTo: '/courses/python-intro',
+    });
+
+    assert.ok(verifiedHtml.includes('Email confirmed'));
+    assert.ok(verifiedHtml.includes('href="/courses/python-intro"'));
   });
 });

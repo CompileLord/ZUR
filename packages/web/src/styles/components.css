@@ -757,6 +757,34 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   border: 1px solid var(--border-subtle);
 }
 
+.editor-filename {
+  font-family: var(--font-mono);
+  font-size: var(--type-metadata-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.editor-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.job-meta-details {
+  margin-top: 4px;
+}
+
+.job-meta-details summary {
+  cursor: pointer;
+  user-select: none;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.job-meta-details summary:hover {
+  color: var(--text-secondary);
+}
+
 .code-editor-area {
   flex: 1;
   position: relative;
@@ -2367,12 +2395,12 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   border-color: var(--border-focus);
 }
 
-.quiz-option-row.selected {
+.quiz-option-row:has(.quiz-input-control:checked) {
   border-color: var(--accent);
   background-color: var(--bg-selected);
 }
 
-.quiz-option-row.correct {
+.quiz-option-row.correct:has(.quiz-input-control:checked) {
   border-color: var(--success);
   background-color: var(--success-bg);
 }
@@ -4387,3 +4415,8 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
 .block {
   display: block;
 }
+
+.code-editor-area .cm-cursor, .code-editor-area .cm-dropCursor { border-left-color: var(--text-primary) !important; }
+.code-editor-area .cm-content, .code-editor-input { caret-color: var(--text-primary); }
+
+#python-save-indicator.saved, #python-save-indicator.saving { display: none; }

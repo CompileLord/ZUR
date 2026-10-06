@@ -84,13 +84,13 @@ export async function runPythonIsolated(
       const child = spawn(
         'podman',
         [
-          'run', '--rm', '--interactive', `--cidfile=${cidFile}`, '--pull=never', '--network=none', '--read-only',
+          'run', '--rm', '--interactive', '--init', `--cidfile=${cidFile}`, '--pull=never', '--network=none', '--read-only',
           '--cap-drop=all', '--security-opt=no-new-privileges',
-          '--pids-limit=1', `--memory=${memoryLimitMib}m`, '--cpus=1',
+          '--pids-limit=16', `--memory=${memoryLimitMib}m`, '--cpus=1',
           `--tmpfs=/tmp:rw,size=${EXECUTION_BUDGETS.MAX_TEMP_DISK_MIB}m`,
           '--user=65534:65534', '--volume', `${scriptPath}:/work/main.py:ro,Z`,
           '--workdir=/work', PINNED_PYTHON_IMAGE,
-          'prlimit', `--cpu=${cpuTimeoutSeconds}`, `--as=${memoryLimitMib * 1024 * 1024}`,
+          'prlimit', `--cpu=${cpuTimeoutSeconds}:${cpuTimeoutSeconds + 1}`, `--as=${memoryLimitMib * 1024 * 1024}`,
           `--fsize=${EXECUTION_BUDGETS.MAX_TEMP_DISK_MIB * 1024 * 1024}`, '--nproc=1', '--',
           'python3', '-I', '-s', '-B', '-E', 'main.py',
         ],
@@ -189,7 +189,7 @@ export async function runPythonIsolated(
             return resolve({ verdict: 'OUTPUT_LIMIT', stdout, stderr: '', exitCode: code,
               executionTimeMs, errorMessage: 'Disk output limit exceeded.' });
           }
-          if (code === 125 || code === 126 || code === 127 || stderr.startsWith('Error:') || stderr.includes('time="') || stderr.includes('container engine failure')) {
+          if (code === 125 || code === 126 || code === 127 || stderr.startsWith('Error:') || stderr.includes('time="') || stderr.includes('container engine failure') || stderr.includes('read-only file system') || stderr.includes('Failed to obtain podman')) {
             return resolve({ verdict: 'INTERNAL_ERROR', stdout: '', stderr: '', exitCode: code,
               executionTimeMs, errorMessage: 'Execution sandbox is unavailable.' });
           }
