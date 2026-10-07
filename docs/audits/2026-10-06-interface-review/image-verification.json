@@ -1,0 +1,1342 @@
+{
+  "count": 167,
+  "validation": "Full PNG decode, exact manifest dimensions, unique paths and SHA-256; does not certify application behavior",
+  "images": [
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p09-dashboard-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 36745,
+      "sha256": "fb70a3f308c45978512d26c352687264d6105fc5762b76cc0e7e230bc3e6f722",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p09-dashboard-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 36230,
+      "sha256": "25ef271d800364828b04c025764af8844564dc248a83032c27c54c50b9928238",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p10-mycourses-dark-in-progress.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 33183,
+      "sha256": "c6d57d494ebc92f645b1c2730a969bf50c9e4d2850410c433c4c6dfea7c40d6d",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p10-mycourses-light-in-progress.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 32955,
+      "sha256": "0c704147bae5f842bd689be21aea610e3c56c0fbc9588203c9978bf988f4776d",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p10-mycourses-dark-completed-tab-defect.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 33183,
+      "sha256": "c6d57d494ebc92f645b1c2730a969bf50c9e4d2850410c433c4c6dfea7c40d6d",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p11-course-overview-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 68458,
+      "sha256": "d0572d95c8b5c0cbcc031c9c2043c84eaad47e18b58b4709415842990f6765e5",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p11-course-overview-dark-normal__full.png",
+      "width": 1440,
+      "height": 1631,
+      "bytes": 109191,
+      "sha256": "0747f0bda9346a65ce082cda95e131003c9e35255881e03a9508035e74a40350",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p11-course-overview-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 68540,
+      "sha256": "a878d6b8c81b2e48314884825bcba1718e4eb8e335bc013a6fcf2c0232572265",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p11-course-overview-light-normal__full.png",
+      "width": 1440,
+      "height": 1631,
+      "bytes": 109248,
+      "sha256": "246b00f49babb041ad8c291d6e0609c3be260782375841c06cc8bd14a68d44cb",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p12-theory-step-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 56866,
+      "sha256": "499734a6679b5637dfeab309bfbfc04c50d1965e5154e43c1a9e327c230b2295",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p12-theory-step-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 56985,
+      "sha256": "53a5d759db09f30916d1ad7ffd44b63b94422bf941623757c23a95f3b58e0080",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p13-video-step-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 56343,
+      "sha256": "465f184c44bc2f72acae4064e5ad251680092ad8ae4d0387e11a909550b7d492",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p13-video-step-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 56352,
+      "sha256": "fb48aff4c2f8de47bca3a1ad3232af0606d8b6d9b2c945eca30befe9b306d6c3",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p14-quiz-single-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 67741,
+      "sha256": "34e8b13e15e293e7525539b12892d48eca8c794aeecd3babbd2e5c510000867f",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p14-quiz-single-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 67452,
+      "sha256": "0a187d2a5db7e5f30ebd7090a85956e013e5d7de724c9baefa837b0563505fbc",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p14-quiz-multi-light-incorrect-selection.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 61384,
+      "sha256": "36656740cb2251a2a57b78522174b3a2edc9968cc3a85c21295b57808f3af720",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p14-quiz-multi-light-correct-success-next.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 67225,
+      "sha256": "6fc33e1338910e6350a0e0d24ffb836ef7d4571b5b533cccf10c179608b5ff71",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-editor-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 74679,
+      "sha256": "3c761cd83cd0e10c15e485404954a09f686fe52db24d4f848ef0deec181c7669",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-editor-dark-narrow-1100.png",
+      "width": 1100,
+      "height": 900,
+      "bytes": 71689,
+      "sha256": "d38ecace2b66ca17b27d0a050f44e22ee59c9b6d2f5632b00add77c90b9b5b42",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-editor-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 74919,
+      "sha256": "5e1a3119f862f3594def191876ca3ec47b6ed2d126d23bfdb29429cd52718f62",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-taskstrip-dark-12-tasks.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 74679,
+      "sha256": "3c761cd83cd0e10c15e485404954a09f686fe52db24d4f848ef0deec181c7669",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-sidebar-dark-collapsed.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 59329,
+      "sha256": "e73d6afe0e3a135d32010e789777803b2b9a583c52a6ac54174c96df06321776",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p12-theory-sidebar-dark-reset-defect.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 56996,
+      "sha256": "605a6d5a2134007999995da38aa9bdbbcef88154d58847d470b388b08de26e8d",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-samples-dark-fail-diff.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 85693,
+      "sha256": "e4b28e48d536b7eea4474b34eb8aed0942df849e2e94e4eea920baa31b98a2e9",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-custom-dark-stdout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 72995,
+      "sha256": "f3fff3595cd59b8751c7d0ccb7e209d944f1958aee4229953ae240a74fc15039",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-submit-dark-passed-green.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 86919,
+      "sha256": "6c9775df2882971467b1dc330d1c080af42135641223147aaac9a85bdaf1f0c3",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-infra-dark-retry-banner.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 87839,
+      "sha256": "923388482ac14a188d9f7095fa9eb6c9c570bd5c4dafd82d679fbccc510241d3",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-report-modal-dark-opt-in.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 116108,
+      "sha256": "54ff42a4474fbb51c4e5f2bdfd9c6010ba846a45f295e4749bfe0aebc01b7c57",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p16-attempts-history-dark-placeholder-sidebar.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 33562,
+      "sha256": "f1161467c18f354d2c018aff6038937b32e142552d5648b3b5b1b1369a211cdb",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p16-attempts-history-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 33382,
+      "sha256": "6e65a26319ddab3cb623e85edb305efdc794f0fb015306d74dc8004cfd355a29",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p16-attempt-detail-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 34121,
+      "sha256": "0b0c560e2029daeb1f260b1191eacedc4952a8d589d1d6f535370d7d32c9f0da",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p16-attempt-detail-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 33957,
+      "sha256": "3c64217ef5611a8361aaa58177d41a8bcf899c265906dc75963225c724228482",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p09-return-main-dark-with-sidebar.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 37000,
+      "sha256": "2431b74d9526167dd6b77535b0136f62523774b81e9b83e46e8bd28838dbe4b5",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-dark-with-sidebar.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 44436,
+      "sha256": "c7007833c9d0572c307e8f4daefb9a3e47d7e8900c7efcd53b5788d8e59977af",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-dark-filtered.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 47894,
+      "sha256": "619f5b3a60829cd4f42d7141acb98c5dd2f260fd4cbd8d5fcd5aed0e75334c64",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p03-course-overview-auth-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 91587,
+      "sha256": "b0946b982bf5d2141800a5d926680641dfc8131d9b64184e30674453fa6a7d77",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p03-course-overview-auth-dark-normal__full.png",
+      "width": 1440,
+      "height": 1418,
+      "bytes": 124528,
+      "sha256": "5510dd4276ea6142e4ef77786d5f4dfa20857ff2504f10f06f05f1c4455ce4d9",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p17-settings-profile-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 44019,
+      "sha256": "8bf5a5d89319b86f59a1392539945c71480c02e6b17690c755a701f1f8e1e0b8",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p17-settings-profile-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 43856,
+      "sha256": "23d189afd574a39bf9ffbdc36d859e21ab4567ed7e4185d70d35c1a44153eb2d",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p18-settings-appearance-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 61163,
+      "sha256": "374596d3b50dae69d9ea23f81b3b5dde8e3d8f2c89b8ea59863ab08a48365d0f",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p18-settings-appearance-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 61040,
+      "sha256": "475b4614e9d1923df5bf9dfcc4c0ca41c4460155ec546a17e61d2184d661b3a4",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p19-settings-security-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 64723,
+      "sha256": "97fd3de5cf4f6c9ec529d88d8ac955bba8e2a527fea61d9cf89d0a262e1b8207",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p19-settings-security-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 64416,
+      "sha256": "4651d051ab25ded9122445dc4c2359ddb54ca2b6b5dbf05486bef85fd2137ad5",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p20-settings-privacy-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 70103,
+      "sha256": "807cd5c8efe7e64358d9a223d50d1784f69fe8727da0f9677707defd2aafec95",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p20-settings-privacy-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 69807,
+      "sha256": "528ab9863f863d3c1eeb22b53d90b74eb4aacdf2e99503feade3d6f528e67b5c",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-report-modal-tab-escape-focus.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 107907,
+      "sha256": "ae216d8be91afae3909622159315c9ab3b7402e5b9275462bb7f0a2431003e78",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p17-profile-dirty-back-discarded.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 44019,
+      "sha256": "8bf5a5d89319b86f59a1392539945c71480c02e6b17690c755a701f1f8e1e0b8",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p12-sidebar-spa-nav-reset.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 55508,
+      "sha256": "8d509b05686da61b448347314c3ce3a006e2fd9a35542b7992095941c2b33eb5",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-dark-loading.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 29718,
+      "sha256": "9f5db9baaf3f71b82e9a931af6e6f97d5af808cf787e8a9b7d617a8acd86870b",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-light-loading.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 29169,
+      "sha256": "1bb2710f468cc93e88d4b83e27aacd211597d15f29c321dc4b076b0edcfc9356",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-dark-error.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 37877,
+      "sha256": "d7966b7c0690624484083da39152668f4cd843142c6a38120f23658ce367ed28",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-light-error.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 37360,
+      "sha256": "73d48eb358aa59b64958fe267ef3ce3935bc7eb9bd374831b5821288ea7ab9e0",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-dark-no-matches.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 48680,
+      "sha256": "adf63110b1818da2cb42f49d03c00946c18d25d5c338b537d6622ef24cef24b3",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-light-no-matches.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 48143,
+      "sha256": "f1aebf85acc6a6310c401b3e125dee8d3e5bf92c1381cc04480df94bbb2decc9",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p03-course-overview-auth-dark-error.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 30882,
+      "sha256": "1f36dcb2f96528c9e17d44246ae0eacbe8f867759953eca0a6510988d4b2f585",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p03-course-overview-auth-light-error.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 30660,
+      "sha256": "df54c90f9ce1218411c4b77e2ee11882c1b4ea1b977d729c49522334da66c89e",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p21-dashboard-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 48020,
+      "sha256": "f27c75deea2aabd814a391fd228b3c9ae8014269cf2af23275869c9b146f559e",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p21-dashboard-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 47472,
+      "sha256": "215f14eb9448545ae7885a0fd25a1a22aadc7969ecd545ed13e9734df03a6025",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p22-builder-tree-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 81058,
+      "sha256": "051c265e384c04ab041657a187e002d873fe18e85aaeafbc1f9cbfd0a043a676",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p22-builder-tree-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 80079,
+      "sha256": "74ce98f7ae846ca1ce8794b83f3daf71b3f2ce2ae1635d45494f3f38b6dc4102",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p23-editor-theory-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 97501,
+      "sha256": "c1c60b5dd15b638c486445b03928b8573419590fa20c115d7efb2fe1ca8b10bf",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p23-editor-theory-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 95899,
+      "sha256": "1d95fba3378f9ee35cc42d065639b1d6c66ed521e20a8d6426291d8aa5147b10",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p23-editor-theory-dark-dirty.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 101290,
+      "sha256": "9c8f2efa3db194c49fd95af0053f52faab3893065e3ba5e6a4cf46a84a5fe0b8",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p23-editor-video-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 91865,
+      "sha256": "e53335d585ab00ff623bff2482d51704123eb5a105b2e14d065cad956c248486",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p23-editor-video-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 90599,
+      "sha256": "7714fe0725deec604f5950b9bb38e284e8701cf170d7aa4785f2abc374b18f00",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p24-editor-quiz-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 106573,
+      "sha256": "8fce9ec0ed54ac2cb108cb0581d974bbc8530beff8f77d7b84749226d0471ec1",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p24-editor-quiz-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 105434,
+      "sha256": "60856b6646b87818a3f8dc434a1039fe2f13e3d60b263bc0a4443666debb031a",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p25-editor-python-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 97309,
+      "sha256": "4fd50e59b0572c1d0c76497f845f8e8821c16a68ae1794868e5b1fdbbcda82b9",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p25-editor-python-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 95771,
+      "sha256": "c7e2b37466319016a9be3ef9f101aaf8845788b52c1d77d063a2bf2b0d576c7e",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p25-editor-python-dark-tab-tests.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 95525,
+      "sha256": "2c6a164704cf17e331be339f9314cbf0c21e7eb0f925d23a1e0b0771f44c1d83",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p26-student-preview-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 56390,
+      "sha256": "dabc021a6a094f1d327bc32a076ffcbb2488b493010851f78f9e96ec5cb94267",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p26-student-preview-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 56091,
+      "sha256": "f7cbbe77b11c1ae83975933fbc66541797be7ea312df2786e27cbf112c18edb9",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p26-student-preview-python-dark.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 90689,
+      "sha256": "89bec8b5f151ab2a278e519dcc7f9f2c21941921dccaf40343b7ad32705a4c11",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p27-publish-review-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 76290,
+      "sha256": "71e03fef648b4073374b226cbb3a93f91ffb57e129c5e96f1c074703b7546ac8",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p27-publish-review-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 74886,
+      "sha256": "9b190c241b59a74b90742a775554560d5846ea15931b6325fedf8d3f70cbac4d",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p28-students-roster-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 75011,
+      "sha256": "c13adcb8e9b1c42f957d21c2a2f86bd180d9d108f5d4873f63fa1aee2ffb56fa",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p28-students-roster-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 73891,
+      "sha256": "1d6f1229994aa0ef70f312747ff1976f19e0d226ae67ea5f91cacc8c1634e608",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p29-student-detail-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 110029,
+      "sha256": "8d09dd44ed7a6c5f94ab3cf977f349f9a9f4659bfd27048cdd2bf64a01a85241",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p29-student-detail-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 108783,
+      "sha256": "4907aa43da1c9640bfcf5a21afd1e634d07bda71a9b5d4a8406324eea5f6fa13",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p30-course-analytics-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 112323,
+      "sha256": "650a50ea4d8c167b6144ad905921b53ec33966b37c51d3df08d51b4c6999af0d",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p30-course-analytics-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 111158,
+      "sha256": "0cf8cd2179ace6a2a8e7886f7f03365d267e7b791ca2595d4e6551e59e00a273",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p31-course-settings-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 69282,
+      "sha256": "065403d8da37dbbd8c3195c357c508eab0ce59edd1d75aa1e9c14b0d4b69fbda",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p31-course-settings-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 68110,
+      "sha256": "b64451fbf1b24d23dab49f000e9f9b29db5186b6069c5c445f38b7414c94a7e1",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p43-ai-connections-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 64399,
+      "sha256": "02f40d4b4fb4043426ccd092e3d7604cbe1ddd2dbb0139eee3cc0ac65ddb92fd",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p43-ai-connections-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 63905,
+      "sha256": "29f098665ae60300fc46980aef410475fae37295939b816eee607adf889af6cf",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p44-connection-setup-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 132596,
+      "sha256": "457ffd679e09554d1420f92045c6029254e9d321bf9d30f154c37341bcf866c5",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p44-connection-setup-dark-normal__full.png",
+      "width": 1440,
+      "height": 1552,
+      "bytes": 195723,
+      "sha256": "a5e43c730ccd42f9084d4167186534d806f70d2b2a7a164709facdee71688151",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p44-connection-setup-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 130832,
+      "sha256": "28a8b8839168ea4a89f49076d8dfacad127074d4f65df47e1c1633707c729f8e",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p44-connection-setup-light-normal__full.png",
+      "width": 1440,
+      "height": 1552,
+      "bytes": 193648,
+      "sha256": "9fa65bae13217635efa2c61be0ad3befb5234b3b30b958374b57b924c6327899",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p45-agent-activity-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 55496,
+      "sha256": "2f2a40eaf0fb7b5f8c34f9f7eea2e63253a5de7702af4283fcd58327e209919e",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/author/author-p45-agent-activity-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 54740,
+      "sha256": "c73b922bfb369a98783e078872fa6362860d61a1b10699185de417cc47b02a19",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p32-operations-overview-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 93698,
+      "sha256": "080983c87d08d9dce701e1fd09176cefa709e7c593c0e0939979f6858486d06e",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p32-operations-overview-dark-normal__full.png",
+      "width": 1440,
+      "height": 990,
+      "bytes": 101824,
+      "sha256": "4ffee26102b6ff18e22158af75d72793b05beae588bc77dcb078b50b83b479f8",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p32-operations-overview-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 92483,
+      "sha256": "bab708c00e51330cc26438772fb049f5d9d2a763834c37e53270dc1f90bc66cf",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p32-operations-overview-light-normal__full.png",
+      "width": 1440,
+      "height": 990,
+      "bytes": 100331,
+      "sha256": "41329ed70b82abd8ff38d5cc12bf2fd2e3dcc3cf3c4502e2af54a30546a009eb",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p33-users-list-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 80514,
+      "sha256": "387ad8c5a134d52045efaadcfcbb5397d25ce3dc4f2d17a1c277780f3e172cb0",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p33-users-list-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 79922,
+      "sha256": "43c7ad1c42161ff2f2be50c1b3ff1bb76c787ad3101b75ae3252809a11433e9b",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p33-user-detail-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 64722,
+      "sha256": "2816aa435da05c8546521db0d40ebaa459ba826c324f32dab12a78cca89999cd",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p33-user-detail-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 64355,
+      "sha256": "96e2de8140ed3639b0fc507aea42bd067d042908f471f3672f296578715080cd",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p34-courses-list-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 58290,
+      "sha256": "493863151c853c4b9221c4aae0e5fbd444a526f869d061ea0458a5e0e2eb3ba4",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p34-courses-list-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 57686,
+      "sha256": "9103e4592955efcb88de34b3f028333bf6d8d81ff5de5bb9c6ae2484572bccb7",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p34-course-detail-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 69654,
+      "sha256": "fffbe7f4709ca881a60745f97aac8885c68de15717e24cc9cbad85b1daa1e70c",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p34-course-detail-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 69385,
+      "sha256": "8fa1535ef554b2d052fc65e6346000ec9144f6284e5958cc8e0e0f15b2c42412",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p35-categories-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 40388,
+      "sha256": "80f5f347a57230c3c37a5366b68b5b6e5b4381c13074dc39529512d3f11d4f6a",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p35-categories-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 40161,
+      "sha256": "bddfac210a2530fe62ac250b0acdbf9f9c3d842075e60c3e5dec0b3ce0eae6e7",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p35-category-edit-dialog-dark.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 86313,
+      "sha256": "471286ca5cfc8064b4863437eabc11fc4792430ecd1dc63ac206049bf0d937b9",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p36-reports-list-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 46306,
+      "sha256": "3a057a3122b80c6cda62529c4b53a6360d23a2c66933d5adf43ee33d03bd3a7e",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p36-reports-list-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 46048,
+      "sha256": "6be0149671e8658143b2e689c004d2168b67bbe495aaad343e2347e934909f8b",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p36-report-detail-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 73351,
+      "sha256": "e033902125391ebbbbb693aaab7eb801e19e8cae7bccbff1a04c3a960b8c813d",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p36-report-detail-dark-normal__full.png",
+      "width": 1440,
+      "height": 1237,
+      "bytes": 88454,
+      "sha256": "1c9e77602c6f71f9c278d59afc357be87ccb91105feb9248b923102c714dafce",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p36-report-detail-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 72750,
+      "sha256": "db3f5b634f1ca02a7bf065278925f7daa053b68c0172179d0a34777a87a8e9f8",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p36-report-detail-light-normal__full.png",
+      "width": 1440,
+      "height": 1237,
+      "bytes": 87428,
+      "sha256": "a6956aeee60f20362b115247d15b11633e914bdcfa6ba1c2e55e2681e0c7500d",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p37-media-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 43871,
+      "sha256": "2d56a2dc9385d0fd01c7f83809ccc7f74cc0a7efd55bd780b36040d354ecb9bd",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p37-media-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 43674,
+      "sha256": "dd19543edd8ed8546ef1f7635171610efac6209fc93656e0b5f505865306d8dc",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p38-execution-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 75319,
+      "sha256": "d83bb78964230c911bba85b21a59d8094bc39f6e6233fc1ba42036a78ecbbff2",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p38-execution-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 74962,
+      "sha256": "6dc5d8952ae7f4de37f90c4c278c1b3aa5802098697285f643879b9869d5d85b",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p38-execution-dialog-dark.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 122429,
+      "sha256": "52abf3d59f673a1145c3e5216edcc34e048e41f9d2b5eb87391cfcb981e55cf6",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p39-audit-list-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 54760,
+      "sha256": "dea4e584904e2f863a3b3d7b853bc450b0b4d78630ec83d689655d136903283c",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p39-audit-list-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 54080,
+      "sha256": "40f920212ed62fe15a7863e2bd2dc41a369e85f971c5f2c17c2c30d047a81243",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p39-audit-detail-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 64581,
+      "sha256": "f10966f0f1ff79d432813e7394ee94b35835f66e27f83f5608a2b3d93ad56bf5",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p39-audit-detail-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 64130,
+      "sha256": "2c298068b0b852195fc5ee5da4321c9fe1ea6f4549529fec198e5f920313448d",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p33-dialog-suspend-user-error-dark.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 113211,
+      "sha256": "3fa0333c619b5c6d0cebb41aaf10405110c44a4b0bdbb3692d8a71dd0a219748",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p33-user-suspended-receipt-dark.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 65717,
+      "sha256": "11e32c22f5346376b4707c290879377235f92d7d5288104cb6412df4519fdaf6",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p33-dialog-manage-roles-error-dark.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 110726,
+      "sha256": "2db156619e16fa042f53b4be6dde35bafda916a5d55d60d4bb880188808dc70b",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p33-dialog-support-access-error-dark.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 118737,
+      "sha256": "e79cb08ea1064024cc7352b1c5b08aee6ad243f3cbce4a7c45d1e291943dd3b1",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p34-dialog-course-availability-error-dark.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 124682,
+      "sha256": "e8eeb06bd06ab385f51079f2565c54992e30a215fd0aa03619151d4e5d9884dc",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/admin/admin-p34-dialog-course-waiver-preview-dark.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 128662,
+      "sha256": "58c3bd651aa488023a700d00d09e1850f3968df34615fe0881f1cc46b88c6e83",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p01-landing-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 68144,
+      "sha256": "8eb7486c7ab9fbcbff7fd0fcd703152c9faf0c985cf19866471e0c08966859f3",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p01-landing-dark-normal__full.png",
+      "width": 1440,
+      "height": 1573,
+      "bytes": 181048,
+      "sha256": "4c9c994b2e7df21a0096ca1e6ff12340ebdcd3024d4bd859213696edcb329fa3",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p01-landing-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 107628,
+      "sha256": "ca134e39c2adaf51febf32deb92e3f99cebd23fed245019071ee86eea51515a1",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p01-landing-light-normal__full.png",
+      "width": 1440,
+      "height": 1641,
+      "bytes": 192848,
+      "sha256": "697a67dcbde2c6a8a7753a940b4ed3833e9d773713cccd7def17f86902fc4c37",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p02-catalog-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 43835,
+      "sha256": "58552f3847f95e74144743b3ca982be0f1fd621ef53346054b545eb3410a4950",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p02-catalog-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 43687,
+      "sha256": "ea2e40f3076bc5dc3a419e135e7012f8592752f7f94122d8c8d0c4eb2c4ae4e5",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p02-catalog-dark-filtered.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 48536,
+      "sha256": "b7729017272ca00d0dfc882582c428488222bdddf9730ddb4f1e6c6a3e4746c1",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p02-catalog-dark-empty.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 47677,
+      "sha256": "953889d483f882c7568beb7e2d2a2d62ff7f9367b3f6e30dfe8323156ccb03d2",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p03-course-overview-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 82393,
+      "sha256": "37d4542b30b88583b714e40263231a13da234355d4bcbcbecbab6fec814e30af",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p03-course-overview-dark-normal__full.png",
+      "width": 1440,
+      "height": 1141,
+      "bytes": 92955,
+      "sha256": "4805b5a088668ee19b99eb584e8a58ad812fb915a7e388cf748a92c595f331cd",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p03-course-overview-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 82937,
+      "sha256": "5be8ff6b4f95d4f5db0e89b7920fd45f5213e154df2d442b3fc2bcc4470db1c6",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p03-course-overview-light-normal__full.png",
+      "width": 1440,
+      "height": 1141,
+      "bytes": 93438,
+      "sha256": "a91405132712c3219a07971e574888e3293f7db95177eb1dac51873ec73aa467",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p04-sign-in-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 26340,
+      "sha256": "11798b9a18862adab2052c494a9cbfb8e26af0bd11a759fd00c9a092a664a4d9",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p04-sign-in-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 25889,
+      "sha256": "0ebaced1cf5f41fec3498595de7bc7aea168aa526273301839440acdf2cedc3c",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p04-sign-in-dark-error.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 29216,
+      "sha256": "efcca940f49f864693b999ac1ae25b15338248de6ca747bbfec4fb7681ef9fc7",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p05-sign-up-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 38664,
+      "sha256": "becb2f8c3a4370e143788ac3805f16a109c314d99935c62a7a036a4b1c5763f6",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p05-sign-up-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 37889,
+      "sha256": "6a5ab74e5f1099ecec4f4d303fd6ad6e1c39c7cd633b02977898dab1227efdab",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p05-sign-up-dark-error.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 42240,
+      "sha256": "91e9f403f6ef126ae7b460ca63792f2d3f93ea424d850e73a3501f25c16ea37a",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p06-verify-email-dark-direct.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 26860,
+      "sha256": "f73dac07aa44a32dc60856933fcffcc7e3af446e0965b94f0b80529ebd6385d0",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p06-verify-email-dark-context.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 25800,
+      "sha256": "5e20827307943e4f87b669adeef24a07d375c08d894ea87dce0df7dc368efce9",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p06-verify-email-light-context.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 25356,
+      "sha256": "0579acb59e5e2edd16deece197376238d545b39c77c8b7c1f5b89de9868791e1",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p07-forgot-password-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 28204,
+      "sha256": "189cfdd8ec80fbae507df1952fc66b377520803f43fb29633269167090826759",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p07-forgot-password-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 27798,
+      "sha256": "2e744df34b363220939f2700ea4c49a0913c57253a7aaf1ecc1871c45976ff6a",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p07-forgot-password-dark-submitted.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 24515,
+      "sha256": "c8e149f8829f4cd13546fedf88497e3e5a602db35887c515cc858ea635bfc097",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p07-reset-password-dark-valid.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 26217,
+      "sha256": "cf3503ba743036278d76596a8b385678d6f4abd6b55b9a8a7673aa18eb3fac05",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p07-reset-password-dark-invalid.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 26217,
+      "sha256": "cf3503ba743036278d76596a8b385678d6f4abd6b55b9a8a7673aa18eb3fac05",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p08-join-invitation-dark-valid.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 45279,
+      "sha256": "99b3ae94a45f52ef2bcc33f4073c0a8efe2cde7b66b8a21fbeba120e84d4bef1",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p08-join-invitation-dark-invalid.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 27869,
+      "sha256": "edf180971f0d769c558f564ba05c9adc1a28c03c7be8aae8b9aa2ce8997037ae",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p40-help-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 96555,
+      "sha256": "da29f8924cbd2c92d0da5475fa5494bf541cba6427de615ea94041b6472fd1af",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p40-help-dark-normal__full.png",
+      "width": 1440,
+      "height": 1237,
+      "bytes": 126062,
+      "sha256": "600baf803df530fcbd86e92cff7fb3e1643535affbdeafc9449284c6214a21ba",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p40-help-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 96511,
+      "sha256": "2d10fddea2192803da26f47d403017e0f8ef54a3e2e8aa9efecebd078e8f3c9a",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p40-help-light-normal__full.png",
+      "width": 1440,
+      "height": 1237,
+      "bytes": 125860,
+      "sha256": "83d2a698589b40631a179dc0f8530c8ddcd8427b24f17feb913a18bda01cacf8",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p41-privacy-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 42947,
+      "sha256": "ecea2f8ab2302137d95a8231fc04c2aa3fdc64261ee0913a8e2f8abf18a233ca",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p41-privacy-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 42782,
+      "sha256": "6ff0a5e293a58c8f3f01a76531a1f1af2f7fa5ff7df1818901b24afa3a21ad0c",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p41-terms-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 43834,
+      "sha256": "9d5d83679fb7aee4453b756614437426dd58a60e7c7e01ddfe3f1e902309d5f4",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p41-terms-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 43702,
+      "sha256": "9cd637d21032dc7199c68062043aa2129aa9f2f769d4017e83c239c218af73eb",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p42-access-denied-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 29311,
+      "sha256": "e2fe40e614495d120c24cabf7a322fd0484ac04fd137f73521d25be652c08bae",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p42-access-denied-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 29286,
+      "sha256": "b99967605bec3cc6ca454c651b916fa4fac607d71555b1dbcb3d83c3c4b6d4d9",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p42-not-found-dark-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 31193,
+      "sha256": "4e5f5eb17efede9989bc64599921fcce1a1f6690fe7f94ddeade75134d7ef135",
+      "decoded": true
+    },
+    {
+      "filePath": "screenshots/interface-review-2026-10-06/public/public-p42-not-found-light-normal.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 31089,
+      "sha256": "ddb4edb1edb87a2b51ad2e78a76119bea5da32f7dde30a5d5480b666e54afe42",
+      "decoded": true
+    }
+  ]
+}

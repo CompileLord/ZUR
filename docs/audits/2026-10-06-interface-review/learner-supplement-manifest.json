@@ -1,0 +1,127 @@
+[
+  {
+    "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p15-python-report-modal-tab-escape-focus.png",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "timestamp": "2026-10-06T17:40:21.452Z",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "state": "report issue modal demonstrating focus escape to background via native CDP Tab key events",
+    "fixture": true,
+    "fixtureType": "disposable-sqlite-seed",
+    "validity": "valid"
+  },
+  {
+    "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p17-profile-dirty-back-discarded.png",
+    "route": "/settings/profile",
+    "timestamp": "2026-10-06T17:40:22.856Z",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "state": "profile settings demonstrating draft loss after native browser Back navigation",
+    "fixture": true,
+    "fixtureType": "disposable-sqlite-seed",
+    "validity": "valid"
+  },
+  {
+    "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p12-sidebar-spa-nav-reset.png",
+    "route": "/learn/enr-ada/steps/step-5-waived-theory",
+    "timestamp": "2026-10-06T17:40:23.781Z",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "state": "Collapsed curriculum remains collapsed after real SPA task navigation; filename retained from executor, reset was not observed",
+    "fixture": true,
+    "fixtureType": "disposable-sqlite-seed",
+    "validity": "valid"
+  },
+  {
+    "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-dark-loading.png",
+    "route": "/courses",
+    "timestamp": "2026-10-06T17:40:24.193Z",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "state": "authenticated Explore catalog loading skeleton with persistent app sidebar",
+    "fixture": true,
+    "fixtureType": "disposable-sqlite-seed",
+    "controlledFault": "controlled-network-delay-4000ms",
+    "validity": "valid"
+  },
+  {
+    "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-light-loading.png",
+    "route": "/courses",
+    "timestamp": "2026-10-06T17:40:24.617Z",
+    "viewport": "1440x900",
+    "theme": "light",
+    "state": "authenticated Explore catalog loading skeleton in light theme with persistent app sidebar",
+    "fixture": true,
+    "fixtureType": "disposable-sqlite-seed",
+    "controlledFault": "controlled-network-delay-4000ms",
+    "validity": "valid"
+  },
+  {
+    "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-dark-error.png",
+    "route": "/courses",
+    "timestamp": "2026-10-06T17:40:25.544Z",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "state": "authenticated Explore catalog service error state with persistent navigation and retry action",
+    "fixture": true,
+    "fixtureType": "disposable-sqlite-seed",
+    "controlledFault": "controlled-500-api-error",
+    "validity": "valid"
+  },
+  {
+    "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-light-error.png",
+    "route": "/courses",
+    "timestamp": "2026-10-06T17:40:25.970Z",
+    "viewport": "1440x900",
+    "theme": "light",
+    "state": "authenticated Explore catalog service error state in light theme with persistent navigation",
+    "fixture": true,
+    "fixtureType": "disposable-sqlite-seed",
+    "controlledFault": "controlled-500-api-error",
+    "validity": "valid"
+  },
+  {
+    "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-dark-no-matches.png",
+    "route": "/courses?q=nomatchqueryxyz12345",
+    "timestamp": "2026-10-06T17:40:26.604Z",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "state": "authenticated Explore catalog empty search state with clear filters guidance",
+    "fixture": true,
+    "fixtureType": "disposable-sqlite-seed",
+    "validity": "valid"
+  },
+  {
+    "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-light-no-matches.png",
+    "route": "/courses?q=nomatchqueryxyz12345",
+    "timestamp": "2026-10-06T17:40:27.035Z",
+    "viewport": "1440x900",
+    "theme": "light",
+    "state": "authenticated Explore catalog empty search state in light theme",
+    "fixture": true,
+    "fixtureType": "disposable-sqlite-seed",
+    "validity": "valid"
+  },
+  {
+    "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p03-course-overview-auth-dark-error.png",
+    "route": "/courses/nonexistent-course-id-999",
+    "timestamp": "2026-10-06T17:40:27.433Z",
+    "viewport": "1440x900",
+    "theme": "dark",
+    "state": "authenticated course overview 404 error state preserving return navigation to catalog",
+    "fixture": true,
+    "fixtureType": "disposable-sqlite-seed",
+    "validity": "valid"
+  },
+  {
+    "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p03-course-overview-auth-light-error.png",
+    "route": "/courses/nonexistent-course-id-999",
+    "timestamp": "2026-10-06T17:40:27.835Z",
+    "viewport": "1440x900",
+    "theme": "light",
+    "state": "authenticated course overview 404 error state in light theme",
+    "fixture": true,
+    "fixtureType": "disposable-sqlite-seed",
+    "validity": "valid"
+  }
+]

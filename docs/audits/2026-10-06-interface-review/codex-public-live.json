@@ -1,0 +1,30 @@
+[
+  {
+    "check": "Help lower report action",
+    "route": "/help",
+    "observed": {
+      "triggers": 2,
+      "open": false
+    },
+    "fixture": true
+  },
+  {
+    "check": "Help trusted Tab after submit",
+    "route": "/help",
+    "observed": {
+      "inside": false,
+      "tag": "A",
+      "id": ""
+    },
+    "fixture": true
+  },
+  {
+    "check": "Help Escape and focus return",
+    "route": "/help",
+    "observed": {
+      "open": false,
+      "triggerFocused": false
+    },
+    "fixture": true
+  }
+]

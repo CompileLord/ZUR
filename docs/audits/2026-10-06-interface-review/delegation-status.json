@@ -1,0 +1,16 @@
+{
+  "skill": "delegate-to-agy",
+  "model": "gemini-3.8-flash-high",
+  "conversation_id": "20c23635-2df3-4ee6-ac09-685d046fa10f",
+  "initialOutcome": "Model-service network failure; resumed same conversation",
+  "learnerOutcome": "Artifacts recovered; wrapper reported ERROR despite child success prose",
+  "finalWrapperOutcome": "Unavailable: temporary final result and monitor no longer present at finalization; executor success is not claimed",
+  "independentlyAcceptedScreenshots": 167,
+  "roleCounts": {
+    "learner": 56,
+    "author": 35,
+    "admin": 36,
+    "public": 40
+  },
+  "acceptance": "Output independently inspected, corrected and verified by Codex; provisional executor plans and blanket pass claims excluded from committed deliverables"
+}

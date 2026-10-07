@@ -1,0 +1,79 @@
+[
+  {
+    "check": "Author courses landmarks",
+    "route": "/teach",
+    "observed": {
+      "mainCount": 2,
+      "mainIdCount": 2
+    },
+    "fixture": true
+  },
+  {
+    "check": "Create-course service error retains title",
+    "route": "/teach",
+    "fault": "Controlled browser fetch 503 for fixture create endpoint; no course created",
+    "expected": "Fixture title to retain",
+    "observed": "",
+    "fixture": true
+  },
+  {
+    "check": "Status change preserves author search",
+    "source": "/teach?search=Python",
+    "destination": "/teach?status=draft",
+    "searchInput": "",
+    "fixture": true
+  },
+  {
+    "check": "Programming preview controls",
+    "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+    "observed": {
+      "disabledControls": [
+        {
+          "text": "Run samples",
+          "disabled": true
+        },
+        {
+          "text": "Submit solution",
+          "disabled": true
+        }
+      ],
+      "filename": "main.py",
+      "exit": "/teach/course-python-foundations/content/python/step-4-python-echo"
+    },
+    "fixture": true
+  },
+  {
+    "check": "Author list loading navigation",
+    "route": "/teach",
+    "fault": "Delayed controlled fixture list response",
+    "observed": {
+      "loading": false,
+      "appSidebar": false,
+      "authorHeader": true
+    },
+    "fixture": true
+  },
+  {
+    "check": "Author list error navigation",
+    "route": "/teach",
+    "fault": "Controlled list API 503",
+    "observed": {
+      "appSidebar": false,
+      "links": [
+        "#main-content"
+      ],
+      "retry": true
+    },
+    "fixture": true
+  },
+  {
+    "check": "Independent native profile Back and Forward",
+    "source": "/settings/profile",
+    "previous": "/learn",
+    "afterBack": "/learn",
+    "originalName": "Guido van Rossum",
+    "afterForwardName": "Guido van Rossum",
+    "dialogs": [],
+    "fixture": true
+  }
+]

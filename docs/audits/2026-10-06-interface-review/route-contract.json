@@ -1,0 +1,494 @@
+[
+  {
+    "pageId": "P01",
+    "path": "/",
+    "paramNames": [],
+    "shell": "S1",
+    "title": "Understand it. Then write it."
+  },
+  {
+    "pageId": "P02",
+    "path": "/courses",
+    "paramNames": [],
+    "shell": "S1",
+    "title": "Explore courses"
+  },
+  {
+    "pageId": "P03",
+    "path": "/courses/:courseId",
+    "paramNames": [
+      "courseId"
+    ],
+    "shell": "S1",
+    "title": "Course Overview"
+  },
+  {
+    "pageId": "P04",
+    "path": "/sign-in",
+    "paramNames": [],
+    "shell": "S2",
+    "title": "Welcome back"
+  },
+  {
+    "pageId": "P05",
+    "path": "/sign-up",
+    "paramNames": [],
+    "shell": "S2",
+    "title": "Create your account"
+  },
+  {
+    "pageId": "P06",
+    "path": "/verify-email",
+    "paramNames": [],
+    "shell": "S2",
+    "title": "Check your email"
+  },
+  {
+    "pageId": "P07",
+    "path": "/forgot-password",
+    "paramNames": [],
+    "shell": "S2",
+    "title": "Reset password"
+  },
+  {
+    "pageId": "P07",
+    "path": "/reset-password",
+    "paramNames": [],
+    "shell": "S2",
+    "title": "Update password"
+  },
+  {
+    "pageId": "P08",
+    "path": "/join/:token",
+    "paramNames": [
+      "token"
+    ],
+    "shell": "S2",
+    "title": "Join course"
+  },
+  {
+    "pageId": "P09",
+    "path": "/learn",
+    "paramNames": [],
+    "shell": "S3",
+    "title": "Continue learning",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P10",
+    "path": "/learn/courses",
+    "paramNames": [],
+    "shell": "S3",
+    "title": "My courses",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P11",
+    "path": "/learn/:enrollmentId",
+    "paramNames": [
+      "enrollmentId"
+    ],
+    "shell": "S3",
+    "title": "Course Overview",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P12",
+    "path": "/learn/:enrollmentId/steps/:stepId",
+    "paramNames": [
+      "enrollmentId",
+      "stepId"
+    ],
+    "shell": "S4",
+    "title": "Learning Step",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P13",
+    "path": "/learn/:enrollmentId/steps/:stepId",
+    "paramNames": [
+      "enrollmentId",
+      "stepId"
+    ],
+    "shell": "S4",
+    "title": "Video Step",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P14",
+    "path": "/learn/:enrollmentId/steps/:stepId",
+    "paramNames": [
+      "enrollmentId",
+      "stepId"
+    ],
+    "shell": "S4",
+    "title": "Quiz Step",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P15",
+    "path": "/learn/:enrollmentId/steps/:stepId",
+    "paramNames": [
+      "enrollmentId",
+      "stepId"
+    ],
+    "shell": "S4",
+    "title": "Python Workspace",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P16",
+    "path": "/learn/:enrollmentId/steps/:stepId/attempts",
+    "paramNames": [
+      "enrollmentId",
+      "stepId"
+    ],
+    "shell": "S4",
+    "title": "Submission History",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P16",
+    "path": "/learn/:enrollmentId/steps/:stepId/attempts/:attemptId",
+    "paramNames": [
+      "enrollmentId",
+      "stepId",
+      "attemptId"
+    ],
+    "shell": "S4",
+    "title": "Attempt Detail",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P17",
+    "path": "/settings/profile",
+    "paramNames": [],
+    "shell": "S3",
+    "title": "Profile settings",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P18",
+    "path": "/settings/appearance",
+    "paramNames": [],
+    "shell": "S3",
+    "title": "Appearance settings",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P19",
+    "path": "/settings/security",
+    "paramNames": [],
+    "shell": "S3",
+    "title": "Security settings",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P20",
+    "path": "/settings/privacy",
+    "paramNames": [],
+    "shell": "S3",
+    "title": "Privacy and account requests",
+    "requiredCapability": "student"
+  },
+  {
+    "pageId": "P21",
+    "path": "/teach",
+    "paramNames": [],
+    "shell": "S3",
+    "title": "Your courses",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P22",
+    "path": "/teach/:courseId/content",
+    "paramNames": [
+      "courseId"
+    ],
+    "shell": "S5",
+    "title": "Course builder",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P23",
+    "path": "/teach/:courseId/content/theory/:stepId",
+    "paramNames": [
+      "courseId",
+      "stepId"
+    ],
+    "shell": "S5",
+    "title": "Theory editor",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P23",
+    "path": "/teach/:courseId/content/video/:stepId",
+    "paramNames": [
+      "courseId",
+      "stepId"
+    ],
+    "shell": "S5",
+    "title": "Video editor",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P24",
+    "path": "/teach/:courseId/content/quiz/:stepId",
+    "paramNames": [
+      "courseId",
+      "stepId"
+    ],
+    "shell": "S5",
+    "title": "Quiz editor",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P25",
+    "path": "/teach/:courseId/content/python/:stepId",
+    "paramNames": [
+      "courseId",
+      "stepId"
+    ],
+    "shell": "S5",
+    "title": "Python exercise editor",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P26",
+    "path": "/teach/:courseId/preview",
+    "paramNames": [
+      "courseId"
+    ],
+    "shell": "S4",
+    "title": "Student preview",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P27",
+    "path": "/teach/:courseId/publish",
+    "paramNames": [
+      "courseId"
+    ],
+    "shell": "S5",
+    "title": "Review publication",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P28",
+    "path": "/teach/:courseId/students",
+    "paramNames": [
+      "courseId"
+    ],
+    "shell": "S5",
+    "title": "Students and invitations",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P28",
+    "path": "/teach/:courseId/roster",
+    "paramNames": [
+      "courseId"
+    ],
+    "shell": "S5",
+    "title": "Students and invitations",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P29",
+    "path": "/teach/:courseId/students/:enrollmentId",
+    "paramNames": [
+      "courseId",
+      "enrollmentId"
+    ],
+    "shell": "S5",
+    "title": "Student detail",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P30",
+    "path": "/teach/:courseId/analytics",
+    "paramNames": [
+      "courseId"
+    ],
+    "shell": "S5",
+    "title": "Course analytics",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P31",
+    "path": "/teach/:courseId/settings",
+    "paramNames": [
+      "courseId"
+    ],
+    "shell": "S5",
+    "title": "Course settings",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P32",
+    "path": "/admin",
+    "paramNames": [],
+    "shell": "S6",
+    "title": "Operations overview",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P33",
+    "path": "/admin/users",
+    "paramNames": [],
+    "shell": "S6",
+    "title": "Users and capabilities",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P33",
+    "path": "/admin/users/:userId",
+    "paramNames": [
+      "userId"
+    ],
+    "shell": "S6",
+    "title": "User detail",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P34",
+    "path": "/admin/courses",
+    "paramNames": [],
+    "shell": "S6",
+    "title": "Courses administration",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P34",
+    "path": "/admin/courses/:courseId",
+    "paramNames": [
+      "courseId"
+    ],
+    "shell": "S6",
+    "title": "Course detail",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P35",
+    "path": "/admin/categories",
+    "paramNames": [],
+    "shell": "S6",
+    "title": "Categories administration",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P36",
+    "path": "/admin/reports",
+    "paramNames": [],
+    "shell": "S6",
+    "title": "Reports and issue triage",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P36",
+    "path": "/admin/reports/:reportId",
+    "paramNames": [
+      "reportId"
+    ],
+    "shell": "S6",
+    "title": "Report detail",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P37",
+    "path": "/admin/media",
+    "paramNames": [],
+    "shell": "S6",
+    "title": "Media operations",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P38",
+    "path": "/admin/execution",
+    "paramNames": [],
+    "shell": "S6",
+    "title": "Execution operations",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P39",
+    "path": "/admin/audit",
+    "paramNames": [],
+    "shell": "S6",
+    "title": "Audit log",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P39",
+    "path": "/admin/audit/:eventId",
+    "paramNames": [
+      "eventId"
+    ],
+    "shell": "S6",
+    "title": "Audit event detail",
+    "requiredCapability": "admin"
+  },
+  {
+    "pageId": "P40",
+    "path": "/help",
+    "paramNames": [],
+    "shell": "S1",
+    "title": "Help and reporting"
+  },
+  {
+    "pageId": "P41",
+    "path": "/privacy",
+    "paramNames": [],
+    "shell": "S1",
+    "title": "Privacy Policy"
+  },
+  {
+    "pageId": "P41",
+    "path": "/terms",
+    "paramNames": [],
+    "shell": "S1",
+    "title": "Terms of Service"
+  },
+  {
+    "pageId": "P42",
+    "path": "/access-denied",
+    "paramNames": [],
+    "shell": "S1",
+    "title": "This page isn't available."
+  },
+  {
+    "pageId": "P42",
+    "path": "/not-found",
+    "paramNames": [],
+    "shell": "S1",
+    "title": "This page isn't available."
+  },
+  {
+    "pageId": "P43",
+    "path": "/settings/ai-connections",
+    "paramNames": [],
+    "shell": "S3",
+    "title": "AI connections",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P44",
+    "path": "/settings/ai-connections/:connectionId/setup",
+    "paramNames": [
+      "connectionId"
+    ],
+    "shell": "S3",
+    "title": "Connection setup and verification",
+    "requiredCapability": "author"
+  },
+  {
+    "pageId": "P45",
+    "path": "/teach/:courseId/activity",
+    "paramNames": [
+      "courseId"
+    ],
+    "shell": "S5",
+    "title": "Agent activity and draft recovery",
+    "requiredCapability": "author"
+  }
+]

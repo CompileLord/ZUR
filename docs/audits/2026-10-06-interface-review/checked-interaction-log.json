@@ -1,0 +1,196 @@
+{
+  "checks": [
+    {
+      "check": "Author courses landmarks",
+      "evidence": "Independent Codex live check",
+      "record": {
+        "check": "Author courses landmarks",
+        "route": "/teach",
+        "observed": {
+          "mainCount": 2,
+          "mainIdCount": 2
+        },
+        "fixture": true
+      }
+    },
+    {
+      "check": "Create-course service error retains title",
+      "evidence": "Independent Codex live check",
+      "record": {
+        "check": "Create-course service error retains title",
+        "route": "/teach",
+        "fault": "Controlled browser fetch 503 for fixture create endpoint; no course created",
+        "expected": "Fixture title to retain",
+        "observed": "",
+        "fixture": true
+      }
+    },
+    {
+      "check": "Status change preserves author search",
+      "evidence": "Independent Codex live check",
+      "record": {
+        "check": "Status change preserves author search",
+        "source": "/teach?search=Python",
+        "destination": "/teach?status=draft",
+        "searchInput": "",
+        "fixture": true
+      }
+    },
+    {
+      "check": "Programming preview controls",
+      "evidence": "Independent Codex live check",
+      "record": {
+        "check": "Programming preview controls",
+        "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+        "observed": {
+          "disabledControls": [
+            {
+              "text": "Run samples",
+              "disabled": true
+            },
+            {
+              "text": "Submit solution",
+              "disabled": true
+            }
+          ],
+          "filename": "main.py",
+          "exit": "/teach/course-python-foundations/content/python/step-4-python-echo"
+        },
+        "fixture": true
+      }
+    },
+    {
+      "check": "Author list loading navigation",
+      "evidence": "Independent Codex live check",
+      "record": {
+        "check": "Author list loading navigation",
+        "route": "/teach",
+        "fault": "Delayed controlled fixture list response",
+        "observed": {
+          "loading": false,
+          "appSidebar": false,
+          "authorHeader": true
+        },
+        "fixture": true
+      }
+    },
+    {
+      "check": "Author list error navigation",
+      "evidence": "Independent Codex live check",
+      "record": {
+        "check": "Author list error navigation",
+        "route": "/teach",
+        "fault": "Controlled list API 503",
+        "observed": {
+          "appSidebar": false,
+          "links": [
+            "#main-content"
+          ],
+          "retry": true
+        },
+        "fixture": true
+      }
+    },
+    {
+      "check": "Independent native profile Back and Forward",
+      "evidence": "Independent Codex live check",
+      "record": {
+        "check": "Independent native profile Back and Forward",
+        "source": "/settings/profile",
+        "previous": "/learn",
+        "afterBack": "/learn",
+        "originalName": "Guido van Rossum",
+        "afterForwardName": "Guido van Rossum",
+        "dialogs": [],
+        "fixture": true
+      }
+    },
+    {
+      "check": "Help lower report action",
+      "evidence": "Independent Codex live check",
+      "record": {
+        "check": "Help lower report action",
+        "route": "/help",
+        "observed": {
+          "triggers": 2,
+          "open": false
+        },
+        "fixture": true
+      }
+    },
+    {
+      "check": "Help trusted Tab after submit",
+      "evidence": "Independent Codex live check",
+      "record": {
+        "check": "Help trusted Tab after submit",
+        "route": "/help",
+        "observed": {
+          "inside": false,
+          "tag": "A",
+          "id": ""
+        },
+        "fixture": true
+      }
+    },
+    {
+      "check": "Help Escape and focus return",
+      "evidence": "Independent Codex live check",
+      "record": {
+        "check": "Help Escape and focus return",
+        "route": "/help",
+        "observed": {
+          "open": false,
+          "triggerFocused": false
+        },
+        "fixture": true
+      },
+      "qualification": "Escape closure observed; focus-return conclusion unverified because programmatic click did not first focus trigger"
+    },
+    {
+      "check": "Learner main exit / Explore loaded",
+      "observed": "Real workspace home link and sidebar Explore link retain navigation; catalog to loaded overview retains shell",
+      "evidence": "Inspected captured interaction and source"
+    },
+    {
+      "check": "Learner catalog delayed/error/no-match",
+      "observed": "Controlled catalog delay/error and no-match keep authenticated shell in dark/light",
+      "evidence": "Inspected supplement captures"
+    },
+    {
+      "check": "Learner overview 404",
+      "observed": "Dark/light denial loses authenticated sidebar and shows public Sign in",
+      "evidence": "Inspected supplement captures and source"
+    },
+    {
+      "check": "Learner report Tab",
+      "observed": "Trusted Tab reaches BODY outside dialog; original synthetic key dispatch was not accepted as a native test",
+      "evidence": "Supplement native check and source"
+    },
+    {
+      "check": "Learner curriculum visibility",
+      "observed": "Real SPA task-square navigation preserves collapsed state; document navigation/reload expands it",
+      "evidence": "Supplement/source; corrected false defect expectation"
+    },
+    {
+      "check": "Learner completed filter / attempts",
+      "observed": "Direct completed query leaves In progress active; attempts replaces curriculum; existing return links retained",
+      "evidence": "Captured UI and source"
+    },
+    {
+      "check": "Admin fixture suspension and restore",
+      "observed": "Capture harness waits for Restore after suspension and Suspend after restore; UI state established, independent DB assertion absent",
+      "evidence": "Harness inspection and captured suspension receipt"
+    },
+    {
+      "check": "Admin reauth and waiver preview",
+      "observed": "Dark invalid-reauth errors retain reason/context; waiver preview displays one active enrollment; no waiver mutation proof",
+      "evidence": "Inspected captures"
+    },
+    {
+      "check": "Execution output provenance",
+      "observed": "Harness permits host Python fallback/fabricated timing. Actual backend per captured result and production isolation unverified",
+      "evidence": "Harness inspection"
+    }
+  ],
+  "limits": "Original hardcoded passed assertions are not accepted wholesale. Full enrollment, authoring, publication, production grading, account lifecycle and admin recovery journeys remain unverified unless explicitly stated. Fixtures only; no real publication or accounts changed."
+}
