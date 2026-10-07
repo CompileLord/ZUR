@@ -11,11 +11,13 @@
 | `/reset-password` two fixture-token queries | Initial unsubmitted forms reviewed; invalid-token rejection is **unverified**, contrary to original executor caption. |
 | `/join/:token` valid fixture / unavailable | Presentation reviewed; unavailable action says Go to dashboard. Acceptance, authorization and CTA follow-through unverified. |
 | `/help` | Normal/full dark/light reviewed; lower report action requires PU1, trusted modal Tab requires PU2. Modal screenshots missing. |
-| `/privacy`, `/terms` | Truthful pending-publication/unavailable notices reviewed; substantive policy/terms content unavailable for assessment. |
+| `/privacy`, `/terms` | Truthful unavailable notices reviewed; linked signup agreement requires PU4; substantive content unavailable. |
 | `/access-denied`, `/not-found` | Normal public safe-error presentation reviewed; authenticated contexts covered separately in learner L7. |
 
-[Public/account plan](public-account-plan.md) proposes only demonstrated Help defects. [Independent live checks](codex-public-live.json) establish the dead lower action, focus escape and Escape closure. The focus-return check used a programmatic click without first focusing the trigger, so its false result does not establish a focus-return defect.
+[Public/account plan](public-account-plan.md) proposes demonstrated reporting, workflow-copy and account-entry problems. [Independent live checks](codex-public-live.json) establish the dead lower action, focus escape and Escape closure. The focus-return check used a programmatic click without first focusing the trigger, so its false result does not establish a focus-return defect.
 
 ## Remaining evidence gaps
 
 Every absent relevant state/theme remains unverified: settled/reduced-motion landing; delayed/error catalog and overview; actual discovery → account → enrollment journey; sign-in credential errors/session recovery; registration/verification success and delivery; reset submit/expiry/success/failure; invitation acceptance/revocation/recovery; Help modal light/dark, submission/validation/retry/receipt and native focus return; long policy content once supplied; narrow desktop. No real accounts or outbound messages were used as proof, and no legal text was invented.
+
+All 40 frames rechecked on 2026-10-08 against all 17 principles. Help execution/save wording and landing example labels require PU3; signup-to-policy/terms availability requires PU4. Anonymous invitation acceptance and response HTTP codes are not established by these images. Existing PU1/PU2 keep their earlier live evidence; no new live behavior was executed in this recheck.

@@ -23,14 +23,15 @@
   },
   {
     "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p12-sidebar-spa-nav-reset.png",
-    "route": "/learn/enr-ada/steps/step-5-waived-theory",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
     "timestamp": "2026-10-06T17:40:23.781Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "Collapsed curriculum remains collapsed after real SPA task navigation; filename retained from executor, reset was not observed",
+    "state": "Python task remains rendered with sidebar collapsed after attempted task click; successful SPA transition not established; original filename mislabels theory/reset",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
-    "validity": "valid"
+    "validity": "valid",
+    "requestedRoute": "/learn/enr-ada/steps/step-5-waived-theory"
   },
   {
     "filePath": "screenshots/interface-review-2026-10-06/learner/learner-p02-explore-auth-dark-loading.png",

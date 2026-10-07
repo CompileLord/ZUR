@@ -12,7 +12,7 @@ Initial 45 fresh PNGs decode; 11 supplement captures are listed in [supplement m
 | P11 `/learn/:enrollmentId` | Curriculum/progress dark/light and full-page | Compliant observed state | `learner-p11-course-overview-*` |
 | P12 shared step route, theory | Normal dark/light; expanded after document navigation dark | Normal presentation compliant; visibility requires L3 | `learner-p12-theory-*` |
 | P13 shared step route, video | Player frame/transcript dark/light | Presentation reviewed; playback unverified | `learner-p13-video-step-*` |
-| P14 shared step route, quiz | Single unselected dark/light; multiple wrong/correct light | Observed selection, feedback and next-step gating compliant | `learner-p14-quiz-*` |
+| P14 shared step route, quiz | Completed single-choice practice, unselected dark/light; multiple wrong/correct light | Observed selections/feedback reviewed; first-time gating unverified | `learner-p14-quiz-*` |
 | P15 shared step route, Python | Split editor dark/light; narrow 1100 dark; 12 task strip/waived/completed; collapsed dark | Accepted layout retained; reload visibility L3 | `learner-p15-python-editor-*`, `*-taskstrip-*`, `*-sidebar-*` |
 | P15 execution | Samples diff/custom stdout/Submit feedback/controlled infrastructure failure, dark | UI presentation reviewed; isolated backend/real retry not established | `*-samples-*`, `*-custom-*`, `*-submit-*`, `*-infra-*` |
 | P15 report | Visible contextual dialog/code opt-in unchecked, dark | Presentation retained; native keyboard containment requires L5 | `*-report-modal-*` |
@@ -45,8 +45,10 @@ Workspace → `/learn` via real home link and dashboard → Explore via real sid
 
 - Report modal native Tab: **Requires L5**, focus reached BODY outside dialog. Light variant, Shift+Tab and screen-reader behavior remain unverified.
 - Profile native Back/Forward: **Requires L6**, draft lost; independently repeated by Codex in another disposable account without dialogs. Other save/guard adverse states remain unverified.
-- Collapsed sidebar → real SPA task square: **Compliant observed state**; full-document persistence still L3. Raw log says passed=false because it expected a defect; that is not a product failure. Screenshot `learner-p12-sidebar-spa-nav-reset.png` actually shows retained collapse.
+- Collapsed sidebar → attempted task click: screenshot still shows Python Echoing Numbers, step 4; **successful SPA transition unverified**. It shows retained collapse without proving destination navigation. Manifest route and caption corrected; full-document persistence remains L3.
 - Authenticated catalog loading under controlled delay, 500 under controlled API failure, and real no-match query: **Compliant shell continuity**, dark/light. The loading frames retain filters/navigation; actual loaded/error recovery is not established by the image alone.
 - Authenticated overview 404: **Requires L7**, dark/light. Contrary to the executor summary, these images show public Sign in navigation with no app sidebar. This is denial, not a captured 5xx error.
 
 These statements supersede inconsistent captions and broad compliance claims in the raw supplement coverage. Remaining gaps above apply except these specifically added states.
+
+Rechecked all 56 PNGs on 2026-10-08 against all 17 prompt principles. Result-mode wording requires L8. Infrastructure Retry is outside the captured result viewport; source existence does not prove discoverability or successful recovery. This recheck updates existing evidence, not a new live test.

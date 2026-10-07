@@ -168,8 +168,8 @@
     },
     {
       "check": "Learner curriculum visibility",
-      "observed": "Real SPA task-square navigation preserves collapsed state; document navigation/reload expands it",
-      "evidence": "Supplement/source; corrected false defect expectation"
+      "observed": "Whole-document navigation expands curriculum; attempted SPA click screenshot still renders original Python task with collapse retained. Successful destination transition and its persistence are unverified.",
+      "evidence": "Rechecked supplement image, capture harness and source; prior successful SPA claim withdrawn"
     },
     {
       "check": "Learner completed filter / attempts",
@@ -192,5 +192,6 @@
       "evidence": "Harness inspection"
     }
   ],
-  "limits": "Original hardcoded passed assertions are not accepted wholesale. Full enrollment, authoring, publication, production grading, account lifecycle and admin recovery journeys remain unverified unless explicitly stated. Fixtures only; no real publication or accounts changed."
+  "limits": "Original hardcoded passed assertions are not accepted wholesale. Full enrollment, authoring, publication, production grading, account lifecycle and admin recovery journeys remain unverified unless explicitly stated. Fixtures only; no real publication or accounts changed.",
+  "recheck": "2026-10-08 screenshot/source recheck; no new live checks executed. Native live findings retained with their original provenance."
 }

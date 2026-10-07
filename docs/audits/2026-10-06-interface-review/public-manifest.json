@@ -291,7 +291,7 @@
     "timestamp": "2026-10-06T17:53:23.086Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "course invitation landing page with course summary, inviter details, and accept CTA",
+    "state": "Anonymous fixture invitation with inviter/course summary and Sign in to accept / Create account; acceptance not executed",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -313,7 +313,7 @@
     "timestamp": "2026-10-06T17:53:24.766Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "platform help and documentation page with FAQs and contact guides",
+    "state": "Help contents/disclosures and two report triggers; outdated Run/sample and save-status wording visible",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -324,7 +324,7 @@
     "timestamp": "2026-10-06T17:53:25.074Z",
     "viewport": "1440x1237",
     "theme": "dark",
-    "state": "platform help and documentation page with FAQs and contact guides (full page)",
+    "state": "Help contents/disclosures and two report triggers; outdated Run/sample and save-status wording visible (full page)",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -335,7 +335,7 @@
     "timestamp": "2026-10-06T17:53:25.463Z",
     "viewport": "1440x900",
     "theme": "light",
-    "state": "platform help page light theme",
+    "state": "Help contents/disclosures and two report triggers; outdated Run/sample and save-status wording visible",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -346,7 +346,7 @@
     "timestamp": "2026-10-06T17:53:25.757Z",
     "viewport": "1440x1237",
     "theme": "light",
-    "state": "platform help page light theme (full page)",
+    "state": "Help contents/disclosures and two report triggers; outdated Run/sample and save-status wording visible (full page)",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -401,7 +401,7 @@
     "timestamp": "2026-10-06T17:53:29.001Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "access denied 403 error page with safe explanation and home CTA",
+    "state": "Public access-denied presentation with Browse courses and Go back; actual HTTP status not established",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -412,7 +412,7 @@
     "timestamp": "2026-10-06T17:53:29.304Z",
     "viewport": "1440x900",
     "theme": "light",
-    "state": "access denied error page light theme",
+    "state": "Public access-denied presentation with Browse courses and Go back; actual HTTP status not established",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -423,7 +423,7 @@
     "timestamp": "2026-10-06T17:53:30.140Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "not found 404 error page with safe explanation and home CTA",
+    "state": "Public not-found presentation with Browse courses and Go back; actual HTTP status not established",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -434,7 +434,7 @@
     "timestamp": "2026-10-06T17:53:30.430Z",
     "viewport": "1440x900",
     "theme": "light",
-    "state": "not found 404 error page light theme",
+    "state": "Public not-found presentation with Browse courses and Go back; actual HTTP status not established",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"

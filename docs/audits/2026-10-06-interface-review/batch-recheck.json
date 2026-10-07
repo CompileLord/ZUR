@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-08",
+  "method": "Sequential role batches; every current PNG inspected in indexed contact sheets, with original-size detail/source review for disputed findings. No next-role screenshot inspected before saving current plan and coverage. This rechecks saved evidence, not new live execution.",
+  "principlesSource": "docs/audits/interface-review-agent-prompt.md",
+  "batches": [
+    {
+      "role": "learner",
+      "screenshots": 56,
+      "planAndCoverageSavedAt": "2026-10-07T20:27:33.683839+00:00",
+      "notes": "Plan and coverage corrected before author review: incomplete gating/SPA transition/retry claims narrowed; added L8 sample-result terminology."
+    },
+    {
+      "role": "author",
+      "screenshots": 35,
+      "planAndCoverageSavedAt": "2026-10-07T20:28:28.628459+00:00",
+      "notes": "Saved author plan/coverage before admin images; added bounded A6/A7 judgments and corrected setup/diff captions."
+    },
+    {
+      "role": "admin",
+      "screenshots": 36,
+      "planAndCoverageSavedAt": "2026-10-07T20:29:05.485089+00:00",
+      "notes": "Admin plan/coverage saved before public screenshots; retained D1 and narrowed worker/report-code/waiver evidence."
+    },
+    {
+      "role": "public",
+      "screenshots": 40,
+      "planAndCoverageSavedAt": "2026-10-07T20:30:20.086221+00:00",
+      "notes": "Public plan/coverage saved before consolidation; added PU3 workflow copy and PU4 document-availability journey; corrected invitation/status captions."
+    }
+  ]
+}

@@ -159,7 +159,7 @@
     "timestamp": "2026-10-06T17:44:06.513Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "author student preview showing course banner, curriculum outline, and non-destructive practice mode",
+    "state": "Read-only theory preview with curriculum and Back to editor; practice execution not established",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -170,7 +170,7 @@
     "timestamp": "2026-10-06T17:44:06.802Z",
     "viewport": "1440x900",
     "theme": "light",
-    "state": "student preview light theme",
+    "state": "Read-only theory preview with curriculum and Back to editor; practice execution not established",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -324,7 +324,7 @@
     "timestamp": "2026-10-06T17:44:15.031Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "MCP connection setup guide showing Claude Desktop / Cursor JSON configuration snippets",
+    "state": "Connection setup with client choices, endpoint, TypeScript SDK configuration, limits and waiting verification state",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -335,7 +335,7 @@
     "timestamp": "2026-10-06T17:44:15.226Z",
     "viewport": "1440x1552",
     "theme": "dark",
-    "state": "MCP connection setup guide showing Claude Desktop / Cursor JSON configuration snippets (full page)",
+    "state": "Connection setup with client choices, endpoint, TypeScript SDK configuration, limits and waiting verification state (full page)",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -346,7 +346,7 @@
     "timestamp": "2026-10-06T17:44:15.569Z",
     "viewport": "1440x900",
     "theme": "light",
-    "state": "connection setup guide light theme",
+    "state": "Connection setup with client choices, endpoint, TypeScript SDK configuration, limits and waiting verification state",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -357,7 +357,7 @@
     "timestamp": "2026-10-06T17:44:15.750Z",
     "viewport": "1440x1552",
     "theme": "light",
-    "state": "connection setup guide light theme (full page)",
+    "state": "Connection setup with client choices, endpoint, TypeScript SDK configuration, limits and waiting verification state (full page)",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -368,7 +368,7 @@
     "timestamp": "2026-10-06T17:44:16.369Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "agent activity timeline showing tool mutations, base/new revisions, and draft diff recovery",
+    "state": "Recent changes list with seeded mutation and View diff trigger; diff/recovery dialog not captured",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -379,7 +379,7 @@
     "timestamp": "2026-10-06T17:44:16.635Z",
     "viewport": "1440x900",
     "theme": "light",
-    "state": "agent activity timeline light theme",
+    "state": "Recent changes list with seeded mutation and View diff trigger; diff/recovery dialog not captured",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"

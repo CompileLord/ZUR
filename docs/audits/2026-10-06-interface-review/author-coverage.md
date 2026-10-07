@@ -20,8 +20,8 @@
 | P30 `/teach/:courseId/analytics` | Course analytics dashboard; dark/light 1440×900 | Enrollment metrics, exercise drop-off metrics reviewed | `author-p30-course-analytics-*` |
 | P31 `/teach/:courseId/settings` | Course settings form; dark/light 1440×900 | Title, slug, difficulty, category, archive form reviewed | `author-p31-course-settings-*` |
 | P43 `/settings/ai-connections` | AI connections list; dark/light 1440×900 | Token list, scopes, generate token modal trigger reviewed | `author-p43-ai-connections-*` |
-| P44 `.../ai-connections/:id/setup` | Setup guide; dark/light 1440×900 & full-page 1440×1552 | Claude/Cursor config JSON, environment variables reviewed | `author-p44-connection-setup-*` |
-| P45 `/teach/:courseId/activity` | Agent activity & draft diffs; dark/light 1440×900 | Mutation timeline, idempotency keys, diff viewer reviewed | `author-p45-agent-activity-*` |
+| P44 `.../ai-connections/:id/setup` | Setup guide; dark/light 1440×900 & full-page 1440×1552 | SDK TypeScript configuration, endpoint and waiting status reviewed | `author-p44-connection-setup-*` |
+| P45 `/teach/:courseId/activity` | Agent activity & draft diffs; dark/light 1440×900 | Seeded mutation timeline and View diff trigger reviewed; diff viewer unverified | `author-p45-agent-activity-*` |
 
 ## Explicit unavailable/unverified state inventory
 
@@ -95,3 +95,5 @@
 The table records visible presentation only. It does not certify accessibility, invite generation, analytics correctness or successful navigation merely because a control is visible. The raw six-item interaction log primarily checks rendering; a full authoring journey remains unverified. Independent controlled checks confirm title loss, query loss, duplicate landmarks and shell loss after list failure. Screen-reader behavior and failure-state screenshots remain gaps. No course was published. The final reviewed plan supersedes the provisional plan; no WCAG conformance claim is made.
 
 The complete route/state inventory is authoritative for captured variants; visible controls do not establish completed mutations.
+
+All 35 PNGs rechecked on 2026-10-08 against the prompt principles. Clean Saved headers/repeated publication copy require A6 (judgment); internal PRD wording/repeated setup detail require A7 (judgment). Setup is a TypeScript SDK example; screenshots do not show Claude/Cursor JSON configuration. Horizontal builder-tree scroll, live clipboard/handshake, diff opening and narrower author layouts remain unverified. Time-range controls are visible on Analytics; changing them is unverified.

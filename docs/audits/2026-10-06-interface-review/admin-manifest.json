@@ -192,7 +192,7 @@
     "timestamp": "2026-10-06T17:50:46.425Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "admin report detail view showing submitted code snippet, reporter description, and resolution actions",
+    "state": "Report description, immutable context, collapsed consented-code disclosure and resolution form",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -203,7 +203,7 @@
     "timestamp": "2026-10-06T17:50:46.677Z",
     "viewport": "1440x1237",
     "theme": "dark",
-    "state": "admin report detail view showing submitted code snippet, reporter description, and resolution actions (full page)",
+    "state": "Report description, immutable context, collapsed consented-code disclosure and resolution form (full page)",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -214,7 +214,7 @@
     "timestamp": "2026-10-06T17:50:47.161Z",
     "viewport": "1440x900",
     "theme": "light",
-    "state": "admin report detail view light theme",
+    "state": "Report description, immutable context, collapsed consented-code disclosure and resolution form",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -225,7 +225,7 @@
     "timestamp": "2026-10-06T17:50:47.454Z",
     "viewport": "1440x1237",
     "theme": "light",
-    "state": "admin report detail view light theme (full page)",
+    "state": "Report description, immutable context, collapsed consented-code disclosure and resolution form (full page)",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -258,7 +258,7 @@
     "timestamp": "2026-10-06T17:50:49.879Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "admin code execution subsystem status showing worker pool health, active jobs, and pause execution control",
+    "state": "Execution admission accepting jobs; queue empty, worker health unavailable; date filters and pause trigger",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -269,7 +269,7 @@
     "timestamp": "2026-10-06T17:50:50.305Z",
     "viewport": "1440x900",
     "theme": "light",
-    "state": "admin code execution status light theme",
+    "state": "Execution admission accepting jobs; queue empty, worker health unavailable; date filters and pause trigger",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -390,7 +390,7 @@
     "timestamp": "2026-10-06T17:50:58.381Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "course progression waiver dialog showing live affected enrollments calculation and immutable scope notice",
+    "state": "Waiver preview for Version 2 theory step showing one active enrollment and immutable scope; actual waiver application unverified",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"

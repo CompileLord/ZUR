@@ -148,7 +148,7 @@
     "timestamp": "2026-10-06T17:29:09.968Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "single-choice quiz step unselected state",
+    "state": "Already-completed single-choice quiz, current options unselected; Check again and Next step visible; first-time incomplete gating not established",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -159,7 +159,7 @@
     "timestamp": "2026-10-06T17:29:10.392Z",
     "viewport": "1440x900",
     "theme": "light",
-    "state": "single-choice quiz step unselected state",
+    "state": "Already-completed single-choice quiz, current options unselected; Check again and Next step visible; first-time incomplete gating not established",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -247,7 +247,7 @@
     "timestamp": "2026-10-06T17:29:14.741Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "theory step demonstrating sidebar collapsed state unexpectedly reset to expanded after navigation",
+    "state": "Theory workspace expanded after whole-document navigation; ordinary SPA transition not established",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
@@ -291,7 +291,7 @@
     "timestamp": "2026-10-06T17:29:19.779Z",
     "viewport": "1440x900",
     "theme": "dark",
-    "state": "controlled infrastructure error banner with actionable Retry Execution button and draft code intact",
+    "state": "Controlled infrastructure-error output with code retained; Retry Execution is below captured result viewport; successful retry not established",
     "fixture": true,
     "fixtureType": "disposable-sqlite-seed",
     "validity": "valid"
