@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="color-scheme" content="dark light">
   <meta name="description" content="ZUR — Interactive coding-first Python learning and authoring platform.">
   <title>ZUR — Understand it. Then write it.</title>
@@ -28,32 +29,8 @@
   <link rel="stylesheet" href="/src/styles/workspace-redesign.css">
   <link rel="stylesheet" href="/src/styles/author-editors-redesign.css">
 
-  <!-- Dark-first first-paint script (design.md §3.1) -->
-  <script>
-    (function() {
-      try {
-        var preference = localStorage.getItem('zur_theme_preference') || 'dark';
-        var resolvedTheme = 'dark'; // Dark is default for first visits
-
-        if (preference === 'light') {
-          resolvedTheme = 'light';
-        } else if (preference === 'dark') {
-          resolvedTheme = 'dark';
-        } else if (preference === 'system') {
-          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-            resolvedTheme = 'light';
-          } else {
-            resolvedTheme = 'dark';
-          }
-        }
-
-        document.documentElement.setAttribute('data-theme', resolvedTheme);
-        document.documentElement.style.colorScheme = resolvedTheme;
-      } catch (e) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
-    })();
-  </script>
+  <!-- Dark-first first-paint script (design.md 3.1): external + blocking = no flash, CSP-friendly -->
+  <script src="/theme-init.js"></script>
 </head>
 <body>
   <a href="#main-content" class="skip-to-content">Skip to content</a>

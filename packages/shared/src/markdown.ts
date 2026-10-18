@@ -69,45 +69,99 @@ export interface RichContentDocument {
   blocks: MarkdownBlock[];
 }
 
-const DANGEROUS_PROTOCOLS = /^(javascript:|vbscript:|data:text\/html)/i;
-const DANGEROUS_HTML_TAGS = /<\/?(script|iframe|object|embed|applet|meta|link|base|form|input|button|style)[^>]*>/gi;
-const HTML_EVENT_HANDLERS = /\s+on[a-z]+="[^"]*"/gi;
-const HTML_EVENT_HANDLERS_SINGLE = /\s+on[a-z]+='[^']*'/gi;
-const HTML_EVENT_HANDLERS_UNQUOTED = /\s+on[a-z]+=[^\s>]+/gi;
-const INLINE_STYLES = /\s+style="[^"]*"/gi;
-const INLINE_STYLES_SINGLE = /\s+style='[^']*'/gi;
+/**
+ * External image hosts allowed in Markdown images. Default: none. Course media
+ * must use `zur-asset:<uuid>` references (the server rejects external images).
+ */
+export const ALLOWED_EXTERNAL_IMAGE_HOSTS: readonly string[] = [];
+
+const NAMED_ENTITIES: Record<string, string> = {
+  tab: '\t', newline: '\n', colon: ':', amp: '&', lt: '<', gt: '>', quot: '"', apos: "'",
+  sol: '/', bsol: '\\', lpar: '(', rpar: ')', period: '.', num: '#', percnt: '%', excl: '!',
+};
+
+function decodeEntitiesOnce(input: string): string {
+  return input.replace(/&(?:#x([0-9a-f]{1,8})|#(\d{1,9})|([a-z][a-z0-9]{1,15}));?/gi, (m, hex, dec, name) => {
+    if (hex || dec) {
+      const cp = hex ? parseInt(hex, 16) : parseInt(dec, 10);
+      return cp >= 0 && cp <= 0x10ffff ? String.fromCodePoint(cp) : '';
+    }
+    const v = NAMED_ENTITIES[String(name).toLowerCase()];
+    return v === undefined ? m : v;
+  });
+}
+
+/** Normalise a URL the way a browser would before it chooses a scheme. */
+function normalizeUrlForCheck(raw: string): string {
+  let v = String(raw);
+  for (let i = 0; i < 4; i++) {
+    let next = decodeEntitiesOnce(v);
+    try {
+      next = decodeURIComponent(next.replace(/%(?![0-9a-f]{2})/gi, '%25'));
+    } catch {
+      /* leave undecoded percent sequences */
+    }
+    if (next === v) break;
+    v = next;
+  }
+  // eslint-disable-next-line no-control-regex
+  return v.replace(/[\u0000-\u0020\u007f-\u009f\u00ad\u200b-\u200f\u2028\u2029\u2060\ufeff]/g, '');
+}
+
+/** Link allowlist: https, http, mailto, "/path" (not "//"), "#fragment", "./", "../" and scheme-less relative paths. */
+export function isSafeLinkUrl(raw: string): boolean {
+  const v = normalizeUrlForCheck(raw);
+  if (!v) return false;
+  if (v.startsWith('//') || v.startsWith('\\') || v.startsWith('/\\')) return false;
+  if (v.startsWith('/') || v.startsWith('#') || v.startsWith('?')) return true;
+  const scheme = v.match(/^([a-z][a-z0-9+.-]*):/i);
+  if (scheme) return ['https', 'http', 'mailto'].includes(scheme[1].toLowerCase());
+  // No scheme: reject anything with a colon before the first path/query/fragment delimiter.
+  return !/^[^/?#]*:/.test(v);
+}
+
+/** Image allowlist: zur-asset references, same-origin "/path", and https hosts listed in ALLOWED_EXTERNAL_IMAGE_HOSTS. */
+export function isSafeImageUrl(raw: string): boolean {
+  const trimmed = String(raw).trim();
+  if (/^zur-asset:[0-9a-f-]{36}$/i.test(trimmed)) return true;
+  const v = normalizeUrlForCheck(raw);
+  if (!v || v.startsWith('//') || v.startsWith('\\') || v.startsWith('/\\')) return false;
+  if (v.startsWith('/')) return true;
+  if (/^https:\/\//i.test(v)) {
+    try {
+      return ALLOWED_EXTERNAL_IMAGE_HOSTS.includes(new URL(v).hostname.toLowerCase());
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/**
+ * Raw HTML is not part of the content contract: every tag-like token is removed
+ * (script/style/etc. together with their content) and the renderer additionally
+ * escapes all text, so nothing authored can become markup.
+ */
+const RAW_BLOCK_ELEMENTS = /<\s*(script|style|iframe|object|embed|applet|noscript|template|svg|math|textarea|title|xmp|noembed|noframes)\b[\s\S]*?(?:<\s*\/\s*\1\s*>|$)/gi;
+const RAW_TAG = /<\s*[a-zA-Z\/!?][^>]*(?:>|$)/g;
+const RAW_COMMENT = /<!--[\s\S]*?(?:-->|$)/g;
+
+function stripRawHtml(input: string): string {
+  let prev: string;
+  let out = input.replace(/\u0000/g, '');
+  let guard = 0;
+  do {
+    prev = out;
+    out = out.replace(RAW_COMMENT, '').replace(RAW_BLOCK_ELEMENTS, '').replace(RAW_TAG, '');
+  } while (out !== prev && ++guard < 8);
+  return out;
+}
+
+const MD_LINK = /\[([^\[\]]+)\]\(((?:[^()\s]|\([^()\s]*\))+)\)/g;
 
 export function sanitizeHtml(rawHtml: string): string {
-  let clean = rawHtml
-    .replace(DANGEROUS_HTML_TAGS, '')
-    .replace(HTML_EVENT_HANDLERS, '')
-    .replace(HTML_EVENT_HANDLERS_SINGLE, '')
-    .replace(HTML_EVENT_HANDLERS_UNQUOTED, '')
-    .replace(INLINE_STYLES, '')
-    .replace(INLINE_STYLES_SINGLE, '');
-
-  clean = clean.replace(/href\s*=\s*(['"])(.*?)\1/gi, (match, quote, url) => {
-    if (DANGEROUS_PROTOCOLS.test(url.trim())) {
-      return 'href="#"';
-    }
-    return match;
-  });
-
-  clean = clean.replace(/src\s*=\s*(['"])(.*?)\1/gi, (match, quote, url) => {
-    if (DANGEROUS_PROTOCOLS.test(url.trim())) {
-      return 'src=""';
-    }
-    return match;
-  });
-
-  clean = clean.replace(/\[(.*?)\]\((.*?)\)/g, (match, label, url) => {
-    if (DANGEROUS_PROTOCOLS.test(url.trim())) {
-      return `[${label}](#)`;
-    }
-    return match;
-  });
-
-  return clean;
+  const clean = stripRawHtml(rawHtml);
+  return clean.replace(MD_LINK, (match, label, url) => (isSafeLinkUrl(url) ? match : `[${label}](#)`));
 }
 
 export function escapeHtml(str: string): string {
@@ -188,11 +242,11 @@ export function parseMarkdown(markdown: string): RichContentDocument {
       }
       const bqText = bqLines.join('\n').trim();
 
-      const calloutMatch = bqText.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\](?:\s+(.*))?/i);
+      const calloutMatch = bqText.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\](?:[ \t]+(.*))?/i);
       if (calloutMatch) {
         const calloutType = calloutMatch[1].toLowerCase() as CalloutType;
         const remaining = bqLines.slice(1).join('\n').trim();
-        const customTitle = calloutMatch[2] ? calloutMatch[2].trim() : undefined;
+        const customTitle = calloutMatch[2] ? sanitizeHtml(calloutMatch[2].trim()) : undefined;
         blocks.push({
           type: 'callout',
           calloutType,
@@ -214,7 +268,7 @@ export function parseMarkdown(markdown: string): RichContentDocument {
       const alt = imgMatch[1] || '';
       let url = imgMatch[2] || '';
       const caption = imgMatch[3] || undefined;
-      if (DANGEROUS_PROTOCOLS.test(url.trim())) {
+      if (!isSafeImageUrl(url)) {
         url = '';
       }
       blocks.push({
@@ -369,7 +423,7 @@ export function serializeMarkdown(doc: RichContentDocument): string {
       }
       case 'image': {
         let safeUrl = block.url;
-        if (DANGEROUS_PROTOCOLS.test(safeUrl.trim())) {
+        if (!isSafeImageUrl(safeUrl)) {
           safeUrl = '';
         }
         const captionPart = block.caption ? ` "${block.caption}"` : '';
@@ -383,7 +437,17 @@ export function serializeMarkdown(doc: RichContentDocument): string {
 }
 
 export function renderInlinesToHtml(text: string): string {
-  let html = escapeHtml(text);
+  // Links are resolved first and their opening tag parked behind a placeholder so
+  // emphasis/code rules can never rewrite a URL.
+  const parked: string[] = [];
+  let html = escapeHtml(String(text).replace(/\u0000/g, '')).replace(MD_LINK, (_m, label, url) => {
+    // `url` is HTML-escaped text; the safety check decodes entities itself.
+    if (!isSafeLinkUrl(url)) return `<span>${label}</span>`;
+    // eslint-disable-next-line no-control-regex
+    const cleanUrl = String(url).replace(/[\u0000-\u0020\u007f-\u009f]/g, '');
+    parked.push(`<a href="${cleanUrl}" rel="noopener noreferrer">`);
+    return `\u0000${parked.length - 1}\u0000${label}</a>`;
+  });
 
   // Bold
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
@@ -393,15 +457,8 @@ export function renderInlinesToHtml(text: string): string {
   html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
   // Inline Code
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-  // Links: [text](url)
-  html = html.replace(/\[(.+?)\]\((.+?)\)/g, (_, label, url) => {
-    if (DANGEROUS_PROTOCOLS.test(url.trim())) {
-      return `<span>${label}</span>`;
-    }
-    return `<a href="${url}" rel="noopener noreferrer">${label}</a>`;
-  });
 
-  return html;
+  return html.replace(/\u0000(\d+)\u0000/g, (_m, i) => parked[Number(i)] ?? '');
 }
 
 export function renderMarkdownToHtml(markdown: string): string {
@@ -467,7 +524,7 @@ export function renderMarkdownToHtml(markdown: string): string {
       case 'image': {
         let safeUrl = block.url;
         const zurAssetId = safeUrl.match(/^zur-asset:([0-9a-f-]{36})$/i)?.[1];
-        if (DANGEROUS_PROTOCOLS.test(safeUrl.trim())) {
+        if (!isSafeImageUrl(safeUrl)) {
           safeUrl = '';
         }
         const altAttr = block.isDecorative ? 'alt="" aria-hidden="true"' : `alt="${escapeHtml(block.alt)}"`;
@@ -475,7 +532,14 @@ export function renderMarkdownToHtml(markdown: string): string {
         const sourceAttr = zurAssetId
           ? `src="about:blank#zur-asset-${escapeHtml(zurAssetId)}" data-authorized-asset="${escapeHtml(zurAssetId)}"`
           : `src="${escapeHtml(safeUrl)}"`;
-        htmlParts.push(`<figure class="rich-image"><img ${sourceAttr} ${altAttr} />${captionHtml}</figure>`);
+        if (!zurAssetId && !safeUrl) {
+          htmlParts.push(
+            `<figure class="rich-image rich-image-blocked"><span>${escapeHtml(block.alt || 'Image unavailable')}</span>${captionHtml}</figure>`
+          );
+          break;
+        }
+        const extra = zurAssetId ? '' : ' loading="lazy" referrerpolicy="no-referrer"';
+        htmlParts.push(`<figure class="rich-image"><img ${sourceAttr} ${altAttr}${extra} />${captionHtml}</figure>`);
         break;
       }
     }

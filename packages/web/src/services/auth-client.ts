@@ -5,6 +5,28 @@ import { DraftManager } from './draft-manager.ts';
 const TOKEN_KEY = 'zur_session_token';
 const USER_KEY = 'zur_current_user';
 
+export const SESSION_EXPIRED_EVENT = 'zur:session-expired';
+export const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
+
+export interface FetchApiOptions extends RequestInit {
+  /** Abort the request after this many ms (default 30 000; 0 disables). */
+  timeoutMs?: number;
+}
+
+export class ApiTimeoutError extends Error {
+  readonly code = 'REQUEST_TIMEOUT';
+  readonly statusCode = 0;
+  readonly status = 0;
+  readonly endpoint: string;
+  readonly timeoutMs: number;
+  constructor(endpoint: string, timeoutMs: number) {
+    super('The request took too long. Check your connection and try again.');
+    this.name = 'ApiTimeoutError';
+    this.endpoint = endpoint;
+    this.timeoutMs = timeoutMs;
+  }
+}
+
 export class AuthClient {
   private static instance: AuthClient;
   private currentUser: User | null = null;
@@ -68,26 +90,53 @@ export class AuthClient {
     }
   }
 
-  async fetchApi(endpoint: string, options: RequestInit = {}): Promise<any> {
+  async fetchApi(endpoint: string, options: FetchApiOptions = {}): Promise<any> {
+    const { timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS, signal: callerSignal, ...init } = options;
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...((options.headers as Record<string, string>) || {}),
+      ...((init.headers as Record<string, string>) || {}),
     };
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    // Never send an empty or malformed bearer credential.
+    const sentToken = this.token && this.token.trim() ? this.token : null;
+    if (sentToken) {
+      headers['Authorization'] = `Bearer ${sentToken}`;
+    } else {
+      for (const key of Object.keys(headers)) {
+        if (key.toLowerCase() === 'authorization' && !/^Bearer\s+\S+/.test(headers[key] || '')) delete headers[key];
+      }
     }
 
-    const res = await fetch(endpoint, {
-      ...options,
-      headers,
-    });
+    const controller = new AbortController();
+    let timedOut = false;
+    const timer = timeoutMs > 0 ? setTimeout(() => { timedOut = true; controller.abort(); }, timeoutMs) : null;
+    const onCallerAbort = () => controller.abort();
+    if (callerSignal) {
+      if (callerSignal.aborted) controller.abort();
+      else callerSignal.addEventListener('abort', onCallerAbort, { once: true });
+    }
 
-    const data = await res.json().catch(() => ({}));
+    let res: Response;
+    let data: any;
+    try {
+      res = await fetch(endpoint, { ...init, headers, signal: controller.signal });
+      data = await res.json().catch(() => ({}));
+    } catch (err) {
+      if (timedOut) throw new ApiTimeoutError(endpoint, timeoutMs);
+      throw err;
+    } finally {
+      if (timer) clearTimeout(timer);
+      callerSignal?.removeEventListener('abort', onCallerAbort);
+    }
 
     if (!res.ok) {
       if (res.status === 401 && endpoint !== '/api/auth/sign-in') {
-        this.clearSession();
+        // Only the request that carried the still-current session expires it, so a burst of
+        // concurrent 401s (or a 401 for an already-replaced session) emits exactly one event.
+        if (sentToken && this.token === sentToken) {
+          this.clearSession();
+          this.emitSessionExpired(endpoint);
+        }
       }
       const errorMsg = data?.error?.message || "This page isn't available.";
       const error = new Error(errorMsg);
@@ -99,6 +148,14 @@ export class AuthClient {
     }
 
     return data;
+  }
+
+  private emitSessionExpired(path: string): void {
+    try {
+      globalThis.dispatchEvent?.(new CustomEvent(SESSION_EXPIRED_EVENT, { detail: { path } }));
+    } catch {
+      /* non-browser environment */
+    }
   }
 
   async signIn(email: string, password: string): Promise<User> {
