@@ -182,6 +182,7 @@ export function renderQuizStepPage(opts: QuizStepPageOptions): string {
     modules: opts.modules,
     taskSquares: opts.taskSquares,
     isPythonWorkspace: false,
+    outlineDrawer: true,
     outlineContent: opts.outlineContent || '<p class="outline-empty">Outline available</p>',
     workspaceContent,
     previousStepUrl: opts.previousStepUrl,

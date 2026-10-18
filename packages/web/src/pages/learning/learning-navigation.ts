@@ -2,6 +2,9 @@ import { escapeHtml } from '../../components/escape-html.ts';
 import {
   renderTaskStripHtml,
   renderTaskSquareInnerHtml,
+  resolveOutlineCollapsed,
+  setLearningOutlineState,
+  getOutlineToggleLabels,
   type LearningWorkspaceShellOptions,
 } from '../../components/shells/LearningWorkspaceShell.ts';
 
@@ -227,12 +230,17 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
   if (lessonContext) lessonContext.textContent = opts.lessonTitle;
 
   // 3. Update Task Strip and preserve sidebar collapsed state
-  const isCollapsed = opts.isSidebarCollapsed !== undefined
-    ? Boolean(opts.isSidebarCollapsed)
-    : sidebarEl.classList.contains('collapsed');
+  const drawerMode = Boolean(opts.outlineDrawer);
+  shellEl.classList.toggle('outline-drawer-mode', drawerMode);
+  const isCollapsed = drawerMode
+    ? resolveOutlineCollapsed(opts)
+    : opts.isSidebarCollapsed !== undefined
+      ? Boolean(opts.isSidebarCollapsed)
+      : sidebarEl.classList.contains('collapsed');
   sidebarEl.classList.toggle('collapsed', isCollapsed);
   sidebarEl.classList.toggle('open', !isCollapsed);
   sidebarEl.inert = isCollapsed;
+  if (drawerMode) setLearningOutlineState(shellEl, isCollapsed);
 
   const taskStrip = shellEl.querySelector?.('.learning-task-strip');
   if (opts.taskSquares && opts.taskSquares.length > 0) {
@@ -247,8 +255,9 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
       const toggleBtn = taskStrip.querySelector?.('.sidebar-toggle-btn');
       if (toggleBtn) {
         toggleBtn.setAttribute('aria-expanded', String(!isCollapsed));
-        toggleBtn.setAttribute('aria-label', isCollapsed ? 'Show modules' : 'Hide modules');
-        toggleBtn.setAttribute('title', isCollapsed ? 'Show modules' : 'Hide modules');
+        const labels = getOutlineToggleLabels(isCollapsed, drawerMode);
+        toggleBtn.setAttribute('aria-label', labels.label);
+        toggleBtn.setAttribute('title', labels.title);
       }
 
       if (sameLesson) {
@@ -278,7 +287,7 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
         });
         const arrowRegion = taskStrip.querySelector?.('.task-strip-right');
         if (arrowRegion) {
-          const strip = renderTaskStripHtml({ ...opts, isSidebarCollapsed: isCollapsed, taskControls: isPython ? opts.taskActions : undefined });
+          const strip = renderTaskStripHtml({ ...opts, isSidebarCollapsed: isCollapsed, outlineDrawer: drawerMode, taskControls: isPython ? opts.taskActions : undefined });
           const template = root.ownerDocument.createElement('template');
           template.innerHTML = strip;
           arrowRegion.innerHTML = template.content.querySelector('.task-strip-right')?.innerHTML ?? '';
@@ -291,6 +300,7 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
           previousStepUrl: opts.previousStepUrl,
           nextStepUrl: opts.nextStepUrl,
           isSidebarCollapsed: isCollapsed,
+          outlineDrawer: drawerMode,
         });
         taskStrip.outerHTML = newStripHtml;
       }
@@ -302,6 +312,7 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
         previousStepUrl: opts.previousStepUrl,
         nextStepUrl: opts.nextStepUrl,
         isSidebarCollapsed: isCollapsed,
+        outlineDrawer: drawerMode,
       });
       shellEl.insertAdjacentHTML?.('afterbegin', newStripHtml);
     }

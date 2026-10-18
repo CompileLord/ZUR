@@ -89,6 +89,7 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
                 ${renderIcon('chevron-left', { size: 14 })}
                 <span>All attempts</span>
               </a>
+              <a href="${escapeHtml(opts.workspaceUrl)}" class="btn btn-ghost btn-compact">Back to task</a>
               <h2>Attempt ${escapeHtml(selected.attemptNumber)}<span class="sr-only">Attempt #${escapeHtml(selected.attemptNumber)}</span></h2>
             </div>
             <span class="status-badge ${badgeClass}" aria-label="${escapeHtml(selected.verdict)}">${sentenceCase(selected.verdict)}</span>
@@ -198,6 +199,7 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
     modules: opts.modules,
     taskSquares: opts.taskSquares,
     isPythonWorkspace: false,
+    outlineDrawer: true,
     isSidebarCollapsed: opts.isSidebarCollapsed,
     outlineContent: opts.outlineContent,
     workspaceContent: selected ? detailHtml : listHtml,

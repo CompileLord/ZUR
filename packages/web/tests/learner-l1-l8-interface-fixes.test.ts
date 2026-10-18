@@ -402,7 +402,7 @@ test('L8: Python execution mode labels and workspace toolbar distinguish Test sa
     resultMode: 'samples',
     currentResult: dummyResult,
   });
-  assert.ok(workspaceHtml.includes('<button type="button" class="btn btn-secondary btn-compact" id="run-samples-btn">Test samples</button>'));
+  assert.ok(workspaceHtml.includes('<button type="button" role="menuitem" id="run-samples-btn">Test samples</button>'));
   assert.ok(workspaceHtml.includes('id="run-code-btn"'));
   assert.ok(workspaceHtml.includes('id="submit-solution-btn"'));
 });

@@ -6,7 +6,7 @@ import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
 import { bracketMatching, HighlightStyle, syntaxHighlighting, syntaxTree, indentOnInput, indentUnit } from '@codemirror/language';
 import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
 import { python } from '@codemirror/lang-python';
-import { tags } from '@lezer/highlight';
+import { tags, tagHighlighter, highlightCode } from '@lezer/highlight';
 
 export interface CodeMirrorSetupOptions {
   textarea: HTMLTextAreaElement;
@@ -14,6 +14,9 @@ export interface CodeMirrorSetupOptions {
   editorFontSize?: number;
   onModEnter: () => void;
   onEscape: () => void;
+  onModShiftEnter?: () => void;
+  onCursorChange?: (line: number, col: number) => void;
+  onFontSizeChange?: (size: number) => void;
   onDocChange: (newCode: string) => void;
 }
 
@@ -22,6 +25,8 @@ export interface CodeMirrorInstance {
   setCode: (newCode: string) => void;
   undo: () => boolean;
   redo: () => boolean;
+  setFontSize: (size: number) => number;
+  getFontSize: () => number;
   destroy: () => void;
 }
 
@@ -165,10 +170,22 @@ const zurEditorTheme = EditorView.theme({
 });
 
 export function createCodeMirrorEditor(options: CodeMirrorSetupOptions): CodeMirrorInstance {
-  const { textarea, indentationSpaces = 4, editorFontSize = DEFAULT_FONT_SIZE, onModEnter, onEscape, onDocChange } = options;
+  const { textarea, indentationSpaces = 4, editorFontSize = DEFAULT_FONT_SIZE, onModEnter, onEscape, onDocChange, onModShiftEnter, onCursorChange, onFontSizeChange } = options;
   let suppressEditorChange = false;
   const initialFontSize = (editorFontSize === DEFAULT_FONT_SIZE ? readStoredFontSize() : null) ?? editorFontSize;
   let currentFontSize = initialFontSize;
+
+  let editorViewRef: EditorView | null = null;
+  const applyFontSize = (size: number): number => {
+    currentFontSize = Math.max(10, Math.min(32, Math.round(size)));
+    if (editorViewRef) {
+      editorViewRef.dom.style.fontSize = `${currentFontSize}px`;
+      editorViewRef.requestMeasure();
+    }
+    storeFontSize(currentFontSize);
+    onFontSizeChange?.(currentFontSize);
+    return currentFontSize;
+  };
 
   textarea.classList.add('cm-source-backup');
   textarea.parentElement?.querySelector('.code-editor-line-numbers')?.remove();
@@ -186,10 +203,7 @@ export function createCodeMirrorEditor(options: CodeMirrorSetupOptions): CodeMir
           keydown(event, view) {
             if (!event.ctrlKey || event.altKey || event.metaKey || !['+', '=', '-'].includes(event.key)) return false;
             event.preventDefault();
-            currentFontSize = Math.max(10, Math.min(32, currentFontSize + (event.key === '-' ? -2 : 2)));
-            view.dom.style.fontSize = `${currentFontSize}px`;
-            storeFontSize(currentFontSize);
-            view.requestMeasure();
+            applyFontSize(currentFontSize + (event.key === '-' ? -2 : 2));
             return true;
           },
         }),
@@ -203,6 +217,13 @@ export function createCodeMirrorEditor(options: CodeMirrorSetupOptions): CodeMir
         syntaxHighlighting(zurHighlightStyle),
         python(),
         keymap.of([
+          {
+            key: 'Mod-Shift-Enter',
+            run: () => {
+              onModShiftEnter?.();
+              return true;
+            },
+          },
           {
             key: 'Mod-Enter',
             run: () => {
@@ -228,6 +249,11 @@ export function createCodeMirrorEditor(options: CodeMirrorSetupOptions): CodeMir
           'aria-multiline': 'true',
         }),
         EditorView.updateListener.of((update) => {
+          if (onCursorChange && (update.selectionSet || update.docChanged)) {
+            const head = update.state.selection.main.head;
+            const line = update.state.doc.lineAt(head);
+            onCursorChange(line.number, head - line.from + 1);
+          }
           if (!update.docChanged || suppressEditorChange) return;
           const val = update.state.doc.toString();
           textarea.value = val;
@@ -239,7 +265,9 @@ export function createCodeMirrorEditor(options: CodeMirrorSetupOptions): CodeMir
     parent: textarea.parentElement || undefined,
   });
 
+  editorViewRef = editorView;
   editorView.dom.style.fontSize = `${initialFontSize}px`;
+  onCursorChange?.(1, 1);
 
   return {
     editorView,
@@ -252,8 +280,46 @@ export function createCodeMirrorEditor(options: CodeMirrorSetupOptions): CodeMir
     },
     undo: () => undo(editorView),
     redo: () => redo(editorView),
+    setFontSize: applyFontSize,
+    getFontSize: () => currentFontSize,
     destroy: () => {
       editorView.destroy();
     },
   };
+}
+
+const staticHighlighter = tagHighlighter([
+  { tag: [tags.keyword, tags.definitionKeyword, tags.moduleKeyword, tags.operatorKeyword, tags.modifier, tags.bool, tags.null, tags.self], class: 'zur-tok-keyword' },
+  { tag: tags.controlKeyword, class: 'zur-tok-control' },
+  { tag: [tags.string, tags.special(tags.string), tags.escape], class: 'zur-tok-string' },
+  { tag: tags.number, class: 'zur-tok-number' },
+  { tag: [tags.function(tags.variableName), tags.function(tags.propertyName), tags.definition(tags.function(tags.variableName))], class: 'zur-tok-function' },
+  { tag: [tags.className, tags.typeName, tags.definition(tags.className)], class: 'zur-tok-type' },
+  { tag: tags.standard(tags.variableName), class: 'zur-tok-builtin' },
+  { tag: [tags.variableName, tags.propertyName, tags.definition(tags.variableName)], class: 'zur-tok-variable' },
+  { tag: tags.meta, class: 'zur-tok-decorator' },
+  { tag: [tags.comment, tags.lineComment], class: 'zur-tok-comment' },
+  { tag: [tags.operator, tags.punctuation, tags.separator, tags.bracket, tags.paren, tags.squareBracket, tags.brace], class: 'zur-tok-operator' },
+]);
+
+function escapeText(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+export function highlightStaticPython(root: ParentNode): void {
+  const parser = python().language.parser;
+  root.querySelectorAll<HTMLElement>('pre > code.language-python, pre > code.language-py').forEach((codeEl) => {
+    if (codeEl.dataset.highlighted === 'true') return;
+    const source = codeEl.textContent || '';
+    let html = '';
+    highlightCode(
+      source,
+      parser.parse(source),
+      staticHighlighter,
+      (text, cls) => { html += cls ? `<span class="${cls}">${escapeText(text)}</span>` : escapeText(text); },
+      () => { html += '\n'; },
+    );
+    codeEl.innerHTML = html;
+    codeEl.dataset.highlighted = 'true';
+  });
 }

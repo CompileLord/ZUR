@@ -34,6 +34,7 @@ export interface PythonWorkspacePageOptions {
   saveNotice?: string;
   previousStepUrl?: string | null;
   nextStepUrl?: string | null;
+  isLastStep?: boolean;
   activeTab?: 'results' | 'custom_input' | 'attempts';
   isCompact?: boolean;
   customStdin?: string;
@@ -213,9 +214,16 @@ export function renderPythonExecutionResults(opts: Pick<PythonWorkspacePageOptio
       ${res.executionTimeMs ? `<span class="result-duration text-secondary tabular-nums">${escapeHtml(res.executionTimeMs)} ms</span>` : ''}
     </div>
     ${res.guidance ? `<div class="guidance-notice" style="margin-bottom: var(--space-3); color: var(--text-secondary);">${escapeHtml(res.guidance)}</div>` : ''}
+    <div class="test-chip-row" role="group" aria-label="Test results">
+      ${res.testResults.map((tr) => {
+        const chipClass = opts.resultMode === 'custom' && isPassed ? 'neutral' : tr.passed ? 'passed' : 'failed';
+        const chipIcon = chipClass === 'failed' ? '✗' : '✓';
+        return `<button type="button" class="test-chip ${chipClass}" data-test-chip="${escapeHtml(tr.position)}" aria-expanded="${tr.passed ? 'false' : 'true'}" aria-controls="test-detail-${escapeHtml(tr.position)}"><span aria-hidden="true">${chipIcon}</span> Test ${escapeHtml(tr.position + 1)}<span class="sr-only"> ${tr.passed ? 'passed' : 'failed'}</span></button>`;
+      }).join('')}
+    </div>
     <div class="test-cards-list">
       ${res.testResults.map((tr) => `
-        <div class="test-card-compact">
+        <div class="test-card-compact" id="test-detail-${escapeHtml(tr.position)}" ${tr.passed ? 'hidden' : ''}>
           <div class="test-card-header">
             <span class="status-badge ${opts.resultMode === 'custom' && isPassed ? 'status-neutral' : tr.passed ? 'status-ready' : 'status-failed'}">${opts.resultMode === 'custom' && isPassed ? 'Executed' : tr.passed ? 'Passed' : 'Failed'}</span>
             <span class="test-title">Test #${escapeHtml(tr.position + 1)}</span>
@@ -274,6 +282,7 @@ export function renderPythonWorkspaceContent(opts: PythonWorkspacePageOptions): 
   const hints = opts.hints || [];
   const examples = opts.examples || [];
   const activeTab = opts.activeTab || 'results';
+  const constraintChips = String(opts.constraints || '').split(/\n|;/).map((c) => c.trim()).filter(Boolean);
   const saveNoticeHtml = opts.saveNotice
     ? `<p id="python-save-notice" class="alert alert-warning" role="status">${escapeHtml(opts.saveNotice)}</p>`
     : '';
@@ -297,56 +306,40 @@ export function renderPythonWorkspaceContent(opts: PythonWorkspacePageOptions): 
       </div>
 
       <div class="problem-section">
-        <h2 class="problem-subheading">Input &amp; output format</h2>
-        <div class="problem-section-body">
-          <p><strong>Input:</strong> ${escapeHtml(opts.inputFormat)}</p>
-          <p><strong>Output:</strong> ${escapeHtml(opts.outputFormat)}</p>
+        <h2 class="problem-subheading">Input &amp; output</h2>
+        <div class="io-grid">
+          <div class="io-box"><span class="io-label">Input</span><p>${escapeHtml(opts.inputFormat)}</p></div>
+          <div class="io-box"><span class="io-label">Output</span><p>${escapeHtml(opts.outputFormat)}</p></div>
         </div>
       </div>
 
+      ${constraintChips.length > 0 ? `
       <div class="problem-section">
         <h2 class="problem-subheading">Constraints</h2>
-        <div class="problem-section-body">
-          <code class="code-inline">${escapeHtml(opts.constraints)}</code>
-        </div>
-      </div>
+        <ul class="constraint-chips" role="list">
+          ${constraintChips.map((c) => `<li><code class="constraint-chip">${escapeHtml(c)}</code></li>`).join('')}
+        </ul>
+      </div>` : ''}
 
       ${examples.length > 0 ? `
         <div class="problem-section">
           <h2 class="problem-subheading">Examples</h2>
           ${examples.map((ex, idx) => `
-            <div class="test-card-compact" style="margin-bottom: var(--space-3);">
-              <div class="test-card-grid">
-                <div class="test-field">
-                  <span class="comparison-label">Example ${idx + 1} Input</span>
-                  <pre class="comparison-value code-surface">${escapeHtml(ex.input || '(empty)')}</pre>
-                </div>
-                <div class="test-field">
-                  <span class="comparison-label">Example ${idx + 1} Output</span>
-                  <pre class="comparison-value code-surface">${escapeHtml(ex.output)}</pre>
-                </div>
-              </div>
+            <div class="io-grid example-grid">
+              <div class="io-box"><span class="io-label">Example ${idx + 1} input</span><pre class="io-pre">${escapeHtml(ex.input || '(empty)')}</pre></div>
+              <div class="io-box"><span class="io-label">Example ${idx + 1} output</span><pre class="io-pre">${escapeHtml(ex.output)}</pre></div>
             </div>
           `).join('')}
         </div>
       ` : ''}
 
       ${hints.length > 0 ? `
-        <div class="problem-section">
+        <div class="problem-section hints-block" data-hint-total="${hints.length}" data-hint-revealed="0" data-enrollment-id="${escapeHtml(opts.enrollmentId)}" data-step-id="${escapeHtml(opts.stepId)}">
           <h2 class="problem-subheading">Hints</h2>
-          <div class="hints-container">
-            ${hints.map((hint, idx) => `
-              <div class="hint-accordion" ${idx > 0 ? 'hidden' : ''}>
-                <button type="button" class="hint-trigger" aria-expanded="false" data-hint-index="${idx}" data-enrollment-id="${escapeHtml(opts.enrollmentId)}" data-step-id="${escapeHtml(opts.stepId)}">
-                  <span>Hint ${idx + 1}</span>
-                  <span class="hint-chevron">${renderIcon('chevron-down', { size: 14 })}</span>
-                </button>
-                <div class="hint-content" hidden>
-                  ${escapeHtml(hint)}
-                </div>
-              </div>
-            `).join('')}
-          </div>
+          <ol class="hint-list" aria-live="polite">
+            ${hints.map((hint, idx) => `<li class="hint-item" data-hint-item="${idx}" hidden><span class="hint-item-label">Hint ${idx + 1}</span><p>${escapeHtml(hint)}</p></li>`).join('')}
+          </ol>
+          <button type="button" class="btn btn-secondary btn-compact hint-reveal-btn" data-hint-reveal>Reveal hint 1 of ${hints.length}</button>
         </div>
       ` : ''}
 
@@ -363,33 +356,53 @@ export function renderPythonWorkspaceContent(opts: PythonWorkspacePageOptions): 
         </div>
       ` : ''}
 
-      <div class="problem-section">
-        <a href="/help?report=broken_exercise&courseId=${encodeURIComponent(opts.courseId || '')}&courseVersionId=${encodeURIComponent(opts.courseVersionId || '')}&stepId=${encodeURIComponent(opts.stepId)}" class="btn-ghost btn-compact text-muted report-issue-link">
-          Report issue
+      <div class="problem-section problem-footer">
+        <a href="/help?report=broken_exercise&courseId=${encodeURIComponent(opts.courseId || '')}&courseVersionId=${encodeURIComponent(opts.courseVersionId || '')}&stepId=${encodeURIComponent(opts.stepId)}" class="report-issue-link report-issue-quiet">
+          Report an issue with this exercise
         </a>
       </div>
     </div>
   `;
 
   // Right Panel: Editor & Results
-  const lineCount = (opts.currentCode || '').split('\n').length;
-  const lineNumbers = Array.from({ length: Math.max(lineCount, 15) }, (_, i) => i + 1).join('\n');
-
   const resultsBodyHtml = renderPythonExecutionResults(opts);
+  const hasResult = Boolean(opts.currentResult || opts.executionError || opts.inFlightStatus);
 
   const rightPanelHtml = `
-    <div class="editor-pane" role="region" aria-label="Python Code Editor">
+    <div class="editor-pane" role="region" aria-label="Python Code Editor" data-drawer="${hasResult ? 'open' : 'closed'}">
       ${saveNoticeHtml}
-      <div id="python-save-indicator" class="save-indicator ${opts.saveStatus || 'saved'}" aria-live="polite">${saveLabel}</div>
-
       <div class="code-editor-area">
-        <div class="code-editor-line-numbers" aria-hidden="true">${lineNumbers}</div>
         <textarea
           id="code-editor-input"
           class="code-editor-input"
           spellcheck="false"
           aria-label="Python Source Code"
         >${escapeHtml(opts.currentCode || opts.starterCode || '')}</textarea>
+      </div>
+
+      <div class="editor-footer" role="toolbar" aria-label="Editor status and settings">
+        <span id="editor-cursor-pos" class="editor-footer-item tabular-nums">Ln 1, Col 1</span>
+        <span id="python-save-indicator" class="save-indicator ${opts.saveStatus || 'saved'}" aria-live="polite">${saveLabel}</span>
+        <span class="editor-footer-spacer"></span>
+        <span class="font-size-control" role="group" aria-label="Editor font size">
+          <button type="button" class="editor-footer-btn" data-font-step="-1" aria-label="Decrease font size" title="Decrease font size (Ctrl+-)">A−</button>
+          <span id="editor-font-size-label" class="tabular-nums">${opts.editorFontSize || 14}px</span>
+          <button type="button" class="editor-footer-btn" data-font-step="1" aria-label="Increase font size" title="Increase font size (Ctrl++)">A+</button>
+        </span>
+        <div class="shortcuts-wrap">
+          <button type="button" id="shortcuts-btn" class="editor-footer-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="shortcuts-popover" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">?</button>
+          <div id="shortcuts-popover" class="shortcuts-popover" role="dialog" aria-label="Keyboard shortcuts" hidden>
+            <h3>Keyboard shortcuts</h3>
+            <dl>
+              <dt><kbd>Ctrl</kbd> <kbd>Enter</kbd></dt><dd>Run code</dd>
+              <dt><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Enter</kbd></dt><dd>Submit solution</dd>
+              <dt><kbd>Ctrl</kbd> <kbd>B</kbd></dt><dd>Open or close outline</dd>
+              <dt><kbd>Ctrl</kbd> <kbd>+</kbd> / <kbd>-</kbd></dt><dd>Editor font size</dd>
+              <dt><kbd>Esc</kbd></dt><dd>Leave the editor</dd>
+              <dt><kbd>?</kbd></dt><dd>Show this list</dd>
+            </dl>
+          </div>
+        </div>
       </div>
 
       <div id="results-splitter" class="results-splitter" role="separator" tabindex="0"
@@ -400,21 +413,20 @@ export function renderPythonWorkspaceContent(opts: PythonWorkspacePageOptions): 
       <div class="workspace-results-region" role="region" aria-label="Execution Results">
         <div class="results-tab-bar" role="tablist">
           <button type="button" id="tab-btn-results" data-tab="results" class="results-tab-button ${activeTab === 'results' ? 'active' : ''}" role="tab" aria-selected="${activeTab === 'results'}">
-            Results
+            Output &amp; tests
           </button>
           <button type="button" id="tab-btn-custom-input" data-tab="custom_input" class="results-tab-button ${activeTab === 'custom_input' ? 'active' : ''}" role="tab" aria-selected="${activeTab === 'custom_input'}">
             Custom input
           </button>
-          <a href="/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts" class="results-tab-button" role="tab" aria-selected="false">
-            Attempts
-          </a>
+          <span id="drawer-summary" class="drawer-summary" aria-hidden="true"></span>
+          <button type="button" id="drawer-toggle-btn" class="editor-footer-btn drawer-toggle" aria-label="Toggle output panel" aria-expanded="${hasResult}" aria-controls="results-body">${renderIcon('chevron-down', { size: 14 })}</button>
         </div>
 
-        <div class="results-body">
+        <div class="results-body" id="results-body">
           ${activeTab === 'custom_input' ? `
             <div class="custom-input-box">
               <label for="custom-stdin-input" class="comparison-label">Input</label>
-              <textarea id="custom-stdin-input" class="code-editor-input" style="height: 100px; border: 1px solid var(--border-control); border-radius: var(--radius-sm);" placeholder="Input for your program (optional)">${escapeHtml(opts.customStdin || '')}</textarea>
+              <textarea id="custom-stdin-input" class="code-editor-input custom-stdin" placeholder="Input for your program (optional)">${escapeHtml(opts.customStdin || '')}</textarea>
             </div>
           ` : resultsBodyHtml}
         </div>
@@ -422,23 +434,33 @@ export function renderPythonWorkspaceContent(opts: PythonWorkspacePageOptions): 
     </div>
   `;
 
+  const attemptsUrl = `/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts`;
+  const showContinue = Boolean(opts.isCompleted && opts.nextStepUrl);
   const taskActionsHtml = `
           <div class="editor-toolbar-actions">
-            <button type="button" class="btn btn-secondary btn-compact" id="run-samples-btn">Test samples</button>
-
-
             <button type="button" class="btn btn-secondary btn-compact" id="run-code-btn" title="Run code (Ctrl+Enter)" aria-label="Run code" aria-keyshortcuts="Control+Enter">
-              <span>Run</span>
+              <span>Run</span><kbd class="kbd-hint" aria-hidden="true">Ctrl ↵</kbd>
             </button>
 
             <button type="button" id="run-custom-btn" class="sr-only" aria-hidden="true" tabindex="-1">Run code</button>
 
-            <button type="button" class="btn ${opts.isCompleted ? 'btn-secondary' : 'btn-primary'} btn-compact" id="submit-solution-btn" title="Submit solution for grading" aria-label="Submit solution">
+            <button type="button" class="btn ${opts.isCompleted ? 'btn-secondary' : 'btn-primary'} btn-compact" id="submit-solution-btn" title="Submit solution for grading (Ctrl+Shift+Enter)" aria-label="Submit solution" aria-keyshortcuts="Control+Shift+Enter">
               Submit
             </button>
-            ${opts.isCompleted && opts.nextStepUrl ? `<a href="${escapeHtml(opts.nextStepUrl)}" class="btn btn-primary btn-compact" id="continue-next-btn" data-python-continue="true">Continue</a>` : ''}
+            ${showContinue ? `<a href="${escapeHtml(opts.nextStepUrl!)}" class="btn btn-primary btn-compact" id="continue-next-btn" data-python-continue="true">${opts.isLastStep ? 'Back to course →' : 'Next step →'}</a>` : ''}
 
-
+            <div class="toolbar-menu">
+              <button type="button" class="btn btn-ghost btn-compact" id="toolbar-more-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="toolbar-more-menu" aria-label="More actions" title="More actions">⋯</button>
+              <div id="toolbar-more-menu" class="toolbar-menu-list" role="menu" aria-label="More actions" hidden>
+                <button type="button" role="menuitem" id="run-samples-btn">Test samples</button>
+                <button type="button" role="menuitem" id="reset-code-btn">Reset code</button>
+                <div class="toolbar-menu-row" role="group" aria-label="Font size">
+                  <span>Font size</span>
+                  <span><button type="button" data-font-step="-1" aria-label="Decrease font size">−</button><button type="button" data-font-step="1" aria-label="Increase font size">+</button></span>
+                </div>
+                <a role="menuitem" href="${attemptsUrl}" id="attempts-link">Attempts</a>
+              </div>
+            </div>
           </div>
   `;
 
@@ -464,6 +486,7 @@ export function renderPythonWorkspaceContent(opts: PythonWorkspacePageOptions): 
       modules: opts.modules,
       taskSquares: opts.taskSquares,
       isPythonWorkspace: true,
+      outlineDrawer: true,
       saveStatusText: saveLabel,
       outlineContent: opts.outlineContent || '<nav class="outline-nav"><ul><li>' + escapeHtml(opts.stepTitle) + '</li></ul></nav>',
       workspaceContent,

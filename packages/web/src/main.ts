@@ -23,6 +23,7 @@ import {
   renderLearningWorkspaceShell,
   renderTaskStripHtml,
   renderTaskSquareInnerHtml,
+  attachOutlineDrawer,
   type LearningWorkspaceShellOptions,
   renderAuthorWorkspaceShell,
   renderAdminShell,
@@ -1434,7 +1435,14 @@ function attachLearningShellListeners(): void {
     return { uId, eId, vId };
   };
 
+  if (shellEl.classList.contains('outline-drawer-mode')) {
+    attachOutlineDrawer(shellEl, (collapsed) => {
+      const { uId, eId, vId } = getScope();
+      if (uId && eId && vId) setCurriculumSidebarCollapsed(uId, eId, vId, collapsed);
+    });
+  }
   shellEl.addEventListener('click', event => {
+    if (shellEl.classList.contains('outline-drawer-mode')) return;
     const btn = (event.target as HTMLElement).closest<HTMLElement>('.sidebar-toggle-btn');
     if (!btn) return;
     event.stopPropagation();
@@ -1779,6 +1787,7 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
       saveStatus: hasRevisionConflict ? 'conflict' : hasRecoveredLocal ? 'unsaved' : 'saved',
       previousStepUrl: stepData.previousStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepData.previousStepId)}` : null,
       nextStepUrl: stepData.nextStepId ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepData.nextStepId)}` : `/learn/${encodeURIComponent(enrollmentId)}`,
+      isLastStep: !stepData.nextStepId,
     };
     if (hasRevisionConflict) {
       pageOptions.saveNotice = 'A newer server draft exists. Your local copy is preserved on this device; reload the saved version before editing further.';
@@ -1801,6 +1810,7 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
         taskSquares: merged.taskSquares,
         isSidebarCollapsed: user ? getCurriculumSidebarCollapsed(user.id, enrollmentId, courseVersionId) : false,
         isPythonWorkspace: true,
+        outlineDrawer: true,
         saveStatusText: stepContent.saveLabel,
         outlineContent: merged.outlineContent,
         workspaceContent: stepContent.workspaceContent,
@@ -1951,6 +1961,7 @@ function renderEnrolledQuiz(data: any, enrollmentId: string, stepId: string, req
     taskSquares: nav.taskSquares,
     isSidebarCollapsed: user?.id ? getCurriculumSidebarCollapsed(user.id, enrollmentId, courseVersionId) : false,
     isPythonWorkspace: false,
+    outlineDrawer: true,
     outlineContent: quizPageOptions.outlineContent,
     workspaceContent: stepContent.workspaceContent,
     previousStepUrl: quizPageOptions.previousStepUrl,
@@ -2070,6 +2081,7 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
       taskSquares: nav.taskSquares,
       isSidebarCollapsed: user?.id ? getCurriculumSidebarCollapsed(user.id, enrollmentId, courseVersionId) : false,
       isPythonWorkspace: false,
+      outlineDrawer: true,
       outlineContent,
       workspaceContent: stepContent.workspaceContent,
       previousStepUrl: common.previousStepUrl,
@@ -2164,6 +2176,7 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
         .catch(() => { if (!isCurrent()) return; button.disabled = false; const alert = document.createElement('p'); alert.setAttribute('role','alert'); alert.className='text-danger'; alert.textContent='Could not save completion. Check your connection and try again.'; form.prepend(alert); });
     }));
     if (kind === 'theory') {
+      void import('./pages/learning/codemirror-editor.ts').then(({ highlightStaticPython }) => { if (isCurrent()) highlightStaticPython(appEl); }).catch(() => {});
       // Canonical media references are never loaded directly by the browser. Fetch with
       // the authenticated session, then replace with an object URL only after authorization.
       const mediaImages = [...appEl.querySelectorAll<HTMLImageElement>('img[src^="about:blank#zur-asset-"]')];
@@ -2536,6 +2549,13 @@ function attachPythonWorkspaceListeners(
       ...overrides,
     });
     body.setAttribute('aria-live', 'polite');
+    const summary = document.getElementById('drawer-summary');
+    if (summary) {
+      const tests = currentResult?.testResults || [];
+      summary.textContent = currentResult && resultMode !== 'custom' && tests.length
+        ? `${tests.filter((t) => t.passed).length}/${tests.length} passed`
+        : currentResult ? currentResult.verdict.toLowerCase().replace(/_/g, ' ') : '';
+    }
   };
   const selectTab = (tabName: 'results' | 'custom_input') => {
     const existingInput = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
@@ -2544,14 +2564,14 @@ function attachPythonWorkspaceListeners(
     const modeSelect = document.getElementById('run-mode-select') as HTMLSelectElement | null;
     if (modeSelect) modeSelect.value = tabName === 'custom_input' ? 'custom' : 'samples';
     document.querySelectorAll<HTMLButtonElement>('.results-tab-button[role="tab"]').forEach((tab) => {
-      const selected = tab.textContent?.trim() === (tabName === 'results' ? 'Results' : 'Custom input');
+      const selected = tab.dataset.tab === tabName;
       tab.classList.toggle('active', Boolean(selected));
       tab.setAttribute('aria-selected', String(Boolean(selected)));
     });
     const body = document.querySelector('.results-body');
     if (!body) return;
     if (tabName === 'custom_input') {
-      body.innerHTML = '<div class="custom-input-box"><label for="custom-stdin-input" class="comparison-label">Input</label><textarea id="custom-stdin-input" class="code-editor-input" style="height: 100px; border: 1px solid var(--border-control); border-radius: var(--radius-sm);" placeholder="Input for your program (optional)"></textarea></div>';
+      body.innerHTML = '<div class="custom-input-box"><label for="custom-stdin-input" class="comparison-label">Input</label><textarea id="custom-stdin-input" placeholder="Input for your program (optional)" class="code-editor-input custom-stdin"></textarea></div>';
       const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
       if (input) { input.value = customStdin; input.focus(); }
     } else {
@@ -2560,7 +2580,7 @@ function attachPythonWorkspaceListeners(
   };
 
   const textarea = document.getElementById('code-editor-input') as HTMLTextAreaElement | null;
-  let editorInstance: { editorView: any; setCode: (code: string) => void; destroy: () => void } | null = null;
+  let editorInstance: { editorView: any; setCode: (code: string) => void; setFontSize?: (size: number) => number; getFontSize?: () => number; destroy: () => void } | null = null;
   if (textarea) {
     void import('./pages/learning/codemirror-editor.ts').then(({ createCodeMirrorEditor }) => {
       if (!textarea.isConnected) return;
@@ -2576,13 +2596,24 @@ function attachPythonWorkspaceListeners(
           void execute(mode, input?.value ?? customStdin);
         },
         onEscape: () => {
-          document.getElementById('run-samples-btn')?.focus();
+          document.getElementById('run-code-btn')?.focus();
+        },
+        onModShiftEnter: () => { void execute('submit'); },
+        onCursorChange: (line, col) => {
+          const pos = document.getElementById('editor-cursor-pos');
+          if (pos) pos.textContent = `Ln ${line}, Col ${col}`;
+        },
+        onFontSizeChange: (size) => {
+          const label = document.getElementById('editor-font-size-label');
+          if (label) label.textContent = `${size}px`;
         },
         onDocChange: (_val) => {
           // input event is already dispatched to textarea
         },
       });
       (window as any).__zur_active_cm_editor = editorInstance;
+      const fontLabel = document.getElementById('editor-font-size-label');
+      if (fontLabel && editorInstance?.getFontSize) fontLabel.textContent = `${editorInstance.getFontSize()}px`;
     }).catch((err) => {
       textarea.classList.remove('cm-source-backup');
       console.warn('CodeMirror dynamic load failed, using fallback textarea', err);
@@ -2647,12 +2678,27 @@ function attachPythonWorkspaceListeners(
     workspaceViewport.style.setProperty('--problem-pane-width', `${bounded}px`);
     workspaceSplitter.setAttribute('aria-valuenow', String(Math.round(bounded)));
   };
-  const setResultsHeight = (height: number) => {
+  const DRAWER_HEIGHT_KEY = 'zur_results_drawer_height';
+  const setDrawerOpen = (open: boolean) => {
+    if (!editorPane) return;
+    editorPane.dataset.drawer = open ? 'open' : 'closed';
+    document.getElementById('drawer-toggle-btn')?.setAttribute('aria-expanded', String(open));
+  };
+  const setResultsHeight = (height: number, persist = false) => {
     if (!editorPane || !resultsSplitter || !resultsRegion) return;
-    const bounded = Math.max(120, Math.min(height, editorPane.clientHeight - 284));
+    const bounded = Math.max(120, Math.min(height, editorPane.clientHeight - 200));
     editorPane.style.setProperty('--results-height', `${bounded}px`);
     resultsSplitter.setAttribute('aria-valuenow', String(Math.round(bounded)));
+    if (persist) {
+      try { window.localStorage.setItem(DRAWER_HEIGHT_KEY, String(Math.round(bounded))); } catch { /* storage unavailable */ }
+    }
   };
+  try {
+    const storedHeight = Number(window.localStorage.getItem(DRAWER_HEIGHT_KEY));
+    if (Number.isFinite(storedHeight) && storedHeight >= 120) setResultsHeight(storedHeight);
+  } catch { /* storage unavailable */ }
+  document.getElementById('drawer-toggle-btn')?.addEventListener('click', () => setDrawerOpen(editorPane?.dataset.drawer !== 'open'));
+  resultsSplitter?.addEventListener('dblclick', () => setDrawerOpen(editorPane?.dataset.drawer !== 'open'));
   workspaceSplitter?.addEventListener('keydown', (event) => {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     event.preventDefault();
@@ -2661,7 +2707,8 @@ function attachPythonWorkspaceListeners(
   resultsSplitter?.addEventListener('keydown', (event) => {
     if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
     event.preventDefault();
-    setResultsHeight((resultsRegion?.clientHeight || 240) + (event.key === 'ArrowUp' ? 16 : -16));
+    setDrawerOpen(true);
+    setResultsHeight((resultsRegion?.clientHeight || 240) + (event.key === 'ArrowUp' ? 16 : -16), true);
   });
   workspaceSplitter?.addEventListener('pointerdown', (event) => {
     if (window.innerWidth < 1024) return;
@@ -2676,8 +2723,10 @@ function attachPythonWorkspaceListeners(
     if (window.innerWidth < 1024) return;
     resultsSplitter.setPointerCapture(event.pointerId);
     const startY = event.clientY;
-    const startHeight = resultsRegion?.clientHeight || 240;
-    const move = (moveEvent: PointerEvent) => setResultsHeight(startHeight + startY - moveEvent.clientY);
+    const wasClosed = editorPane?.dataset.drawer !== 'open';
+    setDrawerOpen(true);
+    const startHeight = wasClosed ? 120 : (resultsRegion?.clientHeight || 240);
+    const move = (moveEvent: PointerEvent) => setResultsHeight(startHeight + startY - moveEvent.clientY, true);
     resultsSplitter.addEventListener('pointermove', move);
     resultsSplitter.addEventListener('pointerup', () => resultsSplitter.removeEventListener('pointermove', move), { once: true });
   });
@@ -2704,6 +2753,7 @@ function attachPythonWorkspaceListeners(
     const actionButtons = document.querySelectorAll<HTMLButtonElement>('.editor-toolbar-actions button');
     actionButtons.forEach((button) => { button.disabled = true; });
     selectTab('results');
+    setDrawerOpen(true);
     setResults({ inFlightStatus: 'queued' });
     try {
       const endpoint = mode === 'samples' ? '/api/execution/run-samples' : mode === 'custom' ? '/api/execution/run-custom' : '/api/execution/submit';
@@ -2764,25 +2814,18 @@ function attachPythonWorkspaceListeners(
           .catch(() => {});
 
         const resultsBody = document.querySelector('.results-body');
+        document.querySelector('.editor-toolbar-actions [data-python-continue]')?.remove();
         if (resultsBody && !resultsBody.querySelector('[data-python-success]')) {
           const nextHref = initial.nextStepUrl || `/learn/${encodeURIComponent(initial.enrollmentId)}`;
           const banner = document.createElement('div');
           banner.className = 'python-success-banner';
           banner.dataset.pythonSuccess = 'true';
           banner.setAttribute('role', 'status');
-          banner.innerHTML = `<span aria-hidden="true">✓</span><span class="python-success-text">All tests passed. Step complete.</span><a href="${escapeHtml(nextHref)}" class="btn btn-primary btn-compact" data-python-next>${initial.nextStepUrl ? 'Next step →' : 'Back to course →'}</a>`;
+          const duration = currentResult?.executionTimeMs ? `<span class="result-duration text-secondary tabular-nums">${escapeHtml(String(currentResult.executionTimeMs))} ms</span>` : '';
+          banner.innerHTML = `<span aria-hidden="true">✓</span><span class="python-success-text">All tests passed. Step complete.</span>${duration}<a href="${escapeHtml(nextHref)}" class="btn btn-primary btn-compact" data-python-next>${initial.isLastStep ? 'Back to course →' : 'Next step →'}</a>`;
+          resultsBody.querySelector('.result-card-banner')?.remove();
           resultsBody.prepend(banner);
           banner.querySelector<HTMLElement>('[data-python-next]')?.focus({ preventScroll: true });
-        }
-
-        const rightContainer = document.querySelector('.editor-toolbar-actions');
-        if (rightContainer && initial.nextStepUrl && !document.querySelector('[data-python-continue]')) {
-          const link = document.createElement('a');
-          link.href = initial.nextStepUrl;
-          link.className = 'btn btn-primary btn-compact';
-          link.textContent = 'Continue';
-          link.dataset.pythonContinue = 'true';
-          rightContainer.append(link);
         }
       }
     } catch (error: any) {
@@ -2851,6 +2894,16 @@ function attachPythonWorkspaceListeners(
   document.getElementById('run-samples-btn')?.addEventListener('click', () => void execute('samples'));
   document.getElementById('submit-solution-btn')?.addEventListener('click', () => void execute('submit'));
   document.querySelector('.results-body')?.addEventListener('click', (event) => {
+    const chip = (event.target as HTMLElement).closest<HTMLElement>('[data-test-chip]');
+    if (chip) {
+      const detail = document.getElementById(chip.getAttribute('aria-controls') || '');
+      if (detail) {
+        const expand = detail.hidden;
+        detail.hidden = !expand;
+        chip.setAttribute('aria-expanded', String(expand));
+      }
+      return;
+    }
     if ((event.target as HTMLElement).closest('#retry-execution-btn')) {
       void execute(resultMode === 'submit' ? 'submit' : resultMode === 'custom' ? 'custom' : 'samples', customStdin);
     }
@@ -2871,7 +2924,72 @@ function attachPythonWorkspaceListeners(
       }
     });
   });
+  const moreBtn = document.getElementById('toolbar-more-btn');
+  const moreMenu = document.getElementById('toolbar-more-menu');
+  const setMoreOpen = (open: boolean) => {
+    if (!moreMenu || !moreBtn) return;
+    moreMenu.hidden = !open;
+    moreBtn.setAttribute('aria-expanded', String(open));
+    if (open) moreMenu.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+  };
+  moreBtn?.addEventListener('click', (event) => { event.stopPropagation(); setMoreOpen(Boolean(moreMenu?.hidden)); });
+  moreMenu?.addEventListener('click', (event) => {
+    if ((event.target as HTMLElement).closest('[role="menuitem"]')) setMoreOpen(false);
+  });
+  const shortcutsBtn = document.getElementById('shortcuts-btn');
+  const shortcutsPopover = document.getElementById('shortcuts-popover');
+  const setShortcutsOpen = (open: boolean) => {
+    if (!shortcutsPopover || !shortcutsBtn) return;
+    shortcutsPopover.hidden = !open;
+    shortcutsBtn.setAttribute('aria-expanded', String(open));
+  };
+  shortcutsBtn?.addEventListener('click', (event) => { event.stopPropagation(); setShortcutsOpen(Boolean(shortcutsPopover?.hidden)); });
+  const popoverController = workspaceResizeController;
+  document.addEventListener('click', (event) => {
+    const t = event.target as HTMLElement;
+    if (moreMenu && !moreMenu.hidden && !t.closest('.toolbar-menu')) setMoreOpen(false);
+    if (shortcutsPopover && !shortcutsPopover.hidden && !t.closest('.shortcuts-wrap')) setShortcutsOpen(false);
+  }, { signal: popoverController?.signal });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      if (moreMenu && !moreMenu.hidden) { setMoreOpen(false); moreBtn?.focus(); }
+      if (shortcutsPopover && !shortcutsPopover.hidden) { setShortcutsOpen(false); shortcutsBtn?.focus(); }
+      return;
+    }
+    const el = event.target as HTMLElement;
+    if (event.key === '?' && !el.closest('input, textarea, select, [contenteditable="true"], .cm-editor')) {
+      event.preventDefault();
+      setShortcutsOpen(Boolean(shortcutsPopover?.hidden));
+    }
+  }, { signal: popoverController?.signal });
+  document.querySelector('.paired-workspace')?.addEventListener('click', (event) => {
+    const stepBtn = (event.target as HTMLElement).closest<HTMLElement>('[data-font-step]');
+    if (stepBtn && editorInstance?.setFontSize && editorInstance.getFontSize) {
+      editorInstance.setFontSize(editorInstance.getFontSize() + Number(stepBtn.dataset.fontStep));
+      return;
+    }
+    const reveal = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-hint-reveal]');
+    if (!reveal) return;
+    const block = reveal.closest<HTMLElement>('.hints-block');
+    if (!block) return;
+    const total = Number(block.dataset.hintTotal);
+    const index = Number(block.dataset.hintRevealed);
+    const item = block.querySelector<HTMLElement>(`[data-hint-item="${index}"]`);
+    if (!item) return;
+    item.hidden = false;
+    block.dataset.hintRevealed = String(index + 1);
+    if (index + 1 >= total) reveal.remove();
+    else reveal.textContent = `Reveal hint ${index + 2} of ${total}`;
+    courseClient.revealHint(initial.enrollmentId, initial.stepId, index).catch((err: unknown) => {
+      console.warn('Failed to record hint reveal event', err);
+    });
+  });
   textarea?.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && event.shiftKey) {
+      event.preventDefault();
+      void execute('submit');
+      return;
+    }
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
       event.preventDefault();
       const mode = getSelectedRunMode();

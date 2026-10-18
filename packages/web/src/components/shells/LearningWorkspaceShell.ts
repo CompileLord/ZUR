@@ -56,6 +56,111 @@ export interface LearningWorkspaceShellOptions {
     stepTitle?: string;
   };
   isSidebarCollapsed?: boolean;
+  outlineDrawer?: boolean;
+}
+
+export const OUTLINE_DOCK_MIN_WIDTH = 1600;
+
+export function isOutlineDocked(isPython: boolean): boolean {
+  return isPython && typeof window !== 'undefined' && window.innerWidth >= OUTLINE_DOCK_MIN_WIDTH;
+}
+
+export function resolveOutlineCollapsed(opts: { outlineDrawer?: boolean; isPythonWorkspace?: boolean; isSidebarCollapsed?: boolean }): boolean {
+  if (!opts.outlineDrawer) return Boolean(opts.isSidebarCollapsed);
+  return isOutlineDocked(Boolean(opts.isPythonWorkspace)) ? Boolean(opts.isSidebarCollapsed) : true;
+}
+
+export function getOutlineToggleLabels(isCollapsed: boolean, drawer: boolean): { label: string; title: string } {
+  if (!drawer) {
+    const l = isCollapsed ? 'Show modules' : 'Hide modules';
+    return { label: l, title: l };
+  }
+  return { label: isCollapsed ? 'Show outline' : 'Hide outline', title: 'Outline (Ctrl+B)' };
+}
+
+export function setLearningOutlineState(shellEl: HTMLElement, collapsed: boolean): void {
+  const sidebar = shellEl.querySelector<HTMLElement>('#course-sidebar');
+  if (!sidebar) return;
+  sidebar.classList.toggle('collapsed', collapsed);
+  sidebar.classList.toggle('open', !collapsed);
+  sidebar.inert = collapsed;
+  const drawer = shellEl.classList.contains('outline-drawer-mode');
+  const overlay = drawer && !isOutlineDocked(shellEl.classList.contains('paired-workspace'));
+  const main = shellEl.querySelector<HTMLElement>('.learning-workspace-main');
+  if (main) main.inert = overlay && !collapsed;
+  const scrim = shellEl.querySelector<HTMLElement>('.outline-scrim');
+  if (scrim) scrim.hidden = !(overlay && !collapsed);
+  const btn = shellEl.querySelector<HTMLElement>('.sidebar-toggle-btn');
+  if (btn) {
+    const t = getOutlineToggleLabels(collapsed, drawer);
+    btn.setAttribute('aria-expanded', String(!collapsed));
+    btn.setAttribute('aria-label', t.label);
+    btn.setAttribute('title', t.title);
+  }
+}
+
+let outlinePersist: ((collapsed: boolean) => void) | null = null;
+let outlineGlobalsInstalled = false;
+
+function activeOutlineShell(): HTMLElement | null {
+  const shell = document.querySelector<HTMLElement>('.shell-learning.outline-drawer-mode');
+  return shell && shell.isConnected ? shell : null;
+}
+
+export function toggleLearningOutline(shellEl: HTMLElement, force?: boolean): void {
+  const sidebar = shellEl.querySelector<HTMLElement>('#course-sidebar');
+  if (!sidebar) return;
+  const wasCollapsed = sidebar.classList.contains('collapsed');
+  const collapsed = force === undefined ? !wasCollapsed : !force;
+  setLearningOutlineState(shellEl, collapsed);
+  const docked = isOutlineDocked(shellEl.classList.contains('paired-workspace'));
+  if (docked) outlinePersist?.(collapsed);
+  if (!docked && wasCollapsed && !collapsed) {
+    (sidebar.querySelector<HTMLElement>('.sidebar-lesson-item.active') || sidebar.querySelector<HTMLElement>('a, button'))?.focus();
+  } else if (!docked && !wasCollapsed && collapsed) {
+    shellEl.querySelector<HTMLElement>('.sidebar-toggle-btn')?.focus();
+  }
+}
+
+export function attachOutlineDrawer(shellEl: HTMLElement, persist: (collapsed: boolean) => void): void {
+  outlinePersist = persist;
+  shellEl.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
+    if (target.closest('.sidebar-toggle-btn')) {
+      event.stopPropagation();
+      toggleLearningOutline(shellEl);
+    } else if (target.closest('.outline-close-btn, .outline-scrim')) {
+      toggleLearningOutline(shellEl, false);
+    } else if (target.closest('#course-sidebar a') && !isOutlineDocked(shellEl.classList.contains('paired-workspace'))) {
+      setLearningOutlineState(shellEl, true);
+    }
+  });
+  if (outlineGlobalsInstalled) return;
+  outlineGlobalsInstalled = true;
+  document.addEventListener('keydown', (event) => {
+    const shell = activeOutlineShell();
+    if (!shell) return;
+    const sidebar = shell.querySelector<HTMLElement>('#course-sidebar');
+    if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === 'b') {
+      event.preventDefault();
+      toggleLearningOutline(shell);
+      return;
+    }
+    const overlayOpen = sidebar && !sidebar.classList.contains('collapsed') && !isOutlineDocked(shell.classList.contains('paired-workspace'));
+    if (!overlayOpen || !sidebar) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      toggleLearningOutline(shell, false);
+    } else if (event.key === 'Tab') {
+      const focusable = Array.from(sidebar.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), summary'));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!sidebar.contains(document.activeElement)) { event.preventDefault(); first.focus(); }
+      else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+  });
 }
 
 export function renderTaskStripHtml(opts: {
@@ -65,9 +170,12 @@ export function renderTaskStripHtml(opts: {
   previousStepUrl?: string | null;
   nextStepUrl?: string | null;
   isSidebarCollapsed?: boolean;
+  outlineDrawer?: boolean;
 }): string {
   const isCollapsed = Boolean(opts.isSidebarCollapsed);
-  const toggleLabel = isCollapsed ? 'Show modules' : 'Hide modules';
+  const drawer = Boolean(opts.outlineDrawer);
+  const toggle = getOutlineToggleLabels(isCollapsed, drawer);
+  const toggleLabel = toggle.label;
 
   return `
     <nav class="learning-task-strip" role="navigation" aria-label="Lesson tasks">
@@ -75,9 +183,9 @@ export function renderTaskStripHtml(opts: {
           <a href="/learn" class="btn btn-secondary btn-compact learning-home-link" aria-label="Back to main page" title="Back to main page">
             ${renderIcon('arrow-left', { size: 16 })}
           </a>
-          <button type="button" class="btn btn-secondary btn-compact outline-toggle-btn sidebar-toggle-btn" aria-expanded="${!isCollapsed}" aria-controls="course-sidebar" title="${toggleLabel}" aria-label="${toggleLabel}">
+          <button type="button" class="btn btn-secondary btn-compact outline-toggle-btn sidebar-toggle-btn" aria-expanded="${!isCollapsed}" aria-controls="course-sidebar" title="${toggle.title}" aria-label="${toggleLabel}">
             ${renderIcon('book', { size: 14 })}
-            <span>Modules</span>
+            <span>${drawer ? 'Outline' : 'Modules'}</span>
           </button>
         <span class="task-strip-lesson-title font-semibold text-sm" title="${escapeHtml(opts.lessonTitle)}">${escapeHtml(opts.lessonTitle)}</span>
 
@@ -134,6 +242,7 @@ export function renderTaskSquareInnerHtml(item: { ordinal: number; type?: TaskSq
 }
 
 export function renderSidebarContentHtml(opts: {
+  drawer?: boolean;
   modules?: CourseModuleItem[];
   outlineContent?: string;
   courseProgressText?: string;
@@ -143,7 +252,8 @@ export function renderSidebarContentHtml(opts: {
   if (hasModules) {
     return `
       <div class="sidebar-header">
-        <h2 class="sidebar-title">Modules &amp; lessons</h2>
+        <h2 class="sidebar-title">${opts.drawer ? 'Outline' : 'Modules &amp; lessons'}</h2>
+        ${opts.drawer ? `<button type="button" class="btn-icon btn-compact outline-close-btn" aria-label="Close outline">${renderIcon('x', { size: 16 })}</button>` : ''}
 
       </div>
       <div class="sidebar-modules-list">
@@ -199,7 +309,8 @@ export function renderSidebarContentHtml(opts: {
 
 export function renderLearningWorkspaceShell(opts: LearningWorkspaceShellOptions): string {
   const isPython = Boolean(opts.isPythonWorkspace);
-  const isSidebarCollapsed = Boolean(opts.isSidebarCollapsed);
+  const drawer = Boolean(opts.outlineDrawer);
+  const isSidebarCollapsed = resolveOutlineCollapsed(opts);
   const taskStripHtml = renderTaskStripHtml({
     taskControls: isPython ? opts.taskActions : undefined,
     lessonTitle: opts.lessonTitle,
@@ -207,9 +318,11 @@ export function renderLearningWorkspaceShell(opts: LearningWorkspaceShellOptions
     previousStepUrl: opts.previousStepUrl,
     nextStepUrl: opts.nextStepUrl,
     isSidebarCollapsed,
+    outlineDrawer: drawer,
   });
 
   const sidebarContentHtml = renderSidebarContentHtml({
+    drawer,
     modules: opts.modules,
     outlineContent: opts.outlineContent,
     courseProgressText: opts.courseProgressText,
@@ -217,12 +330,13 @@ export function renderLearningWorkspaceShell(opts: LearningWorkspaceShellOptions
   });
 
   return `
-    <div class="shell-learning ${isPython ? 'paired-workspace' : 'reading-workspace'} learning-workspace-layout">
+    <div class="shell-learning ${isPython ? 'paired-workspace' : 'reading-workspace'} learning-workspace-layout${drawer ? ' outline-drawer-mode' : ''}">
 
 
       ${taskStripHtml}
       <div class="learning-body">
-        <aside id="course-sidebar" class="learning-course-sidebar ${isSidebarCollapsed ? 'collapsed' : 'open'}" role="navigation" aria-label="Course Syllabus"${isSidebarCollapsed ? ' inert' : ''}>
+        ${drawer ? '<div class="outline-scrim" hidden></div>' : ''}
+        <aside id="course-sidebar" class="learning-course-sidebar ${isSidebarCollapsed ? 'collapsed' : 'open'}" role="navigation" aria-label="${drawer ? 'Course outline' : 'Course Syllabus'}"${isSidebarCollapsed ? ' inert' : ''}>
           ${sidebarContentHtml}
         </aside>
 
