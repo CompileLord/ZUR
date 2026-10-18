@@ -1125,9 +1125,6 @@ export function renderAdminPageContent(
         <div class="admin-overview-card execution-service-card mb-6">
           <div class="execution-service-header flex items-center justify-between flex-wrap gap-4">
             <div class="execution-service-status">
-              <div class="flex items-center gap-2 mb-1">
-                ${pill(isPaused ? 'Admission: Paused' : 'Admission: Accepting jobs', isPaused ? 'warning' : 'success')}
-              </div>
               <p class="execution-service-desc text-secondary text-sm">
                 ${isPaused ? 'Execution is currently paused. No new student code runs are admitted.' : 'Execution is active. Disabling accepts no new jobs while preserving reading and code drafts.'}
               </p>
@@ -1159,7 +1156,7 @@ export function renderAdminPageContent(
           <div class="stat-tile">
             <span class="stat-label">Worker health</span>
             <div class="mt-1">${pill(data.overview.workers.lastObservedAt ? 'Heartbeat active' : 'Unavailable', data.overview.workers.lastObservedAt ? 'success' : 'neutral')}</div>
-            <span class="stat-hint text-xs text-muted" title="${escapeAdmin(data.overview.workers.health)}">${escapeAdmin(data.overview.workers.health || 'Heartbeat telemetry')}</span>
+            <span class="stat-hint text-xs text-muted" title="${escapeAdmin(data.overview.workers.health)}">${escapeAdmin(data.overview.workers.lastObservedAt ? data.overview.workers.health || 'Heartbeat telemetry' : 'Heartbeat telemetry')}</span>
           </div>
         </div>
 

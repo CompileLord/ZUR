@@ -360,10 +360,12 @@ export function renderCatalogPage(props: CatalogPageProps): string {
   `;
 }
 
+const THUMB_HUES = [95, 140, 165, 185, 205, 225, 38];
+
 function hueFor(id: string): number {
   let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
-  return h;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 997;
+  return THUMB_HUES[h % THUMB_HUES.length];
 }
 
 function renderCatalogCard(c: CatalogCourseItem): string {

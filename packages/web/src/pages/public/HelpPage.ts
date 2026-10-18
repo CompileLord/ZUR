@@ -1,3 +1,4 @@
+import { renderIcon } from '../../components/common/icons.ts';
 export interface HelpPageProps {
   courseId?: string;
   courseVersionId?: string;
@@ -39,8 +40,8 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
       <div class="sheet-panel max-w-dialog" tabindex="-1">
         <div class="sheet-header flex justify-between items-center pb-2 border-b border-subtle">
           <h2 id="report-modal-title" class="text-base font-semibold text-primary">Report an issue</h2>
-          <button type="button" class="btn btn-ghost btn-compact" data-action="close-report" aria-label="Close dialog">
-            ✕
+          <button type="button" class="btn btn-icon" data-action="close-report" aria-label="Close dialog">
+            ${renderIcon('x', { size: 16 })}
           </button>
         </div>
 
@@ -95,7 +96,7 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
                   >${escapeHtml(description)}</textarea>
                 </div>
 
-                <div class="form-group flex items-center gap-2">
+                <div class="form-group report-include-code">
                   <input id="report-include-code" type="checkbox" class="form-checkbox" ${includeCode ? 'checked' : ''} />
                   <label for="report-include-code" class="text-xs text-secondary cursor-pointer">
                     Include submitted code draft with report (optional)

@@ -139,8 +139,8 @@
   flex: none;
   text-decoration: none;
   background:
-    radial-gradient(circle at 20% 20%, hsl(var(--thumb-hue) 55% 55% / 0.55), transparent 60%),
-    linear-gradient(135deg, hsl(var(--thumb-hue) 45% 28%), hsl(calc(var(--thumb-hue) + 50) 50% 18%));
+    radial-gradient(circle at 20% 20%, hsl(var(--thumb-hue) 32% 46% / 0.5), transparent 60%),
+    linear-gradient(135deg, hsl(var(--thumb-hue) 30% 27%), hsl(calc(var(--thumb-hue) + 12) 32% 18%));
 }
 .catalog-thumb-initial {
   font-size: 40px;
@@ -239,6 +239,17 @@
 .auth-split { display: grid; grid-template-columns: 1fr; gap: 24px; }
 @media (min-width: 900px) {
   .auth-split { grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 32px; align-items: stretch; }
+  .account-card:has(.auth-split) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    column-gap: 32px;
+    align-content: start;
+  }
+  .account-card:has(.auth-split) > :not(.account-form-body) { grid-column: 1; }
+  .account-card:has(.auth-split) .account-form-body,
+  .account-card:has(.auth-split) .auth-split { display: contents; }
+  .account-card:has(.auth-split) .auth-form-col { grid-column: 1; }
+  .account-card:has(.auth-split) .auth-value { grid-column: 2; grid-row: 1 / span 3; align-self: start; }
 }
 .auth-value {
   display: none;
@@ -265,7 +276,7 @@
   color: var(--accent);
 }
 .auth-value-code {
-  margin: auto 0 0;
+  margin: 0;
   padding: 14px 16px;
   border-radius: var(--radius-md);
   background: var(--code-bg);
@@ -310,3 +321,6 @@
 .status-state-heading { font-size: 24px; font-weight: 600; margin: 0 0 8px; color: var(--text-primary); }
 .status-state-message { font-size: 15px; line-height: 1.55; color: var(--text-secondary); margin: 0 0 24px; }
 .status-state-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; }
+
+.report-modal .report-include-code,
+dialog#report-issue-modal .report-include-code { flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; }
