@@ -4,6 +4,7 @@ import {
   type TaskSquareItem,
 } from '../../components/shells/LearningWorkspaceShell.ts';
 import { escapeHtml } from '../../components/escape-html.ts';
+import { renderInlinesToHtml } from 'zur-shared';
 import { formatDuration } from '../../utils/formatters.ts';
 
 export interface QuizOptionItem {
@@ -103,7 +104,7 @@ export function renderQuizWorkspaceContent(opts: QuizStepPageOptions): { workspa
       ${practiceBannerHtml}
 
       <div class="quiz-prompt-block">
-        <p class="quiz-prompt-text">${escapeHtml(opts.prompt)}</p>
+        <p class="quiz-prompt-text">${renderInlinesToHtml(opts.prompt)}</p>
         ${
           isMultiple
             ? '<span class="multi-select-hint">Select all correct answers</span>'
@@ -127,6 +128,7 @@ export function renderQuizWorkspaceContent(opts: QuizStepPageOptions): { workspa
             let optionClass = 'quiz-option-row';
             if (isSelected) optionClass += ' selected';
             if (isEvaluated && opts.feedback?.isPassed && isCorrect) optionClass += ' correct';
+            if (isEvaluated && !opts.feedback?.isPassed && isSelected) optionClass += ' incorrect';
 
             return `
               <label class="${optionClass}">
@@ -138,7 +140,7 @@ export function renderQuizWorkspaceContent(opts: QuizStepPageOptions): { workspa
                   class="quiz-input-control"
                 />
                 <span class="option-indicator" aria-hidden="true"></span>
-                <span class="option-text">${escapeHtml(opt.text)}</span>
+                <span class="option-text">${renderInlinesToHtml(opt.text)}</span>
               </label>
             `;
           }).join('')}
@@ -152,16 +154,11 @@ export function renderQuizWorkspaceContent(opts: QuizStepPageOptions): { workspa
             ${isPassed ? 'Check again' : 'Check answer'}
           </button>
           ${isPassed && opts.nextStepUrl ? `<a href="${escapeHtml(opts.nextStepUrl)}" class="btn btn-primary btn-compact">Next step →</a>` : ''}
+          <a href="/help?report=broken_exercise&stepId=${encodeURIComponent(opts.stepId)}&enrollmentId=${encodeURIComponent(opts.enrollmentId)}" class="report-issue-link btn-ghost btn-compact text-muted">Report issue</a>
         </div>
 
         ${feedbackPanelHtml}
       </form>
-
-      <div class="quiz-footer-quiet-action">
-        <a href="/help?report=broken_exercise&stepId=${encodeURIComponent(opts.stepId)}&enrollmentId=${encodeURIComponent(opts.enrollmentId)}" class="report-issue-link btn-ghost btn-compact text-muted">
-          Report issue
-        </a>
-      </div>
     </article>
   `;
 

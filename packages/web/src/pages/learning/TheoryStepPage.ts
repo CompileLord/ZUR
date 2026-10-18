@@ -56,9 +56,11 @@ export function renderTheoryWorkspaceContent(opts: TheoryStepPageOptions): { wor
   );
 
   const continueUrl = opts.nextStepUrl || opts.courseOverviewUrl;
-  const taskActions = opts.isCompleted
+  const reportIssueHtml = `<a href="/help?report=broken_exercise&stepId=${encodeURIComponent(opts.stepId)}&enrollmentId=${encodeURIComponent(opts.enrollmentId)}" class="report-issue-link btn-ghost btn-compact text-muted">Report issue</a>`;
+  const primaryActionHtml = opts.isCompleted
     ? `<a href="${escapeHtml(continueUrl)}" class="btn btn-primary btn-compact">Continue</a>`
     : `<form method="POST" action="/api/enrollments/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/complete" class="complete-step-form"><button type="submit" class="btn btn-primary btn-compact">Mark complete and continue</button></form>`;
+  const taskActions = `${reportIssueHtml}${primaryActionHtml}`;
 
   const durationStr = formatDuration(opts.estimatedDurationMinutes);
 
@@ -76,12 +78,6 @@ export function renderTheoryWorkspaceContent(opts: TheoryStepPageOptions): { wor
 
       <div class="reading-body markdown-prose">
         ${renderedBodyHtml}
-      </div>
-
-      <div class="reading-footer-quiet-action">
-        <a href="/help?report=broken_exercise&stepId=${encodeURIComponent(opts.stepId)}&enrollmentId=${encodeURIComponent(opts.enrollmentId)}" class="report-issue-link btn-ghost btn-compact text-muted">
-          Report issue
-        </a>
       </div>
     </article>
   `;

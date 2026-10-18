@@ -153,9 +153,11 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
       </div>
 
       ${opts.attempts.length === 0 ? `
-        <div class="results-empty-notice" style="padding: var(--space-8); text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--space-3);">
-          <p class="text-secondary">No submissions yet.</p>
-          <a href="${escapeHtml(opts.workspaceUrl)}" class="btn btn-secondary btn-compact">Return to task</a>
+        <div class="results-empty-notice attempt-empty-state">
+          <span class="attempt-empty-icon" aria-hidden="true">${renderIcon('history', { size: 22 })}</span>
+          <p class="attempt-empty-title">No submissions yet</p>
+          <p class="text-secondary attempt-empty-hint">Run your solution and submit it. Every attempt will be listed here.</p>
+          <a href="${escapeHtml(opts.workspaceUrl)}" class="btn btn-primary btn-compact">Return to task</a>
         </div>
       ` : `
         <div class="attempt-history-list">
@@ -165,17 +167,15 @@ export function renderAttemptHistoryPage(opts: AttemptHistoryPageOptions): strin
             const badgeClass = isPassed ? 'status-ready' : isInfra ? 'status-draft' : 'status-failed';
             const detailHref = `/learn/${encodeURIComponent(opts.enrollmentId)}/steps/${encodeURIComponent(opts.stepId)}/attempts/${encodeURIComponent(att.id)}${opts.offset ? `?offset=${opts.offset}` : ''}`;
             return `
-              <a href="${detailHref}" class="attempt-row-card">
-                <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <a href="${detailHref}" class="attempt-row-card ${isPassed ? 'is-passed' : isInfra ? 'is-infra' : 'is-failed'}">
+                <div class="attempt-row-main">
                   <span class="status-badge ${badgeClass}" aria-label="${escapeHtml(att.verdict)}">${sentenceCase(att.verdict)}</span>
                   <span class="attempt-row-num" aria-label="Attempt #${escapeHtml(att.attemptNumber)}">Attempt ${escapeHtml(att.attemptNumber)}</span>
-                  <span class="text-secondary" style="font-size: var(--type-metadata-size);">
-                    ${formatDate(att.createdAt)}
-                  </span>
+                  <time class="attempt-row-time" datetime="${escapeHtml(att.createdAt)}">${formatDate(att.createdAt)}</time>
                 </div>
-                <div style="display: flex; align-items: center; gap: var(--space-3);">
-                  <span class="text-secondary font-mono" style="font-size: var(--type-micro-size);">${escapeHtml(att.runtimeVersion || PYTHON_RUNTIME_LABEL)}</span>
-                  ${att.executionTimeMs ? `<span class="text-tertiary tabular-nums" style="font-size: var(--type-metadata-size);">${escapeHtml(att.executionTimeMs)} ms</span>` : ''}
+                <div class="attempt-row-meta">
+                  <span class="attempt-row-runtime">${escapeHtml(att.runtimeVersion || PYTHON_RUNTIME_LABEL)}</span>
+                  ${att.executionTimeMs ? `<span class="attempt-row-duration tabular-nums">${escapeHtml(att.executionTimeMs)} ms</span>` : ''}
                   <span class="attempt-row-chevron" aria-hidden="true">${renderIcon('chevron-right', { size: 16 })}</span>
                 </div>
               </a>
