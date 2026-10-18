@@ -20,6 +20,34 @@ export function renderLoadingSkeleton(ariaLabel: string = 'Loading content'): st
   `;
 }
 
+export type PageSkeletonVariant = 'cards' | 'workspace' | 'table';
+
+export function renderPageSkeleton(label: string, variant: PageSkeletonVariant = 'cards'): string {
+  const safeLabel = escapeHtml(label);
+  const cards = Array.from({ length: 3 }, () => `
+    <div class="skeleton-card" aria-hidden="true">
+      <div class="skeleton-line skeleton-title"></div>
+      <div class="skeleton-line skeleton-text"></div>
+      <div class="skeleton-line skeleton-text short"></div>
+    </div>`).join('');
+  const rows = Array.from({ length: 6 }, () => '<div class="skeleton-line skeleton-row" aria-hidden="true"></div>').join('');
+  const body = variant === 'workspace'
+    ? `<div class="skeleton-workspace" aria-hidden="true">
+        <div class="skeleton-pane"><div class="skeleton-line skeleton-title"></div><div class="skeleton-line skeleton-text"></div><div class="skeleton-line skeleton-text"></div><div class="skeleton-line skeleton-text short"></div></div>
+        <div class="skeleton-pane skeleton-editor"><div class="skeleton-line skeleton-text"></div><div class="skeleton-line skeleton-text short"></div><div class="skeleton-line skeleton-text"></div></div>
+      </div>`
+    : variant === 'table'
+      ? `<div class="skeleton-table" aria-hidden="true">${rows}</div>`
+      : `<div class="skeleton-grid">${cards}</div>`;
+  return `
+    <div class="container py-8 route-skeleton" role="status" aria-busy="true" aria-label="${safeLabel}">
+      <div class="skeleton-line skeleton-heading" aria-hidden="true"></div>
+      ${body}
+      <span class="sr-only">${safeLabel}: loading from your account…</span>
+    </div>
+  `;
+}
+
 export function renderEmptyState(opts: { title: string; message: string; actionText?: string; actionHref?: string }): string {
   return `
     <div class="state-container state-empty" role="region" aria-label="${opts.title}">

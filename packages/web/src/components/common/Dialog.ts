@@ -59,3 +59,61 @@ export function renderDrawer(props: DrawerProps): string {
     </aside>
   `;
 }
+
+export interface LeaveConfirmOptions {
+  title?: string;
+  message: string;
+  stayLabel?: string;
+  leaveLabel?: string;
+}
+
+function escapeDialogText(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/**
+ * Branded replacement for window.confirm in navigation guards.
+ * Resolves true when the user chooses to leave, false when they stay.
+ */
+export function confirmLeaveDialog(opts: LeaveConfirmOptions): Promise<boolean> {
+  return new Promise((resolve) => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = renderDialog({
+      id: 'leave-confirm-dialog',
+      title: escapeDialogText(opts.title || 'Leave without saving?'),
+      bodyHtml: `<p>${escapeDialogText(opts.message)}</p>`,
+      confirmLabel: escapeDialogText(opts.leaveLabel || 'Leave without saving'),
+      cancelLabel: escapeDialogText(opts.stayLabel || 'Stay'),
+      isDestructive: true,
+      variant: 'confirm',
+    });
+    const backdrop = wrapper.firstElementChild as HTMLElement;
+    document.body.append(backdrop);
+    const stay = backdrop.querySelector<HTMLElement>('[data-dialog-action="cancel"]')!;
+    const leave = backdrop.querySelector<HTMLElement>('[data-dialog-action="confirm"]')!;
+
+    const finish = (leaving: boolean) => {
+      document.removeEventListener('keydown', onKeydown, true);
+      backdrop.remove();
+      previouslyFocused?.focus?.();
+      resolve(leaving);
+    };
+    const onKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        finish(false);
+      } else if (event.key === 'Tab') {
+        const order = [stay, leave];
+        const index = order.indexOf(document.activeElement as HTMLElement);
+        event.preventDefault();
+        order[(index + (event.shiftKey ? order.length - 1 : 1)) % order.length].focus();
+      }
+    };
+    document.addEventListener('keydown', onKeydown, true);
+    stay.addEventListener('click', () => finish(false));
+    leave.addEventListener('click', () => finish(true));
+    backdrop.addEventListener('mousedown', (event) => { if (event.target === backdrop) finish(false); });
+    stay.focus();
+  });
+}

@@ -12,7 +12,7 @@ import './styles/author-redesign.css';
 import './pages/public/landing-hero.css';
 import { PYTHON_RUNTIME_LABEL, type UserPreferences } from 'zur-shared';
 
-import { matchRoute, getSafeReturnDestination } from './router/routes.ts';
+import { matchRoute, getSafeReturnDestination, getPostSignInDestination } from './router/routes.ts';
 import { AuthClient } from './services/auth-client.ts';
 import {
   renderPublicShell,
@@ -60,6 +60,8 @@ import { renderAttemptHistoryPage, getAttemptDocumentTitle } from './pages/learn
 import { DraftManager } from './services/draft-manager.ts';
 import { DraftSaveQueue } from './services/draft-save-queue.ts';
 import { AppearanceSaveQueue } from './services/appearance-save-queue.ts';
+import { confirmLeaveDialog } from './components/common/Dialog.ts';
+import { renderPageSkeleton } from './components/states/UniversalStates.ts';
 import { ProfileGuard } from './services/profile-guard.ts';
 import { CourseClient } from './services/course-client.ts';
 import { navigationHistory } from './utils/navigation-history.ts';
@@ -336,6 +338,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       return;
     }
     if (pageId === 'P09') {
+      showRouteLoading('Continue learning');
       const data = await s2Request('/api/student/dashboard');
       if (!s2Current(path)) return;
       if (data.continueCourse?.enrollmentId && (data.continueCourse.nextIncompleteStepId || data.continueCourse.lastVisitedStepId)) {
@@ -353,6 +356,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       return;
     }
     if (pageId === 'P10') {
+      showRouteLoading('My courses');
       const data = await s2Request('/api/student/courses');
       if (!s2Current(path)) return;
       const courses = data.enrollments.map((e: any) => ({
@@ -376,6 +380,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       return;
     }
     if (pageId === 'P11') {
+      showRouteLoading('Course overview');
       const progress = await s2Request(`/api/enrollments/${params.enrollmentId}/progress`);
       if (!s2Current(path)) return;
       const modules: any[] = [];
@@ -1072,19 +1077,46 @@ function initTheme(): void {
 let activeCatalogRequestId = 0;
 let workspaceResizeController: AbortController | null = null;
 
-function showRouteLoading(label: string): void {
+let routeLoadingTimer: ReturnType<typeof setTimeout> | null = null;
+let routeLoadingObserver: MutationObserver | null = null;
+const ROUTE_LOADING_DELAY_MS = 150;
+
+function cancelRouteLoading(): void {
+  if (routeLoadingTimer) clearTimeout(routeLoadingTimer);
+  routeLoadingTimer = null;
+  routeLoadingObserver?.disconnect();
+  routeLoadingObserver = null;
+}
+
+function renderRouteLoadingNow(label: string): void {
   const user = authClient.getUser();
-  const isAuthor = window.location.pathname.startsWith('/teach') || window.location.pathname.startsWith('/settings/ai-connections');
-  if (user && isAuthor) {
-    appEl.innerHTML = renderAppShell({
-      user: user as any,
-      activeMode: 'teach',
-      activePath: window.location.pathname,
-      content: `<div class="container py-8" aria-busy="true"><h1 class="page-title">${escapeHtml(label)}</h1><p class="text-secondary" role="status">Loading from your account…</p></div>`,
-    });
-    return;
+  const pathname = window.location.pathname;
+  const variant = /^\/admin/.test(pathname) ? 'table'
+    : /\/steps\/|^\/teach\/[^/]+\/steps/.test(pathname) ? 'workspace'
+      : 'cards';
+  const content = renderPageSkeleton(label, variant);
+  if (!user) {
+    appEl.innerHTML = renderPublicShell({ activePath: pathname, user: null, content });
+  } else if (pathname.startsWith('/admin') && user.capabilities.includes('admin')) {
+    appEl.innerHTML = renderAdminShell({ activePath: pathname, adminUser: user, headerTitle: label, content });
+  } else {
+    const isAuthor = pathname.startsWith('/teach') || pathname.startsWith('/settings/ai-connections');
+    appEl.innerHTML = renderAppShell({ user: user as any, activeMode: isAuthor ? 'teach' : 'learn', activePath: pathname, content });
   }
-  appEl.innerHTML = `<main class="container py-8" aria-busy="true"><h1 class="page-title">${label}</h1><p class="text-secondary" role="status">Loading from your account…</p></main>`;
+}
+
+/**
+ * Keeps the previous screen until loading lasts longer than ROUTE_LOADING_DELAY_MS,
+ * then shows the real shell with a page-shaped skeleton. Any real render cancels it.
+ */
+function showRouteLoading(label: string): void {
+  cancelRouteLoading();
+  routeLoadingObserver = new MutationObserver(cancelRouteLoading);
+  routeLoadingObserver.observe(appEl, { childList: true, subtree: true });
+  routeLoadingTimer = setTimeout(() => {
+    cancelRouteLoading();
+    renderRouteLoadingNow(label);
+  }, ROUTE_LOADING_DELAY_MS);
 }
 
 function showRouteFailure(message: string, retryPath: string): void {
@@ -2149,7 +2181,10 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
       if (!button) return;
       button.disabled = true;
       void authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}/complete`, { method: 'POST', body: '{}' })
-        .then(() => { if (isCurrent()) window.location.assign(common.nextStepUrl || common.courseOverviewUrl); })
+        .then(() => { if (!isCurrent()) return;
+          const destination = common.nextStepUrl || common.courseOverviewUrl;
+          if (destination.startsWith('/') && !destination.startsWith('//')) navigateTo(destination);
+          else window.location.assign(destination); })
         .catch(() => { if (!isCurrent()) return; button.disabled = false; const alert = document.createElement('p'); alert.setAttribute('role','alert'); alert.className='text-danger'; alert.textContent='Could not save completion. Check your connection and try again.'; form.prepend(alert); });
     }));
     if (kind === 'theory') {
@@ -2752,6 +2787,18 @@ function attachPythonWorkspaceListeners(
           })
           .catch(() => {});
 
+        const resultsBody = document.querySelector('.results-body');
+        if (resultsBody && !resultsBody.querySelector('[data-python-success]')) {
+          const nextHref = initial.nextStepUrl || `/learn/${encodeURIComponent(initial.enrollmentId)}`;
+          const banner = document.createElement('div');
+          banner.className = 'python-success-banner';
+          banner.dataset.pythonSuccess = 'true';
+          banner.setAttribute('role', 'status');
+          banner.innerHTML = `<span aria-hidden="true">✓</span><span class="python-success-text">All tests passed. Step complete.</span><a href="${escapeHtml(nextHref)}" class="btn btn-primary btn-compact" data-python-next>${initial.nextStepUrl ? 'Next step →' : 'Back to course →'}</a>`;
+          resultsBody.prepend(banner);
+          banner.querySelector<HTMLElement>('[data-python-next]')?.focus({ preventScroll: true });
+        }
+
         const rightContainer = document.querySelector('.editor-toolbar-actions');
         if (rightContainer && initial.nextStepUrl && !document.querySelector('[data-python-continue]')) {
           const link = document.createElement('a');
@@ -3131,6 +3178,55 @@ async function confirmUnsyncedSignOut(userId: string): Promise<boolean> {
   });
 }
 
+let routeSwapObserver: MutationObserver | null = null;
+let routeSwapTimer: ReturnType<typeof setTimeout> | null = null;
+let lastSwapPathname: string | null = null;
+
+/**
+ * Per-route polish: document title, scroll to top, focus on the page heading and a short fade-in.
+ * Runs once the new content (not the loading skeleton) has rendered; same-path updates
+ * (filters, retries) only refresh the title so scroll position and typing focus survive.
+ */
+function beginRouteSwap(routeTitle: string, preferHeading: boolean, pathname: string): void {
+  routeSwapObserver?.disconnect();
+  if (routeSwapTimer) clearTimeout(routeSwapTimer);
+  const baseTitle = `${routeTitle} · ZUR`;
+  document.title = baseTitle;
+  const isNewPage = pathname !== lastSwapPathname;
+  lastSwapPathname = pathname;
+  if (isNewPage) window.scrollTo(0, 0);
+  let applied: HTMLElement | null = null;
+
+  const apply = () => {
+    const heading = appEl.querySelector<HTMLElement>('h1');
+    if (!heading || heading.closest('[aria-busy="true"]')) return;
+    if (applied === heading) return;
+    const refocus = applied !== null && !applied.isConnected;
+    applied = heading;
+    if (!refocus && document.title === baseTitle) {
+      const headingText = heading.textContent?.trim();
+      document.title = `${preferHeading && headingText ? headingText : routeTitle} · ZUR`;
+    }
+    if (!isNewPage) return;
+    heading.setAttribute('tabindex', '-1');
+    heading.classList.add('route-heading-focus');
+    const active = document.activeElement;
+    if (!active || active === document.body || active === document.documentElement) heading.focus({ preventScroll: true });
+    if (!refocus) {
+      const region = appEl.querySelector<HTMLElement>('#main-content, main, [role="main"]');
+      if (region) {
+        region.classList.add('route-enter');
+        region.addEventListener('animationend', () => region.classList.remove('route-enter'), { once: true });
+      }
+    }
+  };
+
+  routeSwapObserver = new MutationObserver(apply);
+  routeSwapObserver.observe(appEl, { childList: true, subtree: true });
+  routeSwapTimer = setTimeout(() => { routeSwapObserver?.disconnect(); routeSwapObserver = null; }, 8000);
+  queueMicrotask(apply);
+}
+
 export function navigateTo(path: string): void {
   window.history.pushState({}, '', path);
   renderApp(path);
@@ -3147,6 +3243,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
   const match = matchRoute(path);
 
   if (!match) {
+    beginRouteSwap('Page not found', false, path.split('?')[0]);
     appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
     initTheme();
     return;
@@ -3165,10 +3262,14 @@ export function renderApp(path: string = window.location.pathname + window.locat
     return;
   }
   if (route.shell === 'S6' && !currentUser?.capabilities?.includes('admin')) {
+    beginRouteSwap('Access denied', false, path.split('?')[0]);
     appEl.innerHTML = renderSafeDenialPage({ type: 'access-denied' });
     initTheme();
     return;
   }
+
+  cancelRouteLoading();
+  beginRouteSwap(route.title, route.paramNames.length > 0, path.split('?')[0]);
 
   switch (route.shell) {
     case 'S1': {
@@ -3521,51 +3622,6 @@ export function renderApp(path: string = window.location.pathname + window.locat
         void loadAttemptHistory(params.enrollmentId, params.stepId, params.attemptId, path);
         break;
       }
-      appEl.innerHTML = renderLearningWorkspaceShell({
-        courseTitle: 'Python foundations',
-        courseOverviewUrl: '/learn/enr-ada',
-        lessonTitle: 'Naming and Values',
-        stepTitle: 'Echoing Numbers',
-        stepOrdinalText: 'Step 4 of 7',
-        isPythonWorkspace: route.pageId === 'P15',
-        saveStatusText: 'Saved',
-        outlineContent: renderLessonRail({
-          steps: [
-            { id: '1', ordinal: 1, title: 'What is a variable?', type: 'theory', isCurrent: false, isCompleted: true, isRequired: true },
-            { id: '2', ordinal: 2, title: 'Variables in Memory', type: 'video', isCurrent: false, isCompleted: true, isRequired: true },
-            { id: '3', ordinal: 3, title: 'Variable assignment syntax', type: 'quiz', isCurrent: false, isCompleted: true, isRequired: true },
-            { id: '4', ordinal: 4, title: 'Echoing Numbers', type: 'python', isCurrent: true, isCompleted: false, isRequired: true },
-          ],
-        }),
-        workspaceContent: `
-          <div class="problem-pane p-4 overflow-y-auto border-r border-subtle">
-            <h2 class="text-lg font-semibold mb-2">Echoing Numbers</h2>
-            <p class="text-sm text-secondary mb-4">Read an integer from standard input and print twice its value.</p>
-            <h4 class="font-semibold text-xs text-muted uppercase mb-1">Constraints</h4>
-            <p class="text-sm text-secondary mb-4"><code>1 &lt;= N &lt;= 10^6</code></p>
-            <h4 class="font-semibold text-xs text-muted uppercase mb-1">Input Format</h4>
-            <p class="text-sm text-secondary mb-4">A single integer on standard input.</p>
-          </div>
-          <div class="code-pane p-4 flex flex-col">
-            <div class="code-editor-header flex justify-between items-center mb-2">
-              <span class="text-xs text-muted">solution.py</span>
-              <span class="text-xs text-muted">${PYTHON_RUNTIME_LABEL}</span>
-            </div>
-            <textarea class="form-input flex-1 font-mono text-sm" style="resize: none;" aria-label="Python code editor">import sys
-val = int(sys.stdin.read().strip())
-print(val * 2)
-</textarea>
-            <div class="results-pane mt-4 p-3 bg-raised rounded border border-subtle">
-              <span class="text-xs font-semibold text-muted uppercase">Results</span>
-              <p class="text-sm text-secondary mt-1">No runs yet. Try a sample first.</p>
-            </div>
-          </div>
-        `,
-        taskActions: `
-          ${renderButton({ label: 'Run samples', variant: 'secondary', compact: true })}
-          ${renderButton({ label: 'Submit solution', variant: 'primary', compact: true })}
-        `,
-      });
       break;
     }
 
@@ -3630,7 +3686,7 @@ print(val * 2)
               <div class="p-8 text-center text-danger">
                 <p class="font-bold text-lg mb-2">Failed to load course roster</p>
                 <p class="text-sm text-secondary mb-4">${escapeHtml(err.message)}</p>
-                <button class="btn btn-secondary" onclick="window.location.reload()">Retry</button>
+                <button class="btn btn-secondary" data-route-retry>Retry</button>
               </div>
             `,
           });
@@ -3766,7 +3822,7 @@ print(val * 2)
               <div class="p-8 text-center text-danger">
                 <p class="font-bold text-lg mb-2">Failed to load course analytics</p>
                 <p class="text-sm text-secondary mb-4">${escapeHtml(err.message)}</p>
-                <button class="btn btn-secondary" onclick="window.location.reload()">Retry</button>
+                <button class="btn btn-secondary" data-route-retry>Retry</button>
               </div>
             `,
           });
@@ -4473,7 +4529,7 @@ function attachSignInListeners(): void {
 
       try {
         await authClient.signIn(email, password);
-        const destination = getSafeReturnDestination(returnTo);
+        const destination = getPostSignInDestination(returnTo, authClient.getUser());
         navigateTo(destination);
       } catch (err: any) {
         if (errorEl) {
@@ -5997,7 +6053,7 @@ document.addEventListener('click', async (e) => {
     // Author dirty check
     const dirtyAuthorShell = document.querySelector('.shell-author.is-dirty');
     if (dirtyAuthorShell) {
-      const confirmed = window.confirm('You have unsaved changes. Are you sure you want to leave this page?');
+      const confirmed = await confirmLeaveDialog({ message: 'You have unsaved changes on this page. If you leave now they will be lost.' });
       if (!confirmed) {
         return; // Stay on current page, default already prevented
       }
@@ -6010,7 +6066,7 @@ document.addEventListener('click', async (e) => {
       const currentVal = profileInput ? profileInput.value : '';
       const promptMsg = activeProfileGuard.getNavigationPrompt(currentVal);
       if (promptMsg) {
-        if (!window.confirm(promptMsg)) {
+        if (!await confirmLeaveDialog({ message: promptMsg })) {
           return; // Stay on current page, default already prevented
         }
         const user = authClient.getUser();
@@ -6044,6 +6100,13 @@ document.addEventListener('click', async (e) => {
   }
 });
 
+document.addEventListener('click', (event) => {
+  if ((event.target as HTMLElement | null)?.closest('[data-route-retry]')) {
+    event.preventDefault();
+    renderApp();
+  }
+});
+
 window.addEventListener('popstate', async (event: PopStateEvent) => {
   if (navigationHistory.checkAndClearReverting()) {
     return;
@@ -6051,7 +6114,7 @@ window.addEventListener('popstate', async (event: PopStateEvent) => {
 
   const dirtyAuthorShell = document.querySelector('.shell-author.is-dirty');
   if (dirtyAuthorShell) {
-    const confirmed = window.confirm('You have unsaved changes. Are you sure you want to leave this page?');
+    const confirmed = await confirmLeaveDialog({ message: 'You have unsaved changes on this page. If you leave now they will be lost.' });
     if (!confirmed) {
       navigationHistory.revertPopstate(event.state);
       return;
@@ -6064,7 +6127,7 @@ window.addEventListener('popstate', async (event: PopStateEvent) => {
     const currentVal = profileInput ? profileInput.value : '';
     const promptMsg = activeProfileGuard.getNavigationPrompt(currentVal);
     if (promptMsg) {
-      const confirmed = window.confirm(promptMsg);
+      const confirmed = await confirmLeaveDialog({ message: promptMsg });
       if (!confirmed) {
         navigationHistory.revertPopstate(event.state);
         return;

@@ -165,3 +165,20 @@ export function getSafeReturnDestination(destination?: string | null): string {
   }
   return '/learn';
 }
+
+/**
+ * Where to land after sign-in: an explicit safe returnTo always wins,
+ * otherwise admins go to /admin, author-only users to /teach, everyone else to /learn.
+ */
+export function getPostSignInDestination(
+  returnTo?: string | null,
+  user?: { capabilities?: readonly string[] } | null
+): string {
+  if (returnTo && returnTo.trim() && getSafeReturnDestination(returnTo) === returnTo.trim()) {
+    return returnTo.trim();
+  }
+  const capabilities = user?.capabilities ?? [];
+  if (capabilities.includes('admin')) return '/admin';
+  if (capabilities.includes('author') && !capabilities.includes('student')) return '/teach';
+  return '/learn';
+}

@@ -5,6 +5,7 @@ import {
   matchRoute,
   sanitizeQueryParams,
   getSafeReturnDestination,
+  getPostSignInDestination,
 } from '../src/router/routes.ts';
 
 test('P01–P45 Route Contracts and URL Safety (design.md §9, §14, T012)', async (t) => {
@@ -71,4 +72,13 @@ test('P01–P45 Route Contracts and URL Safety (design.md §9, §14, T012)', asy
     assert.strictEqual(getSafeReturnDestination('/\\malicious.com'), '/learn');
     assert.strictEqual(getSafeReturnDestination(null), '/learn');
   });
+});
+
+test('Post sign-in landing is role-aware and explicit returnTo wins', () => {
+  assert.strictEqual(getPostSignInDestination(null, { capabilities: ['student'] }), '/learn');
+  assert.strictEqual(getPostSignInDestination('', { capabilities: ['student', 'admin'] }), '/admin');
+  assert.strictEqual(getPostSignInDestination(undefined, { capabilities: ['author'] }), '/teach');
+  assert.strictEqual(getPostSignInDestination(undefined, { capabilities: ['student', 'author'] }), '/learn');
+  assert.strictEqual(getPostSignInDestination('/courses', { capabilities: ['admin'] }), '/courses');
+  assert.strictEqual(getPostSignInDestination('//evil.com', { capabilities: ['author'] }), '/teach');
 });

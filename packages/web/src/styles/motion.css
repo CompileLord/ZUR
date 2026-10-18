@@ -1,1 +1,81 @@
 /* motion */
+
+@keyframes zur-route-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes zur-skeleton-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+.route-enter {
+  animation: zur-route-enter 120ms ease-out both;
+}
+
+.route-heading-focus:focus,
+.route-heading-focus:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.route-skeleton .skeleton-line,
+.state-loading .skeleton-line {
+  display: block;
+  height: 12px;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--bg-raised);
+  animation: zur-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.route-skeleton .skeleton-heading { width: 220px; height: 28px; margin-bottom: 24px; }
+.route-skeleton .skeleton-title { width: 55%; height: 18px; margin-bottom: 12px; }
+.route-skeleton .skeleton-text { width: 100%; margin-bottom: 10px; }
+.route-skeleton .skeleton-text.short { width: 60%; }
+.route-skeleton .skeleton-row { height: 40px; margin-bottom: 8px; }
+
+.route-skeleton .skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.route-skeleton .skeleton-card,
+.route-skeleton .skeleton-pane {
+  padding: 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle, var(--bg-raised));
+  border-radius: var(--radius-md, 8px);
+}
+
+.route-skeleton .skeleton-workspace {
+  display: grid;
+  grid-template-columns: minmax(280px, 2fr) 3fr;
+  gap: 16px;
+}
+
+.route-skeleton .skeleton-editor { min-height: 320px; }
+
+.python-success-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--success, #7fb069);
+  border-radius: var(--radius-md, 8px);
+  background: var(--bg-selected);
+  animation: zur-route-enter 160ms ease-out both;
+}
+
+.python-success-banner .python-success-text { flex: 1; font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  .route-enter,
+  .python-success-banner,
+  .route-skeleton .skeleton-line,
+  .state-loading .skeleton-line {
+    animation: none;
+  }
+}
