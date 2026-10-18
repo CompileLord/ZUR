@@ -1,0 +1,144 @@
+{
+  "checks": [
+    {
+      "check": "A3 one main and skip target",
+      "status": "failed",
+      "error": "Native skip-link advances into main content\n\nfalse !== true\n",
+      "observed": {
+        "route": "/teach",
+        "headings": [
+          "Your courses"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "A1 title retained after controlled create failure",
+      "status": "passed",
+      "observed": {
+        "fault": "controlled 503",
+        "title": "Codex independent course title to retain",
+        "feedback": "Controlled audit service failure",
+        "retryCreatedExactlyOne": true,
+        "actualDestination": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A2 search and status remain combined through history/reload",
+      "status": "passed",
+      "observed": {
+        "combinedQuery": true,
+        "nativeHistory": true,
+        "reload": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A2 encoded search remains literal across status links",
+      "status": "failed",
+      "error": "Raw query preserved without double HTML encoding\n+ actual - expected\n\n+ 'Python &amp; loops + &quot;quoted&quot;'\n- 'Python & loops + \"quoted\"'\n           ^\n",
+      "observed": {
+        "route": "/teach?status=draft&search=Python+%26amp%3B+loops+%2B+%26quot%3Bquoted%26quot%3B",
+        "headings": [
+          "Your courses",
+          "No matching courses"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 author list 503 retains safe exits and recovers",
+      "status": "passed",
+      "observed": {
+        "fault": "controlled 503",
+        "recovered": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A4 Python preview truthful readonly split and editor return",
+      "status": "failed",
+      "error": "Preview source is readonly\n\ntrue !== false\n",
+      "observed": {
+        "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+        "headings": [
+          "Modules & lessons",
+          "Echoing Numbers",
+          "Problem Statement",
+          "Input & Output",
+          "Constraints",
+          "Sample Test Cases",
+          "Hints"
+        ],
+        "collapsed": false,
+        "toggle": "true",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "A4 all four actual preview types preserve course draft and avoid grading mutations",
+      "status": "passed",
+      "observed": {
+        "types": [
+          "theory",
+          "video",
+          "quiz",
+          "python"
+        ],
+        "actualDestinations": true,
+        "noCourseOrGradingMutationRequests": true,
+        "courseRevisionUnchanged": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A6 clean author headers stay quiet",
+      "status": "passed",
+      "observed": {
+        "routes": 5,
+        "cleanHeadersQuiet": true,
+        "dirtyErrorConflictCheckedByNextProbe": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A6 manual save retains actual failure/conflict drafts and quiet acknowledged success",
+      "status": "passed",
+      "observed": {
+        "real503RetainsDraft": true,
+        "retryRealDatabaseAck": true,
+        "quietSuccessfulSave": true,
+        "actualStaleRevision": true,
+        "conflictRetainsLocalAndStoredWork": true,
+        "pendingDelayNotIndependentlyChecked": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A7 setup preserves safe configuration, native technical disclosure and actual protocol request status",
+      "status": "passed",
+      "observed": {
+        "preparedOwnReadonlyToken": true,
+        "actualLocalSDKInitialize": true,
+        "actualToolsResponse": true,
+        "refreshedMetadata": true,
+        "secretNeverRendered": true,
+        "nativeClientTabs": true,
+        "technicalDisclosure": true,
+        "clipboardHandlerControlledSuccessAndFailure": true,
+        "systemClipboardUnverified": true,
+        "productionConnectivityUnverified": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 7,
+  "failed": 3,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

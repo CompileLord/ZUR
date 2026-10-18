@@ -1,0 +1,35 @@
+{
+  "checks": [
+    {
+      "check": "A1 new-course modal contains native keyboard focus and Escape returns trigger",
+      "status": "failed",
+      "error": "Native focus remains inside new-course modal: {\"inside\":false,\"id\":\"\",\"tag\":\"BODY\",\"href\":null}\n\nfalse !== true\n",
+      "observed": {
+        "route": "/teach",
+        "headings": [
+          "Your courses",
+          "\n                    Python foundations\n                  ",
+          "\n                    Unsafe Python Tricks\n                  ",
+          "Create new course"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "A7 Copy prompt never claims success on actual clipboard rejection",
+      "status": "passed",
+      "observed": {
+        "actualRejectedHandler": true,
+        "noFalseSuccess": true,
+        "systemClipboardUnverified": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 1,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

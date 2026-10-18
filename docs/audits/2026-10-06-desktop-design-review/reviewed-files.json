@@ -1,0 +1,64 @@
+{
+  "review_date": "2026-10-06",
+  "method": "visual inspection of saved desktop images; no new capture or live interaction testing",
+  "groups": {
+    "learner": [
+      "learner/01-learner-dashboard.png",
+      "learner/02-my-courses.png",
+      "learner/03-course-outline.png",
+      "learner/04-step-theory.png",
+      "learner/05-step-video.png",
+      "learner/06-step-quiz.png",
+      "learner/07-python-workspace-editor.png",
+      "learner/08-python-workspace-custom-input.png",
+      "learner/09-python-workspace-run-feedback.png",
+      "learner/10-python-workspace-report-modal.png",
+      "learner/11-submission-history.png",
+      "learner/12-settings-profile.png",
+      "learner/13-settings-appearance.png",
+      "learner/14-settings-security.png",
+      "learner/15-settings-privacy.png"
+    ],
+    "author": [
+      "author/01-author-dashboard.png",
+      "author/02-course-builder-outline.png",
+      "author/03-step-editor-theory.png",
+      "author/04-step-editor-video.png",
+      "author/05-step-editor-quiz.png",
+      "author/06-step-editor-python.png",
+      "author/07-student-preview.png",
+      "author/08-publish-review.png",
+      "author/09-roster-students.png",
+      "author/10-course-analytics.png",
+      "author/11-course-settings.png",
+      "author/12-ai-connections.png",
+      "author/13-agent-activity-drafts.png"
+    ],
+    "admin": [
+      "admin/01-operations-overview.png",
+      "admin/02-users-management.png",
+      "admin/03-user-detail__full.png",
+      "admin/04-courses-management.png",
+      "admin/05-course-detail__full.png",
+      "admin/06-categories-management.png",
+      "admin/07-reports-triage.png",
+      "admin/08-media-operations.png",
+      "admin/09-execution-operations.png",
+      "admin/10-audit-log.png"
+    ],
+    "public-shared": [
+      "public-shared/01-landing__full.png",
+      "public-shared/02-catalog.png",
+      "public-shared/03-course-overview-public__full.png",
+      "public-shared/04-sign-in.png",
+      "public-shared/05-sign-up.png",
+      "public-shared/06-forgot-password.png",
+      "public-shared/07-verify-email.png",
+      "public-shared/08-help__full.png",
+      "public-shared/09-privacy.png",
+      "public-shared/10-terms.png",
+      "public-shared/11-access-denied.png",
+      "public-shared/12-not-found.png"
+    ]
+  }
+}

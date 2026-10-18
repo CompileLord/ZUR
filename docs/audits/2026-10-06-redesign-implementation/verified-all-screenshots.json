@@ -1,0 +1,2053 @@
+{
+  "valid": [
+    {
+      "path": "public/before/13_not_found__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3bd033ff3d8ff89f76c936e0d4f9cedc700004756f2336248a9bd426cfae11d5"
+    },
+    {
+      "path": "public/before/13_not_found__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "51a2386eb99be8c45ead91fff9d513eefa9d814a39a5bbf65789bd750a18afce"
+    },
+    {
+      "path": "public/before/12_access_denied__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e1b974b1a7557b3a5cd901f70ae1b4df24b5d22579782de3b5f663912b1b9056"
+    },
+    {
+      "path": "public/before/12_access_denied__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d851b6b77ea733be223c240015eb71279a0e5a8c83aed22fe3dfa230ad9f03fc"
+    },
+    {
+      "path": "public/before/11_terms__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "073c6fe7801309b3d47c1bd0b3242fab58cb82f50edced5b4a55cd02f1940c87"
+    },
+    {
+      "path": "public/before/11_terms__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e3757be2a003ef0a180be5454c741d7bddabdc57c249a88c0e83fd3a298718aa"
+    },
+    {
+      "path": "public/before/10_privacy__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0633ac2393d2c70fc780f3ed42c325f7768f144716bdc2bd38177d5bd209cdc5"
+    },
+    {
+      "path": "public/before/10_privacy__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "bd7776ac5e3d7cbe423919fe3f55182fba8bbcea05bd3a844f6d8ae13bdea38c"
+    },
+    {
+      "path": "public/before/09_help__full__light.png",
+      "width": 1440,
+      "height": 1360,
+      "sha256": "579c8010f8153333f04a50cf93da8c584caebcef964f7e0578061ca19e0b0f5c"
+    },
+    {
+      "path": "public/before/09_help__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8b32483b9cc85afd1b2478c142e7eaed274b80c5910ad1e63556ce6d318a9a14"
+    },
+    {
+      "path": "public/before/09_help__full__dark.png",
+      "width": 1440,
+      "height": 1360,
+      "sha256": "5b26a63842dc854906b7cb29064bdca055ea8097b94711d24f5423c40a52d133"
+    },
+    {
+      "path": "public/before/09_help__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "36912a7d51b62349eb16d86697703d6f2e85d16196a7b1b5ff517723f89b590a"
+    },
+    {
+      "path": "public/before/08_invitation_invalid__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1ecf944ebbb3a0afcd5f36b02d8fbf3ff26d2d0c03f72836aa9475060d7a126a"
+    },
+    {
+      "path": "public/before/08_invitation_valid__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0ef332057cdd9ead30d1841eb34d2a4d2a9cc4dfb00c0e2fba152ef7d22408fa"
+    },
+    {
+      "path": "public/before/07_reset_password_invalid__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4b8a50da42a0f82077904539a0dbe5f16a5d7f449fef284d435e3c37dc87434b"
+    },
+    {
+      "path": "public/before/07_reset_password_valid__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4b8a50da42a0f82077904539a0dbe5f16a5d7f449fef284d435e3c37dc87434b"
+    },
+    {
+      "path": "public/before/07_forgot_password_submitted__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "fc31fcf47c0d9286b3f88c6f940de77e09d23cd178a8bfff37e2c68dde21585d"
+    },
+    {
+      "path": "public/before/07_forgot_password__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ed4268894d1161557aa6021dee1af7c63536c3560019bccd4edb7a57820be176"
+    },
+    {
+      "path": "public/before/07_forgot_password__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b4ffca8eb694398e1c1ad03390077f2147d1f2402c883b717207fdaf43e88abb"
+    },
+    {
+      "path": "public/before/06_verify_email_context__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "456a5929958496909ac7e5e315fc409f6735ae570375ff2aa3abf968566061fc"
+    },
+    {
+      "path": "public/before/06_verify_email_context__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "31105f0f4abe8e3267b5c57b6e83b080c39f54dc363a4e77b76bdd92395e3733"
+    },
+    {
+      "path": "public/before/06_verify_email_direct__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "14a63ad30e7607152cee605b5c19074d899aef804df72d0cf2bcd02b65a9631f"
+    },
+    {
+      "path": "public/before/05_sign_up_error__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "de483ba5f9aebd4963835b9f31d139ae4fe5cd80461d2f433f5ac6db835227aa"
+    },
+    {
+      "path": "public/before/05_sign_up__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ab5542fca25ce48b426a5d202748a6b217aac37afc0048b7cd39196140b28fba"
+    },
+    {
+      "path": "public/before/05_sign_up__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6c8755d1c1ba966d5d66150ecd85635bdd8ea6a5ed0de9efaa513e6c812022ef"
+    },
+    {
+      "path": "public/before/04_sign_in_error__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "324505ab4b610fb014ab2ea46732328844dd81c51ff466a55c3bca8a4afb5cb0"
+    },
+    {
+      "path": "public/before/04_sign_in__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f3c8f9040a400f1e4e758ebd01e6435ea5dc0f16854ad5130cd352ebced54f0f"
+    },
+    {
+      "path": "public/before/04_sign_in__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c50e4bb21609efcb80ebde0b9b4ef8f529ab127d75a7f5e88ffd5febce959706"
+    },
+    {
+      "path": "public/before/03_course_overview__full__light.png",
+      "width": 1440,
+      "height": 1369,
+      "sha256": "3658303c8c11106c7a3e8240ba47039bbc6f0d5fef5c35841c6853c8d489cece"
+    },
+    {
+      "path": "public/before/03_course_overview__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9c40d0ce32a792ecd2c7ecf414f95e5b0cb0b6c83484521d5eda494ecc6c2947"
+    },
+    {
+      "path": "public/before/03_course_overview__full__dark.png",
+      "width": 1440,
+      "height": 1369,
+      "sha256": "912598236da284edd59f44e5ec13ff2a62a4febd0dd2cc4b75b8aeb7af6c60b6"
+    },
+    {
+      "path": "public/before/03_course_overview__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "84b16784a23814107e5637ef9851da5316b94023865499b6447d6c9242912682"
+    },
+    {
+      "path": "public/before/02_catalog_empty__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "54889ecc82a6996ac5ba7ec4221ecceefd7bd825d7411bbd63de168a9f03a888"
+    },
+    {
+      "path": "public/before/02_catalog_filtered__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "04c30484c3b5841dfb8fc579de2abea926649f11a316beb3209d2eedc118b201"
+    },
+    {
+      "path": "public/before/02_catalog__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "50e07951ce38513a7d4cf7ca9ec86d0b9be4dc2d277e06ef5dbfd5db4176c351"
+    },
+    {
+      "path": "public/before/02_catalog__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6adc6fa9735158cc85e59d9461b920aa5159850f56e7e323e8c9d049de17bb78"
+    },
+    {
+      "path": "public/before/01_landing__full__light.png",
+      "width": 1440,
+      "height": 2111,
+      "sha256": "fd580899162caedafc7eef0e9fd09036266d80d44d83e5d3b6901ffd9e04c9e0"
+    },
+    {
+      "path": "public/before/01_landing__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "360765d0f22e910c5a6254195ccf753264ebea67597e812fe9c3eda59aa54167"
+    },
+    {
+      "path": "public/before/01_landing__full__dark.png",
+      "width": 1440,
+      "height": 2102,
+      "sha256": "4b8883db68dcf4462983705496904456495db0e018df148947aaa7861f52fb81"
+    },
+    {
+      "path": "public/before/01_landing__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "affe657662fdbc87153846d89d260a9437884f47074ef93c2e1602d21ed26bc4"
+    },
+    {
+      "path": "public/after/13_not_found__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5ed09d405ab74d5e8c47aafdcd1528ff321a7b28653e12d7038fb3ffc6a36d54"
+    },
+    {
+      "path": "public/after/13_not_found__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1c0591967dc668cb3a60e01a99bfda59e1fde6136095276be7334527290c8c25"
+    },
+    {
+      "path": "public/after/12_access_denied__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2e3e765c5d533c67593226046ca0214ef4095366a317c88da0cb10cc1030c009"
+    },
+    {
+      "path": "public/after/12_access_denied__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d7355d7059d0f1f60be126d5efa73cdbf6d4bb1aaf19dd35dd5f3dd2a47823d9"
+    },
+    {
+      "path": "public/after/11_terms__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "53eb0a1b99ac37f6138a5903862223cb20d12bd75250ab88aeb67eff2ad135b7"
+    },
+    {
+      "path": "public/after/11_terms__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ccef9ed28b594820c5f257e7fa42b07023640907ff116d6882534de5cdb8a6ea"
+    },
+    {
+      "path": "public/after/10_privacy__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8b32916a89c7dc2e1d00caf81b70fe232e637d3925a20b5dca59b36777e64b5f"
+    },
+    {
+      "path": "public/after/10_privacy__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "65d42206683545e378c8feb2008c0e0fea00710dd1430735cb15bd360888812b"
+    },
+    {
+      "path": "public/after/09_help__full__light.png",
+      "width": 1440,
+      "height": 1237,
+      "sha256": "cd65dd90f446f2b7069d6ae37191c035d45345d2f88b0a1840ccb585f3f56d41"
+    },
+    {
+      "path": "public/after/09_help__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5701ea911a30e80f60392e93c57b453d256ff840e441ceb7e2cfa214140254ae"
+    },
+    {
+      "path": "public/after/09_help__full__dark.png",
+      "width": 1440,
+      "height": 1237,
+      "sha256": "75de087d512235546167cb7f99f9c6f434e73a3c87cd9a713c855c604d5ba88d"
+    },
+    {
+      "path": "public/after/09_help__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "708851160a3d845da6225b3824d105f6d933b5f08c7c31b46d5411036301f484"
+    },
+    {
+      "path": "public/after/08_invitation_invalid__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1ecf944ebbb3a0afcd5f36b02d8fbf3ff26d2d0c03f72836aa9475060d7a126a"
+    },
+    {
+      "path": "public/after/08_invitation_valid__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0ef332057cdd9ead30d1841eb34d2a4d2a9cc4dfb00c0e2fba152ef7d22408fa"
+    },
+    {
+      "path": "public/after/07_reset_password_invalid__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e375692c84ac4536545e4d6a618964bc82a595ca15e7967db1532e53b81c1cc7"
+    },
+    {
+      "path": "public/after/07_reset_password_valid__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e375692c84ac4536545e4d6a618964bc82a595ca15e7967db1532e53b81c1cc7"
+    },
+    {
+      "path": "public/after/07_forgot_password_submitted__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "fc31fcf47c0d9286b3f88c6f940de77e09d23cd178a8bfff37e2c68dde21585d"
+    },
+    {
+      "path": "public/after/07_forgot_password__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6955d43568c731962a49efc1272445947412129501a4adcc0fda3206e8a97ab2"
+    },
+    {
+      "path": "public/after/07_forgot_password__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0223bc1a9d6f18ca881a192a43910d0979d39b880efdf8dbc47d19e03c4ecbee"
+    },
+    {
+      "path": "public/after/06_verify_email_context__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "59689c2a1c7836f41f5fd230a77b769dbdfe99ec97f36fe6e9151c281f1c56f1"
+    },
+    {
+      "path": "public/after/06_verify_email_context__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4c6cf433317081872012013633c3a886d899f88e87d8ac7046cdf73359ee8744"
+    },
+    {
+      "path": "public/after/06_verify_email_direct__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ff495d888e185cfaeaaf615bcf95baac0d8bde02657ef1f15de5e9aff5634074"
+    },
+    {
+      "path": "public/after/05_sign_up_error__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "de483ba5f9aebd4963835b9f31d139ae4fe5cd80461d2f433f5ac6db835227aa"
+    },
+    {
+      "path": "public/after/05_sign_up__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ab5542fca25ce48b426a5d202748a6b217aac37afc0048b7cd39196140b28fba"
+    },
+    {
+      "path": "public/after/05_sign_up__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6c8755d1c1ba966d5d66150ecd85635bdd8ea6a5ed0de9efaa513e6c812022ef"
+    },
+    {
+      "path": "public/after/04_sign_in_error__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "324505ab4b610fb014ab2ea46732328844dd81c51ff466a55c3bca8a4afb5cb0"
+    },
+    {
+      "path": "public/after/04_sign_in__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f3c8f9040a400f1e4e758ebd01e6435ea5dc0f16854ad5130cd352ebced54f0f"
+    },
+    {
+      "path": "public/after/04_sign_in__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c50e4bb21609efcb80ebde0b9b4ef8f529ab127d75a7f5e88ffd5febce959706"
+    },
+    {
+      "path": "public/after/03_course_overview__full__light.png",
+      "width": 1440,
+      "height": 1165,
+      "sha256": "ac721cf849c688ef83cca3036cf1f457fdce7344ff4bf5d823e079527e8c4f8c"
+    },
+    {
+      "path": "public/after/03_course_overview__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "461fb3ebdcec44d32e962ae637fefa9641e8507401aa67f36f1f5735fccdab2a"
+    },
+    {
+      "path": "public/after/03_course_overview__full__dark.png",
+      "width": 1440,
+      "height": 1165,
+      "sha256": "4fa9ba8d4ecd595c17b9f3d6b8d066157255e3d2100cc485ba6859eaedb2ac94"
+    },
+    {
+      "path": "public/after/03_course_overview__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2743a679de6aba746f37e33a13d4b8cb5fc895c2e50f5a0348326a7571eb98dd"
+    },
+    {
+      "path": "public/after/02_catalog_empty__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "be243f82b232702f6fa89ebf3817b4a2be3a87909467906fa7a757684de24228"
+    },
+    {
+      "path": "public/after/02_catalog_filtered__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ad11e57cba70f64c83816d851f76785bfe2808272689319ad06eee943a5c44aa"
+    },
+    {
+      "path": "public/after/02_catalog__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "806e5d0a16e21db835c57865a5ed656869c963cfe531ed5883e874b536fc97ce"
+    },
+    {
+      "path": "public/after/02_catalog__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2614c4db3df8623654e6aa250df83cbc31a23fb927af6c2074b9a2ee6d5690b2"
+    },
+    {
+      "path": "public/after/01_landing__full__light.png",
+      "width": 1440,
+      "height": 1484,
+      "sha256": "2f36f5e383a5512d9ce35361dce4cbee262dae5ab7f495a96876187efbb72d4d"
+    },
+    {
+      "path": "public/after/01_landing__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "19d7457d0ce59c1d9676857f8fdf9df446dff5f4497db35266fb319bb0eca04e"
+    },
+    {
+      "path": "public/after/01_landing__full__dark.png",
+      "width": 1440,
+      "height": 1484,
+      "sha256": "260790cf86e5ee6709ffc7cbe5b8718893ef543f0cd2719c467c5f5599f32b5b"
+    },
+    {
+      "path": "public/after/01_landing__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ae3a9d9426ae3c92bab6244157acfd95f6b132a5e3e1ede090ce6a2959d22717"
+    },
+    {
+      "path": "public/after/11_terms_verified.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9d5d83679fb7aee4453b756614437426dd58a60e7c7e01ddfe3f1e902309d5f4"
+    },
+    {
+      "path": "public/after/13_not_found_verified.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4e5f5eb17efede9989bc64599921fcce1a1f6690fe7f94ddeade75134d7ef135"
+    },
+    {
+      "path": "public/after/12_access_denied_verified.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e2fe40e614495d120c24cabf7a322fd0484ac04fd137f73521d25be652c08bae"
+    },
+    {
+      "path": "public/after/09_help_report_modal_verified.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "73479befe39f0241e7cb055e1f9bad9eff18084cf147ded97a56ba1f814c6133"
+    },
+    {
+      "path": "public/after/06_verify_email_expired_token_verified.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "038984dd4091d37faafb27d6ad67e9dd3f5b0562ef168ae0549668347a8b1312"
+    },
+    {
+      "path": "public/after/06_verify_email_direct_verified.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f73dac07aa44a32dc60856933fcffcc7e3af446e0965b94f0b80529ebd6385d0"
+    },
+    {
+      "path": "public/after/07_reset_password_invalid_verified.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a8e0493c01abc95d911323639feecce02975268ed75b0908c96c137303b65932"
+    },
+    {
+      "path": "admin/before/14-category-edit-dialog__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4090a473986300a1221136ed7b679156c93b089beb76abe1fa6db7b81faee648"
+    },
+    {
+      "path": "admin/before/14-category-edit-dialog__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b24c29f59092e45315ff84cac1417796570b61dbab2d46e1e5eac647081b07bd"
+    },
+    {
+      "path": "admin/before/13-execution-dialog__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "906d0ba3ba48ce28852adc791f241be0491b88796e2490f83631fdff0445a308"
+    },
+    {
+      "path": "admin/before/13-execution-dialog__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "bb3034a516a8ba115e2725a4a1199ce8c18eb9607f2f09217a39a28f0aeb9991"
+    },
+    {
+      "path": "admin/before/12-audit-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6efc3d67729a8ca8f201c0b2db2689c8a5ae35b488b3b68bd6c2b8a6188255ed"
+    },
+    {
+      "path": "admin/before/12-audit-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f91203557e00b164ac74290e96377f17a676f2126ba14c3679ce27834fe51c9e"
+    },
+    {
+      "path": "admin/before/11-audit-list__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7582b787b59630f770baaea20736f4519ae9ad8edd61560212923ce527c43237"
+    },
+    {
+      "path": "admin/before/11-audit-list__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3fee83eba66b115c52acc265e5b36acbaf97401e5dab61de02e2437128f60736"
+    },
+    {
+      "path": "admin/before/10-execution__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "58fd11eb0c4a9145f50265b16930999c5fe5a17bc0e5b065069ffe43bc78e190"
+    },
+    {
+      "path": "admin/before/10-execution__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "125b05ecd6a3226575902a7526e2685b5ecaae9ae168e79670d49da00437eaed"
+    },
+    {
+      "path": "admin/before/09-media__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9ae9eabcb865bd7c7f19aee5d5ae8bb6382c2518ad18fc82c8f7a316b53db2a9"
+    },
+    {
+      "path": "admin/before/09-media__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "993069c5bbd8fe17e7ed6ec3714ac294d7e555f0f64832e14757f79563698597"
+    },
+    {
+      "path": "admin/before/08-report-detail__light_full.png",
+      "width": 1440,
+      "height": 1223,
+      "sha256": "acdae996d6733a283cf81292fc85bae4e97117e3e037694b016eff3520287128"
+    },
+    {
+      "path": "admin/before/08-report-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "663862c200c93b969a15c2550f66f7d873f885eea522ff9c4666850e7c0e190d"
+    },
+    {
+      "path": "admin/before/08-report-detail__dark_full.png",
+      "width": 1440,
+      "height": 1223,
+      "sha256": "b9e0b7e9bf27b8f81fc51d9001564ed236783557da6e2ef7bbab07ee5f1882df"
+    },
+    {
+      "path": "admin/before/08-report-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5e3151b3a5d86bfa8fa67b67591bb2e162571fd730f17b7ef239b0f03fc4d854"
+    },
+    {
+      "path": "admin/before/07-reports-list__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f17cd718c3f72cc7a68ff18a797201b4188543768608d301dee11965dfd183bd"
+    },
+    {
+      "path": "admin/before/07-reports-list__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f2229682564c50ff7259beb41d4ada0953fd71d754851fac3ed020d9840935a1"
+    },
+    {
+      "path": "admin/before/06-categories__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e66bf82dbb34d2d2676fc7af53838627f84b58de660c30166555cba0ea1cb682"
+    },
+    {
+      "path": "admin/before/06-categories__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4bc763cf5232e89c4450d5e2760ae50b9d7c87b945c18f649d3088788a9e128f"
+    },
+    {
+      "path": "admin/before/05-course-detail__light_full.png",
+      "width": 1440,
+      "height": 1561,
+      "sha256": "cca4cfda77f15dd944b4d9f8836eaada625a04515ce2c8e7b0f0990f1d6f8607"
+    },
+    {
+      "path": "admin/before/05-course-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "15dbf744a7ab27b4a12d0f5b1e5ff3424a2b915ce146074bf970aea87a18c0f5"
+    },
+    {
+      "path": "admin/before/05-course-detail__dark_full.png",
+      "width": 1440,
+      "height": 1561,
+      "sha256": "708f131ec3a0ed7a0da579db87671af76ed0a3313096082b9a384ca381ce4845"
+    },
+    {
+      "path": "admin/before/05-course-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "65e835ba4f5932d463422267556d57eb14b5231aaf100476ba7ad09a1cfd9213"
+    },
+    {
+      "path": "admin/before/04-courses-list__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "15642845cd5011dfe964204f32235b978bb91d762bbb7a414c31ba051f0b96d3"
+    },
+    {
+      "path": "admin/before/04-courses-list__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e8899378e65034aac1aee975e2ae04d4341994354630e0e7cbbaffb548646d45"
+    },
+    {
+      "path": "admin/before/03-user-detail__light_full.png",
+      "width": 1440,
+      "height": 1776,
+      "sha256": "354d6b58989de48661444c7ce29c5f12a787fd65f9de569203c28cc393db1f57"
+    },
+    {
+      "path": "admin/before/03-user-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c8cf63cc0eb9c07fbf4b0935624033c808712be1f0791a9698ba40b12f6a63ac"
+    },
+    {
+      "path": "admin/before/03-user-detail__dark_full.png",
+      "width": 1440,
+      "height": 1776,
+      "sha256": "979f184a700dc06ca7637fb4fd940979313c4be9817bfd6b67d4d3986578949d"
+    },
+    {
+      "path": "admin/before/03-user-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3620d75ba3c58145063bc74d6d1217b6eed7c6d70bab3d2fa6a4f0faef7b25ce"
+    },
+    {
+      "path": "admin/before/02-users-list__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b10aea59236ae7a9f16e9b255d0ddd7510a905bd29754ec20b8236310427e978"
+    },
+    {
+      "path": "admin/before/02-users-list__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3d4038132fc28a2946ce8e639e82744dd59469ff435ae1af71f6a90a2498becf"
+    },
+    {
+      "path": "admin/before/01-operations-overview__light_full.png",
+      "width": 1440,
+      "height": 973,
+      "sha256": "081183a742a51d47adb1f3b8eecaa94a5ead8d47fea6a8e92a6e47663ff0263c"
+    },
+    {
+      "path": "admin/before/01-operations-overview__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7ad5fb6c6695ef7c8c1d6eb1dd19e449c69702565267cc1fea15e33280096906"
+    },
+    {
+      "path": "admin/before/01-operations-overview__dark_full.png",
+      "width": 1440,
+      "height": 973,
+      "sha256": "35afe1df991dd7680f3a72a4d590836096b205635940f407963d3d9e6d0ce14d"
+    },
+    {
+      "path": "admin/before/01-operations-overview__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a316c741b1e9764d510f99435c2fa2189ac0acf8d467589e084943d7f5855885"
+    },
+    {
+      "path": "admin/after/14-category-edit-dialog__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "28d405d926257b0f3fb116745ecda33dc4e77c82076f880d2e78f9c45484483a"
+    },
+    {
+      "path": "admin/after/14-category-edit-dialog__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3a2362dce267a60269de5e3d39e9910ed17ba4dd9f1958b05e85851d54b301cf"
+    },
+    {
+      "path": "admin/after/13-execution-dialog__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "801fea5d4399226ae5c234fa4440d6ae216277b85f74d5188a7b67cf8297d6cc"
+    },
+    {
+      "path": "admin/after/13-execution-dialog__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8645ca460e349ad70a567864f281d739fc099be14f6b08afbfbcf2aea7183cea"
+    },
+    {
+      "path": "admin/after/12-audit-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a7f6e966587e04714c5c9532bdac587c8f6994dab8a9c22d6e8d92c8e2638658"
+    },
+    {
+      "path": "admin/after/12-audit-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "12ec6c2dff15baec4cc4129fe2f96a2db067665cf62a916e8bff516d44b2312b"
+    },
+    {
+      "path": "admin/after/11-audit-list__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "31b39c582732a5a4d2d3fbf5c0ce7d10a4f0984bdd3234c246fd8a7845064b0e"
+    },
+    {
+      "path": "admin/after/11-audit-list__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "570f0921fc2401bd4c4ee6469b637994e507bb50483a6c575540059e16ef175a"
+    },
+    {
+      "path": "admin/after/10-execution__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b33b146c7aea6a7956e1e29bdee4e033feb3e32883ad19ae548bc888b578a00d"
+    },
+    {
+      "path": "admin/after/10-execution__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5c4823e8e3794e4c0ac09565e81ea54746293a3b9877638965de870527939e48"
+    },
+    {
+      "path": "admin/after/09-media__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5e887149b817efa2dbfb7ba3f6f9a3be82c9090cf5f09ca8992e89a69f12f119"
+    },
+    {
+      "path": "admin/after/09-media__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0e20d6ce7ea8728c57748e26c65b199f6c9234b7f6228ea69232d2c44c61e7f4"
+    },
+    {
+      "path": "admin/after/08-report-detail__light_full.png",
+      "width": 1440,
+      "height": 1236,
+      "sha256": "e46ef6cd4c23f84de9808f505b1a419a1d3cdf38bdaa4d7c328e21596b8bb6d5"
+    },
+    {
+      "path": "admin/after/08-report-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "58d746795ce40c7e3fd9f39a4e68419cde1aee36b8a4ea6c62965638770d3858"
+    },
+    {
+      "path": "admin/after/08-report-detail__dark_full.png",
+      "width": 1440,
+      "height": 1236,
+      "sha256": "e17e7c6eda26d0569406f18534223dbd426a697e650dcdee12daea2f4c80f3d3"
+    },
+    {
+      "path": "admin/after/08-report-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "fcd213a69ceecb6cf3d251b463f3396c0c2e3698bd07c9a839d423cf5fa93ef8"
+    },
+    {
+      "path": "admin/after/07-reports-list__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c1b07aeb634bb21de4c8a976aa28c2df30a46efa1bd22d7887c3725cd20feb17"
+    },
+    {
+      "path": "admin/after/07-reports-list__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8e785a0469fff3b0e26d809c591eb9486df4473949adb309575b094c312a0a29"
+    },
+    {
+      "path": "admin/after/06-categories__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c61759fbf294444565ee4d1256ec99b6255ca6d9934bc765be07e34af1c05b36"
+    },
+    {
+      "path": "admin/after/06-categories__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "99ada64c318d03987e62e3326a8edb33b3333a9fa94c7443c5a71d2d89c48436"
+    },
+    {
+      "path": "admin/after/05-course-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "797d8ab56cdc5fcee5dd401eea66dc5469df103ce7ab85114586eb4dcc9e150a"
+    },
+    {
+      "path": "admin/after/05-course-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cc2fbfd6f377f553b39388d914fd943723b9b12898071924481c26db272a174a"
+    },
+    {
+      "path": "admin/after/04-courses-list__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9d72fc7068ec1653ddec97961eff6bf751f08c24509ee8665bb08414b69d007b"
+    },
+    {
+      "path": "admin/after/04-courses-list__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "126b86b377c25b4d0186e166674c655c91dc013dc56b4ca84480032f9eb7af16"
+    },
+    {
+      "path": "admin/after/03-user-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b7313a068cbb715d8863a5abd6f662765a53eedd05c4aba50d2ed38d66509bac"
+    },
+    {
+      "path": "admin/after/03-user-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f963829f7112eb4ea856db711c82b8d9c616db51c423e3c36e218c0bf88e6ec6"
+    },
+    {
+      "path": "admin/after/02-users-list__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "27d13ac1564dbf7ae8467b5c8913381dc487c215dba8c28d5f2d8c74c27a4cdd"
+    },
+    {
+      "path": "admin/after/02-users-list__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4c43eae5ed1fe4cc1917af19446226bab700992b46bfd4d07c8f82ff020945e2"
+    },
+    {
+      "path": "admin/after/01-operations-overview__light_full.png",
+      "width": 1440,
+      "height": 993,
+      "sha256": "874144d2ab5f74f250b2bec42392c6755f1eccc473af7efbec1afbe5bc792b35"
+    },
+    {
+      "path": "admin/after/01-operations-overview__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "47e34e281815b86b26461912a809743ecc68f3945c1c74c60b80d5804bf6eb74"
+    },
+    {
+      "path": "admin/after/01-operations-overview__dark_full.png",
+      "width": 1440,
+      "height": 993,
+      "sha256": "6668a0562669d296dd4c45eca7725fb97e685d79aadf1be3203f3a1effe89204"
+    },
+    {
+      "path": "admin/after/01-operations-overview__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8cad27afa0df8a99878b423a1a74da29c4c82f5180f0444c1d9b9a44ba2d8643"
+    },
+    {
+      "path": "admin/recheck/09-course-suspended-receipt__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c1c60cad303d32c92e677ca4225f6c68fd269e2bd3101c3d7d3e5820c45eddef"
+    },
+    {
+      "path": "admin/recheck/08-dialog-course-availability-error__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a0df171e1c29ac5bcc51418af2d6ebc54e3bd374137ebcaeeff69a142afe72e5"
+    },
+    {
+      "path": "admin/recheck/07-support-access-active-receipt__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "028af9f746fc97edda20b3d31b9e8d8b31542c229fe8d588a73ba89f6a7e9940"
+    },
+    {
+      "path": "admin/recheck/06-dialog-support-access-error__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e79cb08ea1064024cc7352b1c5b08aee6ad243f3cbce4a7c45d1e291943dd3b1"
+    },
+    {
+      "path": "admin/recheck/05-roles-author-granted-receipt__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "59fc6b6c758f93482e238a703b022c7e211917a093accbfb902f102dd2d349eb"
+    },
+    {
+      "path": "admin/recheck/04-dialog-manage-roles-error__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7134c118f5e290d8285adcaa9b21b658507e46933455374847f9dc3719973cd4"
+    },
+    {
+      "path": "admin/recheck/03-user-restored-receipt__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2816aa435da05c8546521db0d40ebaa459ba826c324f32dab12a78cca89999cd"
+    },
+    {
+      "path": "admin/recheck/02-user-suspended-receipt__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "11e32c22f5346376b4707c290879377235f92d7d5288104cb6412df4519fdaf6"
+    },
+    {
+      "path": "admin/recheck/01-dialog-suspend-user-error__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "459b13ea501ad73012a5c2c0d4dcb56ffffe6ed4b14e37048d7208dddb5a45f4"
+    },
+    {
+      "path": "admin/recheck/11-course-waiver-applied-receipt__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ceb8e2d209561c3fe5a61152913410ab04412ec905aa6bdd8c15c7327306ff88"
+    },
+    {
+      "path": "admin/recheck/10-dialog-course-waiver-preview__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "bab5d458760aeb5833e2c557c450f00b7daee09c9d45b6694c9539ecce1576e5"
+    },
+    {
+      "path": "admin/recheck/09-course-suspended-receipt__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e78143a1d62d6d61e00ca76f30744fc5743ed9e7e944392a921794b29f0bf213"
+    },
+    {
+      "path": "admin/recheck/08-dialog-course-availability-error__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2b919b657e37b7dae4ac48220b9359555d5f15320c4c18dac4e96e02f517b9c3"
+    },
+    {
+      "path": "admin/recheck/07-support-access-active-receipt__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7ee125fb7e1f2b3338138238ed2418045232d5dd12141dbf90aeb69363873be9"
+    },
+    {
+      "path": "admin/recheck/06-dialog-support-access-error__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5ada2c67fe0f1e738ddb820e8149a373a75b1ff2837ec560b4f2d10f2bbfce62"
+    },
+    {
+      "path": "admin/recheck/05-roles-author-granted-receipt__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7ebcc1e71f77e0d73622472043995f9fd763dc3590c41cc742323a4da46abe33"
+    },
+    {
+      "path": "admin/recheck/04-dialog-manage-roles-error__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3c3ec0e9535087f7c5c74d1c47f71368b0d3a2e91cb07f813d813020f0a9a1e2"
+    },
+    {
+      "path": "admin/recheck/03-user-restored-receipt__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "96e2de8140ed3639b0fc507aea42bd067d042908f471f3672f296578715080cd"
+    },
+    {
+      "path": "admin/recheck/02-user-suspended-receipt__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f53786ec2a94610083d522163e541d048432d2a74a00bf2afd3919f70d7d79e4"
+    },
+    {
+      "path": "admin/recheck/01-dialog-suspend-user-error__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "61906b500e1118cdc7d887eadb96431b46325aa9c9c4c9de3e7fc6ddd188bf22"
+    },
+    {
+      "path": "admin/recheck/11-course-waiver-applied-receipt__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0db4bf463fd73ece5df2cf91d388283808777b1ed8aec2c006497f4c5922ae60"
+    },
+    {
+      "path": "admin/recheck/10-dialog-course-waiver-preview__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "439bae0b3c46cf1a58e7bfb65c893129223e38cdaf6d3ce9b34695ea7632adbc"
+    },
+    {
+      "path": "author/before/07-student-preview__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2759b12ddc4b35f11fa9efc966c1f53c078e9760f7dac1d5a3aac30bd58d1a2f"
+    },
+    {
+      "path": "author/before/07-student-preview__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0c5ec6dd5b455fe10a150fbad379230cd0b46ce174dfdee0cf39ee755dab75fd"
+    },
+    {
+      "path": "author/before/15-agent-activity-drafts__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ccd2088adecafc6204274aee797d5baadaa87c1eff96c68dcfba38d248d817f2"
+    },
+    {
+      "path": "author/before/15-agent-activity-drafts__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7ec363e772556a19ec726924812fddd89dadc795fec90252ffc61f3d85dc0dc5"
+    },
+    {
+      "path": "author/before/14-connection-setup__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "06b491c03ccb95f2a4d421dbc1c78d12e0317601eb8909d30e26a6e67f824edd"
+    },
+    {
+      "path": "author/before/14-connection-setup__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "56669f8c423e75d05c8569196024532309efca671240ba9c931f8e81a117eac5"
+    },
+    {
+      "path": "author/before/13-ai-connections__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9154562e50d49b60d0df912145800cc62dd33e550845116c2ae96fd2ce1d9e2a"
+    },
+    {
+      "path": "author/before/13-ai-connections__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4940d5155c6e41039a59ce1b9be8a544f625111b09b8512609de53b02981458f"
+    },
+    {
+      "path": "author/before/12-course-settings__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "371c35fae1b99755aacf4300bf1c1bf3d7a61ae58e60c276596bea9c27c8fe16"
+    },
+    {
+      "path": "author/before/12-course-settings__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "48d18970ce319f7a9c7772858c67f3b21831d46e3f8f984139082c5ebde690aa"
+    },
+    {
+      "path": "author/before/11-course-analytics__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4f68bf40d52a401c41ea4acb17f0e6098ca74537b70f0a419595630be30a7186"
+    },
+    {
+      "path": "author/before/11-course-analytics__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "db878e51830354b24333d7860bd87268876ba2431b46174dd5be500aa34850f9"
+    },
+    {
+      "path": "author/before/10-student-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2f6bd2f960c251cd27c3c6599280ca97c2f39a0e1efba44b85e333dd13f222f3"
+    },
+    {
+      "path": "author/before/10-student-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "95cd6bb67cb98d4b9a71615859f7d5fd7ffe7953153f50eca822c04040c24130"
+    },
+    {
+      "path": "author/before/09-roster-students__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8a06d3f6af54f337bafb0fe6c40d38f54c345be20a6126ed9141d8260721a1d9"
+    },
+    {
+      "path": "author/before/09-roster-students__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ab4ad2c8f925ab1d0fabb7cb1a60f7381f2a9a76b8f7a5065d07dfe48ed7a7bb"
+    },
+    {
+      "path": "author/before/08-publish-review__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5a488d169718dc837864f93c825bd2c7466c946ecf345cd86aa3c230a13a44b3"
+    },
+    {
+      "path": "author/before/08-publish-review__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8b1fbe8b1c0c2e9803883c4a77c42238dc4de7d5d76f5a67c40b9dd679b42966"
+    },
+    {
+      "path": "author/before/06-step-editor-python__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2fe5aec4a7652d32d2e8dec6661d472e8a25c48eaa8618cdac3d30b3c19893e0"
+    },
+    {
+      "path": "author/before/06-step-editor-python__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "49cf70ed99efb2ef08562e442f40743eac55516a587af2c40d07eaaa0170a1e5"
+    },
+    {
+      "path": "author/before/05-step-editor-quiz__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8893eafc3d4dbf46a0ae73bf2a77e8abf2187501c42b6a27d0612dd6b6b70d66"
+    },
+    {
+      "path": "author/before/05-step-editor-quiz__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "16bd2237bbe91f342603027ca11d9bf2627bf4ed9531253a98fe84cc24c1812b"
+    },
+    {
+      "path": "author/before/04-step-editor-video__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c7b16a4e841ac3f37243e4f6878eabfac949f2cae00d2a41edcc6339a7eb8794"
+    },
+    {
+      "path": "author/before/04-step-editor-video__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d9ba937d90db7fbc551991b010ced0c7c29ba76a2335ac7b4517e027a5822fb5"
+    },
+    {
+      "path": "author/before/03-step-editor-theory__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b2e23d74ddae3243fc45b75d273d8847cf85d4541c58adff819556914a572026"
+    },
+    {
+      "path": "author/before/03-step-editor-theory__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6c4ac45d7836e5765c6ac84c8bd937d09205d5965452a7114164cdf9d5395865"
+    },
+    {
+      "path": "author/before/02-course-builder-outline__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c90eacc2eebcc88829a3b83b523f917249c5911c8c2592faddf3394af30e1610"
+    },
+    {
+      "path": "author/before/02-course-builder-outline__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "aa1c56a071ee6600dd8baa97d28b81b7cff1daf21f581932e3e1a87489d20f39"
+    },
+    {
+      "path": "author/before/01-author-dashboard__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ec01e60f31f68ab18aa6397dd9bda38b39362e1d54ad67fae76d7400c4520cc3"
+    },
+    {
+      "path": "author/before/01-author-dashboard__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6f50516fcf4c759892dfbdc5bbfbe0f0e6703d35948d38668d7ad20ba5520d87"
+    },
+    {
+      "path": "author/after/15-agent-activity-drafts__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c3740d36169ce7d44280954a6e8f905edd8cff3c11522492e5b9f8bd6c17146b"
+    },
+    {
+      "path": "author/after/15-agent-activity-drafts__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "26cf135012cf66c8cd5b9d080c0cdd1471a8bf8de104aa8b4990d5ad3e953c7b"
+    },
+    {
+      "path": "author/after/14-connection-setup__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "06b491c03ccb95f2a4d421dbc1c78d12e0317601eb8909d30e26a6e67f824edd"
+    },
+    {
+      "path": "author/after/14-connection-setup__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "56669f8c423e75d05c8569196024532309efca671240ba9c931f8e81a117eac5"
+    },
+    {
+      "path": "author/after/13-ai-connections__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9154562e50d49b60d0df912145800cc62dd33e550845116c2ae96fd2ce1d9e2a"
+    },
+    {
+      "path": "author/after/13-ai-connections__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4940d5155c6e41039a59ce1b9be8a544f625111b09b8512609de53b02981458f"
+    },
+    {
+      "path": "author/after/12-course-settings__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "34ff7e5dbfde76a9e3c5942f2cd358cb882aa70aa52bf99c5ccb745460fc93dd"
+    },
+    {
+      "path": "author/after/12-course-settings__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c77ba4bcc5ac35a2fffd798d220f12da1d66b69c575a5e94a6a7887578f23728"
+    },
+    {
+      "path": "author/after/11-course-analytics__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "50a37dd672be1ea76553611b562af8c8b7ca407f8df5014e6b5ec36591170dd6"
+    },
+    {
+      "path": "author/after/11-course-analytics__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b8660f1e63f08944852f187dd359e0b9d5825c35981549b23da2e3a893657580"
+    },
+    {
+      "path": "author/after/10-student-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "565762fa24ca8253972e7a6bdce915e5367cbbc4ac821bf8c678013bf2acef59"
+    },
+    {
+      "path": "author/after/10-student-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "46ec8118c974a204b663d352d07cda10a6e9b8fc623319e2a74c669c0edcc36d"
+    },
+    {
+      "path": "author/after/09-roster-students__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a7661b31f9eab5d7cf868b28e645e1a47d16d554c4855acc8abaa972d87d6ee7"
+    },
+    {
+      "path": "author/after/09-roster-students__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d699a540e19c51709c68808d20ec3b553fd7bf6d4533293b3f95752495acad2c"
+    },
+    {
+      "path": "author/after/08-publish-review__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3e1cebfdbe4ed6ee8b0bafd651b528627afefd2ac8e7d21ca8d6cecc0334ebb9"
+    },
+    {
+      "path": "author/after/08-publish-review__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ecf3460ec7ef02bda3f4a3ed1cd956c30f8924d40d16f16ac846a77dc53f61db"
+    },
+    {
+      "path": "author/after/07-student-preview__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b0e6a8a87e90e7b125734eef5b6c93fc6ed4b7897d798d8bff94f0128d831192"
+    },
+    {
+      "path": "author/after/07-student-preview__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "22ca1084e8d3ca738fa6ef1ba757bca0fb6063c871e0e04e4936eaa32bad49c6"
+    },
+    {
+      "path": "author/after/06-step-editor-python__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "810067d7c2c49125046fd37fce24c96cd042170f3a1eced61691e74a48a79f23"
+    },
+    {
+      "path": "author/after/06-step-editor-python__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "38d4f53a9461c957a39c46f598f58835659cac1ef7b878027bb9a1cf61f57ea8"
+    },
+    {
+      "path": "author/after/05-step-editor-quiz__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f92353d6d2cf78410a95486926a4563670f760bd5d4b7eadbb06844b2b91c789"
+    },
+    {
+      "path": "author/after/05-step-editor-quiz__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a4f736648f2b98cb6d39f3dc978824e9e14010aa92c5d467c1f8055424b2bf3e"
+    },
+    {
+      "path": "author/after/04-step-editor-video__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4b3eb87297afc5d1f58ed3a3bb81f5346e628032f08bf80bed82424a7acfefae"
+    },
+    {
+      "path": "author/after/04-step-editor-video__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cfa001c66f70fbe8a8f1f6fb8ce37243ce6577d3f213e3b4e8c722942f942fc3"
+    },
+    {
+      "path": "author/after/03-step-editor-theory__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d5d51ab67dbcc59fe267a8e9125a8ff8cd8dd42c0791c5d728128ba2e3a2920f"
+    },
+    {
+      "path": "author/after/03-step-editor-theory__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0a3aec206b3c14a58253f77abc0efb6bc963ecd0b3722a008f2b4f186f66ab39"
+    },
+    {
+      "path": "author/after/02-course-builder-outline__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ed56e76e5d0249821781e57ce084a3d05c14a23d2f4ccee1dbcb3897bc45ceb3"
+    },
+    {
+      "path": "author/after/02-course-builder-outline__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b7f3af6002b0e20875b16a25dd8a69d467324610f8d7131ffc3335a920edb2a2"
+    },
+    {
+      "path": "author/after/01-author-dashboard__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "088066144a20a2a1fe48359ad2f6e884166ab4d40296e76092a4e7188c65c99d"
+    },
+    {
+      "path": "author/after/01-author-dashboard__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "329a729b9242197dbb7a76d27838349ee7c161e33790681a96547cd6f7139599"
+    },
+    {
+      "path": "author/recheck/15-agent-activity-drafts__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "057201261f032c8b35e88fd7ae07c4b7cc1ef841240b1adead3480c554af4bb4"
+    },
+    {
+      "path": "author/recheck/15-agent-activity-drafts__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ecbd99f92b93579be1b977a58c53015ba377aa8e5d8c636af34cc34b5000f17a"
+    },
+    {
+      "path": "author/recheck/14-connection-setup__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f17b6ed45910109f9ff571737cf1e6ea3ae0ab739b625398a7a8e504646132fd"
+    },
+    {
+      "path": "author/recheck/14-connection-setup__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "7dfbedaedc1c1c3d86edb33eec1428d82e30dc7b6b5ca4d7a834d62fb52e9c39"
+    },
+    {
+      "path": "author/recheck/13-ai-connections__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "29f098665ae60300fc46980aef410475fae37295939b816eee607adf889af6cf"
+    },
+    {
+      "path": "author/recheck/13-ai-connections__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "02f40d4b4fb4043426ccd092e3d7604cbe1ddd2dbb0139eee3cc0ac65ddb92fd"
+    },
+    {
+      "path": "author/recheck/12-course-settings__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b64451fbf1b24d23dab49f000e9f9b29db5186b6069c5c445f38b7414c94a7e1"
+    },
+    {
+      "path": "author/recheck/12-course-settings__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "065403d8da37dbbd8c3195c357c508eab0ce59edd1d75aa1e9c14b0d4b69fbda"
+    },
+    {
+      "path": "author/recheck/11-course-analytics__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "095a46224a34283383f9e32ff68ccf08a47832be999fdaa7a760357f8973dd07"
+    },
+    {
+      "path": "author/recheck/11-course-analytics__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9e9565e833a8e4645def245dd094aa616eebf42b02d599600c4858f76f071cff"
+    },
+    {
+      "path": "author/recheck/10-student-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e5d65244a392f2adf36215672a2659d810ac9814735d6a305b5315fe013ad191"
+    },
+    {
+      "path": "author/recheck/10-student-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c42ce36d7eaf3a0303dacba5ba19555cc93858e52e31f6331c1bb71f103ceb8c"
+    },
+    {
+      "path": "author/recheck/09-roster-students__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "28c6c0f59ec75e4350f033464a7dddb654799d2c5cc68243c3402c21d05db564"
+    },
+    {
+      "path": "author/recheck/09-roster-students__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "56eca5779554772b347429a4b0deab1d7b7e6c5a7d83b4db4b81b70bd26e475b"
+    },
+    {
+      "path": "author/recheck/08-publish-review__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9b190c241b59a74b90742a775554560d5846ea15931b6325fedf8d3f70cbac4d"
+    },
+    {
+      "path": "author/recheck/08-publish-review__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "71e03fef648b4073374b226cbb3a93f91ffb57e129c5e96f1c074703b7546ac8"
+    },
+    {
+      "path": "author/recheck/07b-student-preview-python__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "83655d0918e48133e346b5cf194ada7adce8b17ce823ccc7ca6b37466a18874b"
+    },
+    {
+      "path": "author/recheck/07b-student-preview-python__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "555d4ef7633f67a577cd59331e48faf9b46b28c04db6bd9860969a4b8cf30261"
+    },
+    {
+      "path": "author/recheck/07-student-preview__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d4b184ca6c5b464990e986e2058caf10ae576207b6ee062eb32cfccaddc1139a"
+    },
+    {
+      "path": "author/recheck/07-student-preview__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d310c8420c03748d33d76d2020c6c73fbde9eddfc0cc8c914b6573c9892f183b"
+    },
+    {
+      "path": "author/recheck/06-step-editor-python__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0aa3abeb1dc50977198b86654b10616ae4c94f9964cf0ff0c8d95dcbf030bd89"
+    },
+    {
+      "path": "author/recheck/06-step-editor-python__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4fd50e59b0572c1d0c76497f845f8e8821c16a68ae1794868e5b1fdbbcda82b9"
+    },
+    {
+      "path": "author/recheck/05-step-editor-quiz__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "68cafc991df24c6d5cb0c3600730561c851b39dcc51b5d44cc44920e986d718a"
+    },
+    {
+      "path": "author/recheck/05-step-editor-quiz__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8fce9ec0ed54ac2cb108cb0581d974bbc8530beff8f77d7b84749226d0471ec1"
+    },
+    {
+      "path": "author/recheck/04-step-editor-video__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "07132db106dc051ff86dae51f4a7fe291d9a13a35f1a370c9b6fe670f35ee76b"
+    },
+    {
+      "path": "author/recheck/04-step-editor-video__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e53335d585ab00ff623bff2482d51704123eb5a105b2e14d065cad956c248486"
+    },
+    {
+      "path": "author/recheck/03b-step-editor-theory-dirty__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b9af066f20b428f87b008dab42af25a80ec8804fe2cf68fc7461aa6da3344c0d"
+    },
+    {
+      "path": "author/recheck/03b-step-editor-theory-dirty__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a5b60331f83aba8e1a305a68d4aabf70a4ffe5d796ec6743a616621a0dad52ca"
+    },
+    {
+      "path": "author/recheck/03-step-editor-theory__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ba11ca263b179aeddde5ca1a44bc45960345342903a33c0544abe769ef80e951"
+    },
+    {
+      "path": "author/recheck/03-step-editor-theory__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "143e4bb921074dadeef8a40ecd0b06efd16fb143b8193de88ca28eb4293777ab"
+    },
+    {
+      "path": "author/recheck/02-course-builder-outline__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a701ba92c75a850054fb4381c362c41b3053c93bb5c95fa5c3cf0d18ae555e8a"
+    },
+    {
+      "path": "author/recheck/02-course-builder-outline__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "051c265e384c04ab041657a187e002d873fe18e85aaeafbc1f9cbfd0a043a676"
+    },
+    {
+      "path": "author/recheck/01-author-dashboard__light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9835be9c16bd692b5dd585f03ae709dc17adf89c9c99c626da7127a338709dd2"
+    },
+    {
+      "path": "author/recheck/01-author-dashboard__dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f27c75deea2aabd814a391fd228b3c9ae8014269cf2af23275869c9b146f559e"
+    },
+    {
+      "path": "learner/before/15-settings-privacy.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "92a53dda336a7d4b087a2426fe4a137692fbbc499dd2810e1747bd3f58beb8f3"
+    },
+    {
+      "path": "learner/before/14-settings-security.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e6f4a419464a7ccd275e9305bec98dd9b19a55f123580b694d891150a6e5694a"
+    },
+    {
+      "path": "learner/before/13-settings-appearance.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "76ec245aaa6effdf8ec8574c85e2234ddb00b8155e7bc709b63c82e64b5d5ae8"
+    },
+    {
+      "path": "learner/before/12-settings-profile.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1becd01d12ec9c4d81d1901f096f4274759401e8f121dcb56179366452edccf9"
+    },
+    {
+      "path": "learner/before/11-submission-history.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "21060d8fe916c90c7752272a682488e013fd9c9a3cf5e5e7b68683764eb69e88"
+    },
+    {
+      "path": "learner/before/10-python-workspace-report-modal__full.png",
+      "width": 1440,
+      "height": 1360,
+      "sha256": "cbcbda840d56268f460bc8011e39792194685f3e4e5c2af3dee77561d3f5115c"
+    },
+    {
+      "path": "learner/before/10-python-workspace-report-modal.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "894698fe1a9f1822c61c2f97c0e5cc1aaf62378251edb29c0fac1b7be28c464c"
+    },
+    {
+      "path": "learner/before/09-python-workspace-run-feedback.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9b785d7378f7059c2caae5eb9723118baddc88cd7033a6c790f69ce1d223fe61"
+    },
+    {
+      "path": "learner/before/08-python-workspace-custom-input.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cc1091cacba12d392f7baf7bb923a18252e3a37ebdc463ac3c940b0743745195"
+    },
+    {
+      "path": "learner/before/07-python-workspace-editor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cc1091cacba12d392f7baf7bb923a18252e3a37ebdc463ac3c940b0743745195"
+    },
+    {
+      "path": "learner/before/06-step-quiz.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "498594e551b3b01da090005df5abd5ec5142c5456309b3825b60a6d3ee023aaf"
+    },
+    {
+      "path": "learner/before/05-step-video.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "844382dd1761e3646d90a19b6db575e6f8d987d58915c5cfcaef9c6830593aa4"
+    },
+    {
+      "path": "learner/before/04-step-theory.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "3f846dd203dd462e05f90a5214b0106cf3bf7113e9749d34d315d27f7889f970"
+    },
+    {
+      "path": "learner/before/03-course-outline__full.png",
+      "width": 1440,
+      "height": 1103,
+      "sha256": "6c4b17a3753fb866c75836358a8785da5e4501a81943fa28d400762338105e14"
+    },
+    {
+      "path": "learner/before/03-course-outline.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "551054d316b34e032a099c4d2d7e19f83a0dc3198596f3e18355982d69716481"
+    },
+    {
+      "path": "learner/before/02-my-courses.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "dd1484d90edf9dd94657eef48753758145b8a99368217a01a35537c4fd14d7a0"
+    },
+    {
+      "path": "learner/before/01-learner-dashboard.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d19d5c6095acff48d9c1cefbc661d9a5b09259d434775d2c8ffe47ded661a919"
+    },
+    {
+      "path": "learner/after/15-settings-privacy.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c6f87a393c0552e9d56cc8b1eeba94755169791c4907d29ff0c363dd2c5d516e"
+    },
+    {
+      "path": "learner/after/14-settings-security.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ceb4a6c3c147a79cfa2f70470da3c6eb650c2baaa646c3d3dcb5019161b4ffc7"
+    },
+    {
+      "path": "learner/after/13-settings-appearance.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "aa4ea09067323f597ff27fecaef0151ce98c11987c0af14c6c31ea94a74f2fd8"
+    },
+    {
+      "path": "learner/after/12-settings-profile.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b40f3a7fb93afa596ec64abc9777f154a7c80353970e069ed47676ad275fb6be"
+    },
+    {
+      "path": "learner/after/11-submission-history.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e937d2ffa64be5faff3470bcfdcd540ed64461f24a47b8a96812fb67efb64f28"
+    },
+    {
+      "path": "learner/after/10-python-workspace-report-modal__full.png",
+      "width": 1440,
+      "height": 1237,
+      "sha256": "1e7ca7a8b8317a616206d767649eb968a1f08bc7a587c4a4e0ff7bd5a39a3d98"
+    },
+    {
+      "path": "learner/after/10-python-workspace-report-modal.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "21fe6c48a6f18f147b602d101f1adcb46f3d5ce83fa666d7700017d1b6d2f8cb"
+    },
+    {
+      "path": "learner/after/09-python-workspace-run-feedback.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "11021881fcad13568bae246b3230565c0e6f088d52f63c96c870869fd4b8d692"
+    },
+    {
+      "path": "learner/after/08-python-workspace-custom-input.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0735d19e5989408667a8dd60a9dd0a55b1f8603e238f3335149b09c389a2b02e"
+    },
+    {
+      "path": "learner/after/07-python-workspace-editor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e92932beb3e3f056503d07d1534b3f563d04c7f372e1b9961278962e9d3e53ee"
+    },
+    {
+      "path": "learner/after/06-step-quiz.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b5e4d38f638b9136ebd1d84a5edfa77a0ca87aab5a26f87c48895928f8e97c3c"
+    },
+    {
+      "path": "learner/after/05-step-video.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "28f673484c519eff1d3ad7f76e682af2203389f6a05d7a4528ed928318abc524"
+    },
+    {
+      "path": "learner/after/04-step-theory.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "859a152aa0e490ff4253fd066934fb8729f65643a57aa9c9692c307666157158"
+    },
+    {
+      "path": "learner/after/03-course-outline__full.png",
+      "width": 1440,
+      "height": 1103,
+      "sha256": "6c4b17a3753fb866c75836358a8785da5e4501a81943fa28d400762338105e14"
+    },
+    {
+      "path": "learner/after/03-course-outline.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "551054d316b34e032a099c4d2d7e19f83a0dc3198596f3e18355982d69716481"
+    },
+    {
+      "path": "learner/after/02-my-courses.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "dd1484d90edf9dd94657eef48753758145b8a99368217a01a35537c4fd14d7a0"
+    },
+    {
+      "path": "learner/after/01-learner-dashboard.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ad5d79c15854f6e288fc07c730956078d8e2edc69a61eae8e1d1600664a23fe2"
+    },
+    {
+      "path": "learner/recheck/09-python-workspace-run-feedback.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8341b4558ce9ad1c5afbcfff8d295f8b2cfec65b05c5d5fc0c5f39e76c222ebc"
+    },
+    {
+      "path": "learner/recheck/10-python-workspace-report-modal.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "aed5cd42f1b7202f40c55b7a79f900e63a97d97483ff1f0c6fb2eef76ce0b23f"
+    },
+    {
+      "path": "learner/recheck/16-light-theme-workspace.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "799f09c7d7d19bfe3db4277b318a02769c9672fcd3198d290752aa1f1526827d"
+    },
+    {
+      "path": "learner/recheck/15-settings-privacy.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c6f87a393c0552e9d56cc8b1eeba94755169791c4907d29ff0c363dd2c5d516e"
+    },
+    {
+      "path": "learner/recheck/14-settings-security.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ceb4a6c3c147a79cfa2f70470da3c6eb650c2baaa646c3d3dcb5019161b4ffc7"
+    },
+    {
+      "path": "learner/recheck/13-settings-appearance.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "aa4ea09067323f597ff27fecaef0151ce98c11987c0af14c6c31ea94a74f2fd8"
+    },
+    {
+      "path": "learner/recheck/12-settings-profile.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b40f3a7fb93afa596ec64abc9777f154a7c80353970e069ed47676ad275fb6be"
+    },
+    {
+      "path": "learner/recheck/11-submission-history.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "06f698ebe21d47115798117ee7296fbe4720c853fc7b2fd88957dc0a6ddd511f"
+    },
+    {
+      "path": "learner/recheck/08-python-workspace-custom-input.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4e694b8e6cfe8243d6b60486dd304d1e29022889e85fe5d22e411e78b2b77509"
+    },
+    {
+      "path": "learner/recheck/07-python-workspace-editor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6022f348d74f000c46b1401dda65d3c279d6b14be1744c0010b6be18fa1b7a28"
+    },
+    {
+      "path": "learner/recheck/06-step-quiz.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "a7849adb3d503257956f3e8c13bb59d64907146b38b381e227e11ec8b9008f33"
+    },
+    {
+      "path": "learner/recheck/05-step-video.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ba465af9c4eab57321ff2defdb37791e223269f2dfc9f52898c1e6b505bd9a54"
+    },
+    {
+      "path": "learner/recheck/04-step-theory.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0afe134fc8d45469bb3a5363c4f85a7548d1e6f2705e56433f5043a2721247a7"
+    },
+    {
+      "path": "learner/recheck/03-course-outline__full.png",
+      "width": 1440,
+      "height": 1151,
+      "sha256": "9c618b02ab3efc206735849150dea1211b0ef970b7c84a63739101b7598053a9"
+    },
+    {
+      "path": "learner/recheck/03-course-outline.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "66341c101f366c83941954b49452b6e7008a71a12781ccc14f519ab022b07d46"
+    },
+    {
+      "path": "learner/recheck/02-my-courses.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "dd1484d90edf9dd94657eef48753758145b8a99368217a01a35537c4fd14d7a0"
+    },
+    {
+      "path": "learner/recheck/01-learner-dashboard.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ad5d79c15854f6e288fc07c730956078d8e2edc69a61eae8e1d1600664a23fe2"
+    },
+    {
+      "path": "learner/finalcheck/01-learner-dashboard.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5dabc36c519d5966de677468225ac7e8952d7f09caf2051db0b65599f193edbc"
+    },
+    {
+      "path": "learner/finalcheck/02-my-courses.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "79d4ebf433adcfb994254e8f40bae976d6e1bc0ae04165308789698cc41a09dd"
+    },
+    {
+      "path": "learner/finalcheck/03-course-outline.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b7a501fa09ca0b0095c8ddf353e7ea90e2ee714da5cb622e7cfb4fd0742d797a"
+    },
+    {
+      "path": "learner/finalcheck/03-course-outline__full.png",
+      "width": 1440,
+      "height": 1151,
+      "sha256": "988961d66d2a32ae1cecd725272e2a574b28cf15d0533bf99f1feb468c4991a8"
+    },
+    {
+      "path": "learner/finalcheck/04-step-theory.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6a5c57c2384afa777c5323673cd573d64563a91b5bfe2188074eb72a312a11fb"
+    },
+    {
+      "path": "learner/finalcheck/05-step-video.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f6f045783d086216d6a0eaf3b0ff35ad72389ea9b4cb008f2b6df8bb80a04f4a"
+    },
+    {
+      "path": "learner/finalcheck/06-step-quiz.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d48c8800906259d6e499ac79d81d9687eb385149fee8e5ded00209354409204b"
+    },
+    {
+      "path": "learner/finalcheck/07-python-workspace-editor.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "bf6a0771ca4bfc1c3a447e5d6b780beeeb0e1d0e9f84682a1e1c8a3da0aabd76"
+    },
+    {
+      "path": "learner/finalcheck/08-python-workspace-custom-input.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e546aacc5807f43cf0679369edf2f4a753c5069ca36bab9c41e98a7b025c7581"
+    },
+    {
+      "path": "learner/finalcheck/09-python-workspace-run-feedback.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4b438ed5f520552c460ab3ac1c2f871cad440a7f78ef4bf1ed9e72a74b89ee6e"
+    },
+    {
+      "path": "learner/finalcheck/09b-python-workspace-infrastructure-error.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6209d90a562ed1ba469fb301eb93811ed21d13f9fe885532bb11001c39db57ec"
+    },
+    {
+      "path": "learner/finalcheck/10-python-workspace-report-modal.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0cef4845d66e05d3380966e1c0128f1040b510ca7718cfb7800b736493efbb85"
+    },
+    {
+      "path": "learner/finalcheck/11-submission-history.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ff11a51f9629a46173746fee6ef1e160e47944d934413c9a39f327ac3a9c4caa"
+    },
+    {
+      "path": "learner/finalcheck/12-settings-profile.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8bf5a5d89319b86f59a1392539945c71480c02e6b17690c755a701f1f8e1e0b8"
+    },
+    {
+      "path": "learner/finalcheck/13-settings-appearance.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "374596d3b50dae69d9ea23f81b3b5dde8e3d8f2c89b8ea59863ab08a48365d0f"
+    },
+    {
+      "path": "learner/finalcheck/14-settings-security.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "97fd3de5cf4f6c9ec529d88d8ac955bba8e2a527fea61d9cf89d0a262e1b8207"
+    },
+    {
+      "path": "learner/finalcheck/15-settings-privacy.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "807cd5c8efe7e64358d9a223d50d1784f69fe8727da0f9677707defd2aafec95"
+    },
+    {
+      "path": "learner/finalcheck/16-light-theme-workspace.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "78c78826c23dce1e1c961e8fa388908c79ef4c2d6ec8f7f400d174855f74728f"
+    },
+    {
+      "path": "learner/finalcheck/17-terminal-verification-summary.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "028a3d6bc73d75bdcd97b89bca9229b61d86332281c635f9a51b7038c84d5d73"
+    }
+  ],
+  "excluded_invalid_agent_test_files": [
+    "author/test-bin.png"
+  ]
+}

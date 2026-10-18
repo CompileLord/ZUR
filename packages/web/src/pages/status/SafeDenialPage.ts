@@ -1,4 +1,5 @@
 import { renderPublicShell } from '../../components/shells/PublicShell.ts';
+import { renderAppShell } from '../../components/shells/AppShell.ts';
 import { renderIcon } from '../../components/common/icons.ts';
 import { escapeHtml } from '../../utils/escape-html.ts';
 import {
@@ -10,6 +11,7 @@ export interface SafeDenialPageOptions {
   type: 'not-found' | 'access-denied' | 'suspended' | 'rate-limited';
   message?: string;
   retryAfterSeconds?: number;
+  user?: any;
 }
 
 export function renderSafeDenialPage(opts: SafeDenialPageOptions): string {
@@ -66,8 +68,18 @@ export function renderSafeDenialPage(opts: SafeDenialPageOptions): string {
   }
 
   const wrapperClass = 'status-page container flex flex-col items-center justify-center py-24 text-center';
+  const pageContent = `<div class="${wrapperClass}">${content}</div>`;
+
+  if (opts.user) {
+    return renderAppShell({
+      activePath: '/courses',
+      user: opts.user,
+      currentMode: 'learn',
+      content: pageContent,
+    });
+  }
 
   return renderPublicShell({
-    content: `<div class="${wrapperClass}">${content}</div>`,
+    content: pageContent,
   });
 }

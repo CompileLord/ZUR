@@ -1,0 +1,25 @@
+{
+  "checks": [
+    {
+      "check": "L6 cancelled Forward, repeated Back cancellation and confirmed Forward preserve native history",
+      "status": "failed",
+      "error": "Timed out: cancel returns intact draft",
+      "observed": {
+        "route": "/courses",
+        "headings": [
+          "Settings",
+          "Profile settings"
+        ],
+        "activeFilter": "Profile",
+        "profileDraft": "Codex Forward draft",
+        "openDialogs": []
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 0,
+  "failed": 1,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

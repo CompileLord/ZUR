@@ -1,0 +1,389 @@
+[
+  {
+    "step": 1,
+    "issue": "A1",
+    "action": "Submit populated course title under 503 [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach",
+    "renderedState": "Failed create dialog with retained title",
+    "evidence": "retained=\"Concurrency Systems Architecture Alpha\", error=\"Controlled server failure: Course creation temporarily unavailable. Your title has been preserved.\"",
+    "passed": true
+  },
+  {
+    "step": 2,
+    "issue": "A1",
+    "action": "Retry course create succeeds and navigates [dark]",
+    "observedUrl": "/teach/47253d62-3a90-4d2b-a1dd-b64258420759/content",
+    "renderedState": "Course builder content view",
+    "evidence": "url=\"/teach/47253d62-3a90-4d2b-a1dd-b64258420759/content\", title=\"Concurrency Systems Architecture Alpha\"",
+    "passed": true
+  },
+  {
+    "step": 3,
+    "issue": "A1",
+    "action": "Submit populated course title under 503 [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach",
+    "renderedState": "Failed create dialog with retained title",
+    "evidence": "retained=\"Concurrency Systems Architecture Beta\", error=\"Controlled server failure: Course creation temporarily unavailable. Your title has been preserved.\"",
+    "passed": true
+  },
+  {
+    "step": 4,
+    "issue": "A1",
+    "action": "Retry course create succeeds and navigates [light]",
+    "observedUrl": "/teach/1e60e64b-9663-43f1-9c2f-4ff15cff23c0/content",
+    "renderedState": "Course builder content view",
+    "evidence": "url=\"/teach/1e60e64b-9663-43f1-9c2f-4ff15cff23c0/content\", title=\"Concurrency Systems Architecture Beta\"",
+    "passed": true
+  },
+  {
+    "step": 5,
+    "issue": "A2",
+    "action": "Status tabs compose search parameter [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach?status=draft&search=Concurrency",
+    "renderedState": "Drafts tab active with search query and matching course cards",
+    "evidence": "active=true, search=Concurrency, cards=2",
+    "passed": true
+  },
+  {
+    "step": 6,
+    "issue": "A2",
+    "action": "Empty match state with clear filters CTA [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach?status=draft&search=NonexistentQuantum",
+    "renderedState": "Empty state card with Clear filters action",
+    "evidence": "title=\"No matching courses\", clear=\"/teach\"",
+    "passed": true
+  },
+  {
+    "step": 7,
+    "issue": "A2",
+    "action": "Clear filters resets query and displays all courses [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach",
+    "renderedState": "All tab active with all authored courses",
+    "evidence": "allTabActive=true, cards=5",
+    "passed": true
+  },
+  {
+    "step": 8,
+    "issue": "A2",
+    "action": "Status tabs compose search parameter [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach?status=draft&search=Concurrency",
+    "renderedState": "Drafts tab active with search query and matching course cards",
+    "evidence": "active=true, search=Concurrency, cards=2",
+    "passed": true
+  },
+  {
+    "step": 9,
+    "issue": "A2",
+    "action": "Empty match state with clear filters CTA [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach?status=draft&search=NonexistentQuantum",
+    "renderedState": "Empty state card with Clear filters action",
+    "evidence": "title=\"No matching courses\", clear=\"/teach\"",
+    "passed": true
+  },
+  {
+    "step": 10,
+    "issue": "A2",
+    "action": "Clear filters resets query and displays all courses [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach",
+    "renderedState": "All tab active with all authored courses",
+    "evidence": "allTabActive=true, cards=5",
+    "passed": true
+  },
+  {
+    "step": 11,
+    "issue": "A3",
+    "action": "Single main landmark and skip-link target [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach",
+    "renderedState": "Exactly one main element and skip-link focused",
+    "evidence": "mainCount=1, mainIdCount=1, innerTag=SECTION, skipFocused=true",
+    "passed": true
+  },
+  {
+    "step": 12,
+    "issue": "A3",
+    "action": "Single main landmark and skip-link target [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach",
+    "renderedState": "Exactly one main element and skip-link focused",
+    "evidence": "mainCount=1, mainIdCount=1, innerTag=SECTION, skipFocused=true",
+    "passed": true
+  },
+  {
+    "step": 13,
+    "issue": "A4",
+    "action": "Read-only Python split preview [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+    "renderedState": "Paired problem and read-only editor with concise notice",
+    "evidence": "noRun=true, noSubmit=true, header=\"Read-only code preview\", returnUrl=\"/teach/course-python-foundations/content/python/step-4-python-echo\"",
+    "passed": true
+  },
+  {
+    "step": 14,
+    "issue": "A4",
+    "action": "Theory step preview [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/preview?stepId=step-1-theory",
+    "renderedState": "Theory markdown reading preview",
+    "evidence": "title=\"What is a variable?\"",
+    "passed": true
+  },
+  {
+    "step": 15,
+    "issue": "A4",
+    "action": "Video step preview [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/preview?stepId=step-2-video",
+    "renderedState": "Video player student preview",
+    "evidence": "embed=true",
+    "passed": true
+  },
+  {
+    "step": 16,
+    "issue": "A4",
+    "action": "Quiz step preview [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/preview?stepId=step-3-quiz-single",
+    "renderedState": "Quiz checkpoint student preview with local selection preview",
+    "evidence": "choices=4",
+    "passed": true
+  },
+  {
+    "step": 17,
+    "issue": "A4",
+    "action": "Back to editor CTA returns accurately [dark]",
+    "observedUrl": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+    "renderedState": "Step editor view",
+    "evidence": "returned=\"/teach/course-python-foundations/content/quiz/step-3-quiz-single\"",
+    "passed": true
+  },
+  {
+    "step": 18,
+    "issue": "A4",
+    "action": "Read-only Python split preview [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+    "renderedState": "Paired problem and read-only editor with concise notice",
+    "evidence": "noRun=true, noSubmit=true, header=\"Read-only code preview\", returnUrl=\"/teach/course-python-foundations/content/python/step-4-python-echo\"",
+    "passed": true
+  },
+  {
+    "step": 19,
+    "issue": "A4",
+    "action": "Theory step preview [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/preview?stepId=step-1-theory",
+    "renderedState": "Theory markdown reading preview",
+    "evidence": "title=\"What is a variable?\"",
+    "passed": true
+  },
+  {
+    "step": 20,
+    "issue": "A4",
+    "action": "Video step preview [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/preview?stepId=step-2-video",
+    "renderedState": "Video player student preview",
+    "evidence": "embed=true",
+    "passed": true
+  },
+  {
+    "step": 21,
+    "issue": "A4",
+    "action": "Quiz step preview [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/preview?stepId=step-3-quiz-single",
+    "renderedState": "Quiz checkpoint student preview with local selection preview",
+    "evidence": "choices=4",
+    "passed": true
+  },
+  {
+    "step": 22,
+    "issue": "A4",
+    "action": "Back to editor CTA returns accurately [light]",
+    "observedUrl": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+    "renderedState": "Step editor view",
+    "evidence": "returned=\"/teach/course-python-foundations/content/quiz/step-3-quiz-single\"",
+    "passed": true
+  },
+  {
+    "step": 23,
+    "issue": "A5",
+    "action": "403 Denial retains AppShell and safe exits [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-forbidden-xyz/content",
+    "renderedState": "Safe course denial without data leak",
+    "evidence": "heading=\"Course not found\", exits=[\"/teach\"], leaked=false",
+    "passed": true
+  },
+  {
+    "step": 24,
+    "issue": "A5",
+    "action": "503 Service failure retains safe exits and retry [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach",
+    "renderedState": "Contextual failure state with retry button and Courses exit",
+    "evidence": "heading=\"Couldn't load course content\", retry=true, returnLink=true",
+    "passed": true
+  },
+  {
+    "step": 25,
+    "issue": "A5",
+    "action": "503 Retry successfully recovers author list [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach",
+    "renderedState": "Recovered author courses list",
+    "evidence": "cards=5",
+    "passed": true
+  },
+  {
+    "step": 26,
+    "issue": "A5",
+    "action": "403 Denial retains AppShell and safe exits [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-forbidden-xyz/content",
+    "renderedState": "Safe course denial without data leak",
+    "evidence": "heading=\"Course not found\", exits=[\"/teach\"], leaked=false",
+    "passed": true
+  },
+  {
+    "step": 27,
+    "issue": "A5",
+    "action": "503 Service failure retains safe exits and retry [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach",
+    "renderedState": "Contextual failure state with retry button and Courses exit",
+    "evidence": "heading=\"Couldn't load course content\", retry=true, returnLink=true",
+    "passed": true
+  },
+  {
+    "step": 28,
+    "issue": "A5",
+    "action": "503 Retry successfully recovers author list [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach",
+    "renderedState": "Recovered author courses list",
+    "evidence": "cards=5",
+    "passed": true
+  },
+  {
+    "step": 29,
+    "issue": "A6",
+    "action": "Clean author editor header is quiet [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/content/theory/step-1-theory",
+    "renderedState": "Author workspace header with quiet clean save status",
+    "evidence": "indicator=\"undefined\"",
+    "passed": true
+  },
+  {
+    "step": 30,
+    "issue": "A6",
+    "action": "Dirty editor displays explicit Save changes [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/content/theory/step-1-theory",
+    "renderedState": "Author header with active dirty state and Save changes button",
+    "evidence": "dirty=true, btnText=\"Save changes\"",
+    "passed": true
+  },
+  {
+    "step": 31,
+    "issue": "A6",
+    "action": "Save failure displays Retry save [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/content/theory/step-1-theory",
+    "renderedState": "Author header with Retry save after transient fault",
+    "evidence": "btnText=\"Retry save\"",
+    "passed": true
+  },
+  {
+    "step": 32,
+    "issue": "A6",
+    "action": "Publication review ready state is uncluttered [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/publish",
+    "renderedState": "Uncluttered publish review with checklist, impact, and single publish action",
+    "evidence": "noNextAction=true, checklist=\"✓ Pre-publish checklist passed with 0 blocking errors\", btn=\"Publish Version 3\"",
+    "passed": true
+  },
+  {
+    "step": 33,
+    "issue": "A6",
+    "action": "Publication review blocked state retains actionable guidance [dark]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-with-issues/publish",
+    "renderedState": "Blocked publication review with deep links and disabled primary action",
+    "evidence": "nextAction=\"Next action:\n          Resolve 2 blocking issues before releasing Version 1.\", issues=1, deepLink=true, disabled=true",
+    "passed": true
+  },
+  {
+    "step": 34,
+    "issue": "A6",
+    "action": "Clean author editor header is quiet [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/content/theory/step-1-theory",
+    "renderedState": "Author workspace header with quiet clean save status",
+    "evidence": "indicator=\"undefined\"",
+    "passed": true
+  },
+  {
+    "step": 35,
+    "issue": "A6",
+    "action": "Dirty editor displays explicit Save changes [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/content/theory/step-1-theory",
+    "renderedState": "Author header with active dirty state and Save changes button",
+    "evidence": "dirty=true, btnText=\"Save changes\"",
+    "passed": true
+  },
+  {
+    "step": 36,
+    "issue": "A6",
+    "action": "Save failure displays Retry save [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/content/theory/step-1-theory",
+    "renderedState": "Author header with Retry save after transient fault",
+    "evidence": "btnText=\"Retry save\"",
+    "passed": true
+  },
+  {
+    "step": 37,
+    "issue": "A6",
+    "action": "Publication review ready state is uncluttered [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-python-foundations/publish",
+    "renderedState": "Uncluttered publish review with checklist, impact, and single publish action",
+    "evidence": "noNextAction=true, checklist=\"✓ Pre-publish checklist passed with 0 blocking errors\", btn=\"Publish Version 3\"",
+    "passed": true
+  },
+  {
+    "step": 38,
+    "issue": "A6",
+    "action": "Publication review blocked state retains actionable guidance [light]",
+    "observedUrl": "http://127.0.0.1:33059/teach/course-with-issues/publish",
+    "renderedState": "Blocked publication review with deep links and disabled primary action",
+    "evidence": "nextAction=\"Next action:\n          Resolve 2 blocking issues before releasing Version 1.\", issues=1, deepLink=true, disabled=true",
+    "passed": true
+  },
+  {
+    "step": 39,
+    "issue": "A7",
+    "action": "Technical limits disclosure collapsed initially without PRD text [dark]",
+    "observedUrl": "http://127.0.0.1:33059/settings/ai-connections/tok-disposable-audit/setup",
+    "renderedState": "Collapsed technical limits details element",
+    "evidence": "open=false, noPrd=true",
+    "passed": true
+  },
+  {
+    "step": 40,
+    "issue": "A7",
+    "action": "Technical limits disclosure expanded [dark]",
+    "observedUrl": "http://127.0.0.1:33059/settings/ai-connections/tok-disposable-audit/setup",
+    "renderedState": "Expanded technical limits details with upload and transport limits",
+    "evidence": "open=true, text=\"• Transport: Streamable HTTP, protocol 2026-07-28\n\"",
+    "passed": true
+  },
+  {
+    "step": 41,
+    "issue": "A7",
+    "action": "Initial connection status is waiting [dark]",
+    "observedUrl": "http://127.0.0.1:33059/settings/ai-connections/tok-disposable-audit/setup",
+    "renderedState": "Waiting for first request status indicator",
+    "evidence": "status=\"⏳ Waiting for the first authenticated request\n                  \n                  \n                    No requests have been received yet for this token. Run a test prompt in your client to connect.\"",
+    "passed": true
+  },
+  {
+    "step": 42,
+    "issue": "A7",
+    "action": "Real MCP handshake refreshes status to verified [dark]",
+    "observedUrl": "http://127.0.0.1:33059/settings/ai-connections/tok-disposable-audit/setup",
+    "renderedState": "Verified status with actual lastUsedAt timestamp",
+    "evidence": "status=\"✓ Authenticated request observed\n                  \n                  \n                    Last observed authenticated request: 10/10/2026, 11:05:21 PM\"",
+    "passed": true
+  },
+  {
+    "step": 43,
+    "issue": "A7",
+    "action": "Status refresh failure displays truthful error [dark]",
+    "observedUrl": "http://127.0.0.1:33059/settings/ai-connections/tok-disposable-audit/setup",
+    "renderedState": "Truthful refresh error feedback",
+    "evidence": "error=\"undefined\"",
+    "passed": false
+  }
+]

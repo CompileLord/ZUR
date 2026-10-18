@@ -26,17 +26,18 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
   } = props;
 
   const reportModalHtml = `
-    <div
+    <dialog
       id="report-issue-modal"
-      class="report-modal ${isReportModalOpen ? 'open' : ''}"
+      class="modal-backdrop report-modal ${isReportModalOpen ? 'open' : ''}"
       role="dialog"
       aria-modal="true"
       aria-labelledby="report-modal-title"
       style="${isReportModalOpen ? 'display: flex;' : 'display: none;'}"
+      ${isReportModalOpen ? 'open' : ''}
     >
       <div class="sheet-backdrop" data-action="close-report"></div>
       <div class="sheet-panel max-w-dialog" tabindex="-1">
-        <div class="sheet-header flex justify-between items-center pb-3 border-b border-subtle">
+        <div class="sheet-header flex justify-between items-center pb-2 border-b border-subtle">
           <h2 id="report-modal-title" class="text-base font-semibold text-primary">Report an issue</h2>
           <button type="button" class="btn btn-ghost btn-compact" data-action="close-report" aria-label="Close dialog">
             ✕
@@ -49,15 +50,15 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
               <div class="report-success p-4 my-4 bg-success-bg border border-success rounded-md text-sm">
                 <h3 class="font-semibold text-success mb-1">Report submitted</h3>
                 <p class="text-secondary text-xs mb-2">Thank you. Your report has been submitted to the operations desk for investigation.</p>
-                <div class="font-mono text-xs text-primary bg-bg-raised p-2 rounded mb-3">Reference: ${escapeHtml(reportSuccessReference)}</div>
+                <div class="font-mono text-xs text-primary bg-bg-raised p-2 rounded mb-3" style="overflow-wrap: anywhere; word-break: break-word;">Reference: ${escapeHtml(reportSuccessReference)}</div>
                 <button type="button" class="btn btn-secondary btn-compact" data-action="close-report">Close</button>
               </div>
             `
             : `
-              <form id="report-issue-form" class="flex flex-col gap-4 py-4">
+              <form id="report-issue-form" class="flex flex-col gap-3 py-3">
                 ${
                   reportError
-                    ? `<div class="p-3 bg-danger-bg text-danger text-xs rounded border border-danger">${escapeHtml(reportError)}</div>`
+                    ? `<div class="p-3 bg-danger-bg text-danger text-xs rounded border border-danger" style="overflow-wrap: anywhere; word-break: break-word;">${escapeHtml(reportError)}</div>`
                     : ''
                 }
 
@@ -118,7 +119,7 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
             `
         }
       </div>
-    </div>
+    </dialog>
   `;
 
   return `
@@ -182,12 +183,12 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
           <section id="saving" class="help-section" aria-labelledby="heading-saving">
             <h2 id="heading-saving" class="section-title text-base font-semibold mb-2">My code didn't save</h2>
             <p class="text-secondary text-sm leading-relaxed mb-3">
-              Your code saves automatically. Check the save status in the workspace header before leaving.
+              ZUR features quiet autosave, saving your work automatically in the background as you write without distracting routine status badges. The workspace alerts you only when attention is required.
             </p>
             <details class="help-disclosure text-xs text-secondary">
-              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Save status and sync details</summary>
+              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Save errors, conflict notices, and draft recovery</summary>
               <p class="pt-2 leading-relaxed">
-                The workspace header indicates <code>Saved</code> only after server acknowledgement. If connection is temporarily interrupted, local drafts are preserved in the browser until reconnected.
+                If network connectivity drops or a save error occurs, your unsaved edits are preserved as a local draft in your browser and synchronized upon reconnection. If concurrent edits from another session or tab are detected, a conflict notice allows you to review changes and choose which version to retain.
               </p>
             </details>
           </section>
@@ -195,8 +196,13 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
           <section id="run-vs-submit" class="help-section" aria-labelledby="heading-run-vs-submit">
             <h2 id="heading-run-vs-submit" class="section-title text-base font-semibold mb-2">Run or Submit?</h2>
             <p class="text-secondary text-sm leading-relaxed mb-3">
-              <strong>Run</strong> tests your code against public sample cases or custom input without affecting course progress. <strong>Submit</strong> evaluates your solution against all required checks and records completion.
+              The learning workspace provides three distinct execution actions depending on your task:
             </p>
+            <ul class="text-secondary text-sm leading-relaxed mb-3 list-disc pl-5 flex flex-col gap-1.5">
+              <li><strong>Run</strong>: executes code against custom input or selected mode, displaying stdout/stderr.</li>
+              <li><strong>Test samples</strong>: tests code against public sample cases and displays diffs.</li>
+              <li><strong>Submit</strong>: assesses code against required test suites including hidden cases and records completion.</li>
+            </ul>
             <details class="help-disclosure text-xs text-secondary">
               <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Hidden test cases</summary>
               <p class="pt-2 leading-relaxed">

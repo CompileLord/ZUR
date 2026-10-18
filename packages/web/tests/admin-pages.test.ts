@@ -406,3 +406,53 @@ test('adminStyles scopes generic selectors under .shell-admin and sets dialog co
   assert.match(adminStyles, /max-height: calc\(100vh - 48px\)/);
   assert.match(adminStyles, /max-height: calc\(100vh - 180px\)/);
 });
+
+test('categories page separates edit and remove actions into focused dialogs (D1)', () => {
+  const html = renderAdminPage('/admin/categories', {
+    items: [
+      { id: 'cat-prog', name: 'Programming', slug: 'programming', usageCount: 2 },
+      { id: 'cat-math', name: 'Mathematics', slug: 'mathematics', usageCount: 0 },
+    ],
+  });
+
+  // Table rows contain both Edit and separate Remove action buttons
+  assert.match(html, /data-edit-category-id="cat-prog"/);
+  assert.match(html, /data-remove-category-id="cat-prog"/);
+  assert.match(html, /data-edit-category-name="Programming"/);
+  assert.match(html, /data-remove-category-name="Programming"/);
+  assert.match(html, /data-edit-category-usage="2"/);
+  assert.match(html, /data-remove-category-usage="2"/);
+
+  // Remove button is styled as danger button with compact height
+  assert.match(html, /class="btn btn-danger btn-compact" data-remove-category-id="cat-prog"/);
+
+  // Edit dialog is a short, focused rename dialog
+  assert.match(html, /<dialog id="edit-category-dialog" class="admin-modal-dialog" aria-labelledby="edit-category-title">/);
+  assert.match(html, /<h3 id="edit-category-title" class="dialog-title">Edit category<\/h3>/);
+  assert.match(html, /<input id="edit-category-name" class="form-input" name="name" required>/);
+  assert.match(html, /<button class="btn btn-primary" type="submit">Save category<\/button>/);
+  // Edit dialog must NOT contain deletion controls or replacement input
+  const editDialogMatch = html.match(/<dialog id="edit-category-dialog"[^>]*>([\s\S]*?)<\/dialog>/);
+  assert.ok(editDialogMatch, 'Edit dialog must exist');
+  const editDialogHtml = editDialogMatch[1];
+  assert.doesNotMatch(editDialogHtml, /id="delete-category-form"/);
+  assert.doesNotMatch(editDialogHtml, /name="replacementId"/);
+  assert.doesNotMatch(editDialogHtml, /Remove category/);
+
+  // Remove category dialog is a separate, focused confirmation modal
+  assert.match(html, /<dialog id="remove-category-dialog" class="admin-modal-dialog" aria-labelledby="remove-category-title"/);
+  assert.match(html, /<h3 id="remove-category-title" class="dialog-title">Remove category<\/h3>/);
+  assert.match(html, /id="remove-category-target-name"/);
+  assert.match(html, /id="remove-category-target-usage"/);
+  assert.match(html, /id="remove-category-consequence-warning"/);
+
+  // Replacement category select dropdown is present
+  assert.match(html, /<select id="edit-category-replacement-select" class="form-select form-input" name="replacementId">/);
+  assert.match(html, /<option value="">Select a replacement category…<\/option>/);
+
+  // Destructive primary action button and accessible controls
+  assert.match(html, /<button class="btn btn-danger" type="submit">Remove category<\/button>/);
+  assert.match(html, /<button type="button" class="btn btn-secondary" data-close-dialog>Cancel<\/button>/);
+  assert.match(html, /<button type="button" class="dialog-close-btn" data-close-dialog aria-label="Close dialog">/);
+  assert.match(html, /<p class="form-error hidden" role="alert"><\/p>/);
+});

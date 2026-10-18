@@ -166,7 +166,7 @@ export function renderAppShell(opts: AppShellOptions): string {
           <header class="app-location-header slim-empty" role="banner" aria-hidden="true"></header>
         `}
 
-        <main id="main-content" class="app-content-body" role="main">
+        <main id="main-content" class="app-content-body" role="main" tabindex="-1">
           ${opts.content}
         </main>
       </div>

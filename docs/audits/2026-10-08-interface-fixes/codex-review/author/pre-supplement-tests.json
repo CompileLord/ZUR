@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-09",
+  "purpose": "Current regression check before supplemental correction completes; not final approval",
+  "runs": [
+    {
+      "files": [
+        "author-a1-a7-interface-fixes.test.ts",
+        "learner-l1-l8-interface-fixes.test.ts"
+      ],
+      "tests": 16,
+      "passed": 16,
+      "failed": 0
+    },
+    {
+      "files": [
+        "author-pages.test.ts",
+        "author-redesign.test.ts",
+        "profile-guard.test.ts",
+        "learning-pages.test.ts"
+      ],
+      "tests": 42,
+      "passed": 42,
+      "failed": 0
+    }
+  ],
+  "gitDiffCheck": "passed"
+}

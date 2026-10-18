@@ -1,0 +1,3 @@
+# Learner round3 validation
+
+Codex focused tests:59 passed,0 failed in6 files (rendering/unit/history regressions; not all native browser integration). Build succeeds. Targeted strict TypeScript check retains the same10 diagnostics previously established on HEAD; none added in main/navigation-history/new regression test. Codex independently ran npm test:670 total,668 passed,2 failed. Both failures are the established deleted historical screenshot/evidence assertions (server audit-rules-s0 and web desktop-visual-evidence). Final checks will be rerun after later product changes justify them. No historical evidence was fabricated or assertions weakened.

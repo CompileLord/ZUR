@@ -1,0 +1,402 @@
+[
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/13_not_found__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/13_not_found__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/12_access_denied__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/12_access_denied__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/11_terms__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/11_terms__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/10_privacy__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/10_privacy__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/09_help__full__light.png",
+    "width": 1440,
+    "height": 1360
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/09_help__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/09_help__full__dark.png",
+    "width": 1440,
+    "height": 1360
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/09_help__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/08_invitation_invalid__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/08_invitation_valid__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/07_reset_password_invalid__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/07_reset_password_valid__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/07_forgot_password_submitted__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/07_forgot_password__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/07_forgot_password__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/06_verify_email_context__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/06_verify_email_context__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/06_verify_email_direct__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/05_sign_up_error__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/05_sign_up__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/05_sign_up__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/04_sign_in_error__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/04_sign_in__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/04_sign_in__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/03_course_overview__full__light.png",
+    "width": 1440,
+    "height": 1369
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/03_course_overview__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/03_course_overview__full__dark.png",
+    "width": 1440,
+    "height": 1369
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/03_course_overview__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/02_catalog_empty__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/02_catalog_filtered__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/02_catalog__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/02_catalog__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/01_landing__full__light.png",
+    "width": 1440,
+    "height": 2111
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/01_landing__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/01_landing__full__dark.png",
+    "width": 1440,
+    "height": 2102
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/before/01_landing__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/13_not_found__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/13_not_found__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/12_access_denied__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/12_access_denied__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/11_terms__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/11_terms__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/10_privacy__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/10_privacy__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/09_help__full__light.png",
+    "width": 1440,
+    "height": 1237
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/09_help__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/09_help__full__dark.png",
+    "width": 1440,
+    "height": 1237
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/09_help__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/08_invitation_invalid__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/08_invitation_valid__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/07_reset_password_invalid__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/07_reset_password_valid__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/07_forgot_password_submitted__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/07_forgot_password__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/07_forgot_password__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/06_verify_email_context__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/06_verify_email_context__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/06_verify_email_direct__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/05_sign_up_error__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/05_sign_up__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/05_sign_up__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/04_sign_in_error__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/04_sign_in__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/04_sign_in__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/03_course_overview__full__light.png",
+    "width": 1440,
+    "height": 1165
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/03_course_overview__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/03_course_overview__full__dark.png",
+    "width": 1440,
+    "height": 1165
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/03_course_overview__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/02_catalog_empty__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/02_catalog_filtered__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/02_catalog__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/02_catalog__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/01_landing__full__light.png",
+    "width": 1440,
+    "height": 1484
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/01_landing__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/01_landing__full__dark.png",
+    "width": 1440,
+    "height": 1484
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/public/after/01_landing__dark.png",
+    "width": 1440,
+    "height": 900
+  }
+]

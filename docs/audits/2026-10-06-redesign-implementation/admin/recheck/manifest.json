@@ -1,0 +1,527 @@
+{
+  "recheck": [
+    {
+      "stage": "recheck",
+      "screen": "01-dialog-suspend-user-error__dark",
+      "theme": "dark",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "01-dialog-suspend-user-error__dark.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/01-dialog-suspend-user-error__dark.png",
+      "captureTime": "2026-10-06T11:19:57.306Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "02-user-suspended-receipt__dark",
+      "theme": "dark",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "02-user-suspended-receipt__dark.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/02-user-suspended-receipt__dark.png",
+      "captureTime": "2026-10-06T11:19:57.577Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "03-user-restored-receipt__dark",
+      "theme": "dark",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "03-user-restored-receipt__dark.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/03-user-restored-receipt__dark.png",
+      "captureTime": "2026-10-06T11:19:57.947Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "04-dialog-manage-roles-error__dark",
+      "theme": "dark",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "04-dialog-manage-roles-error__dark.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/04-dialog-manage-roles-error__dark.png",
+      "captureTime": "2026-10-06T11:19:58.266Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "05-roles-author-granted-receipt__dark",
+      "theme": "dark",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "05-roles-author-granted-receipt__dark.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/05-roles-author-granted-receipt__dark.png",
+      "captureTime": "2026-10-06T11:19:58.513Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "06-dialog-support-access-error__dark",
+      "theme": "dark",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "06-dialog-support-access-error__dark.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/06-dialog-support-access-error__dark.png",
+      "captureTime": "2026-10-06T11:19:58.932Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "07-support-access-active-receipt__dark",
+      "theme": "dark",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "07-support-access-active-receipt__dark.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/07-support-access-active-receipt__dark.png",
+      "captureTime": "2026-10-06T11:19:59.181Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "08-dialog-course-availability-error__dark",
+      "theme": "dark",
+      "kind": "viewport",
+      "route": "/admin/courses/course-python-foundations",
+      "width": 1440,
+      "height": 900,
+      "file": "08-dialog-course-availability-error__dark.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/08-dialog-course-availability-error__dark.png",
+      "captureTime": "2026-10-06T11:20:00.004Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "09-course-suspended-receipt__dark",
+      "theme": "dark",
+      "kind": "viewport",
+      "route": "/admin/courses/course-python-foundations",
+      "width": 1440,
+      "height": 900,
+      "file": "09-course-suspended-receipt__dark.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/09-course-suspended-receipt__dark.png",
+      "captureTime": "2026-10-06T11:20:00.243Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "10-dialog-course-waiver-preview__dark",
+      "theme": "dark",
+      "kind": "viewport",
+      "route": "/admin/courses/course-python-foundations",
+      "width": 1440,
+      "height": 900,
+      "file": "10-dialog-course-waiver-preview__dark.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/10-dialog-course-waiver-preview__dark.png",
+      "captureTime": "2026-10-06T11:20:00.679Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "11-course-waiver-applied-receipt__dark",
+      "theme": "dark",
+      "kind": "viewport",
+      "route": "/admin/courses/course-python-foundations",
+      "width": 1440,
+      "height": 900,
+      "file": "11-course-waiver-applied-receipt__dark.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/11-course-waiver-applied-receipt__dark.png",
+      "captureTime": "2026-10-06T11:20:01.029Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "01-dialog-suspend-user-error__light",
+      "theme": "light",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "01-dialog-suspend-user-error__light.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/01-dialog-suspend-user-error__light.png",
+      "captureTime": "2026-10-06T11:20:02.658Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "02-user-suspended-receipt__light",
+      "theme": "light",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "02-user-suspended-receipt__light.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/02-user-suspended-receipt__light.png",
+      "captureTime": "2026-10-06T11:20:02.911Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "03-user-restored-receipt__light",
+      "theme": "light",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "03-user-restored-receipt__light.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/03-user-restored-receipt__light.png",
+      "captureTime": "2026-10-06T11:20:03.224Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "04-dialog-manage-roles-error__light",
+      "theme": "light",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "04-dialog-manage-roles-error__light.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/04-dialog-manage-roles-error__light.png",
+      "captureTime": "2026-10-06T11:20:03.525Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "05-roles-author-granted-receipt__light",
+      "theme": "light",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "05-roles-author-granted-receipt__light.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/05-roles-author-granted-receipt__light.png",
+      "captureTime": "2026-10-06T11:20:03.775Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "06-dialog-support-access-error__light",
+      "theme": "light",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "06-dialog-support-access-error__light.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/06-dialog-support-access-error__light.png",
+      "captureTime": "2026-10-06T11:20:04.198Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "07-support-access-active-receipt__light",
+      "theme": "light",
+      "kind": "viewport",
+      "route": "/admin/users/user-student-1",
+      "width": 1440,
+      "height": 900,
+      "file": "07-support-access-active-receipt__light.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/07-support-access-active-receipt__light.png",
+      "captureTime": "2026-10-06T11:20:04.459Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "08-dialog-course-availability-error__light",
+      "theme": "light",
+      "kind": "viewport",
+      "route": "/admin/courses/course-python-foundations",
+      "width": 1440,
+      "height": 900,
+      "file": "08-dialog-course-availability-error__light.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/08-dialog-course-availability-error__light.png",
+      "captureTime": "2026-10-06T11:20:05.275Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "09-course-suspended-receipt__light",
+      "theme": "light",
+      "kind": "viewport",
+      "route": "/admin/courses/course-python-foundations",
+      "width": 1440,
+      "height": 900,
+      "file": "09-course-suspended-receipt__light.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/09-course-suspended-receipt__light.png",
+      "captureTime": "2026-10-06T11:20:05.525Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "10-dialog-course-waiver-preview__light",
+      "theme": "light",
+      "kind": "viewport",
+      "route": "/admin/courses/course-python-foundations",
+      "width": 1440,
+      "height": 900,
+      "file": "10-dialog-course-waiver-preview__light.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/10-dialog-course-waiver-preview__light.png",
+      "captureTime": "2026-10-06T11:20:05.958Z"
+    },
+    {
+      "stage": "recheck",
+      "screen": "11-course-waiver-applied-receipt__light",
+      "theme": "light",
+      "kind": "viewport",
+      "route": "/admin/courses/course-python-foundations",
+      "width": 1440,
+      "height": 900,
+      "file": "11-course-waiver-applied-receipt__light.png",
+      "relativePath": "/tmp/zur-admin-screenshots/recheck/11-course-waiver-applied-receipt__light.png",
+      "captureTime": "2026-10-06T11:20:06.311Z"
+    }
+  ],
+  "checkResults": [
+    {
+      "name": "[dark] Suspend user: trigger button focusable",
+      "passed": true
+    },
+    {
+      "name": "[dark] Suspend user: opened via keyboard/click",
+      "passed": true
+    },
+    {
+      "name": "[dark] Suspend user: displays target, states, and effect",
+      "passed": true,
+      "details": "Ada Lovelace, Active -> Suspended"
+    },
+    {
+      "name": "[dark] Suspend user: cancel returns focus to trigger button",
+      "passed": true
+    },
+    {
+      "name": "[dark] Suspend user: recoverable error displayed",
+      "passed": true,
+      "details": "Reauthentication failed."
+    },
+    {
+      "name": "[dark] Suspend user: recoverable error preserves reason",
+      "passed": true,
+      "details": "got: \"Temporary suspension for exam review\""
+    },
+    {
+      "name": "[dark] Suspend user: duplicate prevention disables submit button during flight",
+      "passed": true
+    },
+    {
+      "name": "[dark] Suspend user: DB state verified persisted",
+      "passed": true,
+      "details": "account_status=suspended"
+    },
+    {
+      "name": "[dark] Restore user: displays target, states, and effect",
+      "passed": true
+    },
+    {
+      "name": "[dark] Restore user: cancel returns focus to trigger button",
+      "passed": true
+    },
+    {
+      "name": "[dark] Restore user: DB state verified active",
+      "passed": true,
+      "details": "account_status=active"
+    },
+    {
+      "name": "[dark] Manage roles: displays target, roles, and effect",
+      "passed": true
+    },
+    {
+      "name": "[dark] Manage roles: recoverable error preserves reason",
+      "passed": true
+    },
+    {
+      "name": "[dark] Manage roles: author role granted in DB",
+      "passed": true,
+      "details": "capabilities=[\"student\",\"author\"]"
+    },
+    {
+      "name": "[dark] Manage roles: author role revoked in DB",
+      "passed": true,
+      "details": "capabilities=[\"student\"]"
+    },
+    {
+      "name": "[dark] Support access: displays target, 30m audit notice, and course select",
+      "passed": true
+    },
+    {
+      "name": "[dark] Support access: recoverable error preserves reason",
+      "passed": true
+    },
+    {
+      "name": "[dark] Support access: grant recorded in DB",
+      "passed": true,
+      "details": "grantId=7346120b-4871-41f5-a670-c5472e5cc43b"
+    },
+    {
+      "name": "[dark] Course availability: displays target, states, and effect",
+      "passed": true
+    },
+    {
+      "name": "[dark] Course availability: cancel returns focus to trigger button",
+      "passed": true
+    },
+    {
+      "name": "[dark] Course availability: recoverable error preserves reason",
+      "passed": true
+    },
+    {
+      "name": "[dark] Course availability: suspended state verified in DB",
+      "passed": true,
+      "details": "is_suspended=1"
+    },
+    {
+      "name": "[dark] Course availability: restored state verified in DB",
+      "passed": true,
+      "details": "is_suspended=0"
+    },
+    {
+      "name": "[dark] Course waiver: displays immutable scope notice",
+      "passed": true
+    },
+    {
+      "name": "[dark] Course waiver: submit button initially disabled before preview",
+      "passed": true
+    },
+    {
+      "name": "[dark] Course waiver: versionStep select populated with required steps",
+      "passed": true
+    },
+    {
+      "name": "[dark] Course waiver: live affected enrollments preview rendered",
+      "passed": true,
+      "details": "1 active enrollment(s) will be affected · all active enrollments pinned to this version."
+    },
+    {
+      "name": "[dark] Course waiver: recoverable error preserves reason",
+      "passed": true
+    },
+    {
+      "name": "[dark] Course waiver: persisted waiver in DB verified",
+      "passed": true,
+      "details": "total_waived=2"
+    },
+    {
+      "name": "[light] Suspend user: trigger button focusable",
+      "passed": true
+    },
+    {
+      "name": "[light] Suspend user: opened via keyboard/click",
+      "passed": true
+    },
+    {
+      "name": "[light] Suspend user: displays target, states, and effect",
+      "passed": true,
+      "details": "Ada Lovelace, Active -> Suspended"
+    },
+    {
+      "name": "[light] Suspend user: cancel returns focus to trigger button",
+      "passed": true
+    },
+    {
+      "name": "[light] Suspend user: recoverable error displayed",
+      "passed": true,
+      "details": "Reauthentication failed."
+    },
+    {
+      "name": "[light] Suspend user: recoverable error preserves reason",
+      "passed": true,
+      "details": "got: \"Temporary suspension for exam review\""
+    },
+    {
+      "name": "[light] Suspend user: duplicate prevention disables submit button during flight",
+      "passed": true
+    },
+    {
+      "name": "[light] Suspend user: DB state verified persisted",
+      "passed": true,
+      "details": "account_status=suspended"
+    },
+    {
+      "name": "[light] Restore user: displays target, states, and effect",
+      "passed": true
+    },
+    {
+      "name": "[light] Restore user: cancel returns focus to trigger button",
+      "passed": true
+    },
+    {
+      "name": "[light] Restore user: DB state verified active",
+      "passed": true,
+      "details": "account_status=active"
+    },
+    {
+      "name": "[light] Manage roles: displays target, roles, and effect",
+      "passed": true
+    },
+    {
+      "name": "[light] Manage roles: recoverable error preserves reason",
+      "passed": true
+    },
+    {
+      "name": "[light] Manage roles: author role granted in DB",
+      "passed": true,
+      "details": "capabilities=[\"student\",\"author\"]"
+    },
+    {
+      "name": "[light] Manage roles: author role revoked in DB",
+      "passed": true,
+      "details": "capabilities=[\"student\"]"
+    },
+    {
+      "name": "[light] Support access: displays target, 30m audit notice, and course select",
+      "passed": true
+    },
+    {
+      "name": "[light] Support access: recoverable error preserves reason",
+      "passed": true
+    },
+    {
+      "name": "[light] Support access: grant recorded in DB",
+      "passed": true,
+      "details": "grantId=9180d523-0d6c-4703-8b30-7e4288e6ade4"
+    },
+    {
+      "name": "[light] Course availability: displays target, states, and effect",
+      "passed": true
+    },
+    {
+      "name": "[light] Course availability: cancel returns focus to trigger button",
+      "passed": true
+    },
+    {
+      "name": "[light] Course availability: recoverable error preserves reason",
+      "passed": true
+    },
+    {
+      "name": "[light] Course availability: suspended state verified in DB",
+      "passed": true,
+      "details": "is_suspended=1"
+    },
+    {
+      "name": "[light] Course availability: restored state verified in DB",
+      "passed": true,
+      "details": "is_suspended=0"
+    },
+    {
+      "name": "[light] Course waiver: displays immutable scope notice",
+      "passed": true
+    },
+    {
+      "name": "[light] Course waiver: submit button initially disabled before preview",
+      "passed": true
+    },
+    {
+      "name": "[light] Course waiver: versionStep select populated with required steps",
+      "passed": true
+    },
+    {
+      "name": "[light] Course waiver: live affected enrollments preview rendered",
+      "passed": true,
+      "details": "1 active enrollment(s) will be affected · all active enrollments pinned to this version."
+    },
+    {
+      "name": "[light] Course waiver: recoverable error preserves reason",
+      "passed": true
+    },
+    {
+      "name": "[light] Course waiver: persisted waiver in DB verified",
+      "passed": true,
+      "details": "total_waived=2"
+    }
+  ],
+  "updatedAt": "2026-10-06T11:20:06.311Z"
+}

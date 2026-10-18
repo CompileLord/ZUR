@@ -1,0 +1,25 @@
+{
+  "checks": [
+    {
+      "check": "A1 pending create acknowledgement respects actual native Back destination",
+      "status": "failed",
+      "error": "Late create must not redirect after native Back: {\"route\":\"/teach/d5b8bd63-2908-48c5-a79d-6ebeb4d647a4/content\",\"authorEditor\":true}\n+ actual - expected\n\n+ '/teach/d5b8bd63-2908-48c5-a79d-6ebeb4d647a4/content'\n- '/learn'\n",
+      "observed": {
+        "route": "/teach/d5b8bd63-2908-48c5-a79d-6ebeb4d647a4/content",
+        "headings": [
+          "Structure",
+          "Codex own pending create after Back fixture",
+          "Modules in this course"
+        ],
+        "activeFilter": "Content",
+        "openDialogs": []
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 0,
+  "failed": 1,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

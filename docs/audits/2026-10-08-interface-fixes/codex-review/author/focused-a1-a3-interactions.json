@@ -1,0 +1,50 @@
+{
+  "checks": [
+    {
+      "check": "A3 one main and skip target",
+      "status": "passed",
+      "observed": {
+        "main": 1,
+        "target": 1,
+        "nativeSkipLink": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A1 title retained after controlled create failure",
+      "status": "passed",
+      "observed": {
+        "fault": "controlled 503",
+        "title": "Codex independent course title to retain",
+        "feedback": "Controlled audit service failure",
+        "retryCreatedExactlyOne": true,
+        "actualDestination": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A2 search and status remain combined through history/reload",
+      "status": "passed",
+      "observed": {
+        "combinedQuery": true,
+        "nativeHistory": true,
+        "reload": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A2 encoded search remains literal across status links",
+      "status": "passed",
+      "observed": {
+        "literalSearchRetained": true,
+        "specialCharacters": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 4,
+  "failed": 0,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

@@ -1,0 +1,15 @@
+{
+  "status": "ERROR",
+  "agy_status": "ERROR",
+  "empty_response": true,
+  "conversation_id": "875c42fc-4bed-4e1b-ba1b-72df0b595157",
+  "requested_model": "gemini-3.8-flash-high",
+  "reported_model": "gemini-3.8-flash-high",
+  "permission_denied": false,
+  "approval_required": false,
+  "retryable": false,
+  "child_exit_code": 1,
+  "step_errors": 0,
+  "error": "agy returned an empty response",
+  "note": "Parent interrupted only verified owned wrapper after no step update from15:44:42 to16:01:19 UTC and past30min timeout; saved artifacts require independent verification."
+}

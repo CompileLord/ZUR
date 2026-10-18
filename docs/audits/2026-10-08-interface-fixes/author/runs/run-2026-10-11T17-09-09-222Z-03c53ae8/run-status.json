@@ -1,0 +1,14 @@
+{
+  "runId": "run-2026-10-11T17-09-09-222Z-03c53ae8",
+  "completed": true,
+  "failure": null,
+  "images": 56,
+  "interactions": 48,
+  "failedInteractions": 0,
+  "faultReceipts": {
+    "create503": 2,
+    "authorList503": 2,
+    "stepSave503": 2,
+    "tokenRefresh503": 2
+  }
+}

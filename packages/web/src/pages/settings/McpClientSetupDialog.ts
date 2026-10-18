@@ -129,7 +129,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
           <div class="setup-step-main">
             <h3 id="step-2-title" class="text-base font-semibold text-primary">Add the MCP endpoint</h3>
             <p class="text-xs text-secondary">
-              Connect via the official Model Context Protocol (MCP) Streamable HTTP transport:
+              Connect your client using this endpoint URL with HTTP bearer authentication:
             </p>
 
             <div class="flex items-center gap-2 mt-1">
@@ -145,17 +145,19 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
                 Copy endpoint
               </button>
             </div>
-            <p class="text-xs text-muted mt-1">
-              Transport: <code>Streamable HTTP</code> (protocol <code>2026-07-28</code>) · Loopback development mode enabled.
-            </p>
 
-            <div class="mt-3 p-3 bg-surface border border-subtle rounded text-xs space-y-1">
-              <div class="font-semibold text-primary">Verified Protocol & Limits (PRD §23.2, §23.5–23.6):</div>
-              <div class="text-secondary">• <strong>Transport & Revision:</strong> Streamable HTTP, protocol <code>2026-07-28</code>.</div>
-              <div class="text-secondary">• <strong>Image Uploads:</strong> Max 10 MB per asset. Supported formats: PNG, JPEG, WebP only. SVG, executables, and malformed files rejected.</div>
-              <div class="text-secondary">• <strong>Inline Media:</strong> Inline base64 capped at 1 MiB decoded size (use <code>create_image_upload</code> for binary assets).</div>
-              <div class="text-secondary">• <strong>Batch Mutations:</strong> Maximum 100 operations and 1 MiB text per batch.</div>
-            </div>
+            <details class="technical-limits-disclosure mt-3 p-3 bg-surface border border-subtle rounded text-xs" id="technical-limits-details">
+              <summary class="cursor-pointer font-medium text-primary flex items-center justify-between" id="technical-limits-summary">
+                <span>Technical limits</span>
+                <span class="text-muted text-xs font-normal">Details ▾</span>
+              </summary>
+              <div class="technical-limits-content mt-2 pt-2 border-t border-subtle space-y-1 text-secondary">
+                <div>• <strong>Transport:</strong> Streamable HTTP, protocol <code>2026-07-28</code></div>
+                <div>• <strong>Image uploads:</strong> Max 10 MB per asset (PNG, JPEG, WebP only; SVG and executables rejected)</div>
+                <div>• <strong>Inline media:</strong> Inline base64 capped at 1 MiB decoded size (use <code>create_image_upload</code> for binary assets)</div>
+                <div>• <strong>Batch mutations:</strong> Maximum 100 operations and 1 MiB text per batch</div>
+              </div>
+            </details>
           </div>
         </section>
 
@@ -241,7 +243,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
 
 export function renderMcpClientSetupPage(opts: McpClientSetupOptions): string {
   return `
-    <div class="settings-connections-container py-6">
+    <div class="settings-connections-container setup-view py-6">
       <div class="mb-4">
         <a href="/settings/ai-connections" class="btn btn-secondary btn-compact inline-flex items-center gap-1 text-xs">
           ← Back to AI connections
@@ -262,11 +264,11 @@ export function renderMcpClientSetupDialog(opts: McpClientSetupOptions): string 
           <button type="button" class="btn-icon btn-compact" data-dialog-action="cancel" aria-label="Close setup dialog">✕</button>
         </header>
 
-        <div class="dialog-body py-4">
+        <div class="dialog-body py-2">
           ${renderMcpClientSetupContent({ ...opts, isDialog: true })}
         </div>
 
-        <footer class="dialog-footer flex justify-end pt-4 border-t border-subtle">
+        <footer class="dialog-footer flex justify-end pt-3 border-t border-subtle">
           <button type="button" class="btn btn-primary" data-dialog-action="cancel">Done</button>
         </footer>
       </div>

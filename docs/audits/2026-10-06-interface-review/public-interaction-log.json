@@ -1,0 +1,12 @@
+[
+  {
+    "step": 1,
+    "sourceRoute": "/",
+    "destinationRoute": "/",
+    "action": "Visit Public Landing Page",
+    "expected": "Render hero section with CTA buttons",
+    "actual": "Landing page rendered with start learning CTA",
+    "assertions": "Landing hero verified",
+    "passed": true
+  }
+]

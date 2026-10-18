@@ -453,8 +453,8 @@ test('Author Interface Redesign Acceptance Suite (2026-10-06)', async (t) => {
     assert.ok(previewHtml.includes('learning-workspace-paired-layout'), 'Renders learner paired layout');
     assert.ok(previewHtml.includes('code-editor-line-numbers'), 'Renders line numbers in editor area');
     assert.ok(previewHtml.includes('hint-accordion'), 'Renders expandable hint accordion in problem pane');
-    assert.ok(previewHtml.includes('preview-run-samples-btn'), 'Renders preview sample run action');
-    assert.ok(previewHtml.includes('Execution unavailable in preview'), 'Truthful execution unavailable notice rendered');
+    assert.ok(previewHtml.includes('preview-editor-header'), 'Renders read-only preview header in editor pane');
+    assert.ok(previewHtml.includes('Execution and grading are disabled in author preview'), 'Truthful execution unavailable notice rendered');
   });
 
   await t.test('Audit Requirement 8: No preview action produces hardcoded fakepass or synthetic validation', () => {
@@ -476,7 +476,8 @@ test('Author Interface Redesign Acceptance Suite (2026-10-06)', async (t) => {
     assert.ok(!pythonPreview.includes('Output: 42'), 'Must not contain hardcoded Output: 42');
     assert.ok(!pythonPreview.includes('Solution preview validated'), 'Must not claim solution preview validated');
     assert.ok(!pythonPreview.includes('Sample tests preview (zero student progress recorded)'), 'Must not claim fake sample pass');
-    assert.ok(pythonPreview.includes('disabled title="Execution unavailable in preview"'), 'Run samples is disabled with truthful title');
+    assert.ok(!pythonPreview.includes('preview-run-samples-btn'), 'Obsolete execution toolbar is removed');
+    assert.ok(pythonPreview.includes('Read-only code preview'), 'Read-only preview is clearly communicated');
 
     const quizPreview = renderAuthorPreviewPage({
       courseId: 'c-test',

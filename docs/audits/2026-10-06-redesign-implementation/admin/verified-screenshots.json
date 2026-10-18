@@ -1,0 +1,342 @@
+[
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/14-category-edit-dialog__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/14-category-edit-dialog__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/13-execution-dialog__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/13-execution-dialog__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/12-audit-detail__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/12-audit-detail__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/11-audit-list__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/11-audit-list__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/10-execution__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/10-execution__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/09-media__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/09-media__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/08-report-detail__light_full.png",
+    "width": 1440,
+    "height": 1223
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/08-report-detail__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/08-report-detail__dark_full.png",
+    "width": 1440,
+    "height": 1223
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/08-report-detail__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/07-reports-list__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/07-reports-list__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/06-categories__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/06-categories__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/05-course-detail__light_full.png",
+    "width": 1440,
+    "height": 1561
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/05-course-detail__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/05-course-detail__dark_full.png",
+    "width": 1440,
+    "height": 1561
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/05-course-detail__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/04-courses-list__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/04-courses-list__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/03-user-detail__light_full.png",
+    "width": 1440,
+    "height": 1776
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/03-user-detail__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/03-user-detail__dark_full.png",
+    "width": 1440,
+    "height": 1776
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/03-user-detail__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/02-users-list__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/02-users-list__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/01-operations-overview__light_full.png",
+    "width": 1440,
+    "height": 973
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/01-operations-overview__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/01-operations-overview__dark_full.png",
+    "width": 1440,
+    "height": 973
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/before/01-operations-overview__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/14-category-edit-dialog__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/14-category-edit-dialog__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/13-execution-dialog__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/13-execution-dialog__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/12-audit-detail__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/12-audit-detail__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/11-audit-list__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/11-audit-list__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/10-execution__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/10-execution__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/09-media__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/09-media__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/08-report-detail__light_full.png",
+    "width": 1440,
+    "height": 1236
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/08-report-detail__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/08-report-detail__dark_full.png",
+    "width": 1440,
+    "height": 1236
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/08-report-detail__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/07-reports-list__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/07-reports-list__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/06-categories__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/06-categories__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/05-course-detail__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/05-course-detail__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/04-courses-list__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/04-courses-list__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/03-user-detail__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/03-user-detail__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/02-users-list__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/02-users-list__dark.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/01-operations-overview__light_full.png",
+    "width": 1440,
+    "height": 993
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/01-operations-overview__light.png",
+    "width": 1440,
+    "height": 900
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/01-operations-overview__dark_full.png",
+    "width": 1440,
+    "height": 993
+  },
+  {
+    "path": "docs/audits/2026-10-06-redesign-implementation/admin/after/01-operations-overview__dark.png",
+    "width": 1440,
+    "height": 900
+  }
+]

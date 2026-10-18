@@ -17,7 +17,20 @@
   border: 1px solid transparent;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform 120ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transform: none !important;
+  }
+  .btn:active:not(:disabled) {
+    transform: none !important;
+  }
 }
 
 .btn:disabled,
@@ -202,12 +215,28 @@ input[type="radio"] {
   accent-color: var(--accent);
 }
 
-.form-error {
+.form-error,
+.auth-error {
   display: flex;
-  align-items: center;
-  gap: var(--space-1);
+  align-items: flex-start;
+  gap: var(--space-2);
   font-size: var(--type-metadata-size);
   color: var(--danger);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.form-error > span:first-child,
+.auth-error > span:first-child {
+  flex-shrink: 0;
+}
+
+.form-error > span:last-child,
+.auth-error > span:last-child {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
 }
 
 .password-input-wrapper {
@@ -262,8 +291,8 @@ input[type="radio"] {
 }
 
 .consent-checkbox {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   margin-top: 2px;
   flex-shrink: 0;
   accent-color: var(--accent);
@@ -272,18 +301,31 @@ input[type="radio"] {
 
 .consent-label {
   cursor: pointer;
-  line-height: 1.45;
+  line-height: 1.5;
   font-size: var(--type-metadata-size);
   color: var(--text-secondary);
+  min-width: 0;
 }
 
 .consent-link {
-  color: var(--text-primary);
+  color: var(--link);
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: 3px;
+  font-weight: 500;
+  padding: 1px 2px;
+  border-radius: var(--radius-xs);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
 }
 
 .consent-link:hover {
+  color: var(--accent);
+  background-color: var(--bg-hover);
+}
+
+.consent-link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
   color: var(--accent);
 }
 
@@ -338,6 +380,7 @@ input[type="radio"] {
   line-height: 1;
   text-transform: capitalize;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .status-badge.success,
@@ -373,45 +416,104 @@ input[type="radio"] {
 }
 
 
-/* Course Row */
-.course-row {
+/* Course Row & Course / Catalog Cards */
+.course-row,
+.course-card,
+.catalog-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-4) 0;
   border-bottom: 1px solid var(--border-subtle);
   gap: var(--space-4);
+  min-width: 0;
 }
 
-.course-row-main {
+.course-row-main,
+.course-card-main,
+.catalog-card-main {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
-.course-row-title {
+.course-row-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.course-row-title,
+.card-title,
+.catalog-card .card-title,
+.course-card .card-title {
   font-size: var(--type-subheading-size);
   font-weight: 600;
   color: var(--text-primary);
   text-decoration: none;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
 }
 
-.course-row-title:hover {
+.course-row-title:hover,
+.card-title:hover {
   color: var(--accent);
 }
 
-.course-row-description {
+.course-row-description,
+.card-description,
+.catalog-card .card-description,
+.course-card .card-description {
   font-size: var(--type-body-size);
   color: var(--text-secondary);
   line-height: var(--type-body-line);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
 }
 
-.course-row-meta {
+.course-row-action,
+.course-card-action,
+.catalog-card-action {
+  flex-shrink: 0;
+}
+
+.course-row-meta,
+.card-meta,
+.card-stats {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-4);
   font-size: var(--type-metadata-size);
   color: var(--text-muted);
+}
+
+.course-row-meta > span,
+.card-stat,
+.card-badge,
+.catalog-card .card-stat,
+.course-card .card-stat,
+.course-badge {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Category filter tabs defensive wrapping */
+.category-filter-tabs,
+.category-tabs,
+.catalog-filter-tabs,
+.catalog-category-tabs,
+.desktop-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 /* Progress Line (4px visual track) */
@@ -523,7 +625,27 @@ input[type="radio"] {
   color: var(--warning);
 }
 
-/* Dialog & Backdrop */
+/* Dialog & Backdrop Transitions (animate skill: 180ms ease-out scale 0.96 -> 1, opacity 0 -> 1) */
+@keyframes modal-scale-in {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -534,6 +656,7 @@ input[type="radio"] {
   justify-content: center;
   padding: var(--space-4);
   backdrop-filter: blur(2px);
+  animation: backdrop-fade-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .modal-dialog {
@@ -543,13 +666,41 @@ input[type="radio"] {
   box-shadow: var(--shadow-dialog);
   width: 100%;
   max-width: var(--dialog-width-form);
-  max-height: 90vh;
+  max-height: min(85vh, 640px);
+  max-height: min(85dvh, 640px);
   overflow-y: auto;
   z-index: var(--z-modal);
-  padding: var(--space-6);
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-control) transparent;
+}
+
+.modal-dialog .form-group {
+  margin-bottom: 0;
+  gap: 3px;
+}
+
+.modal-dialog .form-label {
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 1px;
+}
+
+.modal-dialog .form-input,
+.modal-dialog .form-select,
+.modal-dialog select,
+.modal-dialog input {
+  padding: 5px 8px;
+  font-size: 13px;
+  height: 32px;
+  min-height: 32px;
+}
+
+.modal-backdrop .modal-dialog {
+  animation: modal-scale-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .modal-dialog.confirm {
@@ -559,9 +710,238 @@ input[type="radio"] {
 .modal-dialog.conflict {
   max-width: var(--dialog-width-conflict);
 }
-dialog.modal-dialog { margin: auto; color: var(--text-primary); }
-dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigation) 78%, transparent); }
+
+dialog.modal-dialog,
+dialog.admin-modal-dialog,
+dialog#new-category-dialog,
+dialog#edit-category-dialog,
+dialog#remove-category-dialog,
+dialog#execution-toggle-dialog,
+dialog#media-review-dialog,
+dialog[id^="media-dialog-"],
+dialog.admin-media-preview-dialog,
+dialog#restore-confirm-dialog,
+dialog#exercise-report-dialog,
+dialog#new-course-dialog {
+  margin: auto;
+  color: var(--text-primary);
+}
+
+dialog.modal-dialog[open],
+dialog[open].modal-dialog,
+dialog.admin-modal-dialog[open],
+dialog[open].admin-modal-dialog,
+.shell-admin dialog.admin-modal-dialog[open],
+.shell-admin dialog[open].admin-modal-dialog,
+dialog#new-category-dialog[open],
+dialog#edit-category-dialog[open],
+dialog#remove-category-dialog[open],
+dialog#execution-toggle-dialog[open],
+dialog#media-review-dialog[open],
+dialog[id^="media-dialog-"][open],
+dialog.admin-media-preview-dialog[open],
+dialog[open].admin-media-preview-dialog,
+dialog#restore-confirm-dialog[open],
+dialog#exercise-report-dialog[open],
+dialog#new-course-dialog[open],
+dialog.modal-dialog[open] .dialog,
+dialog#restore-confirm-dialog[open] .dialog,
+dialog#exercise-report-dialog[open] .dialog,
+dialog#new-course-dialog[open] .author-modal-440,
+.modal-backdrop .author-modal-440 {
+  animation: modal-scale-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+dialog.modal-dialog::backdrop,
+dialog#restore-confirm-dialog::backdrop,
+dialog#exercise-report-dialog::backdrop,
+dialog#new-course-dialog::backdrop {
+  background: color-mix(in srgb, var(--bg-navigation) 78%, transparent);
+}
+
+dialog.admin-modal-dialog::backdrop,
+dialog#new-category-dialog::backdrop,
+dialog#edit-category-dialog::backdrop,
+dialog#remove-category-dialog::backdrop,
+dialog#execution-toggle-dialog::backdrop,
+dialog#media-review-dialog::backdrop,
+dialog[id^="media-dialog-"]::backdrop,
+dialog.admin-media-preview-dialog::backdrop {
+  background: var(--overlay);
+  backdrop-filter: blur(2px);
+}
+
+dialog.modal-dialog[open]::backdrop,
+dialog[open].modal-dialog::backdrop,
+dialog.admin-modal-dialog[open]::backdrop,
+dialog[open].admin-modal-dialog::backdrop,
+dialog#new-category-dialog[open]::backdrop,
+dialog#edit-category-dialog[open]::backdrop,
+dialog#remove-category-dialog[open]::backdrop,
+dialog#execution-toggle-dialog[open]::backdrop,
+dialog#media-review-dialog[open]::backdrop,
+dialog[id^="media-dialog-"][open]::backdrop,
+dialog.admin-media-preview-dialog[open]::backdrop,
+dialog[open].admin-media-preview-dialog::backdrop,
+dialog#restore-confirm-dialog[open]::backdrop,
+dialog#exercise-report-dialog[open]::backdrop,
+dialog#new-course-dialog[open]::backdrop {
+  animation: backdrop-fade-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@starting-style {
+  dialog.modal-dialog[open],
+  dialog[open].modal-dialog,
+  dialog.admin-modal-dialog[open],
+  dialog[open].admin-modal-dialog,
+  .shell-admin dialog.admin-modal-dialog[open],
+  .shell-admin dialog[open].admin-modal-dialog,
+  dialog#new-category-dialog[open],
+  dialog#edit-category-dialog[open],
+  dialog#remove-category-dialog[open],
+  dialog#execution-toggle-dialog[open],
+  dialog#media-review-dialog[open],
+  dialog[id^="media-dialog-"][open],
+  dialog.admin-media-preview-dialog[open],
+  dialog[open].admin-media-preview-dialog,
+  dialog#restore-confirm-dialog[open],
+  dialog#exercise-report-dialog[open],
+  dialog#new-course-dialog[open],
+  dialog.modal-dialog[open] .dialog,
+  dialog#restore-confirm-dialog[open] .dialog,
+  dialog#exercise-report-dialog[open] .dialog,
+  dialog#new-course-dialog[open] .author-modal-440,
+  .modal-backdrop .modal-dialog,
+  .modal-backdrop .author-modal-440 {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  dialog.modal-dialog[open]::backdrop,
+  dialog[open].modal-dialog::backdrop,
+  dialog.admin-modal-dialog[open]::backdrop,
+  dialog[open].admin-modal-dialog::backdrop,
+  dialog#new-category-dialog[open]::backdrop,
+  dialog#edit-category-dialog[open]::backdrop,
+  dialog#remove-category-dialog[open]::backdrop,
+  dialog#execution-toggle-dialog[open]::backdrop,
+  dialog#media-review-dialog[open]::backdrop,
+  dialog[id^="media-dialog-"][open]::backdrop,
+  dialog.admin-media-preview-dialog[open]::backdrop,
+  dialog[open].admin-media-preview-dialog::backdrop,
+  dialog#restore-confirm-dialog[open]::backdrop,
+  dialog#exercise-report-dialog[open]::backdrop,
+  dialog#new-course-dialog[open]::backdrop,
+  .modal-backdrop {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.modal-dialog[open],
+  dialog[open].modal-dialog,
+  dialog.admin-modal-dialog[open],
+  dialog[open].admin-modal-dialog,
+  .shell-admin dialog.admin-modal-dialog[open],
+  .shell-admin dialog[open].admin-modal-dialog,
+  dialog#new-category-dialog[open],
+  dialog#edit-category-dialog[open],
+  dialog#remove-category-dialog[open],
+  dialog#execution-toggle-dialog[open],
+  dialog#media-review-dialog[open],
+  dialog[id^="media-dialog-"][open],
+  dialog.admin-media-preview-dialog[open],
+  dialog[open].admin-media-preview-dialog,
+  dialog#restore-confirm-dialog[open],
+  dialog#exercise-report-dialog[open],
+  dialog#new-course-dialog[open],
+  dialog.modal-dialog[open] .dialog,
+  dialog#restore-confirm-dialog[open] .dialog,
+  dialog#exercise-report-dialog[open] .dialog,
+  dialog#new-course-dialog[open] .author-modal-440,
+  .modal-backdrop .modal-dialog,
+  .modal-backdrop .author-modal-440,
+  .author-modal-440 {
+    animation: none !important;
+    transform: none !important;
+  }
+  dialog.modal-dialog[open]::backdrop,
+  dialog[open].modal-dialog::backdrop,
+  dialog.admin-modal-dialog[open]::backdrop,
+  dialog[open].admin-modal-dialog::backdrop,
+  dialog#new-category-dialog[open]::backdrop,
+  dialog#edit-category-dialog[open]::backdrop,
+  dialog#remove-category-dialog[open]::backdrop,
+  dialog#execution-toggle-dialog[open]::backdrop,
+  dialog#media-review-dialog[open]::backdrop,
+  dialog[id^="media-dialog-"][open]::backdrop,
+  dialog.admin-media-preview-dialog[open]::backdrop,
+  dialog[open].admin-media-preview-dialog::backdrop,
+  dialog#restore-confirm-dialog[open]::backdrop,
+  dialog#exercise-report-dialog[open]::backdrop,
+  dialog#new-course-dialog[open]::backdrop,
+  .modal-backdrop {
+    animation: none !important;
+  }
+}
+
 .dialog-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: flex-end; }
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.modal-header .modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.btn-close {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted, var(--text-muted));
+  cursor: pointer;
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-close:hover:not(:disabled) {
+  background-color: var(--color-bg-subtle, var(--color-surface-hover, var(--bg-hover)));
+  color: var(--text-primary);
+}
+
+.btn-close:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.btn-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* Drawer */
 .drawer {
@@ -867,6 +1247,7 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   padding: var(--space-2) var(--space-3);
   cursor: pointer;
   border-bottom: 2px solid transparent;
+  transition: color var(--transition-fast, 120ms ease), border-color var(--transition-fast, 120ms ease);
 }
 
 .results-tab-button.active {
@@ -874,10 +1255,26 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   border-bottom-color: var(--accent);
 }
 
+@keyframes results-panel-fade {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .results-body {
   flex: 1;
   padding: var(--space-4);
   overflow-y: auto;
+  animation: results-panel-fade 120ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .results-body {
+    animation: none !important;
+  }
 }
 
 .results-empty-notice {
@@ -886,6 +1283,17 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+@keyframes result-banner-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .result-card-banner {
@@ -897,6 +1305,14 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   margin-bottom: var(--space-3);
   font-size: var(--type-body-size);
   font-weight: 500;
+  animation: result-banner-enter 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result-card-banner {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 .result-card-banner.passed {
@@ -1046,6 +1462,7 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
@@ -1057,6 +1474,20 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
 
 .attempt-row-card:hover {
   background-color: var(--bg-hover);
+}
+
+.attempt-row-card > div:first-child {
+  min-width: 0;
+}
+
+.attempt-row-card > div:last-child {
+  flex-shrink: 0;
+}
+
+.attempt-row-chevron {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
 }
 
 @media (max-width: 480px) {
@@ -1155,6 +1586,7 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
+  gap: var(--space-4);
   transition: border-color var(--transition-fast);
 }
 
@@ -1162,22 +1594,36 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   border-color: var(--border-strong);
 }
 
+.author-course-row .course-row-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.author-course-row .course-row-actions {
+  flex-shrink: 0;
+}
+
 .course-row-meta {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   margin-bottom: var(--space-1);
+  flex-wrap: wrap;
 }
 
 .course-row-title {
   margin: 0;
   font-size: var(--type-title-size);
   font-weight: 600;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .course-row-title a {
   color: var(--text-primary);
   text-decoration: none;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .course-row-title a:hover {
@@ -1190,9 +1636,34 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   margin-top: var(--space-1);
 }
 
+#new-course-dialog,
+dialog#new-course-dialog {
+  border: none;
+  margin: 0;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  padding: var(--space-4);
+  background-color: var(--overlay);
+  backdrop-filter: blur(2px);
+  z-index: var(--z-backdrop);
+}
+
+#new-course-dialog[open],
+dialog#new-course-dialog[open] {
+  animation: backdrop-fade-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+#new-course-dialog[open]::backdrop,
+dialog#new-course-dialog[open]::backdrop {
+  animation: backdrop-fade-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 .author-modal-440 {
   max-width: 440px;
   width: 100%;
+  animation: modal-scale-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .sample-tree-preview {
@@ -1321,6 +1792,7 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   text-decoration: none;
   font-size: var(--type-body-size);
   flex: 1;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1334,7 +1806,9 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   display: flex;
   align-items: center;
   gap: var(--space-1);
+  flex-shrink: 0;
   opacity: 0;
+  pointer-events: none;
   transition: opacity var(--transition-fast);
 }
 
@@ -1345,6 +1819,7 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
 .tree-node:focus-within .tree-node-actions,
 .tree-node.selected .tree-node-actions {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .step-type-badge {
@@ -1387,7 +1862,7 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   border-radius: var(--radius-md);
   background-color: var(--bg-surface);
   text-decoration: none;
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .module-overview-row:hover {
@@ -1423,7 +1898,7 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
   white-space: nowrap;
   user-select: none;
 }
@@ -2033,6 +2508,28 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   margin: 0;
 }
 
+.module-section[open] .module-lessons {
+  animation: accordion-expand 160ms cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+@keyframes accordion-expand {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .module-section[open] .module-lessons {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
 .module-heading {
   font-size: var(--type-subheading-size);
   font-weight: 600;
@@ -2432,6 +2929,11 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   max-width: 960px;
 }
 
+.settings-connections-container.setup-view,
+.settings-connections-container:has(.setup-content) {
+  max-width: 1240px;
+}
+
 .connections-table-wrapper {
   overflow-x: auto;
   border: 1px solid var(--border-subtle);
@@ -2489,7 +2991,7 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   font-size: var(--type-metadata-size);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .filter-tab-btn:hover {
@@ -2664,6 +3166,21 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   flex-direction: column;
   gap: var(--space-6);
   position: relative;
+}
+
+@media (min-width: 900px) {
+  .setup-rail {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+}
+
+.modal-dialog .setup-rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 .setup-step-card {
@@ -3036,9 +3553,113 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   justify-content: center;
 }
 
+dialog.report-modal,
+dialog#report-issue-modal {
+  border: none;
+  margin: 0;
+  padding: var(--space-4);
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  background-color: transparent;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+dialog.report-modal:not([open]),
+dialog#report-issue-modal:not([open]) {
+  display: none;
+}
+
+dialog.report-modal[open],
+dialog#report-issue-modal[open],
+dialog.report-modal.open,
+dialog#report-issue-modal.open {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+dialog#report-issue-modal::backdrop,
+dialog.report-modal::backdrop {
+  background: var(--overlay);
+  backdrop-filter: blur(2px);
+  animation: backdrop-fade-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.report-modal .sheet-backdrop,
+dialog#report-issue-modal .sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--overlay);
+  backdrop-filter: blur(2px);
+  animation: backdrop-fade-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.report-modal .sheet-panel,
+dialog#report-issue-modal .sheet-panel {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 12px 16px;
+  z-index: 1;
+  box-shadow: var(--shadow-dialog);
+  max-height: min(85vh, 640px);
+  max-height: min(85dvh, 640px);
+  overflow-y: auto;
+  transform-origin: center center;
+  animation: modal-scale-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-control) transparent;
+}
+
+.report-modal .sheet-panel .form-group,
+dialog#report-issue-modal .form-group {
+  margin-bottom: 0;
+  gap: 3px;
+}
+
 .max-w-dialog {
   max-width: 560px;
   border-radius: var(--radius-xl);
+}
+
+@starting-style {
+  dialog#report-issue-modal[open] .sheet-panel,
+  dialog.report-modal[open] .sheet-panel,
+  dialog#report-issue-modal.open .sheet-panel,
+  .report-modal.open .sheet-panel {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  dialog#report-issue-modal[open]::backdrop,
+  dialog.report-modal[open]::backdrop,
+  dialog#report-issue-modal.open .sheet-backdrop,
+  .report-modal.open .sheet-backdrop {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog#report-issue-modal[open] .sheet-panel,
+  dialog.report-modal[open] .sheet-panel,
+  dialog#report-issue-modal .sheet-panel,
+  .report-modal .sheet-panel {
+    animation: none !important;
+    transform: none !important;
+  }
+  dialog#report-issue-modal[open]::backdrop,
+  dialog.report-modal[open]::backdrop,
+  dialog#report-issue-modal .sheet-backdrop,
+  .report-modal .sheet-backdrop {
+    animation: none !important;
+  }
 }
 
 /* P40: Help Page Two-Column Layout (Design §10, P40) */
@@ -3676,6 +4297,7 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4);
   margin-bottom: var(--space-5);
+  align-items: stretch;
 }
 
 .admin-overview-card {
@@ -3687,6 +4309,8 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   flex-direction: column;
   gap: var(--space-2);
   min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .admin-overview-card .card-header {
@@ -3694,6 +4318,7 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
+  min-height: 24px;
 }
 
 .admin-overview-card .card-header h2 {
@@ -3701,18 +4326,33 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .admin-overview-card .card-metric-value {
   font-size: var(--type-section-title-size);
   font-weight: 600;
   color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+  min-height: 1.3em;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.admin-overview-card .card-metric-value * {
+  font-variant-numeric: tabular-nums;
 }
 
 .admin-overview-card .card-metric-value.text-muted {
   font-size: var(--type-metadata-size);
   font-weight: 500;
   color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+  min-height: 1.3em;
 }
 
 .admin-overview-card .card-hint {
@@ -3720,10 +4360,12 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   color: var(--text-secondary);
   margin: 0;
   flex: 1;
+  overflow-wrap: anywhere;
 }
 
 .admin-overview-card .card-action {
-  margin-top: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
 }
 
 .admin-overview-card .card-action-link,
@@ -3848,6 +4490,76 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   white-space: nowrap;
 }
 
+/* Table Text Overflow & Defensive Wrapping (break-ui skill) */
+.admin-table,
+.shell-admin .data-table {
+  width: 100%;
+  table-layout: auto;
+}
+
+.admin-table td,
+.shell-admin .data-table td {
+  min-width: 0;
+  vertical-align: middle;
+}
+
+/* Text-heavy cells: Category Name, Course Title/Owner, Reason, Target */
+.admin-table td.category-name-cell,
+.shell-admin .data-table td.category-name-cell,
+.admin-table td.category-name-cell strong,
+.shell-admin .data-table td.category-name-cell strong,
+.admin-table td.course-title-cell,
+.shell-admin .data-table td.course-title-cell,
+.admin-table td.course-title-cell a,
+.shell-admin .data-table td.course-title-cell a,
+.admin-table td.course-owner-cell,
+.shell-admin .data-table td.course-owner-cell,
+.admin-table td.audit-target-cell,
+.shell-admin .data-table td.audit-target-cell,
+.admin-table td.audit-reason-cell,
+.shell-admin .data-table td.audit-reason-cell,
+.shell-admin .data-table td:first-child strong,
+.shell-admin .data-table td:first-child a.table-link {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+}
+
+/* Numeric, date, and status columns maintain white-space: nowrap and proper alignment */
+.admin-table td.text-right,
+.admin-table th.text-right,
+.shell-admin .data-table td.text-right,
+.shell-admin .data-table th.text-right,
+.admin-table .font-mono,
+.shell-admin .data-table .font-mono {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.admin-table .admin-nowrap,
+.shell-admin .data-table .admin-nowrap,
+.admin-table time,
+.shell-admin .data-table time {
+  white-space: nowrap;
+}
+
+.admin-table .status-badge,
+.shell-admin .data-table .status-badge,
+.shell-admin .status-badge {
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: inline-flex;
+}
+
+.admin-table td.admin-actions-cell,
+.shell-admin .data-table td.admin-actions-cell,
+.admin-table td:last-child:has(.btn-compact),
+.shell-admin .data-table td:last-child:has(.btn-compact) {
+  white-space: nowrap;
+  width: 1%;
+}
+
 .execution-service-desc {
   font-size: var(--type-metadata-size);
   margin: 0;
@@ -3958,12 +4670,15 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   background: var(--bg-surface);
   color: var(--text-primary);
   padding: 0;
-  max-width: 540px;
+  max-width: 500px;
   width: 90vw;
-  max-height: calc(100vh - 48px);
-  max-height: calc(100dvh - 48px);
+  max-height: min(85vh, 640px);
+  max-height: min(85dvh, 640px);
   overflow-y: auto;
   box-shadow: var(--shadow-modal);
+  transform-origin: center;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-control) transparent;
 }
 
 .admin-modal-dialog::backdrop {
@@ -3971,8 +4686,62 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   backdrop-filter: blur(2px);
 }
 
+/* Replacement Category Select Dropdown & Dialog Form Resilience (break-ui skill) */
+#remove-category-dialog select[name="replacementId"],
+#edit-category-replacement-select {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#remove-category-dialog select[name="replacementId"] option,
+#edit-category-replacement-select option {
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+#remove-category-dialog #replacement-category-group {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.admin-modal-dialog .form-input,
+.admin-modal-dialog .form-select,
+.admin-modal-dialog select,
+.admin-modal-dialog input {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 5px 8px;
+  font-size: 13px;
+  height: 32px;
+  min-height: 32px;
+}
+
+.admin-modal-dialog .form-group,
+.admin-mutation-form .form-group {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-bottom: 0;
+  gap: 3px;
+}
+
+.admin-modal-dialog .form-label {
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 1px;
+}
+
 .admin-modal-dialog .dialog-content {
-  padding: var(--space-5);
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
 }
@@ -3982,12 +4751,12 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: var(--space-3);
-  margin-bottom: var(--space-4);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
 }
 
 .admin-modal-dialog .dialog-title {
-  font-size: var(--type-ui-size);
+  font-size: 14px;
   font-weight: 600;
   margin: 0;
   color: var(--text-primary);
@@ -3996,10 +4765,10 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
 .admin-modal-dialog .dialog-close-btn {
   background: none;
   border: none;
-  font-size: 16px;
+  font-size: 15px;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 4px;
+  padding: 2px 4px;
   border-radius: var(--radius-sm);
   line-height: 1;
 }
@@ -4009,26 +4778,39 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   background: var(--bg-hover);
 }
 
+.admin-modal-dialog .admin-action-effect-card {
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.admin-modal-dialog .waiver-review-count {
+  margin: 0;
+  padding: 5px 8px;
+  font-size: 11px;
+}
+
 .admin-modal-dialog .dialog-footer {
   display: flex;
   justify-content: flex-end;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-  padding-top: var(--space-3);
+  gap: var(--space-2);
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: 1px solid var(--border-subtle);
 }
 
 .admin-modal-dialog .dialog-divider {
   border: 0;
   border-top: 1px solid var(--border-subtle);
-  margin: var(--space-4) 0;
+  margin: 6px 0;
 }
 
 .admin-mutation-form {
   display: grid;
-  gap: 12px;
+  gap: 6px;
   max-width: 520px;
-  margin: 12px 0;
+  margin: 0;
 }
 
 .admin-section-card {
@@ -4080,10 +4862,12 @@ dialog.modal-dialog::backdrop { background: color-mix(in srgb, var(--bg-navigati
   border: 1px solid var(--border-control);
   border-radius: 12px;
   padding: 16px;
+  transform-origin: center;
 }
 
 .admin-media-preview-dialog::backdrop {
   background: var(--overlay);
+  backdrop-filter: blur(2px);
 }
 
 .admin-media-preview-dialog img {

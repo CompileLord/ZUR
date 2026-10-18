@@ -107,6 +107,7 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
       </header>
 
       ${opts.errorMessage ? `<div class="alert alert-danger mt-2" role="alert">${opts.errorMessage}</div>` : ''}
+      ${opts.saveStatus === 'conflict' ? `<div class="alert alert-danger mt-2" role="alert">Version conflict: this step has been modified remotely. Review changes before saving.</div>` : ''}
       ${opts.saveMessage ? `<div class="alert alert-info mt-2" role="status">${opts.saveMessage}</div>` : ''}
 
       <div class="form-group mt-4">

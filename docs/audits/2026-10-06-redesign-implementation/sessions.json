@@ -1,0 +1,30 @@
+{
+  "learner": {
+    "conversation_id": "b612e85b-d20b-4bd9-a707-c8c19eeda747",
+    "session_id": 67876,
+    "monitor": "/tmp/codex-agy-monitor-KrFiqx/status.json",
+    "active": false,
+    "state": "failed executor; artifacts independently audited; agy quota reached"
+  },
+  "author": {
+    "conversation_id": "c6bf7287-6e30-4fbb-8fcc-96ab2424c1a7",
+    "session_id": 69833,
+    "monitor": "/tmp/codex-agy-monitor-sWDqHs/status.json",
+    "active": false,
+    "state": "failed executor; artifacts independently audited; agy quota reached"
+  },
+  "admin": {
+    "conversation_id": "1e194da6-7452-4548-9ada-1ceb8c245376",
+    "session_id": 80289,
+    "monitor": "/tmp/codex-agy-monitor-3b2aO2/status.json",
+    "active": false,
+    "state": "failed executor; artifacts independently audited; agy quota reached"
+  },
+  "public": {
+    "conversation_id": "a90a0151-d6c6-4c54-ad6e-556bd90d053f",
+    "session_id": 8146,
+    "monitor": "/tmp/codex-agy-monitor-01twrz/status.json",
+    "active": false,
+    "state": "failed executor; artifacts independently audited; agy quota reached"
+  }
+}

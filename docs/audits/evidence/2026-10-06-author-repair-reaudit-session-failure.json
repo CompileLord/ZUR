@@ -1,0 +1,90 @@
+{
+  "runId": "author-repair-reaudit-1791257014737",
+  "auditDate": "2026-10-06",
+  "totalActions": 7,
+  "passedActions": 2,
+  "failedActions": 5,
+  "blockedActions": 0,
+  "totalScreenshots": 4,
+  "actions": [
+    {
+      "timestamp": "2026-10-06T03:23:50.804Z",
+      "feature": "F01: Course Publish & Receipt",
+      "status": "FAIL",
+      "details": "Timed out waiting for navigation http://127.0.0.1:43041/sign-in: no body",
+      "evidence": "no body"
+    },
+    {
+      "timestamp": "2026-10-06T03:24:13.399Z",
+      "feature": "F02: Asset Upload & Insert",
+      "status": "FAIL",
+      "details": "Timed out waiting for image upload button: Skip to content\nZUR\nWelcome back\nEmail *\nPassword *\nForgot password?\nSign in\n\nDon’t have an account? Create an account\n\nHelp · Privacy · Terms",
+      "evidence": "Skip to content\nZUR\nWelcome back\nEmail *\nPassword *\nForgot password?\nSign in\n\nDon’t have an account? Create an account\n\nHelp · Privacy · Terms"
+    },
+    {
+      "timestamp": "2026-10-06T03:24:42.191Z",
+      "feature": "F03: Correct/wrong reference and current unsaved public+hidden tests",
+      "status": "FAIL",
+      "details": "Timed out waiting for validation tab button: Skip to content\nZUR\nWelcome back\nEmail *\nPassword *\nForgot password?\nSign in\n\nDon’t have an account? Create an account\n\nHelp · Privacy · Terms",
+      "evidence": "Skip to content\nZUR\nWelcome back\nEmail *\nPassword *\nForgot password?\nSign in\n\nDon’t have an account? Create an account\n\nHelp · Privacy · Terms"
+    },
+    {
+      "timestamp": "2026-10-06T03:24:57.538Z",
+      "feature": "F04: Python Hints",
+      "status": "FAIL",
+      "details": "Timed out waiting for navigation http://127.0.0.1:43041/teach/course-python-foundations/content/python/step-4-python-echo: Skip to content\nZUR\nWelcome back\nEmail *\nPassword *\nForgot password?\nSign in\n\nDon’t have an account? Create an account\n\nHelp · Privacy · Terms",
+      "evidence": "Skip to content\nZUR\nWelcome back\nEmail *\nPassword *\nForgot password?\nSign in\n\nDon’t have an account? Create an account\n\nHelp · Privacy · Terms"
+    },
+    {
+      "timestamp": "2026-10-06T03:25:12.895Z",
+      "feature": "F05: AI Connections Course Scope",
+      "status": "FAIL",
+      "details": "Timed out waiting for navigation http://127.0.0.1:43041/settings/ai-connections: Skip to content\nZUR\nWelcome back\nEmail *\nPassword *\nForgot password?\nSign in\n\nDon’t have an account? Create an account\n\nHelp · Privacy · Terms",
+      "evidence": "Skip to content\nZUR\nWelcome back\nEmail *\nPassword *\nForgot password?\nSign in\n\nDon’t have an account? Create an account\n\nHelp · Privacy · Terms"
+    },
+    {
+      "timestamp": "2026-10-06T03:25:14.646Z",
+      "feature": "F06: Learner Report Modal",
+      "status": "PASS",
+      "details": "Learner report submitted with verified course/version/step context and confirmed in database.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:25:16.197Z",
+      "feature": "F07: Admin Audit Filters",
+      "status": "PASS",
+      "details": "Admin audit query string filtering verified with 30 seeded records, 10-row page size, and working pagination.",
+      "evidence": null
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "repair_f06_exercise_report_modal_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/repairs-recheck2/repair_f06_exercise_report_modal_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:25:14.288Z"
+    },
+    {
+      "name": "repair_f06_exercise_report_modal_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/repairs-recheck2/repair_f06_exercise_report_modal_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:25:14.543Z"
+    },
+    {
+      "name": "repair_f07_admin_audit_filters_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/repairs-recheck2/repair_f07_admin_audit_filters_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:25:15.825Z"
+    },
+    {
+      "name": "repair_f07_admin_audit_filters_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/repairs-recheck2/repair_f07_admin_audit_filters_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:25:16.095Z"
+    }
+  ]
+}

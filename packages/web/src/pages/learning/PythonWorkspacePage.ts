@@ -202,7 +202,7 @@ export function renderPythonExecutionResults(opts: Pick<PythonWorkspacePageOptio
     : res.verdict === 'WRONG_ANSWER' ? 'Wrong answer.'
     : res.verdict === 'INTERNAL_ERROR' ? 'Internal execution error.'
     : `Verdict: ${res.verdict}`;
-  const modeLabel = opts.resultMode === 'submit' ? 'Submit (Graded)' : opts.resultMode === 'custom' ? 'Run (Custom Input)' : 'Run (Samples)';
+  const modeLabel = opts.resultMode === 'submit' ? 'Submit (Graded)' : opts.resultMode === 'custom' ? 'Run' : 'Test samples';
   return `
     <div class="result-card-banner ${bannerClass}" role="status" aria-live="polite">
       <div class="result-banner-text">

@@ -55,7 +55,7 @@ export function renderAuthorWorkspaceShell(opts: AuthorWorkspaceShellOptions): s
         </div>
 
         <div class="author-header-right">
-          ${opts.saveStatusText ? `<div class="save-indicator saved" aria-live="polite">${opts.saveStatusText}</div>` : ''}
+          ${opts.saveStatusText && opts.saveStatusText !== 'Saved' ? `<div class="save-indicator ${opts.saveStatusText.toLowerCase().includes('saving') ? 'saving' : opts.saveStatusText.toLowerCase().includes('unsaved') || opts.saveStatusText.toLowerCase().includes('conflict') ? 'unsaved' : 'saved'}" aria-live="polite">${opts.saveStatusText}</div>` : ''}
           <a href="/teach/${opts.courseId}/activity" class="btn btn-secondary btn-compact" title="View changes and draft history">Recent changes</a>
           <a href="/teach/${opts.courseId}/preview${opts.selectedType === 'step' && opts.selectedId ? `?stepId=${encodeURIComponent(opts.selectedId)}` : ''}" class="btn btn-secondary btn-compact">Preview as student</a>
           ${!opts.isPublishPage ? `<a href="/teach/${opts.courseId}/publish" class="btn btn-secondary btn-compact">Review & publish</a>` : ''}

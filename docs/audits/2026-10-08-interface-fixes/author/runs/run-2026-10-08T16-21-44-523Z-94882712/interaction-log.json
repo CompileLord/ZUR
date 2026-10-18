@@ -1,0 +1,65 @@
+[
+  {
+    "step": 1,
+    "issue": "A1",
+    "action": "Submit populated course title under 503 [dark]",
+    "observedUrl": "http://127.0.0.1:33707/teach",
+    "renderedState": "Failed create dialog with retained title",
+    "evidence": "retained=\"Concurrency Systems Architecture Alpha\", error=\"Controlled server failure: Course creation temporarily unavailable. Your title has been preserved.\"",
+    "passed": true
+  },
+  {
+    "step": 2,
+    "issue": "A1",
+    "action": "Retry course create succeeds and navigates [dark]",
+    "observedUrl": "/teach/08e85cd4-4ede-4b7c-8a9b-3179068941dd/content",
+    "renderedState": "Course builder content view",
+    "evidence": "url=\"/teach/08e85cd4-4ede-4b7c-8a9b-3179068941dd/content\", title=\"Concurrency Systems Architecture Alpha\"",
+    "passed": true
+  },
+  {
+    "step": 3,
+    "issue": "A1",
+    "action": "Submit populated course title under 503 [light]",
+    "observedUrl": "http://127.0.0.1:33707/teach",
+    "renderedState": "Failed create dialog with retained title",
+    "evidence": "retained=\"Concurrency Systems Architecture Beta\", error=\"Controlled server failure: Course creation temporarily unavailable. Your title has been preserved.\"",
+    "passed": true
+  },
+  {
+    "step": 4,
+    "issue": "A1",
+    "action": "Retry course create succeeds and navigates [light]",
+    "observedUrl": "/teach/a0447e39-abe5-48cf-aecb-df07933670e4/content",
+    "renderedState": "Course builder content view",
+    "evidence": "url=\"/teach/a0447e39-abe5-48cf-aecb-df07933670e4/content\", title=\"Concurrency Systems Architecture Beta\"",
+    "passed": true
+  },
+  {
+    "step": 5,
+    "issue": "A2",
+    "action": "Status tabs compose search parameter [dark]",
+    "observedUrl": "http://127.0.0.1:33707/teach?status=draft&search=Concurrency",
+    "renderedState": "Drafts tab active with search query and matching course cards",
+    "evidence": "active=true, search=Concurrency, cards=2",
+    "passed": true
+  },
+  {
+    "step": 6,
+    "issue": "A2",
+    "action": "Empty match state with clear filters CTA [dark]",
+    "observedUrl": "http://127.0.0.1:33707/teach?status=draft&search=NonexistentQuantum",
+    "renderedState": "Empty state card with Clear filters action",
+    "evidence": "title=\"No matching courses\", clear=\"/teach\"",
+    "passed": true
+  },
+  {
+    "step": 7,
+    "issue": "A2",
+    "action": "Clear filters resets query and displays all courses [dark]",
+    "observedUrl": "http://127.0.0.1:33707/teach",
+    "renderedState": "All tab active with all authored courses",
+    "evidence": "allTabActive=false, cards=5",
+    "passed": false
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "conversation_id": "875c42fc-4bed-4e1b-ba1b-72df0b595157",
+  "model": "gemini-3.8-flash-high",
+  "monitor": "/tmp/codex-agy-monitor-BhXkL8/status.json",
+  "terminal_status": "UNRECOVERABLE",
+  "accepted_as_successful_delegation": false,
+  "reason": "Host interruption cleared temporary monitor/result; saved complete capture artifacts independently inspected.",
+  "complete_run": "run-2026-10-08T16-23-30-073Z-26a6da86",
+  "images": 56,
+  "capture_checks": 48
+}

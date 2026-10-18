@@ -1,0 +1,66 @@
+{
+  "runId": "author-real-user-1791199017100",
+  "courseId": "800f5cfb-cd72-4969-b196-7818dcf098b6",
+  "environment": "isolated temp SQLite, API, Vite, worker and Chrome",
+  "actions": [
+    {
+      "status": "PASS",
+      "details": "Minimal draft review publish-ready=true.",
+      "evidence": "Skip to content\n← Courses\n/\nAUDIT MINIMAL PUBLISH author-real-user-1791199017100\nDraft\nRecent changes\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\n← Back to Course Builder\nReview publication\n\nValidate the saved draft, review issues and warnings, and confirm the version impact.\n\nDraft Rev 2\n\n✓ Pre-publish checklist passed with 0 blocking errors\n\nCourse summary\nCourse title\nAUDIT MINIMAL PUBLISH author-real-user-1791199017100\nDiscoverability\nPrivate\nEnrollment policy\nInvitation only\nVersion impact summary\ndraft → v1\n\nExisting students will continue on their current version. New enrollments will receive this update.\n\nCurrent published version: None (Initial release)\nNew version to publish: Version 1\nActive enrolled students: 0\nReady to publish.\nPublish course",
+      "at": "2026-10-05T11:17:01.816Z"
+    },
+    {
+      "status": "FAIL",
+      "details": "Minimal draft publish button was clicked in Chrome; UI result captured.",
+      "evidence": "Skip to content\n← Courses\n/\nAUDIT MINIMAL PUBLISH author-real-user-1791199017100\nDraft\nRecent changes\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\n← Back to Course Builder\nReview publication\n\nValidate the saved draft, review issues and warnings, and confirm the version impact.\n\nDraft Rev 2\n\n✓ Pre-publish checklist passed with 0 blocking errors\n\nCourse summary\nCourse title\nAUDIT MINIMAL PUBLISH author-real-user-1791199017100\nDiscoverability\nPrivate\nEnrollment policy\nInvitation only\nVersion impact summary\ndraft → v1\n\nExisting students will continue on their current version. New enrollments will receive this update.\n\nCurrent published version: None (Initial release)\nNew version to publish: Version 1\nActive enrolled students: 0\nReady to publish.\nPublish course\nConfirm Publication\n\nPublishing releases Version 1. Existing students will continue on their enrolled version.\n\nCancel\nPublish course\n\nPublication failed. The course remains on its current released version; retry after checking the draft status.",
+      "at": "2026-10-05T11:17:02.992Z"
+    }
+  ],
+  "network": [
+    {
+      "requestId": "46877.578",
+      "url": "http://127.0.0.1:41313/api/author/courses/800f5cfb-cd72-4969-b196-7818dcf098b6/publish",
+      "method": "POST",
+      "status": 200,
+      "mimeType": "application/json",
+      "type": "response"
+    },
+    {
+      "url": "http://127.0.0.1:41313/api/author/courses/800f5cfb-cd72-4969-b196-7818dcf098b6/publish",
+      "method": "POST",
+      "body": "{\"versionNumber\":1,\"versionId\":\"ba6fd26e-fd27-4245-9cba-829ef02efb3f\",\"publishedAt\":\"2026-10-05T11:17:01.906Z\",\"studentCountPinnedToOldVersions\":0}",
+      "type": "body"
+    }
+  ],
+  "browserErrors": [],
+  "screenshots": [
+    {
+      "name": "publish-diagnostic-review-before-metadata_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/publish-diagnostic-review-before-metadata_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:17:00.695Z"
+    },
+    {
+      "name": "publish-diagnostic-review-before-metadata_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/publish-diagnostic-review-before-metadata_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:17:01.000Z"
+    },
+    {
+      "name": "publish-diagnostic_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/publish-diagnostic_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:17:02.535Z"
+    },
+    {
+      "name": "publish-diagnostic_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/publish-diagnostic_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:17:02.835Z"
+    }
+  ]
+}

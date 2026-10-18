@@ -1,0 +1,18 @@
+{
+  "checks": [
+    {
+      "check": "L3 Attempts-origin sidebar toggle scope and reload",
+      "status": "passed",
+      "observed": {
+        "pinnedVersion": "version-2-snapshot",
+        "reloadRetainsToggle": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

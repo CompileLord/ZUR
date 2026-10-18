@@ -1,0 +1,371 @@
+{
+  "capturedAt": "2026-10-06T14:58:58.408Z",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "deviceScaleFactor": 1
+  },
+  "screens": [
+    {
+      "screen": "03-step-editor-theory",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/03-step-editor-theory__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:46.158Z"
+    },
+    {
+      "screen": "03-step-editor-theory",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/03-step-editor-theory__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:46.362Z"
+    },
+    {
+      "screen": "03b-step-editor-theory-dirty",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/03b-step-editor-theory-dirty__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:46.609Z"
+    },
+    {
+      "screen": "03b-step-editor-theory-dirty",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/03b-step-editor-theory-dirty__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:46.792Z"
+    },
+    {
+      "screen": "04-step-editor-video",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/content/video/step-2-video",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/04-step-editor-video__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:47.427Z"
+    },
+    {
+      "screen": "04-step-editor-video",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/content/video/step-2-video",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/04-step-editor-video__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:47.625Z"
+    },
+    {
+      "screen": "05-step-editor-quiz",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/05-step-editor-quiz__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:48.138Z"
+    },
+    {
+      "screen": "05-step-editor-quiz",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/05-step-editor-quiz__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:48.331Z"
+    },
+    {
+      "screen": "06-step-editor-python",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/content/python/step-4-python-echo",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/06-step-editor-python__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:49.122Z"
+    },
+    {
+      "screen": "06-step-editor-python",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/content/python/step-4-python-echo",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/06-step-editor-python__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:49.307Z"
+    },
+    {
+      "screen": "08-publish-review",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/publish",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/08-publish-review__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:51.520Z"
+    },
+    {
+      "screen": "08-publish-review",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/publish",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/08-publish-review__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:51.721Z"
+    },
+    {
+      "screen": "08b-publication-receipt",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/publish",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/08b-publication-receipt__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:52.098Z"
+    },
+    {
+      "screen": "08b-publication-receipt",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/publish",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/08b-publication-receipt__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:52.271Z"
+    },
+    {
+      "screen": "07-student-preview",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/preview",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/07-student-preview__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:52.667Z"
+    },
+    {
+      "screen": "07-student-preview",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/preview",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/07-student-preview__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:52.839Z"
+    },
+    {
+      "screen": "07b-student-preview-python",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/07b-student-preview-python__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:53.707Z"
+    },
+    {
+      "screen": "07b-student-preview-python",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/07b-student-preview-python__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:53.896Z"
+    },
+    {
+      "screen": "09-roster-students",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/students",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/09-roster-students__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:54.366Z"
+    },
+    {
+      "screen": "09-roster-students",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/students",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/09-roster-students__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:54.535Z"
+    },
+    {
+      "screen": "10-student-detail",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/students/enr-ada",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/10-student-detail__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:54.830Z"
+    },
+    {
+      "screen": "10-student-detail",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/students/enr-ada",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/10-student-detail__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:55.006Z"
+    },
+    {
+      "screen": "02-course-builder-outline",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/content",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/02-course-builder-outline__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:55.302Z"
+    },
+    {
+      "screen": "02-course-builder-outline",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/content",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/02-course-builder-outline__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:55.476Z"
+    },
+    {
+      "screen": "01-author-dashboard",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/01-author-dashboard__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:55.765Z"
+    },
+    {
+      "screen": "01-author-dashboard",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/01-author-dashboard__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:55.944Z"
+    },
+    {
+      "screen": "11-course-analytics",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/analytics",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/11-course-analytics__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:56.235Z"
+    },
+    {
+      "screen": "11-course-analytics",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/analytics",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/11-course-analytics__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:56.423Z"
+    },
+    {
+      "screen": "12-course-settings",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/settings",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/12-course-settings__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:56.702Z"
+    },
+    {
+      "screen": "12-course-settings",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/settings",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/12-course-settings__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:56.876Z"
+    },
+    {
+      "screen": "15-agent-activity-drafts",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/teach/course-python-foundations/activity",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/15-agent-activity-drafts__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:57.149Z"
+    },
+    {
+      "screen": "15-agent-activity-drafts",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/teach/course-python-foundations/activity",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/15-agent-activity-drafts__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:57.322Z"
+    },
+    {
+      "screen": "13-ai-connections",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/settings/ai-connections",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/13-ai-connections__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:57.633Z"
+    },
+    {
+      "screen": "13-ai-connections",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/settings/ai-connections",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/13-ai-connections__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:57.817Z"
+    },
+    {
+      "screen": "14-connection-setup",
+      "phase": "independent-audit",
+      "theme": "dark",
+      "route": "/settings/ai-connections/tok-guido-1/setup",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/14-connection-setup__dark.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:58.117Z"
+    },
+    {
+      "screen": "14-connection-setup",
+      "phase": "independent-audit",
+      "theme": "light",
+      "route": "/settings/ai-connections/tok-guido-1/setup",
+      "file": "docs/audits/2026-10-06-redesign-implementation/author/independent-audit/14-connection-setup__light.png",
+      "width": 1440,
+      "height": 900,
+      "capturedAt": "2026-10-06T14:58:58.306Z"
+    }
+  ],
+  "failedScreens": []
+}

@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "check": "A8 late clicked-link save acknowledgement respects later native Back",
+      "status": "passed",
+      "observed": {
+        "realHeldSaveAcknowledged": true,
+        "storedDraft": true,
+        "nativeBackChoiceRetained": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

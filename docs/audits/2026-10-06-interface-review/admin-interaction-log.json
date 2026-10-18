@@ -1,0 +1,42 @@
+[
+  {
+    "step": 1,
+    "sourceRoute": "/sign-in",
+    "destinationRoute": "/admin",
+    "action": "Sign in as Margaret Hamilton (Admin)",
+    "expected": "Session token created, admin mode accessible",
+    "actual": "Authenticated admin session active",
+    "assertions": "localStorage.zur_session_token present",
+    "passed": true
+  },
+  {
+    "step": 2,
+    "sourceRoute": "/sign-in",
+    "destinationRoute": "/admin",
+    "action": "Load Operations Overview",
+    "expected": "Render platform metric cards and system alerts",
+    "actual": "Overview dashboard loaded with metrics",
+    "assertions": "Operations overview verified",
+    "passed": true
+  },
+  {
+    "step": 3,
+    "sourceRoute": "/admin",
+    "destinationRoute": "/admin/users",
+    "action": "Open Users Management",
+    "expected": "Display users table with capability badges and filter inputs",
+    "actual": "Users table rendered with Ada Lovelace, Guido, Margaret",
+    "assertions": "Users list verified",
+    "passed": true
+  },
+  {
+    "step": 4,
+    "sourceRoute": "/admin/users/user-student-1",
+    "destinationRoute": "/admin/users/user-student-1",
+    "action": "Execute user suspension with reauthentication",
+    "expected": "User status transitions to suspended and DB updates",
+    "actual": "Account marked suspended in UI and DB",
+    "assertions": "Suspension workflow verified",
+    "passed": true
+  }
+]

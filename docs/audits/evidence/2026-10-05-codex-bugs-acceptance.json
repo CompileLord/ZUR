@@ -1,0 +1,218 @@
+{
+  "accepted": true,
+  "scope": "F01-F07 and D01 bugs only; U01-U05 excluded",
+  "browserRunId": "repair-acceptance-1791235121389",
+  "browser": {
+    "passed": 7,
+    "failed": 0,
+    "blocked": 0,
+    "screenshots": [
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f01_publish_receipt_dark.png",
+        "theme": "dark",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f01_publish_receipt_light.png",
+        "theme": "light",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f02_asset_upload_dark.png",
+        "theme": "dark",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f02_asset_upload_light.png",
+        "theme": "light",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f03_reference_check_dark.png",
+        "theme": "dark",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f03_reference_check_light.png",
+        "theme": "light",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f04_python_hints_dark.png",
+        "theme": "dark",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f04_python_hints_light.png",
+        "theme": "light",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f05_token_course_picker_dark.png",
+        "theme": "dark",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f05_token_course_picker_light.png",
+        "theme": "light",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f06_exercise_report_modal_dark.png",
+        "theme": "dark",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f06_exercise_report_modal_light.png",
+        "theme": "light",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f07_admin_audit_filters_dark.png",
+        "theme": "dark",
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "path": "screenshots/audit-2026-10-05/repairs/repair_f07_admin_audit_filters_light.png",
+        "theme": "light",
+        "width": 1440,
+        "height": 900
+      }
+    ]
+  },
+  "tests": {
+    "passed": 597,
+    "failed": 0,
+    "skipped": 0
+  },
+  "build": "passed",
+  "gitDiffCheck": "passed",
+  "realReferenceChecks": [
+    {
+      "name": "correct",
+      "status": 200,
+      "body": {
+        "allPassed": true,
+        "validationStatus": "valid",
+        "validationResults": [
+          {
+            "name": "Public Test 1",
+            "passed": true,
+            "error": "Passed in 667 ms",
+            "executionTimeMs": 667
+          },
+          {
+            "name": "Hidden Test 1",
+            "passed": true,
+            "error": "Passed in 539 ms",
+            "executionTimeMs": 539
+          }
+        ],
+        "tests": [
+          {
+            "name": "Public Test 1",
+            "passed": true,
+            "error": "Passed in 667 ms",
+            "executionTimeMs": 667
+          },
+          {
+            "name": "Hidden Test 1",
+            "passed": true,
+            "error": "Passed in 539 ms",
+            "executionTimeMs": 539
+          }
+        ]
+      }
+    },
+    {
+      "name": "wrong",
+      "status": 200,
+      "body": {
+        "allPassed": false,
+        "validationStatus": "invalid",
+        "validationResults": [
+          {
+            "name": "Public Test 1",
+            "passed": false,
+            "error": "Output mismatch. Expected: \"42\n\" \u00b7 Got: \"0\n\"",
+            "executionTimeMs": 511
+          },
+          {
+            "name": "Hidden Test 1",
+            "passed": false,
+            "error": "Output mismatch on hidden test case.",
+            "executionTimeMs": 570
+          }
+        ],
+        "tests": [
+          {
+            "name": "Public Test 1",
+            "passed": false,
+            "error": "Output mismatch. Expected: \"42\n\" \u00b7 Got: \"0\n\"",
+            "executionTimeMs": 511
+          },
+          {
+            "name": "Hidden Test 1",
+            "passed": false,
+            "error": "Output mismatch on hidden test case.",
+            "executionTimeMs": 570
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsaved-test",
+      "status": 200,
+      "body": {
+        "allPassed": false,
+        "validationStatus": "invalid",
+        "validationResults": [
+          {
+            "name": "Public Test 1",
+            "passed": false,
+            "error": "Output mismatch. Expected: \"changed-unsaved\" \u00b7 Got: \"42\n\"",
+            "executionTimeMs": 629
+          },
+          {
+            "name": "Hidden Test 1",
+            "passed": true,
+            "error": "Passed in 689 ms",
+            "executionTimeMs": 689
+          }
+        ],
+        "tests": [
+          {
+            "name": "Public Test 1",
+            "passed": false,
+            "error": "Output mismatch. Expected: \"changed-unsaved\" \u00b7 Got: \"42\n\"",
+            "executionTimeMs": 629
+          },
+          {
+            "name": "Hidden Test 1",
+            "passed": true,
+            "error": "Passed in 689 ms",
+            "executionTimeMs": 689
+          }
+        ]
+      }
+    }
+  ],
+  "runnerDiagnostic": {
+    "cpu": "TIME_LIMIT exit152",
+    "delayedMemory": "MEMORY_LIMIT MemoryError"
+  },
+  "executorResult": "Wrapper reported ERROR; changed artifacts independently verified on host; not recorded as executor success."
+}

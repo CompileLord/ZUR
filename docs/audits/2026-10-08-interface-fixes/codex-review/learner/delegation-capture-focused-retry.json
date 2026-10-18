@@ -1,0 +1,14 @@
+{
+  "status": "ERROR",
+  "agy_status": "ERROR",
+  "conversation_id": "f8b02bd9-04ac-4ca4-89ff-6b71bf1081d0",
+  "requested_model": "gemini-3.8-flash-high",
+  "reported_model": "gemini-3.8-flash-high",
+  "permission_denied": false,
+  "approval_required": false,
+  "child_exit_code": 0,
+  "error": "agy status ERROR",
+  "retryable": false,
+  "step_errors": 0,
+  "codexDecision": "Wrapper ERROR despite nonempty response and exit0; do not report delegation success. Independently reviewed artifacts; rejected restore-error visibility."
+}

@@ -1,0 +1,975 @@
+{
+  "before": {
+    "capturedAt": "2026-10-06T08:12:51.217Z",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1
+    },
+    "screens": [
+      {
+        "screen": "01-author-dashboard",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/01-author-dashboard__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:27.678Z"
+      },
+      {
+        "screen": "01-author-dashboard",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/01-author-dashboard__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:28.313Z"
+      },
+      {
+        "screen": "02-course-builder-outline",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/02-course-builder-outline__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:29.335Z"
+      },
+      {
+        "screen": "02-course-builder-outline",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/02-course-builder-outline__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:29.967Z"
+      },
+      {
+        "screen": "03-step-editor-theory",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/03-step-editor-theory__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:31.001Z"
+      },
+      {
+        "screen": "03-step-editor-theory",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/03-step-editor-theory__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:31.643Z"
+      },
+      {
+        "screen": "04-step-editor-video",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/video/step-2-video",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/04-step-editor-video__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:32.621Z"
+      },
+      {
+        "screen": "04-step-editor-video",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/video/step-2-video",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/04-step-editor-video__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:33.267Z"
+      },
+      {
+        "screen": "05-step-editor-quiz",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/05-step-editor-quiz__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:34.250Z"
+      },
+      {
+        "screen": "05-step-editor-quiz",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/05-step-editor-quiz__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:34.889Z"
+      },
+      {
+        "screen": "06-step-editor-python",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/python/step-4-python-echo",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/06-step-editor-python__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:35.862Z"
+      },
+      {
+        "screen": "06-step-editor-python",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/python/step-4-python-echo",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/06-step-editor-python__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:36.499Z"
+      },
+      {
+        "screen": "07-student-preview",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/preview",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/07-student-preview__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:37.473Z"
+      },
+      {
+        "screen": "07-student-preview",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/preview",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/07-student-preview__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:38.112Z"
+      },
+      {
+        "screen": "08-publish-review",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/publish",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/08-publish-review__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:39.205Z"
+      },
+      {
+        "screen": "08-publish-review",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/publish",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/08-publish-review__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:39.855Z"
+      },
+      {
+        "screen": "09-roster-students",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/students",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/09-roster-students__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:40.831Z"
+      },
+      {
+        "screen": "09-roster-students",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/students",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/09-roster-students__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:41.481Z"
+      },
+      {
+        "screen": "10-student-detail",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/students/enr-ada",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/10-student-detail__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:42.455Z"
+      },
+      {
+        "screen": "10-student-detail",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/students/enr-ada",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/10-student-detail__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:43.107Z"
+      },
+      {
+        "screen": "11-course-analytics",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/analytics",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/11-course-analytics__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:44.081Z"
+      },
+      {
+        "screen": "11-course-analytics",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/analytics",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/11-course-analytics__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:44.724Z"
+      },
+      {
+        "screen": "12-course-settings",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/settings",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/12-course-settings__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:45.693Z"
+      },
+      {
+        "screen": "12-course-settings",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/settings",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/12-course-settings__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:46.352Z"
+      },
+      {
+        "screen": "13-ai-connections",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/settings/ai-connections",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/13-ai-connections__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:47.328Z"
+      },
+      {
+        "screen": "13-ai-connections",
+        "phase": "before",
+        "theme": "light",
+        "route": "/settings/ai-connections",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/13-ai-connections__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:47.964Z"
+      },
+      {
+        "screen": "14-connection-setup",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/settings/ai-connections/tok-guido-1/setup",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/14-connection-setup__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:48.958Z"
+      },
+      {
+        "screen": "14-connection-setup",
+        "phase": "before",
+        "theme": "light",
+        "route": "/settings/ai-connections/tok-guido-1/setup",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/14-connection-setup__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:49.605Z"
+      },
+      {
+        "screen": "15-agent-activity-drafts",
+        "phase": "before",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/activity",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/15-agent-activity-drafts__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:50.577Z"
+      },
+      {
+        "screen": "15-agent-activity-drafts",
+        "phase": "before",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/activity",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/before/15-agent-activity-drafts__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T08:12:51.217Z"
+      }
+    ],
+    "failedScreens": []
+  },
+  "after": {
+    "capturedAt": "2026-10-06T09:04:24.028Z",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1
+    },
+    "screens": [
+      {
+        "screen": "01-author-dashboard",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/01-author-dashboard__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:00.437Z"
+      },
+      {
+        "screen": "01-author-dashboard",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/01-author-dashboard__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:01.070Z"
+      },
+      {
+        "screen": "02-course-builder-outline",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/02-course-builder-outline__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:02.114Z"
+      },
+      {
+        "screen": "02-course-builder-outline",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/02-course-builder-outline__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:02.769Z"
+      },
+      {
+        "screen": "03-step-editor-theory",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/03-step-editor-theory__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:03.876Z"
+      },
+      {
+        "screen": "03-step-editor-theory",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/03-step-editor-theory__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:04.517Z"
+      },
+      {
+        "screen": "04-step-editor-video",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/video/step-2-video",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/04-step-editor-video__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:05.505Z"
+      },
+      {
+        "screen": "04-step-editor-video",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/video/step-2-video",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/04-step-editor-video__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:06.145Z"
+      },
+      {
+        "screen": "05-step-editor-quiz",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/05-step-editor-quiz__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:07.153Z"
+      },
+      {
+        "screen": "05-step-editor-quiz",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/05-step-editor-quiz__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:07.808Z"
+      },
+      {
+        "screen": "06-step-editor-python",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/python/step-4-python-echo",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/06-step-editor-python__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:08.796Z"
+      },
+      {
+        "screen": "06-step-editor-python",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/python/step-4-python-echo",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/06-step-editor-python__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:09.442Z"
+      },
+      {
+        "screen": "07-student-preview",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/preview",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/07-student-preview__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:10.421Z"
+      },
+      {
+        "screen": "07-student-preview",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/preview",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/07-student-preview__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:11.053Z"
+      },
+      {
+        "screen": "08-publish-review",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/publish",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/08-publish-review__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:12.083Z"
+      },
+      {
+        "screen": "08-publish-review",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/publish",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/08-publish-review__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:12.741Z"
+      },
+      {
+        "screen": "09-roster-students",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/students",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/09-roster-students__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:13.722Z"
+      },
+      {
+        "screen": "09-roster-students",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/students",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/09-roster-students__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:14.355Z"
+      },
+      {
+        "screen": "10-student-detail",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/students/enr-ada",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/10-student-detail__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:15.351Z"
+      },
+      {
+        "screen": "10-student-detail",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/students/enr-ada",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/10-student-detail__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:15.994Z"
+      },
+      {
+        "screen": "11-course-analytics",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/analytics",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/11-course-analytics__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:16.980Z"
+      },
+      {
+        "screen": "11-course-analytics",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/analytics",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/11-course-analytics__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:17.610Z"
+      },
+      {
+        "screen": "12-course-settings",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/settings",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/12-course-settings__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:18.508Z"
+      },
+      {
+        "screen": "12-course-settings",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/settings",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/12-course-settings__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:19.162Z"
+      },
+      {
+        "screen": "13-ai-connections",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/settings/ai-connections",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/13-ai-connections__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:20.143Z"
+      },
+      {
+        "screen": "13-ai-connections",
+        "phase": "after",
+        "theme": "light",
+        "route": "/settings/ai-connections",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/13-ai-connections__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:20.773Z"
+      },
+      {
+        "screen": "14-connection-setup",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/settings/ai-connections/tok-guido-1/setup",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/14-connection-setup__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:21.748Z"
+      },
+      {
+        "screen": "14-connection-setup",
+        "phase": "after",
+        "theme": "light",
+        "route": "/settings/ai-connections/tok-guido-1/setup",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/14-connection-setup__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:22.402Z"
+      },
+      {
+        "screen": "15-agent-activity-drafts",
+        "phase": "after",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/activity",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/15-agent-activity-drafts__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:23.377Z"
+      },
+      {
+        "screen": "15-agent-activity-drafts",
+        "phase": "after",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/activity",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/after/15-agent-activity-drafts__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T09:04:24.027Z"
+      }
+    ],
+    "failedScreens": []
+  },
+  "recheck": {
+    "capturedAt": "2026-10-06T11:06:00.510Z",
+    "viewport": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1
+    },
+    "screens": [
+      {
+        "screen": "01-author-dashboard",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/01-author-dashboard__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:34.074Z"
+      },
+      {
+        "screen": "01-author-dashboard",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/01-author-dashboard__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:34.697Z"
+      },
+      {
+        "screen": "02-course-builder-outline",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/02-course-builder-outline__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:35.697Z"
+      },
+      {
+        "screen": "02-course-builder-outline",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/02-course-builder-outline__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:36.329Z"
+      },
+      {
+        "screen": "03-step-editor-theory",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/03-step-editor-theory__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:37.312Z"
+      },
+      {
+        "screen": "03-step-editor-theory",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/03-step-editor-theory__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:37.933Z"
+      },
+      {
+        "screen": "03b-step-editor-theory-dirty",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/03b-step-editor-theory-dirty__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:38.998Z"
+      },
+      {
+        "screen": "03b-step-editor-theory-dirty",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/03b-step-editor-theory-dirty__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:39.733Z"
+      },
+      {
+        "screen": "04-step-editor-video",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/video/step-2-video",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/04-step-editor-video__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:40.698Z"
+      },
+      {
+        "screen": "04-step-editor-video",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/video/step-2-video",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/04-step-editor-video__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:41.339Z"
+      },
+      {
+        "screen": "05-step-editor-quiz",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/05-step-editor-quiz__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:42.305Z"
+      },
+      {
+        "screen": "05-step-editor-quiz",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/05-step-editor-quiz__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:42.931Z"
+      },
+      {
+        "screen": "06-step-editor-python",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/content/python/step-4-python-echo",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/06-step-editor-python__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:43.882Z"
+      },
+      {
+        "screen": "06-step-editor-python",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/content/python/step-4-python-echo",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/06-step-editor-python__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:44.519Z"
+      },
+      {
+        "screen": "07-student-preview",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/preview",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/07-student-preview__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:45.594Z"
+      },
+      {
+        "screen": "07-student-preview",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/preview",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/07-student-preview__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:46.209Z"
+      },
+      {
+        "screen": "07b-student-preview-python",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/07b-student-preview-python__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:47.164Z"
+      },
+      {
+        "screen": "07b-student-preview-python",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/07b-student-preview-python__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:47.797Z"
+      },
+      {
+        "screen": "08-publish-review",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/publish",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/08-publish-review__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:48.766Z"
+      },
+      {
+        "screen": "08-publish-review",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/publish",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/08-publish-review__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:49.399Z"
+      },
+      {
+        "screen": "09-roster-students",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/students",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/09-roster-students__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:50.363Z"
+      },
+      {
+        "screen": "09-roster-students",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/students",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/09-roster-students__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:50.991Z"
+      },
+      {
+        "screen": "10-student-detail",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/students/enr-ada",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/10-student-detail__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:51.952Z"
+      },
+      {
+        "screen": "10-student-detail",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/students/enr-ada",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/10-student-detail__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:52.586Z"
+      },
+      {
+        "screen": "11-course-analytics",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/analytics",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/11-course-analytics__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:53.556Z"
+      },
+      {
+        "screen": "11-course-analytics",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/analytics",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/11-course-analytics__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:54.187Z"
+      },
+      {
+        "screen": "12-course-settings",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/settings",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/12-course-settings__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:55.148Z"
+      },
+      {
+        "screen": "12-course-settings",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/settings",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/12-course-settings__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:55.780Z"
+      },
+      {
+        "screen": "13-ai-connections",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/settings/ai-connections",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/13-ai-connections__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:56.726Z"
+      },
+      {
+        "screen": "13-ai-connections",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/settings/ai-connections",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/13-ai-connections__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:57.342Z"
+      },
+      {
+        "screen": "14-connection-setup",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/settings/ai-connections/tok-guido-1/setup",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/14-connection-setup__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:58.305Z"
+      },
+      {
+        "screen": "14-connection-setup",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/settings/ai-connections/tok-guido-1/setup",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/14-connection-setup__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:58.941Z"
+      },
+      {
+        "screen": "15-agent-activity-drafts",
+        "phase": "recheck",
+        "theme": "dark",
+        "route": "/teach/course-python-foundations/activity",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/15-agent-activity-drafts__dark.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:05:59.892Z"
+      },
+      {
+        "screen": "15-agent-activity-drafts",
+        "phase": "recheck",
+        "theme": "light",
+        "route": "/teach/course-python-foundations/activity",
+        "file": "docs/audits/2026-10-06-redesign-implementation/author/recheck/15-agent-activity-drafts__light.png",
+        "width": 1440,
+        "height": 900,
+        "capturedAt": "2026-10-06T11:06:00.510Z"
+      }
+    ],
+    "failedScreens": []
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "checks": [
+    {
+      "check": "A5 list actualHTTP403 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 403,
+        "route": "/teach",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": false
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 list actualHTTP404 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 404,
+        "route": "/teach",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": false
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 list actualHTTP500 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 500,
+        "route": "/teach",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 list actualHTTP503 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 503,
+        "route": "/teach",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 builder actualHTTP403 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 403,
+        "route": "/teach/course-python-foundations/content",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": false
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 builder actualHTTP404 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 404,
+        "route": "/teach/course-python-foundations/content",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": false
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 builder actualHTTP500 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 500,
+        "route": "/teach/course-python-foundations/content",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 builder actualHTTP503 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 503,
+        "route": "/teach/course-python-foundations/content",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 theory actualHTTP403 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 403,
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": false
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 theory actualHTTP404 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 404,
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": false
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 theory actualHTTP500 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 500,
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 theory actualHTTP503 safe context and recovery",
+      "status": "passed",
+      "observed": {
+        "code": 503,
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "controlledFault": true,
+        "authenticatedContext": true,
+        "coursesExit": true,
+        "serviceRetry": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 12,
+  "failed": 0,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

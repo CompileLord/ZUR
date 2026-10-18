@@ -1,0 +1,106 @@
+[
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a1-create-failure-dark.png",
+    "issue": "A1",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "Populated create course dialog retains title through controlled 503 service failure",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-08T16:21:49.320Z",
+    "fixture": "Guido van Rossum seeded course creation dialog",
+    "fault": "Controlled 503 on POST /api/author/courses",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a1-create-success-dark.png",
+    "issue": "A1",
+    "route": "/teach/08e85cd4-4ede-4b7c-8a9b-3179068941dd/content",
+    "observedUrl": "/teach/08e85cd4-4ede-4b7c-8a9b-3179068941dd/content",
+    "pageIdentity": "Structure",
+    "renderedState": "Created course acknowledged destination in Course Builder",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-08T16:21:49.551Z",
+    "fixture": "Guido van Rossum created disposable course",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a1-create-failure-light.png",
+    "issue": "A1",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "Populated create course dialog retains title through controlled 503 service failure",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-08T16:21:50.074Z",
+    "fixture": "Guido van Rossum seeded course creation dialog",
+    "fault": "Controlled 503 on POST /api/author/courses",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a1-create-success-light.png",
+    "issue": "A1",
+    "route": "/teach/a0447e39-abe5-48cf-aecb-df07933670e4/content",
+    "observedUrl": "/teach/a0447e39-abe5-48cf-aecb-df07933670e4/content",
+    "pageIdentity": "Structure",
+    "renderedState": "Created course acknowledged destination in Course Builder",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-08T16:21:50.336Z",
+    "fixture": "Guido van Rossum created disposable course",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a2-combined-filter-dark.png",
+    "issue": "A2",
+    "route": "/teach?status=draft&search=Concurrency",
+    "observedUrl": "/teach?status=draft&search=Concurrency",
+    "pageIdentity": "Your courses",
+    "renderedState": "Combined status filter and search query persistence",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-08T16:21:50.685Z",
+    "fixture": "Guido van Rossum draft courses filtered by Concurrency",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a2-empty-match-dark.png",
+    "issue": "A2",
+    "route": "/teach?status=draft&search=NonexistentQuantum",
+    "observedUrl": "/teach?status=draft&search=NonexistentQuantum",
+    "pageIdentity": "Your courses",
+    "renderedState": "No matching courses empty state with explicit Clear filters action",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-08T16:21:50.933Z",
+    "fixture": "Guido van Rossum empty search query in drafts",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  }
+]

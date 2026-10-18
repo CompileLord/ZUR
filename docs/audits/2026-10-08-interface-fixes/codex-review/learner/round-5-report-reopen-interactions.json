@@ -1,0 +1,28 @@
+{
+  "checks": [
+    {
+      "check": "L5 immediate report Cancel and reopen retains current modal lifecycle",
+      "status": "failed",
+      "error": "Current reopened report must remain open: {\"open\":false,\"hidden\":true,\"focusInside\":false,\"backgroundInert\":false}\n\nfalse !== true\n",
+      "observed": {
+        "route": "/learn/enr-ada/steps/step-4-python-echo",
+        "headings": [
+          "Modules & lessons",
+          "Echoing Numbers",
+          "Input & output format",
+          "Constraints",
+          "Hints"
+        ],
+        "collapsed": false,
+        "toggle": "true",
+        "openDialogs": []
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 0,
+  "failed": 1,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": "L5 immediate"
+}

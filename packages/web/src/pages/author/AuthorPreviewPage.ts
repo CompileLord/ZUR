@@ -244,24 +244,15 @@ export function renderAuthorPreviewPage(opts: AuthorPreviewPageOptions): string 
         <div class="workspace-splitter" aria-hidden="true"></div>
         <!-- Editor Pane -->
         <div class="editor-pane flex-1 flex flex-col" style="min-width: 0;">
-          <div class="editor-toolbar mb-2 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-              <span class="editor-filename font-mono text-xs font-semibold">main.py</span>
-              <span class="text-muted">·</span>
-              <span class="text-secondary text-xs font-mono">${PYTHON_RUNTIME_LABEL}</span>
-            </div>
-            <div class="editor-actions flex items-center gap-2">
-              <button type="button" class="btn btn-secondary btn-compact" id="preview-run-samples-btn" disabled title="Execution unavailable in preview" aria-disabled="true">Run samples</button>
-              <button type="button" class="btn btn-primary btn-compact" id="preview-submit-btn" disabled title="Execution unavailable in preview" aria-disabled="true">Submit solution</button>
-
-            </div>
+          <div class="preview-editor-header flex items-center justify-between py-1.5 px-3 mb-2 bg-surface border border-subtle rounded text-xs text-secondary">
+            <span class="font-medium text-primary">Read-only code preview</span>
           </div>
           <div class="code-editor-area flex flex-1 border border-subtle rounded-md overflow-hidden bg-surface">
             <div class="code-editor-line-numbers p-3 font-mono text-xs text-muted select-none border-r border-subtle bg-hover" style="white-space: pre; line-height: 1.5;">${lineNumbers}</div>
             <textarea class="code-editor-input textarea-input font-mono flex-1 p-3 text-xs leading-relaxed border-0 rounded-none bg-transparent" rows="18" aria-label="Python Solution Code" readonly>${starterCode}</textarea>
           </div>
           <div class="workspace-results-region p-3 bg-surface border-t border-subtle text-xs text-secondary font-mono" id="preview-run-results">
-            <span class="text-muted">Preview notice:</span> Execution unavailable in preview.
+            <span class="text-muted">Read-only preview:</span> Execution and grading are disabled in author preview. Use "← Back to editor" to make changes.
           </div>
         </div>
       </div>
@@ -331,7 +322,7 @@ export function renderAuthorPreviewPage(opts: AuthorPreviewPageOptions): string 
     lessonTitle,
     stepTitle: hasAuthoredH1 ? (opts.stepOrdinalText || 'Step 1') : opts.stepTitle,
     stepOrdinalText: opts.stepOrdinalText || 'Step 1',
-    courseProgressText: 'Preview mode (read-only)',
+    courseProgressText: 'Preview mode',
     courseProgressPercentage: 0,
     modules: courseModules,
     taskSquares,
@@ -339,9 +330,6 @@ export function renderAuthorPreviewPage(opts: AuthorPreviewPageOptions): string 
     workspaceContent: stepViewHtml,
     previousStepUrl,
     nextStepUrl,
-    taskActions: opts.stepType === 'python'
-      ? `<span class="text-xs text-muted">Read-only preview</span>`
-      : undefined,
   });
 
   return `

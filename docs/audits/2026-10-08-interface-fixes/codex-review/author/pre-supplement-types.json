@@ -1,0 +1,33 @@
+{
+  "scope": "packages/web/src/main.ts with strict NodeNext compiler and transitive imports",
+  "baseline": "HEAD 221187891950659765a6e7fec9ec982577714565",
+  "baselineCount": 10,
+  "currentCount": 10,
+  "sameNormalizedDiagnostics": true,
+  "added": [],
+  "baselineDiagnostics": [
+    "packages/web/src/pages/admin/AdminPages.ts: error TS2345: Argument of type '\"alert-circle\"' is not assignable to parameter of type 'IconName'.",
+    "packages/web/src/pages/admin/AdminPages.ts: error TS2345: Argument of type '\"pause\"' is not assignable to parameter of type 'IconName'.",
+    "packages/web/src/pages/admin/AdminPages.ts: error TS2345: Argument of type '\"alert-circle\"' is not assignable to parameter of type 'IconName'.",
+    "packages/web/src/pages/author/CoursePublishPage.ts: error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.",
+    "packages/web/src/pages/author/TheoryEditorPage.ts: error TS2345: Argument of type '\"upload\"' is not assignable to parameter of type 'IconName'.",
+    "packages/web/src/pages/learning/MyCoursesPage.ts: error TS2353: Object literal may only specify known properties, and 'isOpen' does not exist in type 'DialogProps'.",
+    "packages/web/src/pages/learning/PythonWorkspacePage.ts: error TS2367: This comparison appears to be unintentional because the types '\"PASSED\" | \"WRONG_ANSWER\" | \"SYNTAX_ERROR\" | \"RUNTIME_ERROR\" | \"MEMORY_LIMIT\" | \"OUTPUT_LIMIT\" | \"INTERNAL_ERROR\"' and '\"TIME_LIMIT_EXCEEDED\"' have no overlap.",
+    "packages/web/src/pages/learning/PythonWorkspacePage.ts: error TS2367: This comparison appears to be unintentional because the types '\"PASSED\" | \"WRONG_ANSWER\" | \"SYNTAX_ERROR\" | \"RUNTIME_ERROR\" | \"OUTPUT_LIMIT\" | \"INTERNAL_ERROR\"' and '\"MEMORY_LIMIT_EXCEEDED\"' have no overlap.",
+    "packages/web/src/pages/learning/PythonWorkspacePage.ts: error TS2367: This comparison appears to be unintentional because the types '\"PASSED\" | \"WRONG_ANSWER\" | \"RUNTIME_ERROR\" | \"INTERNAL_ERROR\"' and '\"COMPILE_ERROR\"' have no overlap.",
+    "packages/web/src/pages/learning/learning-navigation.ts: error TS2345: Argument of type 'CourseModuleLessonItem' is not assignable to parameter of type '{ href: string; isCurrent: boolean; completedCount: number; totalCount: number; }'."
+  ],
+  "currentDiagnostics": [
+    "packages/web/src/pages/admin/AdminPages.ts: error TS2345: Argument of type '\"alert-circle\"' is not assignable to parameter of type 'IconName'.",
+    "packages/web/src/pages/admin/AdminPages.ts: error TS2345: Argument of type '\"pause\"' is not assignable to parameter of type 'IconName'.",
+    "packages/web/src/pages/admin/AdminPages.ts: error TS2345: Argument of type '\"alert-circle\"' is not assignable to parameter of type 'IconName'.",
+    "packages/web/src/pages/author/CoursePublishPage.ts: error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.",
+    "packages/web/src/pages/author/TheoryEditorPage.ts: error TS2345: Argument of type '\"upload\"' is not assignable to parameter of type 'IconName'.",
+    "packages/web/src/pages/learning/MyCoursesPage.ts: error TS2353: Object literal may only specify known properties, and 'isOpen' does not exist in type 'DialogProps'.",
+    "packages/web/src/pages/learning/PythonWorkspacePage.ts: error TS2367: This comparison appears to be unintentional because the types '\"PASSED\" | \"WRONG_ANSWER\" | \"SYNTAX_ERROR\" | \"RUNTIME_ERROR\" | \"MEMORY_LIMIT\" | \"OUTPUT_LIMIT\" | \"INTERNAL_ERROR\"' and '\"TIME_LIMIT_EXCEEDED\"' have no overlap.",
+    "packages/web/src/pages/learning/PythonWorkspacePage.ts: error TS2367: This comparison appears to be unintentional because the types '\"PASSED\" | \"WRONG_ANSWER\" | \"SYNTAX_ERROR\" | \"RUNTIME_ERROR\" | \"OUTPUT_LIMIT\" | \"INTERNAL_ERROR\"' and '\"MEMORY_LIMIT_EXCEEDED\"' have no overlap.",
+    "packages/web/src/pages/learning/PythonWorkspacePage.ts: error TS2367: This comparison appears to be unintentional because the types '\"PASSED\" | \"WRONG_ANSWER\" | \"RUNTIME_ERROR\" | \"INTERNAL_ERROR\"' and '\"COMPILE_ERROR\"' have no overlap.",
+    "packages/web/src/pages/learning/learning-navigation.ts: error TS2345: Argument of type 'CourseModuleLessonItem' is not assignable to parameter of type '{ href: string; isCurrent: boolean; completedCount: number; totalCount: number; }'."
+  ],
+  "limit": "Before supplemental corrections complete; final checks still required."
+}

@@ -1,0 +1,160 @@
+{
+  "runId": "repair-acceptance-1791722357876",
+  "auditDate": "2026-10-05",
+  "totalActions": 7,
+  "passedActions": 7,
+  "failedActions": 0,
+  "blockedActions": 0,
+  "totalScreenshots": 14,
+  "actions": [
+    {
+      "timestamp": "2026-10-11T12:39:22.802Z",
+      "feature": "F01: Course Publish & Receipt",
+      "status": "PASS",
+      "details": "Valid draft published, backend receipt received, Released Version 1 card verified with editor/preview links.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-11T12:39:24.092Z",
+      "feature": "F02: Asset Upload & Insert",
+      "status": "PASS",
+      "details": "Asset uploaded via DOM.setFileInputFiles, inserted into markdown, saved, and rendered in authorized preview.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-11T12:39:26.104Z",
+      "feature": "F03: Python Reference Checks",
+      "status": "PASS",
+      "details": "Reference check validated: correct reference passed all 2 tests; modified unsaved test resulted in public test FAIL and hidden test PASS.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-11T12:39:27.428Z",
+      "feature": "F04: Python Hints",
+      "status": "PASS",
+      "details": "Entered 2 hints, saved changes, reloaded step, and confirmed hints were preserved.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-11T12:39:28.915Z",
+      "feature": "F05: AI Connections Course Scope",
+      "status": "PASS",
+      "details": "Created token with selected-course scope for owned private course, verified course restriction displayed.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-11T12:39:30.873Z",
+      "feature": "F06: Learner Report Modal",
+      "status": "PASS",
+      "details": "Learner report submitted with verified course/version/step context and confirmed in database.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-11T12:39:32.465Z",
+      "feature": "F07: Admin Audit Filters",
+      "status": "PASS",
+      "details": "Admin audit query string filtering verified with 30 seeded records, 10-row page size, and working pagination.",
+      "evidence": null
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "repair_f01_publish_receipt_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f01_publish_receipt_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:22.448Z"
+    },
+    {
+      "name": "repair_f01_publish_receipt_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f01_publish_receipt_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:22.700Z"
+    },
+    {
+      "name": "repair_f02_asset_upload_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f02_asset_upload_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:23.741Z"
+    },
+    {
+      "name": "repair_f02_asset_upload_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f02_asset_upload_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:23.990Z"
+    },
+    {
+      "name": "repair_f03_reference_check_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f03_reference_check_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:25.012Z"
+    },
+    {
+      "name": "repair_f03_reference_check_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f03_reference_check_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:25.277Z"
+    },
+    {
+      "name": "repair_f04_python_hints_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f04_python_hints_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:27.072Z"
+    },
+    {
+      "name": "repair_f04_python_hints_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f04_python_hints_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:27.326Z"
+    },
+    {
+      "name": "repair_f05_token_course_picker_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f05_token_course_picker_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:28.522Z"
+    },
+    {
+      "name": "repair_f05_token_course_picker_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f05_token_course_picker_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:28.812Z"
+    },
+    {
+      "name": "repair_f06_exercise_report_modal_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f06_exercise_report_modal_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:30.405Z"
+    },
+    {
+      "name": "repair_f06_exercise_report_modal_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f06_exercise_report_modal_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:30.766Z"
+    },
+    {
+      "name": "repair_f07_admin_audit_filters_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f07_admin_audit_filters_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:32.105Z"
+    },
+    {
+      "name": "repair_f07_admin_audit_filters_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/repairs/repair_f07_admin_audit_filters_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-11T12:39:32.363Z"
+    }
+  ]
+}

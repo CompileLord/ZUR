@@ -1,0 +1,21 @@
+{
+  "checks": [
+    {
+      "check": "A1 stale create503 does not overwrite new modal after Back and Forward reentry",
+      "status": "passed",
+      "observed": {
+        "realHeld503": true,
+        "backForwardReentry": true,
+        "newTitleRetained": true,
+        "noOldErrorRendered": true,
+        "databaseUnchanged": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

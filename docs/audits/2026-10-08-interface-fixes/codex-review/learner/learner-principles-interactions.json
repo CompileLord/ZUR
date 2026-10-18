@@ -1,0 +1,64 @@
+{
+  "checks": [
+    {
+      "check": "P8 editor trusted CtrlPlusMinus preserve draft, accessible editing and themed caret",
+      "status": "passed",
+      "observed": {
+        "trustedKeys": true,
+        "fontRoundTrip": true,
+        "codePreserved": true,
+        "accessibleName": "Python Source Code",
+        "styles": [
+          {
+            "theme": "dark",
+            "caret": "rgb(241, 243, 234)",
+            "background": "rgb(23, 26, 21)"
+          },
+          {
+            "theme": "light",
+            "caret": "rgb(32, 37, 28)",
+            "background": "rgb(251, 252, 247)"
+          }
+        ],
+        "visualContrastMeasurement": false
+      },
+      "fixture": true
+    },
+    {
+      "check": "P8/P13 standard undo redo and acknowledged draft reload",
+      "status": "passed",
+      "observed": {
+        "trustedInput": true,
+        "undo": true,
+        "redo": true,
+        "realDatabaseAck": true,
+        "reloadRetainsCode": true,
+        "pythonExecutionVerified": false
+      },
+      "fixture": true
+    },
+    {
+      "check": "P9/P10 first-attempt quiz selection, failure, success and next actual route",
+      "status": "passed",
+      "observed": {
+        "initial": {
+          "checked": 0,
+          "selected": 0,
+          "practice": null,
+          "next": false
+        },
+        "wrongAnswerNoNext": true,
+        "correctAnswerNext": true,
+        "destination": "/learn/enr-ada/steps/step-4-python-echo",
+        "realFixtureApiAssessment": true,
+        "pythonGradingVerified": false
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 3,
+  "failed": 0,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

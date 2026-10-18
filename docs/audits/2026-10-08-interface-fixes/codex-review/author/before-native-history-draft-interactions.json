@@ -1,0 +1,24 @@
+{
+  "checks": [
+    {
+      "check": "Author dirty theory native Back and Forward preserve unsaved work",
+      "status": "failed",
+      "error": "Unsaved author work must remain after real Back/Forward: {\"returned\":\"# What is a variable?\\n\\nA variable in Python binds a name to a value in memory.\\n\\n```python\\nx = 42\\nprint(x)\\n```\\n\\n> Variables give meaning to raw data.\",\"storedChanged\":false,\"confirmationCount\":0}\n+ actual - expected\n\n+ '# What is a variable?\\n' +\n+   '\\n' +\n+   'A variable in Python binds a name to a value in memory.\\n' +\n+   '\\n' +\n+   '```python\\n' +\n+   'x = 42\\n' +\n+   'print(x)\\n' +\n+   '```\\n' +\n+   '\\n' +\n+   '> Variables give meaning to raw data.'\n- 'Codex disposable author UNSAVED history draft'\n",
+      "observed": {
+        "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+        "headings": [
+          "Course Outline",
+          "What is a variable?"
+        ],
+        "activeFilter": "Content",
+        "openDialogs": []
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 0,
+  "failed": 1,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

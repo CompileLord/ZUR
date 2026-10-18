@@ -1,0 +1,73 @@
+{
+  "comparisons": [
+    {
+      "type": "deterministic audit comparison, not a product capture",
+      "path": "screenshots/interface-fixes-2026-10-08/comparisons/learner/attempt-detail-light-before-after.png",
+      "sources": [
+        {
+          "label": "before",
+          "path": "screenshots/interface-review-2026-10-06/learner/learner-p16-attempt-detail-light-normal.png",
+          "sha256": "3c64217ef5611a8361aaa58177d41a8bcf899c265906dc75963225c724228482"
+        },
+        {
+          "label": "after",
+          "path": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l2-l4-attempt-detail-normal-light.png",
+          "sha256": "e4f5bc073de79b4db4f7c38b482bfc8c5d2e04061cee60f80a2dbad32809e7f0"
+        }
+      ],
+      "theme": "light",
+      "sourceViewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "pixels": "Original screenshots pasted unchanged at native resolution",
+      "limits": "Disposable attempt data differ; compare layout/navigation, not verdicts or grading."
+    },
+    {
+      "type": "deterministic audit comparison, not a product capture",
+      "path": "screenshots/interface-fixes-2026-10-08/comparisons/learner/completed-filter-dark-before-after.png",
+      "sources": [
+        {
+          "label": "before",
+          "path": "screenshots/interface-review-2026-10-06/learner/learner-p10-mycourses-dark-completed-tab-defect.png",
+          "sha256": "c6d57d494ebc92f645b1c2730a969bf50c9e4d2850410c433c4c6dfea7c40d6d"
+        },
+        {
+          "label": "after",
+          "path": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l1-mycourses-completed-dark.png",
+          "sha256": "36a13ecd68b48b674db4eabcb831aad3ea2deae97fa0f6440140be177c552321"
+        }
+      ],
+      "theme": "dark",
+      "sourceViewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "pixels": "Original screenshots pasted unchanged at native resolution",
+      "limits": "Same requested Completed filter and dark1440x900. Disposable enrollment data differs; compare selection and filtering."
+    },
+    {
+      "type": "deterministic audit comparison, not a product capture",
+      "path": "screenshots/interface-fixes-2026-10-08/comparisons/learner/unavailable-overview-dark-before-after.png",
+      "sources": [
+        {
+          "label": "before",
+          "path": "screenshots/interface-review-2026-10-06/learner/learner-p03-course-overview-auth-dark-error.png",
+          "sha256": "1f36dcb2f96528c9e17d44246ae0eacbe8f867759953eca0a6510988d4b2f585"
+        },
+        {
+          "label": "after",
+          "path": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l7-overview-denial-auth-dark.png",
+          "sha256": "9d49aaa38a54a4299bb471c411804a269939c1261d64513fa152e0acd9016240"
+        }
+      ],
+      "theme": "dark",
+      "sourceViewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "pixels": "Original screenshots pasted unchanged at native resolution",
+      "limits": "Dark1440x900 authenticated unavailable states. Missing course identifiers differ; compare safe navigation and account context."
+    }
+  ]
+}

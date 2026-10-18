@@ -1,0 +1,82 @@
+{
+  "checks": [
+    {
+      "comparison": "screenshots/interface-fixes-2026-10-08/comparisons/learner/attempt-detail-light-before-after.png",
+      "size": [
+        2928,
+        1030
+      ],
+      "sources": [
+        {
+          "label": "before",
+          "pixelsUnchanged": true,
+          "origin": [
+            16,
+            60
+          ]
+        },
+        {
+          "label": "after",
+          "pixelsUnchanged": true,
+          "origin": [
+            1472,
+            60
+          ]
+        }
+      ]
+    },
+    {
+      "comparison": "screenshots/interface-fixes-2026-10-08/comparisons/learner/completed-filter-dark-before-after.png",
+      "size": [
+        2928,
+        1030
+      ],
+      "sources": [
+        {
+          "label": "before",
+          "pixelsUnchanged": true,
+          "origin": [
+            16,
+            60
+          ]
+        },
+        {
+          "label": "after",
+          "pixelsUnchanged": true,
+          "origin": [
+            1472,
+            60
+          ]
+        }
+      ]
+    },
+    {
+      "comparison": "screenshots/interface-fixes-2026-10-08/comparisons/learner/unavailable-overview-dark-before-after.png",
+      "size": [
+        2928,
+        1030
+      ],
+      "sources": [
+        {
+          "label": "before",
+          "pixelsUnchanged": true,
+          "origin": [
+            16,
+            60
+          ]
+        },
+        {
+          "label": "after",
+          "pixelsUnchanged": true,
+          "origin": [
+            1472,
+            60
+          ]
+        }
+      ]
+    }
+  ],
+  "verification": "Exact RGB equality of both complete native 1440x900 source screenshots at pasted origins; labels outside source rectangles.",
+  "passed": 6,
+  "failed": 0
+}

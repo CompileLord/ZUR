@@ -1,0 +1,14 @@
+{
+  "preexisting_modified": [
+    "packages/server/src/db/seed.ts",
+    "packages/server/src/server.ts",
+    "packages/web/src/main.ts",
+    "packages/web/src/pages/admin/AdminPages.ts",
+    "packages/web/src/pages/author/CoursePublishPage.ts",
+    "packages/web/src/pages/learning/PythonWorkspacePage.ts",
+    "packages/web/src/pages/public/CatalogPage.ts",
+    "packages/worker/src/runner.ts",
+    "packages/worker/tests/runner.test.ts"
+  ],
+  "status": " M packages/server/src/db/seed.ts\n M packages/server/src/server.ts\n M packages/web/src/main.ts\n M packages/web/src/pages/admin/AdminPages.ts\n M packages/web/src/pages/author/CoursePublishPage.ts\n M packages/web/src/pages/learning/PythonWorkspacePage.ts\n M packages/web/src/pages/public/CatalogPage.ts\n M packages/worker/src/runner.ts\n M packages/worker/tests/runner.test.ts\n?? docs/audits/2026-10-05-agy-bugs-only-handoff.txt\n?? docs/audits/2026-10-05-agy-repair-plan.md\n?? docs/audits/2026-10-05-agy-repair-self-check.md\n?? docs/audits/2026-10-05-author-real-user-report.md\n?? docs/audits/2026-10-05-codex-repair-audit.md\n?? docs/audits/2026-10-05-learner-real-user-report.md\n?? docs/audits/2026-10-05-real-user-audit-plan.md\n?? docs/audits/2026-10-05-real-user-audit-report.md\n?? docs/audits/2026-10-05/\n?? docs/audits/2026-10-06-admin-interface-plan.md\n?? docs/audits/2026-10-06-author-interface-plan.md\n?? docs/audits/2026-10-06-author-repair-reaudit-report.md\n?? docs/audits/2026-10-06-desktop-design-review/\n?? docs/audits/2026-10-06-features-real-user-report.md\n?? docs/audits/2026-10-06-interface-redesign-plan.md\n?? docs/audits/2026-10-06-learner-reaudit.md\n?? docs/audits/2026-10-06-post-repair-reaudit-report.md\n?? docs/audits/2026-10-06-public-interface-plan.md\n?? docs/audits/2026-10-06-redesign-implementation/\n?? docs/audits/2026-10-06/\n?? docs/audits/evidence/\n?? docs/audits/post-repair-luna-reaudit-plan.md\n?? packages/server/tests/author-asset-upload.test.ts\n?? packages/server/tests/author-reference-check.test.ts\n?? packages/web/tests/repair-acceptance-audit.test.ts\n?? scratch/\n?? scripts/audit-author-real-user.ts\n?? scripts/audit-real-user-features-2026-10-06.ts\n?? scripts/audit-real-user-features.ts\n?? scripts/reaudit-author-full-2026-10-06.ts\n?? scripts/reaudit-author-repairs-2026-10-06.ts\n?? scripts/verify-d01-host.ts\n?? scripts/verify-repair-acceptance.ts\n"
+}

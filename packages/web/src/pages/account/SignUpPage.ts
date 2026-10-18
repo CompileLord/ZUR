@@ -17,7 +17,7 @@ export function renderSignUpPage(opts: SignUpPageOptions = {}): string {
       ${
         opts.error
           ? `
-        <div id="sign-up-error" class="form-error mb-4 p-3 border border-danger rounded" role="alert" aria-live="polite">
+        <div id="sign-up-error" class="form-error mb-4 p-3 border border-danger rounded" role="alert" aria-live="polite" style="overflow-wrap: anywhere; word-break: break-word;">
           <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
         </div>
       `
@@ -86,7 +86,7 @@ export function renderSignUpPage(opts: SignUpPageOptions = {}): string {
       <div class="consent-row">
         <input type="checkbox" id="adultConfirmed" name="adultConfirmed" class="consent-checkbox" required />
         <label for="adultConfirmed" class="consent-label">
-          I confirm that I am at least 18 years of age and agree to the <a href="/terms" class="consent-link">Terms of Service</a> and <a href="/privacy" class="consent-link">Privacy Policy</a>.
+          I confirm that I am at least 18 years of age and agree to the <a href="/terms" class="consent-link" aria-label="Terms of Service (opens terms page)">Terms of Service</a> and <a href="/privacy" class="consent-link" aria-label="Privacy Policy (opens privacy page)">Privacy Policy</a>.
         </label>
       </div>
 

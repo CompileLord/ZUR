@@ -1,0 +1,34 @@
+{
+  "checks": [
+    {
+      "check": "A4 Python preview truthful readonly split and editor return",
+      "status": "passed",
+      "observed": {
+        "readonly": true,
+        "editorReturn": "/teach/course-python-foundations/content/python/step-4-python-echo"
+      },
+      "fixture": true
+    },
+    {
+      "check": "A4 all four actual preview types preserve course draft and avoid grading mutations",
+      "status": "passed",
+      "observed": {
+        "types": [
+          "theory",
+          "video",
+          "quiz",
+          "python"
+        ],
+        "actualDestinations": true,
+        "noCourseOrGradingMutationRequests": true,
+        "courseRevisionUnchanged": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 2,
+  "failed": 0,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": "A4"
+}

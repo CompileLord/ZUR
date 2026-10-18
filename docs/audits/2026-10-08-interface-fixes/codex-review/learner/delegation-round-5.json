@@ -1,0 +1,15 @@
+{
+  "status": "ERROR",
+  "agy_status": "ERROR",
+  "conversation_id": "f8b02bd9-04ac-4ca4-89ff-6b71bf1081d0",
+  "requested_model": "gemini-3.8-flash-high",
+  "reported_model": "gemini-3.8-flash-high",
+  "empty_response": false,
+  "response_truncated": false,
+  "permission_denied": false,
+  "approval_required": false,
+  "error": "agy status ERROR",
+  "retryable": false,
+  "child_exit_code": 0,
+  "step_errors": 0
+}

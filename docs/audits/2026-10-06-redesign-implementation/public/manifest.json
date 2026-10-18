@@ -1,0 +1,1366 @@
+{
+  "before": [
+    {
+      "id": "01_landing__dark",
+      "phase": "before",
+      "name": "01_landing",
+      "route": "/",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default landing hero and sections",
+      "captureTime": "2026-10-06T08:17:17.567Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/01_landing__dark.png",
+      "relativeReportPath": "before/01_landing__dark.png"
+    },
+    {
+      "id": "01_landing__full__dark",
+      "phase": "before",
+      "name": "01_landing__full",
+      "route": "/",
+      "theme": "dark",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 2102,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default landing hero and sections (full page)",
+      "captureTime": "2026-10-06T08:17:17.567Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/01_landing__full__dark.png",
+      "relativeReportPath": "before/01_landing__full__dark.png"
+    },
+    {
+      "id": "01_landing__light",
+      "phase": "before",
+      "name": "01_landing",
+      "route": "/",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default landing hero and sections",
+      "captureTime": "2026-10-06T08:17:19.582Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/01_landing__light.png",
+      "relativeReportPath": "before/01_landing__light.png"
+    },
+    {
+      "id": "01_landing__full__light",
+      "phase": "before",
+      "name": "01_landing__full",
+      "route": "/",
+      "theme": "light",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 2111,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default landing hero and sections (full page)",
+      "captureTime": "2026-10-06T08:17:19.582Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/01_landing__full__light.png",
+      "relativeReportPath": "before/01_landing__full__light.png"
+    },
+    {
+      "id": "02_catalog__dark",
+      "phase": "before",
+      "name": "02_catalog",
+      "route": "/courses",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default catalog view",
+      "captureTime": "2026-10-06T08:17:20.492Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/02_catalog__dark.png",
+      "relativeReportPath": "before/02_catalog__dark.png"
+    },
+    {
+      "id": "02_catalog__light",
+      "phase": "before",
+      "name": "02_catalog",
+      "route": "/courses",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default catalog view",
+      "captureTime": "2026-10-06T08:17:21.122Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/02_catalog__light.png",
+      "relativeReportPath": "before/02_catalog__light.png"
+    },
+    {
+      "id": "02_catalog_filtered__dark",
+      "phase": "before",
+      "name": "02_catalog_filtered",
+      "route": "/courses?q=python&level=beginner",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Catalog with search query and level filter active",
+      "captureTime": "2026-10-06T08:17:21.902Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/02_catalog_filtered__dark.png",
+      "relativeReportPath": "before/02_catalog_filtered__dark.png"
+    },
+    {
+      "id": "02_catalog_empty__dark",
+      "phase": "before",
+      "name": "02_catalog_empty",
+      "route": "/courses?q=nonexistentcourse12345",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Catalog empty search result state",
+      "captureTime": "2026-10-06T08:17:22.378Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/02_catalog_empty__dark.png",
+      "relativeReportPath": "before/02_catalog_empty__dark.png"
+    },
+    {
+      "id": "03_course_overview__dark",
+      "phase": "before",
+      "name": "03_course_overview",
+      "route": "/courses/course-python-foundations",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Public course overview and syllabus",
+      "captureTime": "2026-10-06T08:17:23.050Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/03_course_overview__dark.png",
+      "relativeReportPath": "before/03_course_overview__dark.png"
+    },
+    {
+      "id": "03_course_overview__full__dark",
+      "phase": "before",
+      "name": "03_course_overview__full",
+      "route": "/courses/course-python-foundations",
+      "theme": "dark",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1369,
+        "deviceScaleFactor": 1
+      },
+      "state": "Public course overview and syllabus (full page)",
+      "captureTime": "2026-10-06T08:17:23.050Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/03_course_overview__full__dark.png",
+      "relativeReportPath": "before/03_course_overview__full__dark.png"
+    },
+    {
+      "id": "03_course_overview__light",
+      "phase": "before",
+      "name": "03_course_overview",
+      "route": "/courses/course-python-foundations",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Public course overview and syllabus",
+      "captureTime": "2026-10-06T08:17:23.893Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/03_course_overview__light.png",
+      "relativeReportPath": "before/03_course_overview__light.png"
+    },
+    {
+      "id": "03_course_overview__full__light",
+      "phase": "before",
+      "name": "03_course_overview__full",
+      "route": "/courses/course-python-foundations",
+      "theme": "light",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1369,
+        "deviceScaleFactor": 1
+      },
+      "state": "Public course overview and syllabus (full page)",
+      "captureTime": "2026-10-06T08:17:23.893Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/03_course_overview__full__light.png",
+      "relativeReportPath": "before/03_course_overview__full__light.png"
+    },
+    {
+      "id": "04_sign_in__dark",
+      "phase": "before",
+      "name": "04_sign_in",
+      "route": "/sign-in",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Standard sign-in form",
+      "captureTime": "2026-10-06T08:17:24.695Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/04_sign_in__dark.png",
+      "relativeReportPath": "before/04_sign_in__dark.png"
+    },
+    {
+      "id": "04_sign_in__light",
+      "phase": "before",
+      "name": "04_sign_in",
+      "route": "/sign-in",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Standard sign-in form",
+      "captureTime": "2026-10-06T08:17:25.329Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/04_sign_in__light.png",
+      "relativeReportPath": "before/04_sign_in__light.png"
+    },
+    {
+      "id": "04_sign_in_error__dark",
+      "phase": "before",
+      "name": "04_sign_in_error",
+      "route": "/sign-in",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Sign-in validation/error state",
+      "captureTime": "2026-10-06T08:17:26.403Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/04_sign_in_error__dark.png",
+      "relativeReportPath": "before/04_sign_in_error__dark.png"
+    },
+    {
+      "id": "05_sign_up__dark",
+      "phase": "before",
+      "name": "05_sign_up",
+      "route": "/sign-up",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Sign-up registration form",
+      "captureTime": "2026-10-06T08:17:27.032Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/05_sign_up__dark.png",
+      "relativeReportPath": "before/05_sign_up__dark.png"
+    },
+    {
+      "id": "05_sign_up__light",
+      "phase": "before",
+      "name": "05_sign_up",
+      "route": "/sign-up",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Sign-up registration form",
+      "captureTime": "2026-10-06T08:17:27.679Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/05_sign_up__light.png",
+      "relativeReportPath": "before/05_sign_up__light.png"
+    },
+    {
+      "id": "05_sign_up_error__dark",
+      "phase": "before",
+      "name": "05_sign_up_error",
+      "route": "/sign-up",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Sign-up validation/error state",
+      "captureTime": "2026-10-06T08:17:28.757Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/05_sign_up_error__dark.png",
+      "relativeReportPath": "before/05_sign_up_error__dark.png"
+    },
+    {
+      "id": "06_verify_email_direct__dark",
+      "phase": "before",
+      "name": "06_verify_email_direct",
+      "route": "/verify-email",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Verify email direct visit without pending state",
+      "captureTime": "2026-10-06T08:17:29.540Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/06_verify_email_direct__dark.png",
+      "relativeReportPath": "before/06_verify_email_direct__dark.png"
+    },
+    {
+      "id": "06_verify_email_context__dark",
+      "phase": "before",
+      "name": "06_verify_email_context",
+      "route": "/verify-email?email=ada@zur.internal",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Verify email with known email address",
+      "captureTime": "2026-10-06T08:17:30.174Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/06_verify_email_context__dark.png",
+      "relativeReportPath": "before/06_verify_email_context__dark.png"
+    },
+    {
+      "id": "06_verify_email_context__light",
+      "phase": "before",
+      "name": "06_verify_email_context",
+      "route": "/verify-email?email=ada@zur.internal",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Verify email with known email address",
+      "captureTime": "2026-10-06T08:17:30.808Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/06_verify_email_context__light.png",
+      "relativeReportPath": "before/06_verify_email_context__light.png"
+    },
+    {
+      "id": "07_forgot_password__dark",
+      "phase": "before",
+      "name": "07_forgot_password",
+      "route": "/forgot-password",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Forgot password request form",
+      "captureTime": "2026-10-06T08:17:31.438Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/07_forgot_password__dark.png",
+      "relativeReportPath": "before/07_forgot_password__dark.png"
+    },
+    {
+      "id": "07_forgot_password__light",
+      "phase": "before",
+      "name": "07_forgot_password",
+      "route": "/forgot-password",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Forgot password request form",
+      "captureTime": "2026-10-06T08:17:32.064Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/07_forgot_password__light.png",
+      "relativeReportPath": "before/07_forgot_password__light.png"
+    },
+    {
+      "id": "07_forgot_password_submitted__dark",
+      "phase": "before",
+      "name": "07_forgot_password_submitted",
+      "route": "/forgot-password",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Forgot password confirmation screen",
+      "captureTime": "2026-10-06T08:17:33.256Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/07_forgot_password_submitted__dark.png",
+      "relativeReportPath": "before/07_forgot_password_submitted__dark.png"
+    },
+    {
+      "id": "07_reset_password_valid__dark",
+      "phase": "before",
+      "name": "07_reset_password_valid",
+      "route": "/reset-password?token=valid-reset-token-123",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Reset password form with valid token",
+      "captureTime": "2026-10-06T08:17:34.033Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/07_reset_password_valid__dark.png",
+      "relativeReportPath": "before/07_reset_password_valid__dark.png"
+    },
+    {
+      "id": "07_reset_password_invalid__dark",
+      "phase": "before",
+      "name": "07_reset_password_invalid",
+      "route": "/reset-password?token=expired-invalid-token",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Reset password invalid/expired token notice",
+      "captureTime": "2026-10-06T08:17:34.514Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/07_reset_password_invalid__dark.png",
+      "relativeReportPath": "before/07_reset_password_invalid__dark.png"
+    },
+    {
+      "id": "08_invitation_valid__dark",
+      "phase": "before",
+      "name": "08_invitation_valid",
+      "route": "/join/valid-invite-token-123",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Valid course invitation preview",
+      "captureTime": "2026-10-06T08:17:35.305Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/08_invitation_valid__dark.png",
+      "relativeReportPath": "before/08_invitation_valid__dark.png"
+    },
+    {
+      "id": "08_invitation_invalid__dark",
+      "phase": "before",
+      "name": "08_invitation_invalid",
+      "route": "/join/invalid-or-revoked-token",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Invalid invitation notice",
+      "captureTime": "2026-10-06T08:17:35.782Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/08_invitation_invalid__dark.png",
+      "relativeReportPath": "before/08_invitation_invalid__dark.png"
+    },
+    {
+      "id": "09_help__dark",
+      "phase": "before",
+      "name": "09_help",
+      "route": "/help",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Help and documentation topics",
+      "captureTime": "2026-10-06T08:17:36.414Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/09_help__dark.png",
+      "relativeReportPath": "before/09_help__dark.png"
+    },
+    {
+      "id": "09_help__full__dark",
+      "phase": "before",
+      "name": "09_help__full",
+      "route": "/help",
+      "theme": "dark",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1360,
+        "deviceScaleFactor": 1
+      },
+      "state": "Help and documentation topics (full page)",
+      "captureTime": "2026-10-06T08:17:36.414Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/09_help__full__dark.png",
+      "relativeReportPath": "before/09_help__full__dark.png"
+    },
+    {
+      "id": "09_help__light",
+      "phase": "before",
+      "name": "09_help",
+      "route": "/help",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Help and documentation topics",
+      "captureTime": "2026-10-06T08:17:37.253Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/09_help__light.png",
+      "relativeReportPath": "before/09_help__light.png"
+    },
+    {
+      "id": "09_help__full__light",
+      "phase": "before",
+      "name": "09_help__full",
+      "route": "/help",
+      "theme": "light",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1360,
+        "deviceScaleFactor": 1
+      },
+      "state": "Help and documentation topics (full page)",
+      "captureTime": "2026-10-06T08:17:37.253Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/09_help__full__light.png",
+      "relativeReportPath": "before/09_help__full__light.png"
+    },
+    {
+      "id": "10_privacy__dark",
+      "phase": "before",
+      "name": "10_privacy",
+      "route": "/privacy",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Privacy policy status notice",
+      "captureTime": "2026-10-06T08:17:37.994Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/10_privacy__dark.png",
+      "relativeReportPath": "before/10_privacy__dark.png"
+    },
+    {
+      "id": "10_privacy__light",
+      "phase": "before",
+      "name": "10_privacy",
+      "route": "/privacy",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Privacy policy status notice",
+      "captureTime": "2026-10-06T08:17:38.623Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/10_privacy__light.png",
+      "relativeReportPath": "before/10_privacy__light.png"
+    },
+    {
+      "id": "11_terms__dark",
+      "phase": "before",
+      "name": "11_terms",
+      "route": "/terms",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Terms of service status notice",
+      "captureTime": "2026-10-06T08:17:39.257Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/11_terms__dark.png",
+      "relativeReportPath": "before/11_terms__dark.png"
+    },
+    {
+      "id": "11_terms__light",
+      "phase": "before",
+      "name": "11_terms",
+      "route": "/terms",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Terms of service status notice",
+      "captureTime": "2026-10-06T08:17:39.892Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/11_terms__light.png",
+      "relativeReportPath": "before/11_terms__light.png"
+    },
+    {
+      "id": "12_access_denied__dark",
+      "phase": "before",
+      "name": "12_access_denied",
+      "route": "/access-denied",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Access denied safe state page",
+      "captureTime": "2026-10-06T08:17:40.521Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/12_access_denied__dark.png",
+      "relativeReportPath": "before/12_access_denied__dark.png"
+    },
+    {
+      "id": "12_access_denied__light",
+      "phase": "before",
+      "name": "12_access_denied",
+      "route": "/access-denied",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Access denied safe state page",
+      "captureTime": "2026-10-06T08:17:41.150Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/12_access_denied__light.png",
+      "relativeReportPath": "before/12_access_denied__light.png"
+    },
+    {
+      "id": "13_not_found__dark",
+      "phase": "before",
+      "name": "13_not_found",
+      "route": "/not-found",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Not found 404 safe state page",
+      "captureTime": "2026-10-06T08:17:41.781Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/13_not_found__dark.png",
+      "relativeReportPath": "before/13_not_found__dark.png"
+    },
+    {
+      "id": "13_not_found__light",
+      "phase": "before",
+      "name": "13_not_found",
+      "route": "/not-found",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Not found 404 safe state page",
+      "captureTime": "2026-10-06T08:17:42.413Z",
+      "filePath": "/tmp/zur-public-redesign-output/before/13_not_found__light.png",
+      "relativeReportPath": "before/13_not_found__light.png"
+    }
+  ],
+  "after": [
+    {
+      "id": "01_landing__dark",
+      "phase": "after",
+      "name": "01_landing",
+      "route": "/",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default landing hero and sections",
+      "captureTime": "2026-10-06T08:37:24.760Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/01_landing__dark.png",
+      "relativeReportPath": "after/01_landing__dark.png"
+    },
+    {
+      "id": "01_landing__full__dark",
+      "phase": "after",
+      "name": "01_landing__full",
+      "route": "/",
+      "theme": "dark",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1484,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default landing hero and sections (full page)",
+      "captureTime": "2026-10-06T08:37:24.760Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/01_landing__full__dark.png",
+      "relativeReportPath": "after/01_landing__full__dark.png"
+    },
+    {
+      "id": "01_landing__light",
+      "phase": "after",
+      "name": "01_landing",
+      "route": "/",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default landing hero and sections",
+      "captureTime": "2026-10-06T08:37:26.701Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/01_landing__light.png",
+      "relativeReportPath": "after/01_landing__light.png"
+    },
+    {
+      "id": "01_landing__full__light",
+      "phase": "after",
+      "name": "01_landing__full",
+      "route": "/",
+      "theme": "light",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1484,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default landing hero and sections (full page)",
+      "captureTime": "2026-10-06T08:37:26.701Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/01_landing__full__light.png",
+      "relativeReportPath": "after/01_landing__full__light.png"
+    },
+    {
+      "id": "02_catalog__dark",
+      "phase": "after",
+      "name": "02_catalog",
+      "route": "/courses",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default catalog view",
+      "captureTime": "2026-10-06T08:37:27.545Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/02_catalog__dark.png",
+      "relativeReportPath": "after/02_catalog__dark.png"
+    },
+    {
+      "id": "02_catalog__light",
+      "phase": "after",
+      "name": "02_catalog",
+      "route": "/courses",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Default catalog view",
+      "captureTime": "2026-10-06T08:37:28.174Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/02_catalog__light.png",
+      "relativeReportPath": "after/02_catalog__light.png"
+    },
+    {
+      "id": "02_catalog_filtered__dark",
+      "phase": "after",
+      "name": "02_catalog_filtered",
+      "route": "/courses?q=python&level=beginner",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Catalog with search query and level filter active",
+      "captureTime": "2026-10-06T08:37:28.955Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/02_catalog_filtered__dark.png",
+      "relativeReportPath": "after/02_catalog_filtered__dark.png"
+    },
+    {
+      "id": "02_catalog_empty__dark",
+      "phase": "after",
+      "name": "02_catalog_empty",
+      "route": "/courses?q=nonexistentcourse12345",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Catalog empty search result state",
+      "captureTime": "2026-10-06T08:37:29.434Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/02_catalog_empty__dark.png",
+      "relativeReportPath": "after/02_catalog_empty__dark.png"
+    },
+    {
+      "id": "03_course_overview__dark",
+      "phase": "after",
+      "name": "03_course_overview",
+      "route": "/courses/course-python-foundations",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Public course overview and syllabus",
+      "captureTime": "2026-10-06T08:37:30.078Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/03_course_overview__dark.png",
+      "relativeReportPath": "after/03_course_overview__dark.png"
+    },
+    {
+      "id": "03_course_overview__full__dark",
+      "phase": "after",
+      "name": "03_course_overview__full",
+      "route": "/courses/course-python-foundations",
+      "theme": "dark",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1165,
+        "deviceScaleFactor": 1
+      },
+      "state": "Public course overview and syllabus (full page)",
+      "captureTime": "2026-10-06T08:37:30.078Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/03_course_overview__full__dark.png",
+      "relativeReportPath": "after/03_course_overview__full__dark.png"
+    },
+    {
+      "id": "03_course_overview__light",
+      "phase": "after",
+      "name": "03_course_overview",
+      "route": "/courses/course-python-foundations",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Public course overview and syllabus",
+      "captureTime": "2026-10-06T08:37:30.884Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/03_course_overview__light.png",
+      "relativeReportPath": "after/03_course_overview__light.png"
+    },
+    {
+      "id": "03_course_overview__full__light",
+      "phase": "after",
+      "name": "03_course_overview__full",
+      "route": "/courses/course-python-foundations",
+      "theme": "light",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1165,
+        "deviceScaleFactor": 1
+      },
+      "state": "Public course overview and syllabus (full page)",
+      "captureTime": "2026-10-06T08:37:30.884Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/03_course_overview__full__light.png",
+      "relativeReportPath": "after/03_course_overview__full__light.png"
+    },
+    {
+      "id": "04_sign_in__dark",
+      "phase": "after",
+      "name": "04_sign_in",
+      "route": "/sign-in",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Standard sign-in form",
+      "captureTime": "2026-10-06T08:37:31.683Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/04_sign_in__dark.png",
+      "relativeReportPath": "after/04_sign_in__dark.png"
+    },
+    {
+      "id": "04_sign_in__light",
+      "phase": "after",
+      "name": "04_sign_in",
+      "route": "/sign-in",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Standard sign-in form",
+      "captureTime": "2026-10-06T08:37:32.318Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/04_sign_in__light.png",
+      "relativeReportPath": "after/04_sign_in__light.png"
+    },
+    {
+      "id": "04_sign_in_error__dark",
+      "phase": "after",
+      "name": "04_sign_in_error",
+      "route": "/sign-in",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Sign-in validation/error state",
+      "captureTime": "2026-10-06T08:37:33.410Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/04_sign_in_error__dark.png",
+      "relativeReportPath": "after/04_sign_in_error__dark.png"
+    },
+    {
+      "id": "05_sign_up__dark",
+      "phase": "after",
+      "name": "05_sign_up",
+      "route": "/sign-up",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Sign-up registration form",
+      "captureTime": "2026-10-06T08:37:34.036Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/05_sign_up__dark.png",
+      "relativeReportPath": "after/05_sign_up__dark.png"
+    },
+    {
+      "id": "05_sign_up__light",
+      "phase": "after",
+      "name": "05_sign_up",
+      "route": "/sign-up",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Sign-up registration form",
+      "captureTime": "2026-10-06T08:37:34.671Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/05_sign_up__light.png",
+      "relativeReportPath": "after/05_sign_up__light.png"
+    },
+    {
+      "id": "05_sign_up_error__dark",
+      "phase": "after",
+      "name": "05_sign_up_error",
+      "route": "/sign-up",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Sign-up validation/error state",
+      "captureTime": "2026-10-06T08:37:35.764Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/05_sign_up_error__dark.png",
+      "relativeReportPath": "after/05_sign_up_error__dark.png"
+    },
+    {
+      "id": "06_verify_email_direct__dark",
+      "phase": "after",
+      "name": "06_verify_email_direct",
+      "route": "/verify-email",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Verify email direct visit without pending state",
+      "captureTime": "2026-10-06T08:37:36.539Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/06_verify_email_direct__dark.png",
+      "relativeReportPath": "after/06_verify_email_direct__dark.png"
+    },
+    {
+      "id": "06_verify_email_context__dark",
+      "phase": "after",
+      "name": "06_verify_email_context",
+      "route": "/verify-email?email=ada@zur.internal",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Verify email with known email address",
+      "captureTime": "2026-10-06T08:37:37.172Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/06_verify_email_context__dark.png",
+      "relativeReportPath": "after/06_verify_email_context__dark.png"
+    },
+    {
+      "id": "06_verify_email_context__light",
+      "phase": "after",
+      "name": "06_verify_email_context",
+      "route": "/verify-email?email=ada@zur.internal",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Verify email with known email address",
+      "captureTime": "2026-10-06T08:37:37.807Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/06_verify_email_context__light.png",
+      "relativeReportPath": "after/06_verify_email_context__light.png"
+    },
+    {
+      "id": "07_forgot_password__dark",
+      "phase": "after",
+      "name": "07_forgot_password",
+      "route": "/forgot-password",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Forgot password request form",
+      "captureTime": "2026-10-06T08:37:38.435Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/07_forgot_password__dark.png",
+      "relativeReportPath": "after/07_forgot_password__dark.png"
+    },
+    {
+      "id": "07_forgot_password__light",
+      "phase": "after",
+      "name": "07_forgot_password",
+      "route": "/forgot-password",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Forgot password request form",
+      "captureTime": "2026-10-06T08:37:39.068Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/07_forgot_password__light.png",
+      "relativeReportPath": "after/07_forgot_password__light.png"
+    },
+    {
+      "id": "07_forgot_password_submitted__dark",
+      "phase": "after",
+      "name": "07_forgot_password_submitted",
+      "route": "/forgot-password",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Forgot password confirmation screen",
+      "captureTime": "2026-10-06T08:37:40.251Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/07_forgot_password_submitted__dark.png",
+      "relativeReportPath": "after/07_forgot_password_submitted__dark.png"
+    },
+    {
+      "id": "07_reset_password_valid__dark",
+      "phase": "after",
+      "name": "07_reset_password_valid",
+      "route": "/reset-password?token=valid-reset-token-123",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Reset password form with valid token",
+      "captureTime": "2026-10-06T08:37:41.037Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/07_reset_password_valid__dark.png",
+      "relativeReportPath": "after/07_reset_password_valid__dark.png"
+    },
+    {
+      "id": "07_reset_password_invalid__dark",
+      "phase": "after",
+      "name": "07_reset_password_invalid",
+      "route": "/reset-password?token=expired-invalid-token",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Reset password invalid/expired token notice",
+      "captureTime": "2026-10-06T08:37:41.517Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/07_reset_password_invalid__dark.png",
+      "relativeReportPath": "after/07_reset_password_invalid__dark.png"
+    },
+    {
+      "id": "08_invitation_valid__dark",
+      "phase": "after",
+      "name": "08_invitation_valid",
+      "route": "/join/valid-invite-token-123",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Valid course invitation preview",
+      "captureTime": "2026-10-06T08:37:42.307Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/08_invitation_valid__dark.png",
+      "relativeReportPath": "after/08_invitation_valid__dark.png"
+    },
+    {
+      "id": "08_invitation_invalid__dark",
+      "phase": "after",
+      "name": "08_invitation_invalid",
+      "route": "/join/invalid-or-revoked-token",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Invalid invitation notice",
+      "captureTime": "2026-10-06T08:37:42.782Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/08_invitation_invalid__dark.png",
+      "relativeReportPath": "after/08_invitation_invalid__dark.png"
+    },
+    {
+      "id": "09_help__dark",
+      "phase": "after",
+      "name": "09_help",
+      "route": "/help",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Help and documentation topics",
+      "captureTime": "2026-10-06T08:37:43.401Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/09_help__dark.png",
+      "relativeReportPath": "after/09_help__dark.png"
+    },
+    {
+      "id": "09_help__full__dark",
+      "phase": "after",
+      "name": "09_help__full",
+      "route": "/help",
+      "theme": "dark",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1237,
+        "deviceScaleFactor": 1
+      },
+      "state": "Help and documentation topics (full page)",
+      "captureTime": "2026-10-06T08:37:43.401Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/09_help__full__dark.png",
+      "relativeReportPath": "after/09_help__full__dark.png"
+    },
+    {
+      "id": "09_help__light",
+      "phase": "after",
+      "name": "09_help",
+      "route": "/help",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Help and documentation topics",
+      "captureTime": "2026-10-06T08:37:44.209Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/09_help__light.png",
+      "relativeReportPath": "after/09_help__light.png"
+    },
+    {
+      "id": "09_help__full__light",
+      "phase": "after",
+      "name": "09_help__full",
+      "route": "/help",
+      "theme": "light",
+      "isFullPage": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1237,
+        "deviceScaleFactor": 1
+      },
+      "state": "Help and documentation topics (full page)",
+      "captureTime": "2026-10-06T08:37:44.209Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/09_help__full__light.png",
+      "relativeReportPath": "after/09_help__full__light.png"
+    },
+    {
+      "id": "10_privacy__dark",
+      "phase": "after",
+      "name": "10_privacy",
+      "route": "/privacy",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Privacy policy status notice",
+      "captureTime": "2026-10-06T08:37:45.047Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/10_privacy__dark.png",
+      "relativeReportPath": "after/10_privacy__dark.png"
+    },
+    {
+      "id": "10_privacy__light",
+      "phase": "after",
+      "name": "10_privacy",
+      "route": "/privacy",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Privacy policy status notice",
+      "captureTime": "2026-10-06T08:37:45.665Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/10_privacy__light.png",
+      "relativeReportPath": "after/10_privacy__light.png"
+    },
+    {
+      "id": "11_terms__dark",
+      "phase": "after",
+      "name": "11_terms",
+      "route": "/terms",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Terms of service status notice",
+      "captureTime": "2026-10-06T08:37:46.307Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/11_terms__dark.png",
+      "relativeReportPath": "after/11_terms__dark.png"
+    },
+    {
+      "id": "11_terms__light",
+      "phase": "after",
+      "name": "11_terms",
+      "route": "/terms",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Terms of service status notice",
+      "captureTime": "2026-10-06T08:37:46.936Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/11_terms__light.png",
+      "relativeReportPath": "after/11_terms__light.png"
+    },
+    {
+      "id": "12_access_denied__dark",
+      "phase": "after",
+      "name": "12_access_denied",
+      "route": "/access-denied",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Access denied safe state page",
+      "captureTime": "2026-10-06T08:37:47.571Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/12_access_denied__dark.png",
+      "relativeReportPath": "after/12_access_denied__dark.png"
+    },
+    {
+      "id": "12_access_denied__light",
+      "phase": "after",
+      "name": "12_access_denied",
+      "route": "/access-denied",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Access denied safe state page",
+      "captureTime": "2026-10-06T08:37:48.196Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/12_access_denied__light.png",
+      "relativeReportPath": "after/12_access_denied__light.png"
+    },
+    {
+      "id": "13_not_found__dark",
+      "phase": "after",
+      "name": "13_not_found",
+      "route": "/not-found",
+      "theme": "dark",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Not found 404 safe state page",
+      "captureTime": "2026-10-06T08:37:48.813Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/13_not_found__dark.png",
+      "relativeReportPath": "after/13_not_found__dark.png"
+    },
+    {
+      "id": "13_not_found__light",
+      "phase": "after",
+      "name": "13_not_found",
+      "route": "/not-found",
+      "theme": "light",
+      "isFullPage": false,
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "deviceScaleFactor": 1
+      },
+      "state": "Not found 404 safe state page",
+      "captureTime": "2026-10-06T08:37:49.436Z",
+      "filePath": "/tmp/zur-public-redesign-output/after/13_not_found__light.png",
+      "relativeReportPath": "after/13_not_found__light.png"
+    }
+  ]
+}

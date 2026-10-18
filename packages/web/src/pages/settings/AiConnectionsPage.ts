@@ -648,7 +648,7 @@ function renderTokenRevealModal(revealed: RevealedTokenData): string {
           </div>
         </div>
 
-        <footer class="dialog-footer flex justify-between items-center pt-4 border-t border-subtle">
+        <footer class="dialog-footer flex justify-between items-center pt-3 border-t border-subtle">
           <span class="text-xs text-muted">If lost, token must be replaced.</span>
           <a href="/settings/ai-connections/${revealed.id}/setup" class="btn btn-primary" id="btn-view-setup">
             I've saved it — view setup

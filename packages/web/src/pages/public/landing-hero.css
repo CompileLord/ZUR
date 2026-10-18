@@ -120,7 +120,7 @@
   background: var(--bg-surface);
   color: var(--text-secondary);
   font-size: 13px;
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 .zur-hero .hero-pill:hover {
   background: var(--bg-hover);
@@ -165,7 +165,10 @@
   font-weight: 500;
 }
 
-/* Hero Right Side: Visible Example Workspace Illustration */
+.zur-hero .hero-workspace-column {
+  min-width: 0;
+  max-width: 100%;
+}
 .zur-hero .hero-workspace-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
@@ -173,11 +176,14 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   position: relative;
+  max-width: 100%;
 }
 .zur-hero .hero-workspace-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 10px 16px;
   background: var(--bg-raised);
   border-bottom: 1px solid var(--border-subtle);
@@ -187,12 +193,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 .zur-hero .hero-tab-pill {
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-primary);
   font-weight: 500;
+  white-space: nowrap;
 }
 .zur-hero .hero-save-badge {
   font-size: 11px;
@@ -204,18 +212,26 @@
 .zur-hero .hero-workspace-tools {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 .zur-hero .hero-exec-badge {
   padding: 3px 8px;
   border-radius: var(--radius-sm);
   font-size: 11px;
   font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .zur-hero .hero-exec-run {
   background: var(--bg-hover);
   color: var(--text-secondary);
   border: 1px solid var(--border-control);
+}
+.zur-hero .hero-exec-test {
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
 }
 .zur-hero .hero-exec-submit {
   background: var(--accent);

@@ -1,0 +1,23 @@
+{
+  "checks": [
+    {
+      "check": "L2 pending restore acknowledgment respects actual native Back destination",
+      "status": "passed",
+      "observed": {
+        "controlledDelayedResponse": true,
+        "realSPALinks": true,
+        "nativeBack": true,
+        "acknowledgmentDoesNotHijackRoute": true,
+        "realRestoredDraftDatabaseAck": true,
+        "seededSnapshot": true,
+        "gradingVerified": false
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

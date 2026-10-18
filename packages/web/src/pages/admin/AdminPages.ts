@@ -50,7 +50,7 @@ export function renderActionDialog(opts: ActionDialogOptions): string {
             ${opts.extraContent || ''}
             ${formField('reason', 'Reason')}
             ${formField('currentPassword', 'Confirm administrator password', 'password')}
-            <div class="dialog-footer mt-4 pt-3 border-t border-subtle flex justify-end gap-2">
+            <div class="dialog-footer flex justify-end gap-2">
               <button type="button" class="btn btn-secondary" data-close-dialog>Cancel</button>
               <button class="btn btn-${opts.buttonVariant || (isDanger ? 'danger' : 'primary')}" type="submit">${escapeAdmin(opts.buttonLabel)}</button>
             </div>
@@ -95,7 +95,7 @@ const table = (headers: (string | TableCol)[], rows: string[], empty: string) =>
     const alignClass = typeof h === 'object' && h.align === 'right' ? ' class="text-right"' : '';
     return `<th scope="col"${alignClass}>${escapeAdmin(label)}</th>`;
   }).join('');
-  return `<div class="data-table-wrapper"><table class="data-table"><thead><tr>${headerCells}</tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td colspan="${headers.length}" class="empty-state">${escapeAdmin(empty)}</td></tr>`}</tbody></table></div>`;
+  return `<div class="data-table-wrapper"><table class="data-table admin-table"><thead><tr>${headerCells}</tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td colspan="${headers.length}" class="empty-state">${escapeAdmin(empty)}</td></tr>`}</tbody></table></div>`;
 };
 
 const pill = (text: string, kind = 'info') =>
@@ -125,12 +125,12 @@ function formatAuditAction(action: string): string {
   return humanizeEnum(action);
 }
 
-export function renderAdminPage(
+export function renderAdminPageContent(
   path: string,
   data: any,
   error?: string,
-  adminUser = { displayName: 'Administrator', email: '' }
-): string {
+  adminUser?: { displayName: string; email: string }
+): { title: string; content: string } {
   const route = path.split('?')[0];
   const title =
     route === '/admin'
@@ -599,13 +599,13 @@ export function renderAdminPage(
       const rows = (data.items || []).map(
         (c: any) => `
         <tr>
-          <td><a href="/admin/courses/${encodeURIComponent(c.id)}" class="table-link font-medium">${escapeAdmin(c.title)}</a></td>
-          <td><span class="text-secondary">${escapeAdmin(c.owner_name)}</span></td>
-          <td>${pill(sentenceCase(c.publication_status), c.publication_status === 'published' ? 'success' : 'neutral')}</td>
-          <td>${pill(sentenceCase(c.visibility), 'neutral')}</td>
-          <td class="text-right"><span class="font-mono text-secondary">${escapeAdmin(c.latest_version ?? '—')}</span></td>
-          <td>${c.is_suspended ? pill('Suspended', 'danger') : pill('Available', 'success')}</td>
-          <td class="text-right">${c.open_reports > 0 ? `<a href="/admin/reports" class="status-badge warning" title="${c.open_reports} open reports">${c.open_reports}</a>` : `<span class="text-muted">0</span>`}</td>
+          <td class="course-title-cell"><a href="/admin/courses/${encodeURIComponent(c.id)}" class="table-link font-medium">${escapeAdmin(c.title)}</a></td>
+          <td class="course-owner-cell"><span class="text-secondary">${escapeAdmin(c.owner_name)}</span></td>
+          <td class="admin-nowrap">${pill(sentenceCase(c.publication_status), c.publication_status === 'published' ? 'success' : 'neutral')}</td>
+          <td class="admin-nowrap">${pill(sentenceCase(c.visibility), 'neutral')}</td>
+          <td class="text-right admin-nowrap"><span class="font-mono text-secondary">${escapeAdmin(c.latest_version ?? '—')}</span></td>
+          <td class="admin-nowrap">${c.is_suspended ? pill('Suspended', 'danger') : pill('Available', 'success')}</td>
+          <td class="text-right admin-nowrap">${c.open_reports > 0 ? `<a href="/admin/reports" class="status-badge warning" title="${c.open_reports} open reports">${c.open_reports}</a>` : `<span class="text-muted">0</span>`}</td>
         </tr>
       `
       );
@@ -786,7 +786,7 @@ export function renderAdminPage(
               <button type="button" class="dialog-close-btn" data-close-dialog aria-label="Close dialog">${renderIcon('x', { size: 16 })}</button>
             </div>
             <div class="dialog-body">
-              <div class="admin-action-effect-card warning mb-4">
+              <div class="admin-action-effect-card warning mb-1">
                 <span class="effect-label">Notice on progression waivers:</span>
                 <p class="effect-description text-secondary text-xs mt-1 leading-relaxed">
                   Only active enrollments pinned to the selected immutable version can be affected. This satisfies progress without awarding a passing verdict. The affected scope is rechecked server-side before commit.
@@ -802,12 +802,12 @@ export function renderAdminPage(
                   </select>
                 </label>
                 <input type="hidden" name="reviewedAffectedCount" value="0">
-                <p class="waiver-review-count text-secondary text-sm my-3 p-2 bg-canvas border border-subtle rounded" role="status">
+                <p class="waiver-review-count text-secondary text-xs my-1 p-2 bg-canvas border border-subtle rounded" role="status">
                   Choose a step to review affected enrollments.
                 </p>
                 ${formField('reason', 'Reason')}
                 ${formField('currentPassword', 'Confirm administrator password', 'password')}
-                <div class="dialog-footer mt-4 pt-3 border-t border-subtle flex justify-end gap-2">
+                <div class="dialog-footer flex justify-end gap-2">
                   <button type="button" class="btn btn-secondary" data-close-dialog>Cancel</button>
                   <button class="btn btn-primary" type="submit" disabled>Review and apply waiver</button>
                 </div>
@@ -838,13 +838,19 @@ export function renderAdminPage(
       const rows = (data.items || []).map(
         (c: any) => `
         <tr>
-          <td><strong>${escapeAdmin(c.name)}</strong></td>
-          <td class="text-right"><span class="font-mono text-secondary">${c.usageCount}</span></td>
-          <td>
-            <button type="button" class="btn btn-secondary btn-compact" data-edit-category-id="${escapeAdmin(c.id)}" data-edit-category-name="${escapeAdmin(c.name)}" data-edit-category-usage="${c.usageCount}">
-              ${renderIcon('edit', { size: 14 })}
-              <span>Edit</span>
-            </button>
+          <td class="category-name-cell"><strong>${escapeAdmin(c.name)}</strong></td>
+          <td class="text-right admin-nowrap"><span class="font-mono text-secondary">${c.usageCount}</span></td>
+          <td class="admin-actions-cell admin-nowrap">
+            <div class="flex items-center gap-2">
+              <button type="button" class="btn btn-secondary btn-compact" data-edit-category-id="${escapeAdmin(c.id)}" data-edit-category-name="${escapeAdmin(c.name)}" data-edit-category-usage="${c.usageCount}">
+                ${renderIcon('edit', { size: 14 })}
+                <span>Edit</span>
+              </button>
+              <button type="button" class="btn btn-danger btn-compact" data-remove-category-id="${escapeAdmin(c.id)}" data-remove-category-name="${escapeAdmin(c.name)}" data-remove-category-usage="${c.usageCount}">
+                ${renderIcon('trash', { size: 14 })}
+                <span>Remove</span>
+              </button>
+            </div>
           </td>
         </tr>
       `
@@ -892,32 +898,48 @@ export function renderAdminPage(
                 </label>
                 ${formField('reason', 'Reason')}
                 ${formField('currentPassword', 'Confirm administrator password', 'password')}
-                <div class="flex justify-end gap-2 mt-4">
+                <div class="dialog-footer flex justify-end gap-2">
                   <button type="button" class="btn btn-secondary" data-close-dialog>Cancel</button>
                   <button class="btn btn-primary" type="submit">Save category</button>
                 </div>
                 <p class="form-error hidden" role="alert"></p>
               </form>
+            </div>
+          </div>
+        </dialog>
 
-              <hr class="dialog-divider my-4">
-
-              <div class="danger-zone-compact">
-                <h4 class="text-sm font-semibold text-danger mb-1">Remove category</h4>
-                <p id="edit-category-usage-warning" class="text-xs text-muted mb-2"></p>
-                <form id="delete-category-form" class="admin-mutation-form" data-admin-mutation action="/api/admin/categories" method="delete">
-                  <div id="replacement-category-group" class="form-group hidden">
-                    <label for="edit-category-replacement-id" class="form-label">Replacement category ID</label>
-                    <input id="edit-category-replacement-id" class="form-input" name="replacementId" placeholder="ID of category to reassign courses to">
-                  </div>
-                  ${formField('reason', 'Reason')}
-                  ${formField('currentPassword', 'Confirm administrator password', 'password')}
-                  <div class="flex justify-end gap-2 mt-4">
-                    <button type="button" class="btn btn-secondary" data-close-dialog>Cancel</button>
-                    <button class="btn btn-danger" type="submit">Remove category</button>
-                  </div>
-                  <p class="form-error hidden" role="alert"></p>
-                </form>
+        <!-- Accessible Dialog: Remove Category -->
+        <dialog id="remove-category-dialog" class="admin-modal-dialog" aria-labelledby="remove-category-title" data-category-items="${escapeAdmin(JSON.stringify((data.items || []).map((c: any) => ({ id: c.id, name: c.name, usageCount: c.usageCount }))))}">
+          <div class="dialog-content">
+            <div class="dialog-header">
+              <h3 id="remove-category-title" class="dialog-title">Remove category</h3>
+              <button type="button" class="dialog-close-btn" data-close-dialog aria-label="Close dialog">${renderIcon('x', { size: 16 })}</button>
+            </div>
+            <div class="dialog-body">
+              <div class="admin-mutation-summary admin-action-effect-card danger mb-3 p-3 bg-surface border border-subtle rounded text-xs space-y-1">
+                <div class="flex justify-between"><span class="text-muted">Target category:</span> <span id="remove-category-target-name" class="font-mono text-primary font-medium">—</span></div>
+                <div class="flex justify-between"><span class="text-muted">Course usage:</span> <span id="remove-category-target-usage" class="status-badge info">0</span></div>
+                <div id="remove-category-consequence-warning" class="mt-2 pt-2 border-t border-subtle text-secondary leading-relaxed">Select an eligible replacement category before removal.</div>
               </div>
+
+              <p id="edit-category-usage-warning" class="text-xs text-muted mb-2 hidden"></p>
+
+              <form id="delete-category-form" class="admin-mutation-form" data-admin-mutation action="/api/admin/categories" method="delete">
+                <div id="replacement-category-group" class="form-group hidden">
+                  <label for="edit-category-replacement-select" class="form-label">Replacement category</label>
+                  <select id="edit-category-replacement-select" class="form-select form-input" name="replacementId">
+                    <option value="">Select a replacement category…</option>
+                  </select>
+                  <span class="form-help text-xs text-muted mt-1 block">Courses currently assigned to this category will be reassigned.</span>
+                </div>
+                ${formField('reason', 'Reason')}
+                ${formField('currentPassword', 'Confirm administrator password', 'password')}
+                <div class="dialog-footer flex justify-end gap-2">
+                  <button type="button" class="btn btn-secondary" data-close-dialog>Cancel</button>
+                  <button class="btn btn-danger" type="submit">Remove category</button>
+                </div>
+                <p class="form-error hidden" role="alert"></p>
+              </form>
             </div>
           </div>
         </dialog>
@@ -1241,9 +1263,9 @@ export function renderAdminPage(
               ${escapeAdmin(formatAuditAction(e.action))}
             </a>
           </td>
-          <td><span class="text-secondary">${escapeAdmin(e.targetType)} · <code class="font-mono text-xs">${escapeAdmin(e.targetId)}</code></span></td>
-          <td><span class="text-secondary">${escapeAdmin(e.reason || '—')}</span></td>
-          <td><code class="font-mono text-xs text-muted">${escapeAdmin(e.correlationId || '—')}</code></td>
+          <td class="audit-target-cell"><span class="text-secondary">${escapeAdmin(e.targetType)} · <code class="font-mono text-xs">${escapeAdmin(e.targetId)}</code></span></td>
+          <td class="audit-reason-cell"><span class="text-secondary">${escapeAdmin(e.reason || '—')}</span></td>
+          <td class="admin-nowrap"><code class="font-mono text-xs text-muted">${escapeAdmin(e.correlationId || '—')}</code></td>
         </tr>
       `
       );
@@ -1303,10 +1325,23 @@ export function renderAdminPage(
     }
   }
 
+  return {
+    title,
+    content: `<div class="admin-page-content">${err}${content}</div>`,
+  };
+}
+
+export function renderAdminPage(
+  path: string,
+  data: any,
+  error?: string,
+  adminUser = { displayName: 'Administrator', email: '' }
+): string {
+  const { title, content } = renderAdminPageContent(path, data, error, adminUser);
   return renderAdminShell({
     activePath: path.split('?')[0],
     adminUser,
     headerTitle: title,
-    content: `<div class="admin-page-content">${err}${content}</div>`,
+    content,
   });
 }

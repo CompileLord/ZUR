@@ -1,0 +1,164 @@
+{
+  "runId": "author-real-user-1791199948377",
+  "courseId": "course-python-foundations",
+  "actions": [
+    {
+      "feature": "Locate seeded published course in author list",
+      "status": "PASS",
+      "details": "Navigated to the author course list and selected Python foundations by its visible course link (course-python-foundations).",
+      "at": "2026-10-05T11:32:31.953Z"
+    },
+    {
+      "feature": "Roster search, enrollment state, and revoke/reinstate",
+      "status": "PASS",
+      "details": "Roster displayed an Ada row after filter ?search=Ada; cancel left access intact, confirmed revoke then reinstate returned it to Active. Starting roster: .internal\n\tv2\t\n1 / 7 steps\n14%\n\tOct 5, 2026, 04:32 PM\tActive\t\nView detail\n⋮\n\n\nAlan Turing\na***n@zur.internal\n\tv2\t\n1 / 7 steps\n14%\n\tNo activity yet\tActive\t\nView detail\n⋮\n1–3 of 3 students\nPrevious\nNext.",
+      "at": "2026-10-05T11:32:35.001Z"
+    },
+    {
+      "feature": "Shareable invitation, email form validation, and learner join page",
+      "status": "PASS",
+      "details": "Email invite has required recipient=true, empty submit browser-blocked=true; generated one-use link, Invitations tab shows 1 row(s), and Ada signed in, opened and submitted the join page. Result: yntax\nNot completed.\nEchoing Numbers\nNot completed.\nModule 2: Conditions\nLesson 1: Branching\nValid conditional expressions\nNot completed.\nCheck Even or Odd\nNot completed.\nModule 3: Loops\nLesson 1: For and While\nSum of Numbers\nNot completed..",
+      "at": "2026-10-05T11:32:38.212Z"
+    },
+    {
+      "feature": "Course analytics page and visible filters",
+      "status": "PASS",
+      "details": "ve enrollments\n\nExercise insights — Version 2 (latest release)\n\nAssessed exercises with activity in the last 7 days.\n\nExercise / step\tParticipants\tPass rate\tMedian attempts to pass\tLast assessed activity\tAnnotations\n\nQuiz\nNaming and Values\nVariable assignment syntax\n\t0\tNo assessed attempts yet\t—\tNo assessed attempts yet\t\n—\n\n\nPython\nNaming and Values\nEchoing Numbers\n\t0\tNo assessed attempts yet\t—\tNo assessed attempts yet\t\n• 1 admin waiver\n\n\nQuiz\nBranching\nValid conditional expressions\n\t0\tNo assess",
+      "at": "2026-10-05T11:32:39.827Z"
+    },
+    {
+      "feature": "Selected-course token scope picker",
+      "status": "FAIL",
+      "details": "Picker omitted after UI selected and submitted Public visibility. Public catalog response keys: error; list: empty; author-course visibility/status: public/published.",
+      "at": "2026-10-05T11:32:41.671Z"
+    },
+    {
+      "feature": "AI token selected-course scope, reveal/hide, setup and revoke",
+      "status": "PASS",
+      "details": "Created token; selected-course scope picker was available=false. Initially masked=true; reveal/hide toggle worked=true; opened setup guide and revoked. Token value not recorded.",
+      "at": "2026-10-05T11:32:43.598Z"
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "support-01-course-list_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-01-course-list_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:31.507Z"
+    },
+    {
+      "name": "support-01-course-list_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-01-course-list_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:31.799Z"
+    },
+    {
+      "name": "support-02-roster_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-02-roster_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:32.574Z"
+    },
+    {
+      "name": "support-02-roster_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-02-roster_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:32.892Z"
+    },
+    {
+      "name": "support-02-learner-detail_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-02-learner-detail_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:33.728Z"
+    },
+    {
+      "name": "support-02-learner-detail_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-02-learner-detail_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:34.074Z"
+    },
+    {
+      "name": "support-03-shareable-link_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-03-shareable-link_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:36.102Z"
+    },
+    {
+      "name": "support-03-shareable-link_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-03-shareable-link_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:36.445Z"
+    },
+    {
+      "name": "support-04-join-invitation_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-04-join-invitation_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:37.680Z"
+    },
+    {
+      "name": "support-04-join-invitation_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-04-join-invitation_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:37.976Z"
+    },
+    {
+      "name": "support-05-analytics_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-05-analytics_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:39.314Z"
+    },
+    {
+      "name": "support-05-analytics_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-05-analytics_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:39.669Z"
+    },
+    {
+      "name": "support-06-token-scope-form_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-06-token-scope-form_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:41.067Z"
+    },
+    {
+      "name": "support-06-token-scope-form_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-06-token-scope-form_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:41.421Z"
+    },
+    {
+      "name": "support-06-token-reveal_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-06-token-reveal_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:42.422Z"
+    },
+    {
+      "name": "support-06-token-reveal_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-05/author/support-06-token-reveal_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-05T11:32:42.777Z"
+    }
+  ],
+  "browserErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "network": []
+}

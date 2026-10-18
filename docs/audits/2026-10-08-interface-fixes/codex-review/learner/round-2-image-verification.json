@@ -1,0 +1,423 @@
+{
+  "role": "learner",
+  "count": 52,
+  "records": [
+    {
+      "index": 1,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-all-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "50d7e6e757684906cc2bef283a9fcbcf864dc1d52e7403a724d21e9674590f22",
+      "decoded": true
+    },
+    {
+      "index": 2,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-all-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4165178c5af53341512e7722dab10eab4ac1dbc7a3ab64830862a9b4dc05a1e8",
+      "decoded": true
+    },
+    {
+      "index": 3,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-completed-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "36a13ecd68b48b674db4eabcb831aad3ea2deae97fa0f6440140be177c552321",
+      "decoded": true
+    },
+    {
+      "index": 4,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-completed-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4e59a2025f6955e7af8a723b233dfedc455623ba8a76a9d106412395da0a548d",
+      "decoded": true
+    },
+    {
+      "index": 5,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-empty-completed-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "c400cae79ce3f271fe06bcc49033af79ec90d7c5a6e244f301df0b8414df3c6e",
+      "decoded": true
+    },
+    {
+      "index": 6,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-empty-completed-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4e90de8438221f5acfe997b032eb1bc1a2733e002a87fc33f5d92e036e1a76d1",
+      "decoded": true
+    },
+    {
+      "index": 7,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-in-progress-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4f504a200efc15172de6692736470e528bd4d39bdf7d843a461fa6e6f35b62de",
+      "decoded": true
+    },
+    {
+      "index": 8,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-in-progress-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "fe8e09fc080885b1e693fb1144df88a6cf2bb779bd056c04b49561b66def9efd",
+      "decoded": true
+    },
+    {
+      "index": 9,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempt-restore-dialog-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1c4958fbfd2794fb66410e45fa0eb33e5c7d3cc835b49089c2d2cc2056452e5a",
+      "decoded": true
+    },
+    {
+      "index": 10,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempt-restore-dialog-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "057198f7f6b5b9fb9c089643ad321a34b76f83008186a4028b8b4007ddbe8036",
+      "decoded": true
+    },
+    {
+      "index": 11,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempts-empty-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "ef22e6b3f12081b551779d7b5bbaa11e24fc98d14169c0cbf25f48f5ca946b80",
+      "decoded": true
+    },
+    {
+      "index": 12,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempts-empty-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8509035092df08aa912911270dc5fc012f5beb207634f079a31786d7163d22da",
+      "decoded": true
+    },
+    {
+      "index": 13,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempts-list-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "801237af0f0a78d611f426d93ff57dd0cbb1e2ea8bda9f0d1596a5b310fc426d",
+      "decoded": true
+    },
+    {
+      "index": 14,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempts-list-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cf5f850eb760c5ff829f5518fccf600f1995470228c49f8dd14261ae13c6cbe2",
+      "decoded": true
+    },
+    {
+      "index": 15,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-l4-attempt-detail-normal-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "d200c505330930f851e4dcecabd388d4a45dd79acec00ddc71c9142a0e527e78",
+      "decoded": true
+    },
+    {
+      "index": 16,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-l4-attempt-detail-normal-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e4f5bc073de79b4db4f7c38b482bfc8c5d2e04061cee60f80a2dbad32809e7f0",
+      "decoded": true
+    },
+    {
+      "index": 17,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-collapsed-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e407a796e1249618b915c60c0190b38da0b475e1dd4652e637feb957f3c55897",
+      "decoded": true
+    },
+    {
+      "index": 18,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-collapsed-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "2e768e18114d7a6b997e0d6a9dcfbc4ee8787d87dd33ee931abd45d1925038d8",
+      "decoded": true
+    },
+    {
+      "index": 19,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-expanded-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "615e9562adc9903669adf14c8cc90354e0893c83da11f0ba13993f0a71e09da6",
+      "decoded": true
+    },
+    {
+      "index": 20,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-expanded-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "98ae9e1c0f5f582f1d8728b0fe1b17cf3c02446ebb5734431240a383707bc760",
+      "decoded": true
+    },
+    {
+      "index": 21,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-persisted-reload-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "e08d0efc48edd162f79a97788caab209f25a966caacbb3da11631fb674d30105",
+      "decoded": true
+    },
+    {
+      "index": 22,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-persisted-reload-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "de77b842c5fc27eed7639c69954f9d8dd71c039bf330117699a5806b19bc342f",
+      "decoded": true
+    },
+    {
+      "index": 23,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-persisted-spa-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1f3d8aa1b897fd0250508afa9c603ed8b55ff6ba76347902eb7c74db434cb467",
+      "decoded": true
+    },
+    {
+      "index": 24,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-persisted-spa-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b5ead422b2a4546c5b186a752a0d8d7c8b7f6387df684f9575ee7c23ba284eb6",
+      "decoded": true
+    },
+    {
+      "index": 25,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-long-code-1100-dark.png",
+      "width": 1100,
+      "height": 900,
+      "sha256": "10fd31d3814bce3ab90df87c32fa19b4aa1f7b07d41c66e4d4b460bab4100127",
+      "decoded": true
+    },
+    {
+      "index": 26,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-long-code-1100-light.png",
+      "width": 1100,
+      "height": 900,
+      "sha256": "39d08f3e18f661679e39d19cc2389b8ea75241a0d11573a059f599d0fbe6f032",
+      "decoded": true
+    },
+    {
+      "index": 27,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-long-code-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "b04e45a3ff235804c830f423efd3af038a707593909305f45e804318db1f2147",
+      "decoded": true
+    },
+    {
+      "index": 28,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-long-code-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "4d54c79baf387e704db5fbcea4ca76df061fd9d7d6ed8f5337b56c664e0e1b90",
+      "decoded": true
+    },
+    {
+      "index": 29,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-narrow-1100-dark.png",
+      "width": 1100,
+      "height": 900,
+      "sha256": "75e34c0ef3c910fa5a997d125c7e061ecf60870001e7f8b06d2ce4ab8a38deeb",
+      "decoded": true
+    },
+    {
+      "index": 30,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-narrow-1100-light.png",
+      "width": 1100,
+      "height": 900,
+      "sha256": "85d18837e06bd3f84b85de3405aa906f7e3e765f90e9277feb6417e22243b18f",
+      "decoded": true
+    },
+    {
+      "index": 31,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l5-report-modal-contained-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "47c9397ac12fd454d10ab7215e4720ec84b12595a85d5c4cab270ba64ef33af0",
+      "decoded": true
+    },
+    {
+      "index": 32,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l5-report-modal-contained-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "50d3f4b6a2bb5e488abff4920a88328ba1a5e315559f511e0c07b387a2bc5bdc",
+      "decoded": true
+    },
+    {
+      "index": 33,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l5-report-modal-error-retained-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "571f31766ea0165ba2157a1ee8884abc14cd26c01853c674dc201bf47a305d91",
+      "decoded": true
+    },
+    {
+      "index": 34,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l5-report-modal-error-retained-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "40a97c43665f4c248057e5b94f4021e18954e1165e537e6fcc1c84ffbb90fe1f",
+      "decoded": true
+    },
+    {
+      "index": 35,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-back-cancelled-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "822416e829f5a8470a17173e2a000379b98e4d8ba6fc712ebc09dc6022f97570",
+      "decoded": true
+    },
+    {
+      "index": 36,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-back-cancelled-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5fb965062b75479c05c80131a0534e373fffee47e495e9df5f25834d7177e191",
+      "decoded": true
+    },
+    {
+      "index": 37,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-dirty-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "822416e829f5a8470a17173e2a000379b98e4d8ba6fc712ebc09dc6022f97570",
+      "decoded": true
+    },
+    {
+      "index": 38,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-dirty-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "5fb965062b75479c05c80131a0534e373fffee47e495e9df5f25834d7177e191",
+      "decoded": true
+    },
+    {
+      "index": 39,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-save-failure-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "409a4e74d356cdad363e705d3be24624c27ac54fc860382efe1714f32b88034e",
+      "decoded": true
+    },
+    {
+      "index": 40,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-save-failure-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f7d0ac3496cf314b7230f3e8e4377fac964c9768533f41f93c379e922cf2b8fa",
+      "decoded": true
+    },
+    {
+      "index": 41,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-denial-anonymous-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "1f36dcb2f96528c9e17d44246ae0eacbe8f867759953eca0a6510988d4b2f585",
+      "decoded": true
+    },
+    {
+      "index": 42,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-denial-anonymous-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "df54c90f9ce1218411c4b77e2ee11882c1b4ea1b977d729c49522334da66c89e",
+      "decoded": true
+    },
+    {
+      "index": 43,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-denial-auth-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "9d49aaa38a54a4299bb471c411804a269939c1261d64513fa152e0acd9016240",
+      "decoded": true
+    },
+    {
+      "index": 44,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-denial-auth-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "f6da845d89b6b5218b13a56db92ceef987c5d41fac34a033774a3b86b9f17346",
+      "decoded": true
+    },
+    {
+      "index": 45,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-service-error-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "0402ec73045f41c7a770ac6b5ba72f4a0acddc0716973fe90807878a18c64424",
+      "decoded": true
+    },
+    {
+      "index": 46,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-service-error-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "cf1cc79411a16790fa5686317a71b270e6b7fd379e0a2f2f2a4d90404e7426c8",
+      "decoded": true
+    },
+    {
+      "index": 47,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-run-plain-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "119c77d214e67507fd6b3df8129444aef0cca564c07b57c9a0f52d509aa0b432",
+      "decoded": true
+    },
+    {
+      "index": 48,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-run-plain-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "8b9c02a2e196c7144e6f23739cd918895dbaec6cd0e8380d7a6ffc6dffa78177",
+      "decoded": true
+    },
+    {
+      "index": 49,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-submit-graded-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "16f2043a67bcc61097c31c9c67cc62c9e725dbd0976956ef8bf5b4984fea4c69",
+      "decoded": true
+    },
+    {
+      "index": 50,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-submit-graded-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "18a33469cb6011cf4739e1a39b020207de9b11f5cb2ecfc585a52c8832a11d0c",
+      "decoded": true
+    },
+    {
+      "index": 51,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-test-samples-dark.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "6677b06ab8199a8172c3072dac965411fd5232bf989df9c4b967f5d2e83241da",
+      "decoded": true
+    },
+    {
+      "index": 52,
+      "path": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-test-samples-light.png",
+      "width": 1440,
+      "height": 900,
+      "sha256": "de5dc1f0562a902c800d431ebf01b0dd0e9950f53a62a67f464cf6050e74a29f",
+      "decoded": true
+    }
+  ],
+  "method": "Full PNG decode, observed image dimensions and SHA-256; visual inspection recorded separately"
+}

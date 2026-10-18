@@ -1,0 +1,23 @@
+{
+  "comparisons": [
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/comparisons/author/python-preview-dark-before-after.png",
+      "type": "deterministic comparison, not product capture",
+      "sources": [
+        {
+          "label": "before",
+          "path": "screenshots/interface-review-2026-10-06/author/author-p26-student-preview-python-dark.png",
+          "sha256": "89bec8b5f151ab2a278e519dcc7f9f2c21941921dccaf40343b7ad32705a4c11"
+        },
+        {
+          "label": "after",
+          "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-python-dark.png",
+          "sha256": "2eb0000a7e6cb2b4087fc44120222e332b8b8ed4d914ec0ff0b57c146e0946b6"
+        }
+      ],
+      "sourceViewport": "1440x900",
+      "status": "author batch not yet approved",
+      "limits": "Same route/theme/viewport. Compare layout; no grading or execution certified."
+    }
+  ]
+}

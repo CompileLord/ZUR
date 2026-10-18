@@ -1,0 +1,218 @@
+[
+  {
+    "filename": "01-learner-dashboard.png",
+    "route": "/learn",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "learner home dashboard",
+    "timestamp": "2026-10-06T15:43:09.624Z"
+  },
+  {
+    "filename": "02-my-courses.png",
+    "route": "/learn/courses",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "my courses list",
+    "timestamp": "2026-10-06T15:43:10.060Z"
+  },
+  {
+    "filename": "03-course-outline.png",
+    "route": "/learn/enr-ada",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "course outline & progress",
+    "timestamp": "2026-10-06T15:43:10.501Z"
+  },
+  {
+    "filename": "03-course-outline__full.png",
+    "route": "/learn/enr-ada",
+    "width": 1440,
+    "height": 1631,
+    "theme": "dark",
+    "state": "course outline & progress (full page)",
+    "timestamp": "2026-10-06T15:43:10.666Z"
+  },
+  {
+    "filename": "04-step-theory.png",
+    "route": "/learn/enr-ada/steps/step-1-theory",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "theory lesson step",
+    "timestamp": "2026-10-06T15:43:11.166Z"
+  },
+  {
+    "filename": "05-step-video.png",
+    "route": "/learn/enr-ada/steps/step-2-video",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "video lesson step",
+    "timestamp": "2026-10-06T15:43:11.598Z"
+  },
+  {
+    "filename": "06-step-quiz.png",
+    "route": "/learn/enr-ada/steps/step-3-quiz-single",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "single-choice quiz step",
+    "timestamp": "2026-10-06T15:43:12.029Z"
+  },
+  {
+    "filename": "07-python-workspace-editor.png",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "python coding split view",
+    "timestamp": "2026-10-06T15:43:12.484Z"
+  },
+  {
+    "filename": "18-long-lesson-task-strip-states.png",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "long lesson task strip with 12 tasks exhibiting completed, waived, current, and incomplete states",
+    "timestamp": "2026-10-06T15:43:12.597Z"
+  },
+  {
+    "filename": "08-python-workspace-custom-input.png",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "custom input tab active",
+    "timestamp": "2026-10-06T15:43:12.900Z"
+  },
+  {
+    "filename": "09-python-workspace-run-feedback.png",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "python run samples feedback with diff",
+    "timestamp": "2026-10-06T15:43:14.280Z"
+  },
+  {
+    "filename": "20-run-plain-output.png",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "Run shows only actual program output",
+    "timestamp": "2026-10-06T15:43:15.564Z"
+  },
+  {
+    "filename": "09b-python-workspace-infrastructure-error.png",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "python workspace infrastructure error with retry button",
+    "timestamp": "2026-10-06T15:43:17.466Z"
+  },
+  {
+    "filename": "19-sidebar-hidden-toggle-left.png",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "sidebar hidden; same left header control remains available",
+    "timestamp": "2026-10-06T15:43:19.189Z"
+  },
+  {
+    "filename": "10-python-workspace-report-modal.png",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "in-workspace exercise report issue dialog with opt-in unchecked code consent",
+    "timestamp": "2026-10-06T15:43:20.138Z"
+  },
+  {
+    "filename": "11-submission-history.png",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "submission history",
+    "timestamp": "2026-10-06T15:43:21.711Z"
+  },
+  {
+    "filename": "12-settings-profile.png",
+    "route": "/settings/profile",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "learner profile settings",
+    "timestamp": "2026-10-06T15:43:22.140Z"
+  },
+  {
+    "filename": "13-settings-appearance.png",
+    "route": "/settings/appearance",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "appearance settings",
+    "timestamp": "2026-10-06T15:43:22.579Z"
+  },
+  {
+    "filename": "14-settings-security.png",
+    "route": "/settings/security",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "security settings",
+    "timestamp": "2026-10-06T15:43:23.013Z"
+  },
+  {
+    "filename": "15-settings-privacy.png",
+    "route": "/settings/privacy",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "privacy & account requests",
+    "timestamp": "2026-10-06T15:43:23.450Z"
+  },
+  {
+    "filename": "22-quiz-incorrect-selection.png",
+    "route": "/learn/enr-ada/steps/step-5-quiz-multi",
+    "width": 1440,
+    "height": 900,
+    "theme": "light",
+    "state": "incorrect selection; one assessment action",
+    "timestamp": "2026-10-06T15:43:24.331Z"
+  },
+  {
+    "filename": "23-quiz-correct-next.png",
+    "route": "/learn/enr-ada/steps/step-5-quiz-multi",
+    "width": 1440,
+    "height": 900,
+    "theme": "light",
+    "state": "correct answer; inline Next; green task square",
+    "timestamp": "2026-10-06T15:43:24.779Z"
+  },
+  {
+    "filename": "16-light-theme-workspace.png",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "width": 1440,
+    "height": 900,
+    "theme": "light",
+    "state": "light theme desktop workspace comparison",
+    "timestamp": "2026-10-06T15:43:25.866Z"
+  },
+  {
+    "filename": "17-terminal-verification-summary.png",
+    "route": "/verification-summary",
+    "width": 1440,
+    "height": 900,
+    "theme": "dark",
+    "state": "verification summary card",
+    "timestamp": "2026-10-06T15:43:26.334Z"
+  }
+]

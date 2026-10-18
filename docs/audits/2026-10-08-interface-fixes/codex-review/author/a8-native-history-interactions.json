@@ -1,0 +1,18 @@
+{
+  "checks": [
+    {
+      "check": "Author dirty theory native Back and Forward preserve unsaved work",
+      "status": "passed",
+      "observed": {
+        "cancelRetainsDraft": true,
+        "nativeGuard": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

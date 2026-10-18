@@ -308,12 +308,14 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
         </ol>
       </nav>
 
+      ${hasBlockingErrors ? `
       <div class="next-action-callout mb-3 p-2 bg-surface border border-subtle rounded text-xs flex items-center justify-between">
         <div>
           <strong>Next action:</strong>
-          <span class="text-secondary ml-1">${hasBlockingErrors ? `Resolve ${errors.length} blocking issue${errors.length === 1 ? '' : 's'} before releasing Version ${opts.newVersionNumber}.` : `Pre-publish checklist passed. Click "${escapeHtml(publishButtonLabel)}" to release.`}</span>
+          <span class="text-secondary ml-1">Resolve ${errors.length} blocking issue${errors.length === 1 ? '' : 's'} before releasing Version ${opts.newVersionNumber}.</span>
         </div>
       </div>
+      ` : ''}
 
       ${staleRevisionHtml}
       ${errorsHtml}
@@ -362,7 +364,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
     courseTitle: opts.courseTitle,
     publicationState: opts.publicationState,
     hasUnpublishedChanges: opts.hasUnpublishedChanges,
-    saveStatusText: opts.saveStatus === 'saved' ? 'Saved' : undefined,
+    saveStatusText: opts.saveStatus === 'saved' ? undefined : (opts.saveStatus ? String(opts.saveStatus) : undefined),
     activeTab: 'content',
     isPublishPage: true,
     editorContent,

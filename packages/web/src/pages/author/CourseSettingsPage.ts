@@ -43,7 +43,7 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
       ? 'Unsaved changes'
       : opts.saveStatus === 'conflict'
       ? 'Revision conflict'
-      : 'Saved';
+      : undefined;
 
   const editorContent = `
     <div class="settings-form-wrapper" style="max-width: 820px; margin: 0 auto; padding: 2rem 1rem;">

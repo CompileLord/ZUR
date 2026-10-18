@@ -1,0 +1,20 @@
+{
+  "checks": [
+    {
+      "check": "L6 pending profile save acknowledgment respects confirmed native Back destination",
+      "status": "passed",
+      "observed": {
+        "realPendingSave": true,
+        "nativeConfirmation": true,
+        "acknowledgedMutation": true,
+        "chosenDestinationRetained": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

@@ -302,8 +302,9 @@ test('Author Pages & Shell Workspaces (P21–P26, P31)', async (t) => {
     });
 
     assert.ok(pyPreview.includes('Compute polynomial for x'), 'Problem rendered');
-    assert.ok(pyPreview.includes('Run samples'), 'Student run action present');
-    assert.ok(pyPreview.includes('Submit solution'), 'Student submit action present');
+    assert.ok(pyPreview.includes('Read-only code preview'), 'Read-only preview header present');
+    assert.ok(pyPreview.includes('Execution and grading are disabled in author preview'), 'Concise preview notice present');
+    assert.ok(!pyPreview.includes('preview-run-samples-btn'), 'Obsolete disabled execution controls removed');
     assert.ok(!pyPreview.includes('referenceSolution'), 'Must not leak reference solution');
   });
 });

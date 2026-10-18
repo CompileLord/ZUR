@@ -1,0 +1,25 @@
+{
+  "checks": [
+    {
+      "check": "A1 title retained after controlled create failure",
+      "status": "failed",
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ ''\n- 'Codex independent course title to retain'\n",
+      "observed": {
+        "route": "/teach",
+        "headings": [
+          "Your courses",
+          "\n                    Python foundations\n                  ",
+          "\n                    Unsafe Python Tricks\n                  ",
+          "Create new course"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 0,
+  "failed": 1,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": "A1 title"
+}

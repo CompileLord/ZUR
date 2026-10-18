@@ -1,0 +1,21 @@
+{
+  "checks": [
+    {
+      "check": "L2/L4 paged detail context, long code and restore failure preserve draft",
+      "status": "passed",
+      "observed": {
+        "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/codex-fixture-attempt-2?offset=10",
+        "seededReceipt": true,
+        "productionGrading": false,
+        "narrowOverflow": false,
+        "restoreFailureDraftRetained": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": "L2/L4"
+}

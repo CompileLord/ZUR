@@ -1,0 +1,33 @@
+{
+  "runId": "author-repair-reaudit-1791255972754",
+  "date": "2026-10-06",
+  "environment": "Fresh isolated SQLite/API/Vite/Chrome fixture; desktop 1440x900; dark and light themes; local-only course publication and uploaded assets.",
+  "evidenceProvenance": "Action details are reconstructed from the successful run's captured console output and its 14 retained screenshots. A later failed sign-in extension overwrote the helper's default summary path; that failed run is preserved separately and excluded.",
+  "status": {"passed": 7, "failed": 0, "blocked": 0, "screenshots": 14},
+  "actions": [
+    {"feature":"Course publish receipt", "status":"PASS", "details":"Published a valid draft through visible Review & publish controls; Release Receipt showed Released Version 1 and editor/preview actions."},
+    {"feature":"Theory asset upload and insertion", "status":"PASS", "details":"Selected generated PNG in visible modal, inserted Markdown, saved changes, and verified image in authorized author preview."},
+    {"feature":"Reference checker and current unsaved tests", "status":"PASS", "details":"Correct reference passed the seeded public+hidden test cases. Changed the current unsaved public expected output; checker showed public failure and hidden test pass."},
+    {"feature":"Python hints persistence", "status":"PASS", "details":"Entered two hints, saved, reloaded the step, and confirmed both values persisted."},
+    {"feature":"Selected private-course token scope", "status":"PASS", "details":"Selected a private owned course in the UI, created token, and saw the selected-course restriction on the reveal card."},
+    {"feature":"Exercise report context", "status":"PASS", "details":"Opened report modal from learner exercise, verified course/version/step context, submitted, and corroborated stored report record."},
+    {"feature":"Admin audit filtering/pagination", "status":"PASS", "details":"Filtered 30 local audit fixture rows, saw a ten-row page, then loaded page two through visible pagination."}
+  ],
+  "screenshots": [
+    "screenshots/audit-2026-10-06/repairs/repair_f01_publish_receipt_dark.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f01_publish_receipt_light.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f02_asset_upload_dark.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f02_asset_upload_light.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f03_reference_check_dark.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f03_reference_check_light.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f04_python_hints_dark.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f04_python_hints_light.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f05_token_course_picker_dark.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f05_token_course_picker_light.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f06_exercise_report_modal_dark.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f06_exercise_report_modal_light.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f07_admin_audit_filters_dark.png",
+    "screenshots/audit-2026-10-06/repairs/repair_f07_admin_audit_filters_light.png"
+  ],
+  "notTested": ["A deliberately incorrect reference solution was not completed in the successful live-browser run; a subsequent attempt remained at the sign-in page and is preserved separately as a harness/session failure, not a product failure."]
+}

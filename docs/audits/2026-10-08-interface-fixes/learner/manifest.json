@@ -1,0 +1,1858 @@
+[
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-in-progress-dark.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=in_progress",
+    "observedUrl": "/learn/courses?filter=in_progress",
+    "pageIdentity": "My courses",
+    "renderedState": "In progress tab active with active courses",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:43.934Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-completed-dark.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "pageIdentity": "My courses",
+    "renderedState": "Completed tab active showing finished courses",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:44.164Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-all-dark.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=all",
+    "observedUrl": "/learn/courses?filter=all",
+    "pageIdentity": "My courses",
+    "renderedState": "All tab active showing all enrollments",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:44.412Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-in-progress-light.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=in_progress",
+    "observedUrl": "/learn/courses?filter=in_progress",
+    "pageIdentity": "My courses",
+    "renderedState": "In progress tab active with active courses",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:44.745Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-completed-light.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "pageIdentity": "My courses",
+    "renderedState": "Completed tab active showing finished courses",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:44.982Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-all-light.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=all",
+    "observedUrl": "/learn/courses?filter=all",
+    "pageIdentity": "My courses",
+    "renderedState": "All tab active showing all enrollments",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:45.216Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-empty-completed-dark.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "pageIdentity": "My courses",
+    "renderedState": "Empty completed state with explanatory guidance",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:45.780Z",
+    "fixture": "Alan Turing disposable zero-completed fixture",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l1-mycourses-empty-completed-light.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "pageIdentity": "My courses",
+    "renderedState": "Empty completed state with explanatory guidance",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:46.118Z",
+    "fixture": "Alan Turing disposable zero-completed fixture",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempts-list-dark.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempts list retaining real curriculum sidebar and parent task selection",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:46.812Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempts-empty-dark.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts",
+    "observedUrl": "/learn/enr-ada/steps/step-6-python-evenodd/attempts",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Empty attempts list with real curriculum and return to task link",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:47.047Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-l4-attempt-detail-normal-dark.png",
+    "issue": "L2/L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail with consistent 800px inset, real curriculum and all attempts link",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:47.278Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-narrow-1100-dark.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail at 1100px narrow desktop demonstrating readable responsive inset",
+    "theme": "dark",
+    "viewport": "1100x900",
+    "dimensions": {
+      "width": 1100,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:47.492Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-long-code-dark.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail long code snapshot horizontally scrolling in-pane",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:47.832Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-long-code-1100-dark.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail long code snapshot at 1100px narrow desktop without page-wide overflow",
+    "theme": "dark",
+    "viewport": "1100x900",
+    "dimensions": {
+      "width": 1100,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:48.067Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempt-restore-dialog-dark.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Explicit restore confirmation modal protecting editor draft from silent overwrite",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:48.377Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempts-list-light.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempts list retaining real curriculum sidebar and parent task selection",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:48.713Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempts-empty-light.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts",
+    "observedUrl": "/learn/enr-ada/steps/step-6-python-evenodd/attempts",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Empty attempts list with real curriculum and return to task link",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:48.949Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-l4-attempt-detail-normal-light.png",
+    "issue": "L2/L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail with consistent 800px inset, real curriculum and all attempts link",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:49.182Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-narrow-1100-light.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail at 1100px narrow desktop demonstrating readable responsive inset",
+    "theme": "light",
+    "viewport": "1100x900",
+    "dimensions": {
+      "width": 1100,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:49.391Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-long-code-light.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail long code snapshot horizontally scrolling in-pane",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:49.734Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l4-attempt-detail-long-code-1100-light.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail long code snapshot at 1100px narrow desktop without page-wide overflow",
+    "theme": "light",
+    "viewport": "1100x900",
+    "dimensions": {
+      "width": 1100,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:49.969Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l2-attempt-restore-dialog-light.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Explicit restore confirmation modal protecting editor draft from silent overwrite",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:50.281Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-expanded-dark.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Initial workspace with expanded curriculum sidebar",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:50.651Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-collapsed-dark.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Collapsed curriculum sidebar with Show modules toggle and inert aside",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:50.800Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-persisted-spa-dark.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-1-theory",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Curriculum sidebar remains collapsed after SPA transition to another step",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:51.028Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-persisted-reload-dark.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-1-theory",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Curriculum sidebar remains collapsed after whole document reload",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:51.270Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-expanded-light.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Initial workspace with expanded curriculum sidebar",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:51.702Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-collapsed-light.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Collapsed curriculum sidebar with Show modules toggle and inert aside",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:51.867Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-persisted-spa-light.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-1-theory",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Curriculum sidebar remains collapsed after SPA transition to another step",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:52.100Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l3-sidebar-persisted-reload-light.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-1-theory",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Curriculum sidebar remains collapsed after whole document reload",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:52.325Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l5-report-modal-contained-dark.png",
+    "issue": "L5",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Native report dialog with background inertness and contained focus trap",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:53.663Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l5-report-modal-error-retained-dark.png",
+    "issue": "L5",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Report dialog failure retaining details, explicit consent and showing error",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:53.968Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l5-report-modal-contained-light.png",
+    "issue": "L5",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Native report dialog with background inertness and contained focus trap",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:55.351Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l5-report-modal-error-retained-light.png",
+    "issue": "L5",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Report dialog failure retaining details, explicit consent and showing error",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:55.664Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-dirty-dark.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Profile form with unsaved draft changes",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:56.194Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-back-cancelled-dark.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Browser Back cancelled retaining dirty draft and profile URL",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:56.503Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-save-failure-dark.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Profile save failure displaying error while preserving draft",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:56.635Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort",
+    "superseded": true,
+    "supersededReason": "Rejected in round 3: no actual visible profile-save error; re-captured in round 4 with real form submission and visible error banner"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-dirty-light.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Profile form with unsaved draft changes",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:56.981Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-back-cancelled-light.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Browser Back cancelled retaining dirty draft and profile URL",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:57.259Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l6-profile-save-failure-light.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Profile save failure displaying error while preserving draft",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:57.395Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort",
+    "superseded": true,
+    "supersededReason": "Rejected in round 3: no actual visible profile-save error; re-captured in round 4 with real form submission and visible error banner"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-denial-auth-dark.png",
+    "issue": "L7",
+    "route": "/courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "pageIdentity": "This page isn't available.",
+    "renderedState": "Authenticated unavailable overview retaining app shell, sidebar and exits",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:57.744Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-denial-auth-light.png",
+    "issue": "L7",
+    "route": "/courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "pageIdentity": "This page isn't available.",
+    "renderedState": "Authenticated unavailable overview retaining app shell, sidebar and exits",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:58.076Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-denial-anonymous-dark.png",
+    "issue": "L7",
+    "route": "/courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "pageIdentity": "This page isn't available.",
+    "renderedState": "Anonymous unavailable overview rendered in safe public shell",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:58.391Z",
+    "fixture": "Anonymous guest visitor",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-denial-anonymous-light.png",
+    "issue": "L7",
+    "route": "/courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "pageIdentity": "This page isn't available.",
+    "renderedState": "Anonymous unavailable overview rendered in safe public shell",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:58.711Z",
+    "fixture": "Anonymous guest visitor",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-service-error-dark.png",
+    "issue": "L7",
+    "route": "/courses/course-python-completed",
+    "observedUrl": "/courses/course-python-completed",
+    "pageIdentity": "Temporary connection issue",
+    "renderedState": "Course overview service error state offering actionable recovery with Retry",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:59.395Z",
+    "fixture": "Ada Lovelace enrollment",
+    "fault": "Controlled HTTP 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l7-overview-service-error-light.png",
+    "issue": "L7",
+    "route": "/courses/course-python-completed",
+    "observedUrl": "/courses/course-python-completed",
+    "pageIdentity": "Temporary connection issue",
+    "renderedState": "Course overview service error state offering actionable recovery with Retry",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:23:59.727Z",
+    "fixture": "Ada Lovelace enrollment",
+    "fault": "Controlled HTTP 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-test-samples-dark.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Sample execution results displaying Test samples badge (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:24:00.982Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-run-plain-dark.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Plain execution results showing program stdout without grading implication (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:24:02.016Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-submit-graded-dark.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Official submission result with assessment verification badge (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:24:03.005Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-test-samples-light.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Sample execution results displaying Test samples badge (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:24:04.166Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-run-plain-light.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Plain execution results showing program stdout without grading implication (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:24:05.103Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/learner-l8-results-submit-graded-light.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Official submission result with assessment verification badge (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-07T22:24:06.036Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-5/learner-l2-attempt-restore-failure-dark.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt restore failure displaying in-dialog error with retry option while preserving draft and attempt context",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-08T11:52:38.852Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-5/learner-l2-attempt-restore-failure-light.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt restore failure displaying in-dialog error with retry option while preserving draft and attempt context",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-08T11:52:39.419Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l1-mycourses-in-progress-dark.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=in_progress",
+    "observedUrl": "/learn/courses?filter=in_progress",
+    "pageIdentity": "My courses",
+    "renderedState": "In progress tab active with active courses",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:10.146Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l1-mycourses-completed-dark.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "pageIdentity": "My courses",
+    "renderedState": "Completed tab active showing finished courses",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:10.711Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l1-mycourses-all-dark.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=all",
+    "observedUrl": "/learn/courses?filter=all",
+    "pageIdentity": "My courses",
+    "renderedState": "All tab active showing all enrollments",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:11.276Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l1-mycourses-in-progress-light.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=in_progress",
+    "observedUrl": "/learn/courses?filter=in_progress",
+    "pageIdentity": "My courses",
+    "renderedState": "In progress tab active with active courses",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:11.940Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l1-mycourses-completed-light.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "pageIdentity": "My courses",
+    "renderedState": "Completed tab active showing finished courses",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:12.518Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l1-mycourses-all-light.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=all",
+    "observedUrl": "/learn/courses?filter=all",
+    "pageIdentity": "My courses",
+    "renderedState": "All tab active showing all enrollments",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:13.066Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l1-mycourses-empty-completed-dark.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "pageIdentity": "My courses",
+    "renderedState": "Empty completed state with explanatory guidance",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:14.108Z",
+    "fixture": "Alan Turing disposable zero-completed fixture",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l1-mycourses-empty-completed-light.png",
+    "issue": "L1",
+    "route": "/learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "pageIdentity": "My courses",
+    "renderedState": "Empty completed state with explanatory guidance",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:14.781Z",
+    "fixture": "Alan Turing disposable zero-completed fixture",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l2-attempts-list-dark.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempts list retaining real curriculum sidebar and parent task selection",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:16.052Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l2-attempts-empty-dark.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts",
+    "observedUrl": "/learn/enr-ada/steps/step-6-python-evenodd/attempts",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Empty attempts list with real curriculum and return to task link",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:16.535Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l2-l4-attempt-detail-normal-dark.png",
+    "issue": "L2/L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail with consistent 800px inset, real curriculum and all attempts link",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:17.050Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l4-attempt-detail-narrow-1100-dark.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail at 1100px narrow desktop demonstrating readable responsive inset",
+    "theme": "dark",
+    "viewport": "1100x900",
+    "dimensions": {
+      "width": 1100,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:17.364Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l4-attempt-detail-long-code-dark.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail long code snapshot horizontally scrolling in-pane",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:18.095Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l4-attempt-detail-long-code-1100-dark.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail long code snapshot at 1100px narrow desktop without page-wide overflow",
+    "theme": "dark",
+    "viewport": "1100x900",
+    "dimensions": {
+      "width": 1100,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:18.403Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l2-attempt-restore-dialog-dark.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Explicit restore confirmation modal protecting editor draft from silent overwrite",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:19.140Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l2-attempt-restore-failure-dark.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt restore failure displaying in-dialog error with retry option while preserving draft and attempt context",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:19.740Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l2-attempts-list-light.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempts list retaining real curriculum sidebar and parent task selection",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:20.419Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l2-attempts-empty-light.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-6-python-evenodd/attempts",
+    "observedUrl": "/learn/enr-ada/steps/step-6-python-evenodd/attempts",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Empty attempts list with real curriculum and return to task link",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:20.981Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l2-l4-attempt-detail-normal-light.png",
+    "issue": "L2/L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail with consistent 800px inset, real curriculum and all attempts link",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:21.562Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l4-attempt-detail-narrow-1100-light.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail at 1100px narrow desktop demonstrating readable responsive inset",
+    "theme": "light",
+    "viewport": "1100x900",
+    "dimensions": {
+      "width": 1100,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:21.853Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l4-attempt-detail-long-code-light.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail long code snapshot horizontally scrolling in-pane",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:22.540Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l4-attempt-detail-long-code-1100-light.png",
+    "issue": "L4",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt detail long code snapshot at 1100px narrow desktop without page-wide overflow",
+    "theme": "light",
+    "viewport": "1100x900",
+    "dimensions": {
+      "width": 1100,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:22.858Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l2-attempt-restore-dialog-light.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Explicit restore confirmation modal protecting editor draft from silent overwrite",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:23.636Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l2-attempt-restore-failure-light.png",
+    "issue": "L2",
+    "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Attempt restore failure displaying in-dialog error with retry option while preserving draft and attempt context",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:24.416Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l3-sidebar-expanded-dark.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Initial workspace with expanded curriculum sidebar",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:25.305Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l3-sidebar-collapsed-dark.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Collapsed curriculum sidebar with Show modules toggle and inert aside",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:25.570Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l3-sidebar-persisted-spa-dark.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-1-theory",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Curriculum sidebar remains collapsed after SPA transition to another step",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:25.909Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l3-sidebar-persisted-reload-dark.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-1-theory",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Curriculum sidebar remains collapsed after whole document reload",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:26.512Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l3-sidebar-expanded-light.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Initial workspace with expanded curriculum sidebar",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:27.251Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l3-sidebar-collapsed-light.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Collapsed curriculum sidebar with Show modules toggle and inert aside",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:27.487Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l3-sidebar-persisted-spa-light.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-1-theory",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Curriculum sidebar remains collapsed after SPA transition to another step",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:27.717Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l3-sidebar-persisted-reload-light.png",
+    "issue": "L3",
+    "route": "/learn/enr-ada/steps/step-1-theory",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Curriculum sidebar remains collapsed after whole document reload",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:28.213Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l5-report-modal-contained-dark.png",
+    "issue": "L5",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Native report dialog with background inertness and contained focus trap",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:30.362Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l5-report-modal-error-retained-dark.png",
+    "issue": "L5",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Report dialog failure retaining details, explicit consent and showing error",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:30.946Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l5-report-modal-contained-light.png",
+    "issue": "L5",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Native report dialog with background inertness and contained focus trap",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:33.101Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l5-report-modal-error-retained-light.png",
+    "issue": "L5",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Report dialog failure retaining details, explicit consent and showing error",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:33.694Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l6-profile-dirty-dark.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Profile form with unsaved draft changes",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:34.499Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l6-profile-back-cancelled-dark.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Browser Back cancelled retaining dirty draft and profile URL",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:34.868Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l6-profile-save-failure-dark.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Profile save failure displaying visible error banner while preserving draft for retry",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:35.136Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l6-profile-dirty-light.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Profile form with unsaved draft changes",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:35.787Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l6-profile-back-cancelled-light.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Browser Back cancelled retaining dirty draft and profile URL",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:36.153Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l6-profile-save-failure-light.png",
+    "issue": "L6",
+    "route": "/settings/profile",
+    "observedUrl": "/settings/profile",
+    "pageIdentity": "Settings",
+    "renderedState": "Profile save failure displaying visible error banner while preserving draft for retry",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:36.466Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "fault": "Controlled 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l7-overview-denial-auth-dark.png",
+    "issue": "L7",
+    "route": "/courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "pageIdentity": "This page isn't available.",
+    "renderedState": "Authenticated unavailable overview retaining app shell, sidebar and exits",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:37.136Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l7-overview-denial-auth-light.png",
+    "issue": "L7",
+    "route": "/courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "pageIdentity": "This page isn't available.",
+    "renderedState": "Authenticated unavailable overview retaining app shell, sidebar and exits",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:37.680Z",
+    "fixture": "Ada Lovelace disposable SQLite seed",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l7-overview-denial-anonymous-dark.png",
+    "issue": "L7",
+    "route": "/courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "pageIdentity": "This page isn't available.",
+    "renderedState": "Anonymous unavailable overview rendered in safe public shell",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:38.216Z",
+    "fixture": "Anonymous guest visitor",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l7-overview-denial-anonymous-light.png",
+    "issue": "L7",
+    "route": "/courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "pageIdentity": "This page isn't available.",
+    "renderedState": "Anonymous unavailable overview rendered in safe public shell",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:38.758Z",
+    "fixture": "Anonymous guest visitor",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l7-overview-service-error-dark.png",
+    "issue": "L7",
+    "route": "/courses/course-python-completed",
+    "observedUrl": "/courses/course-python-completed",
+    "pageIdentity": "Temporary connection issue",
+    "renderedState": "Course overview service error state offering actionable recovery with Retry",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:39.813Z",
+    "fixture": "Ada Lovelace enrollment",
+    "fault": "Controlled HTTP 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l7-overview-service-error-light.png",
+    "issue": "L7",
+    "route": "/courses/course-python-completed",
+    "observedUrl": "/courses/course-python-completed",
+    "pageIdentity": "Temporary connection issue",
+    "renderedState": "Course overview service error state offering actionable recovery with Retry",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:40.469Z",
+    "fixture": "Ada Lovelace enrollment",
+    "fault": "Controlled HTTP 503 service failure",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l8-results-test-samples-dark.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Sample execution results displaying Test samples badge (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:41.336Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l8-results-run-plain-dark.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Plain execution results showing program stdout without grading implication (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:42.380Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l8-results-submit-graded-dark.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Official submission result with assessment verification badge (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:43.473Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l8-results-test-samples-light.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Sample execution results displaying Test samples badge (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:45.163Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l8-results-run-plain-light.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Plain execution results showing program stdout without grading implication (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:46.199Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/learner/round-4/learner-l8-results-submit-graded-light.png",
+    "issue": "L8",
+    "route": "/learn/enr-ada/steps/step-4-python-echo",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Official submission result with assessment verification badge (controlled presentation fixture; synthetic non-measured timing, no official grading claim)",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-11T12:50:47.282Z",
+    "fixture": "Controlled presentation fixture (not an official isolated grading verification)",
+    "provenance": "Fresh headless Google Chrome capture via CDP DevToolsActivePort"
+  }
+]

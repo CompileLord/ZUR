@@ -1,0 +1,20 @@
+{
+  "checks": [
+    {
+      "check": "A1 stale create acknowledgement respects actual Back and Forward Teach reentry",
+      "status": "passed",
+      "observed": {
+        "realPendingCreate": true,
+        "acknowledgedOwnCourse": true,
+        "exactlyOneCourse": true,
+        "chosenDestinationRetained": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

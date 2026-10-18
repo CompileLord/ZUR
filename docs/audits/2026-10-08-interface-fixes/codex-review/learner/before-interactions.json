@@ -1,0 +1,137 @@
+{
+  "checks": [
+    {
+      "check": "L1 Completed query and rows",
+      "status": "failed",
+      "error": "The input did not match the regular expression /Completed/i. Input:\n\n'In progress (1)'\n",
+      "observed": {
+        "route": "/learn/courses?filter=completed",
+        "headings": [
+          "My courses"
+        ],
+        "activeFilter": "In progress (1)",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L1 All real link, Back and Forward",
+      "status": "failed",
+      "error": "Timed out: All combined route/state",
+      "observed": {
+        "route": "/learn/courses?filter=all",
+        "headings": [
+          "My courses"
+        ],
+        "activeFilter": "In progress (1)",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L3 real SPA destination and retained collapse, then reload",
+      "status": "failed",
+      "error": "collapse after reload\n\nfalse !== true\n",
+      "observed": {
+        "route": "/learn/enr-ada/steps/step-1-theory",
+        "headings": [
+          "Modules & lessons",
+          "What is a variable?"
+        ],
+        "collapsed": false,
+        "toggle": "true",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L2 attempts retain real curriculum/task strip and empty state",
+      "status": "failed",
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(x.tasks>0&&x.lessons>0)\n",
+      "observed": {
+        "route": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+        "headings": [
+          "Course outline",
+          "AttemptsSubmission History"
+        ],
+        "collapsed": false,
+        "toggle": "true",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L5 native report focus forward/back, Escape return",
+      "status": "failed",
+      "error": "Timed out: native report",
+      "observed": {
+        "route": "/learn/enr-ada/steps/step-4-python-echo",
+        "headings": [
+          "Modules & lessons",
+          "Echoing Numbers",
+          "Input & output format",
+          "Constraints",
+          "Hints"
+        ],
+        "collapsed": false,
+        "toggle": "true",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 native Back cancelled retains draft and history",
+      "status": "failed",
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '/learn'\n- '/settings/profile'\n",
+      "observed": {
+        "route": "/learn",
+        "headings": [
+          "Continue learning",
+          "Python foundations"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 profile save failure retains text and dirty guard",
+      "status": "passed",
+      "observed": {
+        "fault": "controlled 503",
+        "draftRetained": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 confirmed Back departs to actual previous route",
+      "status": "failed",
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(dialogs.length>before)\n",
+      "observed": {
+        "route": "/learn",
+        "headings": [
+          "Continue learning",
+          "Python foundations"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L7 authenticated unavailable overview preserves context",
+      "status": "failed",
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(x.sidebar&&x.browse)\n",
+      "observed": {
+        "route": "/courses/codex-no-such-course",
+        "headings": [
+          "This page isn't available."
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 8,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false
+}

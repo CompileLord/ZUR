@@ -1,0 +1,24 @@
+{
+  "course": "course-python-foundations",
+  "snapshot": {
+    "revisionNumber": 1
+  },
+  "counts": {
+    "attempts": {
+      "n": 0
+    },
+    "progress": {
+      "n": 2
+    }
+  },
+  "outcome": {
+    "error": "FOREIGN KEY constraint failed",
+    "code": "ERR_SQLITE_ERROR"
+  },
+  "after": {
+    "draft_revision": 1,
+    "title": "Python foundations"
+  },
+  "method": "Root independent service diagnostic; fresh seeded disposable DB; faithful snapshot immediately restored at current revision; no synthetic activity or attempt rows inserted",
+  "rootCause": "restore hard-deletes steps; step_progress and assessment_attempts reference steps ON DELETE RESTRICT"
+}

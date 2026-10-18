@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-05",
+  "environment": "Isolated temporary SQLite, API, Vite app, worker, and Chrome; 1440x900; dark and light themes",
+  "method": "Real author UI navigation, CDP mouse clicks and keyboard input; API/network and database reads corroborated visible actions only.",
+  "appCodeChangedByAuditor": false,
+  "results": {
+    "pass": [
+      "course list filters/search and new-course required validation",
+      "course create/edit/settings and archive/restore/delete including cancel",
+      "module, lesson, and step create/rename/duplicate/delete/reorder with reload persistence",
+      "theory formatting/preview, video settings, quiz options, Python author fields/tests/limits",
+      "preview for theory/video/quiz/Python",
+      "publish validation and confirmation",
+      "publish server operation: actual UI click returned HTTP 200 and Version 1 receipt",
+      "roster search/detail/revoke/reinstate",
+      "empty email invite validation; shareable invitation generation/listing and browser acceptance",
+      "analytics page inspection",
+      "all-owned AI token create, reveal/hide, setup guide, revoke",
+      "browser activity/recovery review and restore UI using a fixture-prepared snapshot"
+    ],
+    "fail": [
+      "publish success UI displays false failure after HTTP 200 receipt",
+      "theory Upload asset control has no response/picker",
+      "Python Check reference solution produces no visible response",
+      "Python hints entered in editor are absent from publish review after save",
+      "selected-course AI token scope picker is missing because /api/courses returns error"
+    ],
+    "notTested": [
+      "fresh second release and pinned enrollment comparison",
+      "successful media upload and external video playback/error recovery",
+      "analytics version filter (not visible in observed UI)",
+      "external email delivery (none sent)",
+      "mobile, zoom, screen reader, and keyboard-only accessibility"
+    ]
+  },
+  "evidence": {
+    "publishDiagnostic": "2026-10-05-author-publish-diagnostic.json",
+    "supportDiagnostic": "2026-10-05-author-support-diagnostic.json",
+    "report": "../2026-10-05-author-real-user-report.md",
+    "screenshots": "../../../screenshots/audit-2026-10-05/author/"
+  },
+  "limitations": [
+    "The recovery snapshot/activity mutation was created directly in the isolated fixture; the subsequent recovery UI flow was tested in Chrome.",
+    "Earlier harness timeouts were excluded from product failure counts.",
+    "No external emails/publications or shared data were involved."
+  ]
+}

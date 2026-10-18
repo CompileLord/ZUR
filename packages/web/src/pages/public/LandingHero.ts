@@ -85,10 +85,10 @@ export function renderLandingHero(isSignedIn = false): string {
               <div class="hero-workspace-header">
                 <div class="hero-workspace-tabs">
                   <span class="hero-tab-pill">solution.py</span>
-                  <span class="hero-save-badge">✓ Saved</span>
                 </div>
                 <div class="hero-workspace-tools">
-                  <span class="hero-exec-badge hero-exec-run">Run (Samples)</span>
+                  <span class="hero-exec-badge hero-exec-run">Run</span>
+                  <span class="hero-exec-badge hero-exec-test">Test samples</span>
                   <span class="hero-exec-badge hero-exec-submit">Submit</span>
                 </div>
               </div>

@@ -14,6 +14,59 @@ export function getScopedLastVisitedStepKey(
   return `zur_last_visited_step:${userId}:${enrollmentId}:${courseVersionId}:${lessonId}`;
 }
 
+export function getScopedSidebarCollapsedKey(
+  userId: string,
+  enrollmentId: string,
+  courseVersionId: string
+): string {
+  return `zur_sidebar_collapsed:${userId}:${enrollmentId}:${courseVersionId}`;
+}
+
+export function getScopedModulesExpandedKey(
+  userId: string,
+  enrollmentId: string,
+  courseVersionId: string
+): string {
+  return `zur_collapsed_modules:${userId}:${enrollmentId}:${courseVersionId}`;
+}
+
+export function getScopedSidebarScrollKey(
+  userId: string,
+  enrollmentId: string,
+  courseVersionId: string
+): string {
+  return `zur_sidebar_scroll:${userId}:${enrollmentId}:${courseVersionId}`;
+}
+
+export function getCurriculumSidebarCollapsed(
+  userId: string,
+  enrollmentId: string,
+  courseVersionId: string,
+  storage?: { getItem: (k: string) => string | null }
+): boolean {
+  if (!userId || !enrollmentId || !courseVersionId) return false;
+  try {
+    const s = storage || (typeof localStorage !== 'undefined' ? localStorage : null);
+    return s?.getItem(getScopedSidebarCollapsedKey(userId, enrollmentId, courseVersionId)) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function setCurriculumSidebarCollapsed(
+  userId: string,
+  enrollmentId: string,
+  courseVersionId: string,
+  collapsed: boolean,
+  storage?: { setItem: (k: string, v: string) => void }
+): void {
+  if (!userId || !enrollmentId || !courseVersionId) return;
+  try {
+    const s = storage || (typeof localStorage !== 'undefined' ? localStorage : null);
+    s?.setItem(getScopedSidebarCollapsedKey(userId, enrollmentId, courseVersionId), String(collapsed));
+  } catch {}
+}
+
 export function recordLastVisitedStep(
   userId: string,
   enrollmentId: string,
@@ -173,7 +226,14 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
   const lessonContext = shellEl.querySelector?.('.header-lesson-context');
   if (lessonContext) lessonContext.textContent = opts.lessonTitle;
 
-  // 3. Update Task Strip
+  // 3. Update Task Strip and preserve sidebar collapsed state
+  const isCollapsed = opts.isSidebarCollapsed !== undefined
+    ? Boolean(opts.isSidebarCollapsed)
+    : sidebarEl.classList.contains('collapsed');
+  sidebarEl.classList.toggle('collapsed', isCollapsed);
+  sidebarEl.classList.toggle('open', !isCollapsed);
+  sidebarEl.inert = isCollapsed;
+
   const taskStrip = shellEl.querySelector?.('.learning-task-strip');
   if (opts.taskSquares && opts.taskSquares.length > 0) {
     if (taskStrip) {
@@ -183,6 +243,13 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
           const sq = opts.taskSquares![idx];
           return el.getAttribute?.('href')?.includes(sq.id);
         });
+
+      const toggleBtn = taskStrip.querySelector?.('.sidebar-toggle-btn');
+      if (toggleBtn) {
+        toggleBtn.setAttribute('aria-expanded', String(!isCollapsed));
+        toggleBtn.setAttribute('aria-label', isCollapsed ? 'Show modules' : 'Hide modules');
+        toggleBtn.setAttribute('title', isCollapsed ? 'Show modules' : 'Hide modules');
+      }
 
       if (sameLesson) {
         // Fast path: update active/completed states, glyphs, and aria in-place
@@ -211,18 +278,19 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
         });
         const arrowRegion = taskStrip.querySelector?.('.task-strip-right');
         if (arrowRegion) {
-          const strip = renderTaskStripHtml({ ...opts, taskControls: isPython ? opts.taskActions : undefined });
+          const strip = renderTaskStripHtml({ ...opts, isSidebarCollapsed: isCollapsed, taskControls: isPython ? opts.taskActions : undefined });
           const template = root.ownerDocument.createElement('template');
           template.innerHTML = strip;
           arrowRegion.innerHTML = template.content.querySelector('.task-strip-right')?.innerHTML ?? '';
         }
       } else {
         const newStripHtml = renderTaskStripHtml({
-        taskControls: isPython ? opts.taskActions : undefined,
+          taskControls: isPython ? opts.taskActions : undefined,
           lessonTitle: opts.lessonTitle,
           taskSquares: opts.taskSquares,
           previousStepUrl: opts.previousStepUrl,
           nextStepUrl: opts.nextStepUrl,
+          isSidebarCollapsed: isCollapsed,
         });
         taskStrip.outerHTML = newStripHtml;
       }
@@ -233,6 +301,7 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
         taskSquares: opts.taskSquares,
         previousStepUrl: opts.previousStepUrl,
         nextStepUrl: opts.nextStepUrl,
+        isSidebarCollapsed: isCollapsed,
       });
       shellEl.insertAdjacentHTML?.('afterbegin', newStripHtml);
     }

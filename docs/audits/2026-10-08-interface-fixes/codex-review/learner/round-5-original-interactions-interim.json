@@ -1,0 +1,331 @@
+{
+  "checks": [
+    {
+      "check": "L1 Completed query and rows",
+      "status": "passed",
+      "observed": {
+        "active": "Completed (0)",
+        "text": "My courses\nIn progress (1)\nCompleted (0)\nAll (1)\n\nNo completed courses yet. Keep learning to finish your enrolled courses!\n\nExplore catalog"
+      },
+      "fixture": true
+    },
+    {
+      "check": "L1 All real link, Back and Forward",
+      "status": "passed",
+      "observed": {
+        "history": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L1 invalid filter defaults safely and In progress works",
+      "status": "passed",
+      "observed": {
+        "invalidDefault": true,
+        "actualTab": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L3 real SPA destination and retained collapse, then reload",
+      "status": "passed",
+      "observed": {
+        "destination": "/learn/enr-ada/steps/step-1-theory",
+        "state": {
+          "collapsed": true,
+          "expanded": "false",
+          "text": "Step 1 of 7\n·\nTheory\n·\n~1m\nWhat is a variable?\n\nA variable in Python binds a name to a value in memory.\n\npython\nCopy\nx = 42\nprint(x)\n\nVariables give m"
+        },
+        "reload": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L3 theory-origin toggle persists across reload",
+      "status": "passed",
+      "observed": {
+        "origin": "theory",
+        "observedVersion": "version-2-snapshot",
+        "reloadRetainsToggle": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L2 attempts retain real curriculum/task strip and empty state",
+      "status": "passed",
+      "observed": {
+        "tasks": 4,
+        "lessons": 3,
+        "empty": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L5 native report focus forward/back, Escape return",
+      "status": "passed",
+      "observed": {
+        "trustedKeys": true,
+        "trace": [
+          {
+            "inside": true,
+            "tag": "INPUT",
+            "id": "report-include-code"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "cancel-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "submit-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "close-report-dialog-btn"
+          },
+          {
+            "inside": true,
+            "tag": "SELECT",
+            "id": "report-issue-type"
+          },
+          {
+            "inside": true,
+            "tag": "TEXTAREA",
+            "id": "report-issue-details"
+          },
+          {
+            "inside": true,
+            "tag": "INPUT",
+            "id": "report-include-code"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "cancel-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "submit-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "close-report-dialog-btn"
+          },
+          {
+            "inside": true,
+            "tag": "SELECT",
+            "id": "report-issue-type"
+          },
+          {
+            "inside": true,
+            "tag": "TEXTAREA",
+            "id": "report-issue-details"
+          },
+          {
+            "inside": true,
+            "tag": "SELECT",
+            "id": "report-issue-type"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "close-report-dialog-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "submit-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "cancel-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "INPUT",
+            "id": "report-include-code"
+          },
+          {
+            "inside": true,
+            "tag": "TEXTAREA",
+            "id": "report-issue-details"
+          },
+          {
+            "inside": true,
+            "tag": "SELECT",
+            "id": "report-issue-type"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "close-report-dialog-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "submit-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "cancel-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "INPUT",
+            "id": "report-include-code"
+          },
+          {
+            "inside": true,
+            "tag": "TEXTAREA",
+            "id": "report-issue-details"
+          }
+        ],
+        "focusReturned": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L5 report failure retains details and explicit code consent",
+      "status": "passed",
+      "observed": {
+        "fault": "controlled 503",
+        "details": "Independent fixture report details",
+        "consent": true,
+        "open": true,
+        "error": "Could not submit report. Your message is preserved; try again."
+      },
+      "fixture": true
+    },
+    {
+      "check": "L5 leaving open report by native Back cleans keyboard lifecycle",
+      "status": "passed",
+      "observed": {
+        "nativeBack": true,
+        "nextFocus": {
+          "connected": true,
+          "tag": "A",
+          "href": "/help",
+          "inert": false
+        }
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 cancelled Back preserves the existing Forward destination",
+      "status": "passed",
+      "observed": {
+        "forwardEntriesRetained": true,
+        "currentIndex": 12
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 native Back cancelled retains draft and history",
+      "status": "passed",
+      "observed": {
+        "dialogs": [
+          {
+            "type": "confirm",
+            "message": "You have unsaved changes. Leave this page?",
+            "accepted": false
+          }
+        ],
+        "draftRetained": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 profile save failure retains text and dirty guard",
+      "status": "passed",
+      "observed": {
+        "fault": "controlled 503",
+        "draftRetained": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 confirmed Back departs to actual previous route",
+      "status": "passed",
+      "observed": {
+        "destination": "/learn",
+        "dialogs": [
+          {
+            "type": "confirm",
+            "message": "You have unsaved changes. Leave this page?",
+            "accepted": true
+          }
+        ]
+      },
+      "fixture": true
+    },
+    {
+      "check": "L7 authenticated unavailable overview preserves context",
+      "status": "passed",
+      "observed": {
+        "sidebar": true,
+        "signIn": false,
+        "browse": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L7 authenticated overview service failure keeps navigation and retry",
+      "status": "passed",
+      "observed": {
+        "fault": "controlled 503",
+        "authenticatedContext": true,
+        "recovered": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L2/L4 paged detail context, long code and restore failure preserve draft",
+      "status": "failed",
+      "error": "Timed out: restore error",
+      "observed": {
+        "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/codex-fixture-attempt-2?offset=10",
+        "headings": [
+          "Modules & lessons",
+          "Attempt 2Attempt #2"
+        ],
+        "collapsed": false,
+        "toggle": "true",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L2 restore confirmation keyboard containment and trigger return",
+      "status": "passed",
+      "observed": {
+        "trustedTabs": true,
+        "escape": true,
+        "focusReturned": true,
+        "seededAttempt": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 controlled storage denial preserves in-memory profile guard",
+      "status": "passed",
+      "observed": {
+        "fault": "explicitly injected sessionStorage SecurityError",
+        "draftRetained": true,
+        "inMemoryGuard": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 17,
+  "failed": 1,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

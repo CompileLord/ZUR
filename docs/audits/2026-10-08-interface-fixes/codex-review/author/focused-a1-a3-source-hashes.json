@@ -1,0 +1,5 @@
+{
+  "packages/web/src/main.ts": "a87cde0b9aa246f76707554d1a9438ad732624397c62359091c6bc521e10f70b",
+  "packages/web/src/pages/author/AuthorCoursesPage.ts": "7c8c75d6ebdb05cd00a32426f5ff866191cccf8c3570a8b62cb98b0ce099c4f5",
+  "packages/web/src/components/shells/AppShell.ts": "361a7d4f9ae452d7391f005bbea2662401bddf8ea5bdf2959c3b03fa1e26d430"
+}

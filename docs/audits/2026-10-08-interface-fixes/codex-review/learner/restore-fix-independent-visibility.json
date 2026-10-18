@@ -1,0 +1,34 @@
+{
+  "checks": [
+    {
+      "check": "L2/L4 paged detail context, long code and restore failure preserve draft",
+      "status": "passed",
+      "observed": {
+        "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/codex-fixture-attempt-2?offset=10",
+        "seededReceipt": true,
+        "productionGrading": false,
+        "narrowOverflow": false,
+        "restoreFailureDraftRetained": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": "L2/L4",
+  "computedVisibilityObservation": {
+    "outer": "<div id=\"restore-error-message\" class=\"form-error text-sm text-danger mt-3\" role=\"alert\" style=\"color: var(--danger, #dc2626); margin-top: 12px; font-size: 0.875rem; display: flex;\">This attempt could not be restored. Your current editor content is preserved.</div>",
+    "text": "This attempt could not be restored. Your current editor content is preserved.",
+    "hidden": false,
+    "inDialog": true,
+    "display": "flex",
+    "visibility": "visible",
+    "opacity": "1",
+    "width": 438,
+    "height": 40,
+    "checkVisibility": true,
+    "dialogOpen": true
+  }
+}

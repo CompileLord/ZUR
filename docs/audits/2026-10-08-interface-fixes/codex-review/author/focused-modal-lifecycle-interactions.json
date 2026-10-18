@@ -1,0 +1,40 @@
+{
+  "checks": [
+    {
+      "check": "A1 new-course modal contains native keyboard focus and Escape returns trigger",
+      "status": "passed",
+      "observed": {
+        "nativeTabs": true,
+        "escape": true,
+        "triggerReturned": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A1 rapid Cancel and reopen preserves owned dialog; native Back cleans inert state",
+      "status": "passed",
+      "observed": {
+        "rapidReopen": true,
+        "keyboardContainment": true,
+        "nativeBackCleanup": true,
+        "nativeForwardPreserved": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A7 Copy prompt never claims success on actual clipboard rejection",
+      "status": "passed",
+      "observed": {
+        "actualRejectedHandler": true,
+        "noFalseSuccess": true,
+        "systemClipboardUnverified": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 3,
+  "failed": 0,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

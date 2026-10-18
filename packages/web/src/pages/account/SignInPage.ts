@@ -16,7 +16,7 @@ export function renderSignInPage(opts: SignInPageOptions = {}): string {
       ${
         opts.error
           ? `
-        <div id="sign-in-error" class="form-error mb-4 p-3 border border-danger rounded" role="alert" aria-live="polite">
+        <div id="sign-in-error" class="form-error mb-4 p-3 border border-danger rounded" role="alert" aria-live="polite" style="overflow-wrap: anywhere; word-break: break-word;">
           <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
         </div>
       `

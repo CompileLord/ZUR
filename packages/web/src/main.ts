@@ -56,6 +56,7 @@ import { DraftSaveQueue } from './services/draft-save-queue.ts';
 import { AppearanceSaveQueue } from './services/appearance-save-queue.ts';
 import { ProfileGuard } from './services/profile-guard.ts';
 import { CourseClient } from './services/course-client.ts';
+import { navigationHistory } from './utils/navigation-history.ts';
 import { renderTheoryStepPage, renderTheoryWorkspaceContent, type TheoryStepPageOptions } from './pages/learning/TheoryStepPage.ts';
 import { renderVideoStepPage, renderVideoWorkspaceContent, type VideoStepPageOptions } from './pages/learning/VideoStepPage.ts';
 import { renderQuizStepPage, renderQuizWorkspaceContent, type QuizStepPageOptions } from './pages/learning/QuizStepPage.ts';
@@ -71,6 +72,50 @@ const courseClient = CourseClient.getInstance();
 
 let activeProfileGuard: ProfileGuard | null = null;
 let activeProfileCleanup: (() => void) | null = null;
+
+function safeSessionStorageGet(key: string): string | null {
+  try {
+    return window.sessionStorage ? window.sessionStorage.getItem(key) : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeSessionStorageSet(key: string, value: string): void {
+  try {
+    if (window.sessionStorage) {
+      window.sessionStorage.setItem(key, value);
+    }
+  } catch {}
+}
+
+function safeSessionStorageRemove(key: string): void {
+  try {
+    if (window.sessionStorage) {
+      window.sessionStorage.removeItem(key);
+    }
+  } catch {}
+}
+
+let activeModalCleanup: (() => void) | null = null;
+let activeModalKeydownListener: ((e: KeyboardEvent) => void) | null = null;
+let activeRouteLifecycle = 0;
+
+function cleanupActiveModals(): void {
+  if (activeModalCleanup) {
+    try {
+      activeModalCleanup();
+    } catch {}
+    activeModalCleanup = null;
+  }
+  if (activeModalKeydownListener) {
+    try {
+      document.removeEventListener('keydown', activeModalKeydownListener);
+    } catch {}
+    activeModalKeydownListener = null;
+  }
+}
+
 let activeAppearanceQueue: AppearanceSaveQueue | null = null;
 let activeAppearanceCleanup: (() => void) | null = null;
 async function s2Request(url: string, method = 'GET', body?: unknown): Promise<any> {
@@ -99,22 +144,187 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
   const courseId = params.courseId;
   try {
     if (pageId === 'P21') {
-      const { renderAuthorCoursesPage } = await import('./pages/author/AuthorCoursesPage.ts');
+      showRouteLoading('Your courses');
+      const { renderAuthorCoursesPage, buildAuthorFilterUrl } = await import('./pages/author/AuthorCoursesPage.ts');
       const data = await s2Request('/api/author/courses?limit=100');
       if (!s2Current(path)) return;
       let modal = false;
-      const draw = (error?: string) => {
-        const query = new URLSearchParams(path.split('?')[1] || '');
-        const status = query.get('status') || 'all';
-        appEl.innerHTML = renderAuthorCoursesPage({ user, courses: data.courses, activeFilter: (['all', 'draft', 'published', 'archived'].includes(status) ? status : 'all') as any, searchQuery: query.get('search') || '', showNewCourseModal: modal, newCourseError: error });
-        appEl.querySelectorAll('[data-action="open-new-course-modal"]').forEach(el => el.addEventListener('click', () => { modal = true; draw(); }));
-        appEl.querySelectorAll('[data-action="close-modal"]').forEach(el => el.addEventListener('click', () => { modal = false; draw(); }));
-        appEl.querySelector('form.modal-body[action="/teach"]')?.addEventListener('submit', async event => {
-          event.preventDefault();
-          const title = String(new FormData(event.currentTarget as HTMLFormElement).get('title') || '').trim();
-          try { const course = await s2Request('/api/author/courses', 'POST', { title }); window.history.pushState({}, '', `/teach/${course.id}/content`); renderApp(); }
-          catch (err: any) { draw(err.message); }
+      let enteredTitle = '';
+      let isSubmitting = false;
+      let lastTrigger: HTMLElement | null = null;
+      let modalInstanceId = 0;
+
+      const removeInert = () => {
+        ['.app-sidebar', '.author-page-header', '.author-toolbar', '.author-courses-content'].forEach(sel => {
+          document.querySelectorAll(sel).forEach(el => el.removeAttribute('inert'));
         });
+      };
+
+      const applyInert = () => {
+        ['.app-sidebar', '.author-page-header', '.author-toolbar', '.author-courses-content'].forEach(sel => {
+          document.querySelectorAll(sel).forEach(el => el.setAttribute('inert', ''));
+        });
+      };
+
+      const closeModal = (currentId?: number) => {
+        if (isSubmitting) return;
+        if (currentId !== undefined && currentId !== modalInstanceId) return;
+        modal = false;
+        enteredTitle = '';
+        cleanupActiveModals();
+        removeInert();
+        draw();
+        const openBtn = appEl.querySelector('[data-action="open-new-course-modal"]') as HTMLElement | null;
+        (lastTrigger && lastTrigger.isConnected ? lastTrigger : openBtn)?.focus();
+      };
+
+      const draw = (error?: string) => {
+        const query = new URLSearchParams(window.location.search || path.split('?')[1] || '');
+        const rawStatus = query.get('status') || 'all';
+        const status = ['all', 'draft', 'published', 'archived'].includes(rawStatus) ? rawStatus : 'all';
+        const searchQuery = query.get('search') || '';
+        appEl.innerHTML = renderAuthorCoursesPage({
+          user,
+          courses: data.courses,
+          activeFilter: status as any,
+          searchQuery,
+          showNewCourseModal: modal,
+          newCourseTitle: enteredTitle,
+          newCourseError: error,
+          isSubmitting,
+        });
+
+        if (modal) {
+          applyInert();
+          activeModalCleanup = removeInert;
+
+          const titleInput = appEl.querySelector('#course-title-input') as HTMLInputElement | null;
+          if (titleInput) {
+            titleInput.addEventListener('input', () => {
+              enteredTitle = titleInput.value;
+            });
+            if (!isSubmitting) {
+              titleInput.focus();
+              if (enteredTitle) {
+                titleInput.setSelectionRange(enteredTitle.length, enteredTitle.length);
+              }
+            }
+          }
+
+          if (activeModalKeydownListener) {
+            document.removeEventListener('keydown', activeModalKeydownListener);
+          }
+          const currentInstance = modalInstanceId;
+          activeModalKeydownListener = (e: KeyboardEvent) => {
+            if (!modal || modalInstanceId !== currentInstance) return;
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              if (!isSubmitting) {
+                closeModal(currentInstance);
+              }
+              return;
+            }
+            if (e.key === 'Tab') {
+              const modalDialog = appEl.querySelector('.author-modal-440') as HTMLElement | null;
+              if (!modalDialog) return;
+              const focusable = Array.from(modalDialog.querySelectorAll<HTMLElement>(
+                'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+              )).filter(el => el.offsetParent !== null || el === document.activeElement);
+              if (focusable.length === 0) {
+                e.preventDefault();
+                return;
+              }
+              const first = focusable[0];
+              const last = focusable[focusable.length - 1];
+              if (e.shiftKey) {
+                if (document.activeElement === first || !modalDialog.contains(document.activeElement)) {
+                  e.preventDefault();
+                  last.focus();
+                }
+              } else {
+                if (document.activeElement === last || !modalDialog.contains(document.activeElement)) {
+                  e.preventDefault();
+                  first.focus();
+                }
+              }
+            }
+          };
+          document.addEventListener('keydown', activeModalKeydownListener);
+
+          appEl.querySelectorAll('[data-action="close-modal"]').forEach(el => el.addEventListener('click', () => {
+            closeModal(currentInstance);
+          }));
+
+          appEl.querySelector('form.modal-body[action="/teach"]')?.addEventListener('submit', async event => {
+            event.preventDefault();
+            if (isSubmitting) return;
+            const form = event.currentTarget as HTMLFormElement;
+            const titleFromForm = String(new FormData(form).get('title') || enteredTitle || '').trim();
+            enteredTitle = titleFromForm;
+            if (!enteredTitle) {
+              draw('Course title is required.');
+              return;
+            }
+            isSubmitting = true;
+            draw();
+            const submitInstance = modalInstanceId;
+            const submitLifecycle = activeRouteLifecycle;
+            const submittedForm = appEl.querySelector('form.modal-body[action="/teach"]') as HTMLFormElement | null;
+            try {
+              const course = await s2Request('/api/author/courses', 'POST', { title: enteredTitle });
+              if (
+                activeRouteLifecycle !== submitLifecycle ||
+                !submittedForm ||
+                !submittedForm.isConnected ||
+                modalInstanceId !== submitInstance ||
+                !s2Current(path) ||
+                window.location.pathname !== '/teach'
+              ) {
+                return;
+              }
+              modal = false;
+              enteredTitle = '';
+              isSubmitting = false;
+              cleanupActiveModals();
+              removeInert();
+              window.history.pushState({}, '', `/teach/${encodeURIComponent(course.id)}/content`);
+              renderApp();
+            } catch (err: any) {
+              if (
+                activeRouteLifecycle !== submitLifecycle ||
+                !submittedForm ||
+                !submittedForm.isConnected ||
+                modalInstanceId !== submitInstance ||
+                !s2Current(path) ||
+                window.location.pathname !== '/teach'
+              ) {
+                return;
+              }
+              isSubmitting = false;
+              draw(err.message || 'Could not create course. Please try again.');
+            }
+          });
+        } else {
+          cleanupActiveModals();
+          removeInert();
+          appEl.querySelectorAll('[data-action="open-new-course-modal"]').forEach(el => el.addEventListener('click', (e) => {
+            if (isSubmitting) return;
+            lastTrigger = (e.currentTarget as HTMLElement) || (document.activeElement as HTMLElement | null);
+            modalInstanceId++;
+            modal = true;
+            enteredTitle = '';
+            draw();
+          }));
+
+          appEl.querySelector('form.search-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const searchInput = appEl.querySelector('input[name="search"]') as HTMLInputElement | null;
+            const statusInput = appEl.querySelector('input[name="status"]') as HTMLInputElement | null;
+            const q = searchInput ? searchInput.value.trim() : '';
+            const s = statusInput ? statusInput.value.trim() : '';
+            navigateTo(buildAuthorFilterUrl(s, q));
+          });
+        }
       };
       draw();
       return;
@@ -148,7 +358,15 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         nextStepId: e.progress?.nextIncompleteStepId || e.progress?.lastVisitedStepId,
         nextStepTitle: e.progress?.nextIncompleteStepTitle || e.progress?.lastVisitedStepTitle,
       }));
-      appEl.innerHTML = renderMyCoursesPage({ user, courses });
+      const searchParams = path.includes('?')
+        ? new URL(path, window.location.origin).searchParams
+        : new URLSearchParams(window.location.search);
+      const rawFilter = searchParams.get('filter');
+      const activeFilter: 'in_progress' | 'completed' | 'all' =
+        rawFilter === 'completed' || rawFilter === 'all' || rawFilter === 'in_progress'
+          ? rawFilter
+          : 'in_progress';
+      appEl.innerHTML = renderMyCoursesPage({ user, courses, activeFilter });
       return;
     }
     if (pageId === 'P11') {
@@ -375,11 +593,11 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
             assetModal.setAttribute('aria-labelledby', 'asset-modal-title');
             assetModal.innerHTML = `
               <div class="modal-dialog max-w-dialog" tabindex="-1">
-                <div class="sheet-header flex justify-between items-center pb-3 border-b border-subtle">
+                <div class="sheet-header flex justify-between items-center pb-2 border-b border-subtle">
                   <h3 id="asset-modal-title" class="text-base font-semibold">Upload theory image asset</h3>
                   <button type="button" class="btn btn-ghost btn-compact" id="asset-modal-close" aria-label="Close">✕</button>
                 </div>
-                <div class="modal-body py-4 flex flex-col gap-3">
+                <div class="modal-body py-3 flex flex-col gap-3">
                   <div class="form-group">
                     <label for="asset-file-picker" class="form-label text-xs font-semibold">Image file (PNG, JPEG, WebP up to 10 MB) *</label>
                     <input type="file" id="asset-file-picker" class="form-input text-sm" accept="image/png,image/jpeg,image/webp" />
@@ -621,8 +839,29 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
           const stillClean = savingEditRevision === authorEditRevision;
           saveButton.textContent = stillClean ? 'Saved' : 'Save changes';
           if (stillClean) authorShell.classList.remove('is-dirty');
+          const existingBanner = authorShell.querySelector('.author-save-error-banner');
+          if (existingBanner) existingBanner.remove();
           return stillClean;
-        } catch (err: any) { saveButton.textContent = 'Retry save'; window.alert(err.message); return false; }
+        } catch (err: any) {
+          saveButton.textContent = 'Retry save';
+          let banner = authorShell.querySelector('.author-save-error-banner') as HTMLElement | null;
+          if (!banner) {
+            banner = document.createElement('div');
+            banner.className = 'author-save-error-banner alert alert-danger mt-2';
+            banner.setAttribute('role', 'alert');
+            const container = authorShell.querySelector('.theory-editor-container, .video-editor-container, .quiz-editor-container, .exercise-editor-container, .author-editor-pane');
+            if (container) {
+              container.prepend(banner);
+            } else {
+              authorShell.prepend(banner);
+            }
+          }
+          const isConflict = err?.status === 409 || err?.statusCode === 409 || err?.code === 'CONFLICT' || err?.message?.toLowerCase().includes('conflict');
+          banner.textContent = isConflict
+            ? `Version conflict: another update was saved. ${err.message || 'Please reload the latest draft to compare changes.'}`
+            : `Save failed: ${err.message || 'Service temporarily unavailable. Click Retry save to try again.'}`;
+          return false;
+        }
         finally { saveButton.disabled = false; }
       };
       saveButton.addEventListener('click', () => { void saveAuthorStep(); });
@@ -633,13 +872,80 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         if (target.origin !== window.location.origin || target.pathname === window.location.pathname && target.search === window.location.search) return;
         event.preventDefault();
         event.stopImmediatePropagation();
-        if (await saveAuthorStep()) navigateTo(target.pathname + target.search + target.hash);
+        const originPath = window.location.pathname + window.location.search;
+        const saved = await saveAuthorStep();
+        if (saved && authorShell.isConnected && s2Current(originPath)) {
+          navigateTo(target.pathname + target.search + target.hash);
+        }
       }, true);
       return;
     }
   } catch (err: any) {
     if (err?.status === 401 || err?.statusCode === 401) return;
-    if (s2Current(path)) showRouteFailure(err.message || 'Could not load this page.', path);
+    if (!s2Current(path)) return;
+    const status = err?.status || err?.statusCode || 500;
+    const isAuthorRoute = path.startsWith('/teach') || path.startsWith('/settings/ai-connections');
+    if (isAuthorRoute && user) {
+      if (status === 403) {
+        appEl.innerHTML = renderAppShell({
+          user: user as any,
+          activeMode: 'teach',
+          activePath: path,
+          content: `
+            <div class="author-courses-container container py-12">
+              <div class="state-container state-denied text-center max-w-md mx-auto" role="alert">
+                <h1 class="page-title text-xl font-semibold mb-2">This course isn't available</h1>
+                <p class="text-secondary mb-4">You do not have permission to view or edit this course.</p>
+                <div class="flex items-center justify-center gap-3">
+                  <a href="/teach" class="btn btn-primary btn-compact">Return to Your courses</a>
+                  <a href="/courses" class="btn btn-secondary btn-compact">Browse courses</a>
+                </div>
+              </div>
+            </div>
+          `,
+        });
+        return;
+      }
+      if (status === 404) {
+        appEl.innerHTML = renderAppShell({
+          user: user as any,
+          activeMode: 'teach',
+          activePath: path,
+          content: `
+            <div class="author-courses-container container py-12">
+              <div class="state-container state-not-found text-center max-w-md mx-auto" role="alert">
+                <h1 class="page-title text-xl font-semibold mb-2">Course not found</h1>
+                <p class="text-secondary mb-4">The requested course or content could not be found.</p>
+                <div class="flex items-center justify-center gap-3">
+                  <a href="/teach" class="btn btn-primary btn-compact">Return to Your courses</a>
+                </div>
+              </div>
+            </div>
+          `,
+        });
+        return;
+      }
+      appEl.innerHTML = renderAppShell({
+        user: user as any,
+        activeMode: 'teach',
+        activePath: path,
+        content: `
+          <div class="author-courses-container container py-12">
+            <div class="state-container state-failure max-w-md mx-auto" role="alert">
+              <h1 class="page-title text-xl font-semibold mb-2">Couldn't load course content</h1>
+              <p class="text-secondary mb-4">${escapeHtml(err.message || 'A temporary server error prevented loading. Your drafts are preserved.')}</p>
+              <div class="flex items-center gap-3">
+                <button class="btn btn-primary btn-compact" id="author-route-retry">Try again</button>
+                <a href="/teach" class="btn btn-secondary btn-compact">Return to Your courses</a>
+              </div>
+            </div>
+          </div>
+        `,
+      });
+      document.getElementById('author-route-retry')?.addEventListener('click', () => renderApp(path));
+      return;
+    }
+    showRouteFailure(err.message || 'Could not load this page.', path);
   }
 }
 
@@ -761,6 +1067,17 @@ let activeCatalogRequestId = 0;
 let workspaceResizeController: AbortController | null = null;
 
 function showRouteLoading(label: string): void {
+  const user = authClient.getUser();
+  const isAuthor = window.location.pathname.startsWith('/teach') || window.location.pathname.startsWith('/settings/ai-connections');
+  if (user && isAuthor) {
+    appEl.innerHTML = renderAppShell({
+      user: user as any,
+      activeMode: 'teach',
+      activePath: window.location.pathname,
+      content: `<div class="container py-8" aria-busy="true"><h1 class="page-title">${escapeHtml(label)}</h1><p class="text-secondary" role="status">Loading from your account…</p></div>`,
+    });
+    return;
+  }
   appEl.innerHTML = `<main class="container py-8" aria-busy="true"><h1 class="page-title">${label}</h1><p class="text-secondary" role="status">Loading from your account…</p></main>`;
 }
 
@@ -770,6 +1087,29 @@ function showRouteFailure(message: string, retryPath: string): void {
     authClient.clearSession();
     const returnTo = getSafeReturnDestination(retryPath);
     navigateTo(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+    return;
+  }
+  const user = authClient.getUser();
+  const isAuthor = retryPath.startsWith('/teach') || retryPath.startsWith('/settings/ai-connections');
+  if (user && isAuthor) {
+    appEl.innerHTML = renderAppShell({
+      user: user as any,
+      activeMode: 'teach',
+      activePath: retryPath,
+      content: `
+        <div class="author-courses-container container py-12">
+          <div class="state-container state-failure max-w-md mx-auto" role="alert">
+            <h1 class="page-title text-xl font-semibold mb-2">Couldn't load this page</h1>
+            <p class="text-secondary mb-4">${escapeHtml(message)}</p>
+            <div class="flex items-center gap-3">
+              <button class="btn btn-primary btn-compact" id="route-retry">Try again</button>
+              <a href="/teach" class="btn btn-secondary btn-compact">Return to Your courses</a>
+            </div>
+          </div>
+        </div>
+      `,
+    });
+    document.getElementById('route-retry')?.addEventListener('click', () => renderApp(retryPath));
     return;
   }
   appEl.innerHTML = `<main class="container py-8"><section class="state-container" role="alert"><h1 class="page-title">Couldn't load this page</h1><p class="text-secondary">${escapeHtml(message)}</p><button class="btn btn-secondary" id="route-retry">Try again</button></section></main>`;
@@ -976,13 +1316,79 @@ async function renderAiConnectionSetupPage(
       });
     });
 
-    const copyPromptBtn = document.getElementById('btn-copy-prompt');
-    copyPromptBtn?.addEventListener('click', () => {
-      const prompt = copyPromptBtn.dataset.prompt || '';
-      void navigator.clipboard?.writeText(prompt);
-      copyPromptBtn.textContent = 'Copied!';
+    const copyEndpointBtn = document.getElementById('btn-copy-endpoint') as HTMLButtonElement | null;
+    copyEndpointBtn?.addEventListener('click', async () => {
+      const endpointInput = document.getElementById('endpoint-url-input') as HTMLInputElement | null;
+      const text = endpointInput?.value || `${window.location.origin}/mcp`;
+      const originalText = copyEndpointBtn.textContent?.trim() || 'Copy endpoint';
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+        await navigator.clipboard.writeText(text);
+        copyEndpointBtn.textContent = 'Copied!';
+      } catch {
+        copyEndpointBtn.textContent = 'Copy failed';
+      }
       setTimeout(() => {
-        if (copyPromptBtn) copyPromptBtn.textContent = 'Copy prompt';
+        if (copyEndpointBtn) copyEndpointBtn.textContent = originalText;
+      }, 2000);
+    });
+
+    const copySnippetBtn = document.getElementById('btn-copy-snippet') as HTMLButtonElement | null;
+    copySnippetBtn?.addEventListener('click', async () => {
+      const codeBlock = document.querySelector('.setup-code-block code');
+      const text = codeBlock?.textContent || '';
+      const originalText = copySnippetBtn.textContent?.trim() || 'Copy configuration';
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+        await navigator.clipboard.writeText(text);
+        copySnippetBtn.textContent = 'Copied!';
+      } catch {
+        copySnippetBtn.textContent = 'Copy failed';
+      }
+      setTimeout(() => {
+        if (copySnippetBtn) copySnippetBtn.textContent = originalText;
+      }, 2000);
+    });
+
+    const refreshStatusBtn = document.getElementById('btn-refresh-status') as HTMLButtonElement | null;
+    refreshStatusBtn?.addEventListener('click', async () => {
+      if (refreshStatusBtn.disabled) return;
+      refreshStatusBtn.disabled = true;
+      const originalText = refreshStatusBtn.textContent?.trim() || 'Refresh status';
+      refreshStatusBtn.textContent = 'Refreshing…';
+      try {
+        const refreshed = await authClient.fetchApi(`/api/author/tokens/${encodeURIComponent(connectionId)}`);
+        if (refreshed && refreshed.id) {
+          tokenData = refreshed;
+          render();
+        } else {
+          throw new Error('Could not refresh status');
+        }
+      } catch (err: any) {
+        const statusBox = document.querySelector('.verification-status-box');
+        if (statusBox) {
+          statusBox.innerHTML = `<p class="text-xs text-danger" role="alert">Status refresh failed: ${escapeHtml(err.message || 'Network error')}</p>`;
+        }
+        if (refreshStatusBtn) {
+          refreshStatusBtn.disabled = false;
+          refreshStatusBtn.textContent = originalText;
+        }
+      }
+    });
+
+    const copyPromptBtn = document.getElementById('btn-copy-prompt') as HTMLButtonElement | null;
+    copyPromptBtn?.addEventListener('click', async () => {
+      const prompt = copyPromptBtn.dataset.prompt || '';
+      const originalText = copyPromptBtn.textContent?.trim() || 'Copy prompt';
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+        await navigator.clipboard.writeText(prompt);
+        copyPromptBtn.textContent = 'Copied!';
+      } catch {
+        copyPromptBtn.textContent = 'Copy failed';
+      }
+      setTimeout(() => {
+        if (copyPromptBtn) copyPromptBtn.textContent = originalText;
       }, 2000);
     });
   };
@@ -996,12 +1402,23 @@ import {
   recordLastVisitedStep,
   getLastVisitedStep,
   parseLearningNavigation,
+  getCurriculumSidebarCollapsed,
+  setCurriculumSidebarCollapsed,
+  getScopedModulesExpandedKey,
+  getScopedSidebarScrollKey,
 } from './pages/learning/learning-navigation.ts';
 
 function attachLearningShellListeners(): void {
   const shellEl = appEl.querySelector('.shell-learning') as HTMLElement | null;
   if (!shellEl || shellEl.dataset.shellListenersAttached === 'true') return;
   shellEl.dataset.shellListenersAttached = 'true';
+
+  const getScope = () => {
+    const uId = authClient.getUser()?.id || 'guest';
+    const eId = (document.getElementById('report-enrollment-id') as HTMLInputElement)?.value || '';
+    const vId = (document.getElementById('report-version-id') as HTMLInputElement)?.value || '';
+    return { uId, eId, vId };
+  };
 
   shellEl.addEventListener('click', event => {
     const btn = (event.target as HTMLElement).closest<HTMLElement>('.sidebar-toggle-btn');
@@ -1010,10 +1427,15 @@ function attachLearningShellListeners(): void {
     const sidebar = shellEl.querySelector<HTMLElement>('#course-sidebar');
     if (!sidebar) return;
     const isCollapsed = sidebar.classList.toggle('collapsed');
+    sidebar.classList.toggle('open', !isCollapsed);
     sidebar.inert = isCollapsed;
     btn.setAttribute('aria-expanded', String(!isCollapsed));
     btn.setAttribute('aria-label', isCollapsed ? 'Show modules' : 'Hide modules');
     btn.setAttribute('title', isCollapsed ? 'Show modules' : 'Hide modules');
+    const { uId, eId, vId } = getScope();
+    if (uId && eId && vId) {
+      setCurriculumSidebarCollapsed(uId, eId, vId, isCollapsed);
+    }
   });
 
   const reportDialog = document.getElementById('exercise-report-dialog') as HTMLElement | null;
@@ -1022,11 +1444,120 @@ function attachLearningShellListeners(): void {
   const reportForm = document.getElementById('exercise-report-form') as HTMLFormElement | null;
   let lastActiveLink: HTMLElement | null = null;
 
+  const setBackgroundInert = (isInert: boolean) => {
+    const taskStrip = shellEl.querySelector<HTMLElement>('.learning-task-strip');
+    const learningBody = shellEl.querySelector<HTMLElement>('.learning-body');
+    if (taskStrip) taskStrip.inert = isInert;
+    if (learningBody) learningBody.inert = isInert;
+  };
+
+  let isReportModalOpen = false;
+
   const closeReportModal = () => {
-    if (reportDialog) reportDialog.hidden = true;
+    if (!isReportModalOpen && (!reportDialog || !(reportDialog as any).open)) return;
+    isReportModalOpen = false;
+    if (reportDialog) {
+      if (typeof (reportDialog as any).close === 'function' && (reportDialog as any).open) {
+        try { (reportDialog as any).close(); } catch {}
+      }
+      reportDialog.hidden = true;
+      reportDialog.style.display = 'none';
+      reportDialog.classList.remove('open');
+    }
+    setBackgroundInert(false);
+    if (activeModalKeydownListener) {
+      document.removeEventListener('keydown', activeModalKeydownListener);
+      activeModalKeydownListener = null;
+    }
+    activeModalCleanup = null;
     const includeCodeInput = document.getElementById('report-include-code') as HTMLInputElement | null;
     if (includeCodeInput) includeCodeInput.checked = false;
     lastActiveLink?.focus();
+  };
+
+  const openReportModal = (trigger: HTMLElement) => {
+    if (!reportDialog) return;
+    isReportModalOpen = true;
+    lastActiveLink = trigger;
+    const includeCodeInput = document.getElementById('report-include-code') as HTMLInputElement | null;
+    if (includeCodeInput && reportDialog.hidden) includeCodeInput.checked = false;
+
+    // Reset error feedback
+    const feedback = document.getElementById('report-form-feedback');
+    if (feedback) feedback.hidden = true;
+
+    setBackgroundInert(true);
+    reportDialog.hidden = false;
+    reportDialog.style.display = 'flex';
+    reportDialog.classList.add('open');
+    if (typeof (reportDialog as any).showModal === 'function') {
+      try {
+        if (!(reportDialog as any).open) {
+          (reportDialog as any).showModal();
+        }
+      } catch {}
+    }
+
+    const focusableSelectors = 'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const getFocusableElements = () => Array.from(reportDialog.querySelectorAll<HTMLElement>(focusableSelectors));
+
+    const focusTarget = (document.getElementById('report-issue-details') as HTMLElement | null) || getFocusableElements()[0];
+    focusTarget?.focus();
+
+    if (activeModalKeydownListener) {
+      document.removeEventListener('keydown', activeModalKeydownListener);
+      activeModalKeydownListener = null;
+    }
+
+    activeModalCleanup = () => {
+      if (reportDialog) {
+        if (typeof (reportDialog as any).close === 'function' && (reportDialog as any).open) {
+          try { (reportDialog as any).close(); } catch {}
+        }
+        reportDialog.hidden = true;
+        reportDialog.style.display = 'none';
+        reportDialog.classList.remove('open');
+      }
+      setBackgroundInert(false);
+    };
+
+    activeModalKeydownListener = (e: KeyboardEvent) => {
+      if (!reportDialog || !reportDialog.isConnected || reportDialog.hidden || !(reportDialog as any).open) {
+        if (activeModalKeydownListener) {
+          document.removeEventListener('keydown', activeModalKeydownListener);
+          activeModalKeydownListener = null;
+        }
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        closeReportModal();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusable = getFocusableElements();
+        if (focusable.length === 0) {
+          e.preventDefault();
+          return;
+        }
+        const firstEl = focusable[0];
+        const lastEl = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstEl || !reportDialog.contains(document.activeElement)) {
+            e.preventDefault();
+            lastEl.focus();
+          }
+        } else {
+          if (document.activeElement === lastEl || !reportDialog.contains(document.activeElement)) {
+            e.preventDefault();
+            firstEl.focus();
+          }
+        }
+      }
+    };
+    document.addEventListener('keydown', activeModalKeydownListener);
   };
 
   shellEl.addEventListener('click', e => {
@@ -1034,28 +1565,31 @@ function attachLearningShellListeners(): void {
     if (!link) return;
     e.preventDefault();
     e.stopPropagation();
-    if (reportDialog) {
-      lastActiveLink = link;
-      const includeCodeInput = document.getElementById('report-include-code') as HTMLInputElement | null;
-      if (includeCodeInput && reportDialog.hidden) includeCodeInput.checked = false;
-      reportDialog.hidden = false;
-      (document.getElementById('report-issue-details') as HTMLTextAreaElement | null)?.focus();
-    }
+    openReportModal(link);
   });
 
-  closeBtn?.addEventListener('click', closeReportModal);
-  cancelBtn?.addEventListener('click', closeReportModal);
-
-  // Close report modal on Escape key
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && reportDialog && !reportDialog.hidden) {
-      closeReportModal();
-    }
+  closeBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    closeReportModal();
+  });
+  cancelBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    closeReportModal();
+  });
+  reportDialog?.addEventListener('cancel', (e) => {
+    e.preventDefault();
+    closeReportModal();
+  });
+  reportDialog?.addEventListener('close', () => {
+    if ((reportDialog as any).open || isReportModalOpen) return;
+    closeReportModal();
   });
 
-  // Persist and restore sidebar module groups (<details>) expanded/collapsed state
+  // Persist and restore sidebar module groups (<details>) expanded/collapsed state scoped by user/enrollment/version
   try {
-    const collapsedRaw = sessionStorage.getItem('zur_collapsed_modules');
+    const { uId, eId, vId } = getScope();
+    const storageKey = uId && eId && vId ? getScopedModulesExpandedKey(uId, eId, vId) : 'zur_collapsed_modules';
+    const collapsedRaw = safeSessionStorageGet(storageKey);
     const collapsedSet = new Set<string>(collapsedRaw ? JSON.parse(collapsedRaw) : []);
     const moduleDetails = appEl.querySelectorAll<HTMLDetailsElement>('.sidebar-module-group');
     moduleDetails.forEach((details) => {
@@ -1070,25 +1604,23 @@ function attachLearningShellListeners(): void {
         } else {
           collapsedSet.add(modId);
         }
-        try {
-          sessionStorage.setItem('zur_collapsed_modules', JSON.stringify([...collapsedSet]));
-        } catch {}
+        safeSessionStorageSet(storageKey, JSON.stringify([...collapsedSet]));
       });
     });
   } catch {}
 
-  // Persist and restore sidebar scroll position
+  // Persist and restore sidebar scroll position scoped by user/enrollment/version
   const sidebar = document.getElementById('course-sidebar');
   if (sidebar) {
     try {
-      const savedScroll = sessionStorage.getItem('zur_sidebar_scroll');
+      const { uId, eId, vId } = getScope();
+      const scrollKey = uId && eId && vId ? getScopedSidebarScrollKey(uId, eId, vId) : 'zur_sidebar_scroll';
+      const savedScroll = safeSessionStorageGet(scrollKey);
       if (savedScroll !== null) {
         sidebar.scrollTop = Number(savedScroll);
       }
       sidebar.addEventListener('scroll', () => {
-        try {
-          sessionStorage.setItem('zur_sidebar_scroll', String(sidebar.scrollTop));
-        } catch {}
+        safeSessionStorageSet(scrollKey, String(sidebar.scrollTop));
       }, { passive: true });
     } catch {}
   }
@@ -1145,6 +1677,7 @@ function attachLearningShellListeners(): void {
         feedback.textContent = 'Could not submit report. Your message is preserved; try again.';
       }
       if (submitBtn) submitBtn.disabled = false;
+      (document.getElementById('report-issue-details') as HTMLTextAreaElement | null)?.focus();
     }
   });
 }
@@ -1252,6 +1785,7 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
         courseProgressPercentage: merged.courseProgressPercentage,
         modules: merged.modules,
         taskSquares: merged.taskSquares,
+        isSidebarCollapsed: user ? getCurriculumSidebarCollapsed(user.id, enrollmentId, courseVersionId) : false,
         isPythonWorkspace: true,
         saveStatusText: stepContent.saveLabel,
         outlineContent: merged.outlineContent,
@@ -1295,7 +1829,7 @@ async function loadPythonWorkspace(enrollmentId: string, stepId: string, request
     }
   } catch (error: any) {
     if (!isCurrent()) return;
-    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found', user: authClient.getUser() });
     else showRouteFailure('We could not load the enrolled exercise. Retry when the service is available.', requestedPath);
   }
 }
@@ -1346,7 +1880,7 @@ async function loadEnrolledStep(enrollmentId: string, stepId: string, requestedP
     }
   } catch (error: any) {
     if (window.location.pathname + window.location.search !== requestedPath) return;
-    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found', user: authClient.getUser() });
     else showRouteFailure('We could not load this lesson. Retry when the service is available.', requestedPath);
   }
 }
@@ -1401,6 +1935,7 @@ function renderEnrolledQuiz(data: any, enrollmentId: string, stepId: string, req
     courseProgressPercentage: nav.courseProgressPercentage,
     modules: nav.modules,
     taskSquares: nav.taskSquares,
+    isSidebarCollapsed: user?.id ? getCurriculumSidebarCollapsed(user.id, enrollmentId, courseVersionId) : false,
     isPythonWorkspace: false,
     outlineContent: quizPageOptions.outlineContent,
     workspaceContent: stepContent.workspaceContent,
@@ -1483,6 +2018,7 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
       })),
     });
     const common = {
+      courseId: data.courseId || data.progress?.courseId,
       courseTitle: data.courseTitle || 'Course',
       courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
       lessonTitle: data.stepMeta?.lessonTitle || progressSteps.find((s: any) => s.id === stepId)?.lessonTitle || 'Lesson',
@@ -1518,6 +2054,7 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
       courseProgressPercentage: nav.courseProgressPercentage,
       modules: nav.modules,
       taskSquares: nav.taskSquares,
+      isSidebarCollapsed: user?.id ? getCurriculumSidebarCollapsed(user.id, enrollmentId, courseVersionId) : false,
       isPythonWorkspace: false,
       outlineContent,
       workspaceContent: stepContent.workspaceContent,
@@ -1527,6 +2064,8 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
       reportContext: {
         stepId,
         enrollmentId,
+        courseId: common.courseId,
+        courseVersionId,
         courseTitle: common.courseTitle,
         lessonTitle: common.lessonTitle,
         stepTitle: common.stepTitle,
@@ -1646,7 +2185,7 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
     }));
   } catch (error: any) {
     if (!isCurrent()) return;
-    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found', user: authClient.getUser() });
     else showRouteFailure('We could not load this lesson. Retry when the service is available.', requestedPath);
   }
 }
@@ -1665,6 +2204,17 @@ async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptI
     const stepTitle = step.step?.title || 'Exercise';
     const courseTitle = step.courseTitle || 'Course';
     document.title = getAttemptDocumentTitle(stepTitle, courseTitle, selected);
+
+    const user = authClient.getUser() || { id: 'user-guest', displayName: 'Guest' };
+    const courseVersionId = step.courseVersionId || step.progress?.pinnedVersionId || step.progress?.courseVersionId || '';
+    const isSidebarCollapsed = user?.id ? getCurriculumSidebarCollapsed(user.id, enrollmentId, courseVersionId) : false;
+    const nav = parseLearningNavigation(step.progress, enrollmentId, stepId, user?.id, courseVersionId);
+
+    const queryOffset = Math.max(0, Number(new URLSearchParams(requestedPath.split('?')[1] || '').get('offset') || 0));
+    const allAttemptsUrl = queryOffset > 0
+      ? `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}/attempts?offset=${queryOffset}`
+      : `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}/attempts`;
+
     appEl.innerHTML = renderAttemptHistoryPage({
       courseTitle,
       courseOverviewUrl: `/learn/${encodeURIComponent(enrollmentId)}`,
@@ -1672,6 +2222,8 @@ async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptI
       stepTitle,
       enrollmentId,
       stepId,
+      courseId: step.courseId || step.progress?.courseId,
+      courseVersionId,
       workspaceUrl: `/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`,
       attempts: page.items || [],
       selectedAttempt: selected,
@@ -1680,35 +2232,196 @@ async function loadAttemptHistory(enrollmentId: string, stepId: string, attemptI
       pageSize: page.limit || 10,
       offset: page.offset || 0,
       isCompact: window.innerWidth < 1024,
+      modules: nav.modules,
+      taskSquares: nav.taskSquares,
+      courseProgressText: nav.courseProgressText,
+      courseProgressPercentage: nav.courseProgressPercentage,
+      isSidebarCollapsed,
+      allAttemptsUrl,
     });
     initTheme();
+    attachLearningShellListeners();
     document.getElementById('copy-code-btn')?.addEventListener('click', async () => {
       if (!selected?.codeSnapshot) return;
       await navigator.clipboard.writeText(selected.codeSnapshot);
     });
-    document.getElementById('restore-to-editor-btn')?.addEventListener('click', () => {
-      const dialog = document.getElementById('restore-confirm-dialog');
-      if (dialog) dialog.hidden = false;
+
+    const restoreTriggerBtn = document.getElementById('restore-to-editor-btn') as HTMLButtonElement | null;
+    const restoreDialog = document.getElementById('restore-confirm-dialog') as HTMLDialogElement | null;
+    const cancelRestoreBtn = document.getElementById('cancel-restore-btn') as HTMLButtonElement | null;
+    const confirmRestoreBtn = document.getElementById('confirm-restore-btn') as HTMLButtonElement | null;
+    const restoreErrorMsg = document.getElementById('restore-error-message');
+    const restoreDetailFeedback = document.getElementById('restore-detail-feedback');
+
+    let restoreKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
+    let isRestoreDialogOpen = false;
+
+    const closeRestoreDialog = () => {
+      if (!isRestoreDialogOpen && (!restoreDialog || !restoreDialog.open)) return;
+      isRestoreDialogOpen = false;
+      if (restoreDialog) {
+        if (typeof restoreDialog.close === 'function' && restoreDialog.open) {
+          try { restoreDialog.close(); } catch {}
+        }
+        restoreDialog.hidden = true;
+        restoreDialog.style.display = 'none';
+      }
+      if (restoreErrorMsg) {
+        restoreErrorMsg.textContent = '';
+        restoreErrorMsg.hidden = true;
+        restoreErrorMsg.setAttribute('hidden', '');
+        restoreErrorMsg.classList.add('hidden');
+        restoreErrorMsg.style.display = 'none';
+      }
+      if (restoreDetailFeedback) {
+        restoreDetailFeedback.textContent = '';
+        restoreDetailFeedback.hidden = true;
+        restoreDetailFeedback.setAttribute('hidden', '');
+        restoreDetailFeedback.classList.add('hidden');
+        restoreDetailFeedback.style.display = 'none';
+      }
+      if (restoreKeydownHandler) {
+        document.removeEventListener('keydown', restoreKeydownHandler);
+        restoreKeydownHandler = null;
+      }
+      activeModalCleanup = null;
+      restoreTriggerBtn?.focus();
+    };
+
+    const openRestoreDialog = () => {
+      if (!restoreDialog) return;
+      isRestoreDialogOpen = true;
+      if (restoreErrorMsg) {
+        restoreErrorMsg.textContent = '';
+        restoreErrorMsg.hidden = true;
+        restoreErrorMsg.setAttribute('hidden', '');
+        restoreErrorMsg.classList.add('hidden');
+        restoreErrorMsg.style.display = 'none';
+      }
+      if (restoreDetailFeedback) {
+        restoreDetailFeedback.textContent = '';
+        restoreDetailFeedback.hidden = true;
+        restoreDetailFeedback.setAttribute('hidden', '');
+        restoreDetailFeedback.classList.add('hidden');
+        restoreDetailFeedback.style.display = 'none';
+      }
+      if (confirmRestoreBtn) {
+        confirmRestoreBtn.disabled = false;
+        confirmRestoreBtn.textContent = 'Restore code';
+      }
+      restoreDialog.hidden = false;
+      restoreDialog.style.display = 'flex';
+      if (typeof restoreDialog.showModal === 'function') {
+        try {
+          if (!restoreDialog.open) {
+            restoreDialog.showModal();
+          }
+        } catch {}
+      }
+      cancelRestoreBtn?.focus();
+
+      if (restoreKeydownHandler) {
+        document.removeEventListener('keydown', restoreKeydownHandler);
+      }
+
+      activeModalCleanup = () => {
+        if (restoreDialog) {
+          if (typeof restoreDialog.close === 'function' && restoreDialog.open) {
+            try { restoreDialog.close(); } catch {}
+          }
+          restoreDialog.hidden = true;
+          restoreDialog.style.display = 'none';
+        }
+      };
+
+      restoreKeydownHandler = (e: KeyboardEvent) => {
+        if (!restoreDialog || !restoreDialog.isConnected || restoreDialog.hidden || !restoreDialog.open) {
+          if (restoreKeydownHandler) {
+            document.removeEventListener('keydown', restoreKeydownHandler);
+            restoreKeydownHandler = null;
+          }
+          return;
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          closeRestoreDialog();
+          return;
+        }
+        if (e.key === 'Tab') {
+          const focusable = [cancelRestoreBtn, confirmRestoreBtn].filter(Boolean) as HTMLElement[];
+          if (focusable.length === 0) {
+            e.preventDefault();
+            return;
+          }
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (e.shiftKey) {
+            if (document.activeElement === first || !restoreDialog.contains(document.activeElement)) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last || !restoreDialog.contains(document.activeElement)) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+      };
+      document.addEventListener('keydown', restoreKeydownHandler);
+    };
+
+    restoreTriggerBtn?.addEventListener('click', openRestoreDialog);
+
+    cancelRestoreBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeRestoreDialog();
     });
-    document.getElementById('cancel-restore-btn')?.addEventListener('click', () => {
-      const dialog = document.getElementById('restore-confirm-dialog');
-      if (dialog) dialog.hidden = true;
+
+    restoreDialog?.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      closeRestoreDialog();
     });
-    document.getElementById('confirm-restore-btn')?.addEventListener('click', async () => {
+
+    restoreDialog?.addEventListener('close', () => {
+      if (restoreDialog.open || isRestoreDialogOpen) return;
+      closeRestoreDialog();
+    });
+
+    confirmRestoreBtn?.addEventListener('click', async () => {
       if (!selected) return;
-      const button = document.getElementById('confirm-restore-btn') as HTMLButtonElement;
-      button.disabled = true;
+      confirmRestoreBtn.disabled = true;
+      confirmRestoreBtn.textContent = 'Restoring…';
       try {
         await authClient.fetchApi(`/api/attempts/${encodeURIComponent(attemptId!)}/restore`, { method: 'POST' });
+        if (!isCurrent()) return;
+        closeRestoreDialog();
         navigateTo(`/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`);
       } catch {
-        button.disabled = false;
-        showRouteFailure('The saved draft changed or could not be restored. Your current editor content is preserved.', requestedPath);
+        if (!isCurrent()) return;
+        confirmRestoreBtn.disabled = false;
+        confirmRestoreBtn.textContent = 'Retry restore';
+        const failureText = 'This attempt could not be restored. Your current editor content is preserved.';
+        if (restoreErrorMsg) {
+          restoreErrorMsg.textContent = failureText;
+          restoreErrorMsg.hidden = false;
+          restoreErrorMsg.removeAttribute('hidden');
+          restoreErrorMsg.classList.remove('hidden');
+          restoreErrorMsg.style.display = 'flex';
+        }
+        if (restoreDetailFeedback) {
+          restoreDetailFeedback.textContent = failureText;
+          restoreDetailFeedback.hidden = false;
+          restoreDetailFeedback.removeAttribute('hidden');
+          restoreDetailFeedback.classList.remove('hidden');
+          restoreDetailFeedback.style.display = 'block';
+        }
       }
     });
   } catch (error: any) {
     if (!isCurrent()) return;
-    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+    if (error.statusCode === 404 || error.statusCode === 403) appEl.innerHTML = renderSafeDenialPage({ type: 'not-found', user: authClient.getUser() });
     else showRouteFailure('We could not load submission history. Retry when the service is available.', requestedPath);
   }
 }
@@ -2276,6 +2989,24 @@ function attachPublishReviewListeners(
 }
 
 async function loadAdminPage(path: string, displayName: string, email: string): Promise<void> {
+  const isShellMounted = Boolean(appEl.querySelector('.shell-admin'));
+  const activeBasePath = path.split('?')[0];
+  if (isShellMounted) {
+    appEl.querySelectorAll<HTMLAnchorElement>('.admin-nav-item').forEach((link) => {
+      const href = link.getAttribute('href');
+      const isActive =
+        href === '/admin'
+          ? activeBasePath === '/admin'
+          : Boolean(href && (activeBasePath === href || activeBasePath.startsWith(`${href}/`)));
+      link.classList.toggle('active', isActive);
+      if (isActive) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+  }
+
   const headers = { Authorization: `Bearer ${authClient.getToken() || ''}` };
   const api = async (url: string) => {
     const res = await fetch(url, { headers });
@@ -2312,11 +3043,44 @@ async function loadAdminPage(path: string, displayName: string, email: string): 
     else if(path.split('?')[0]==='/admin/audit') data=await api(`/api/admin/audit${search}`);
     else data={};
     if(window.location.pathname+window.location.search!==path&&window.location.pathname!==path.split('?')[0])return;
-    const { renderAdminPage } = await import('./pages/admin/AdminPages.ts');
-    appEl.innerHTML=renderAdminPage(path,data,undefined,{displayName,email});
+    const { renderAdminPage, renderAdminPageContent } = await import('./pages/admin/AdminPages.ts');
+    if (appEl.querySelector('.shell-admin')) {
+      const { title, content } = renderAdminPageContent(path, data, undefined, { displayName, email });
+      const adminMain = appEl.querySelector('.admin-main') || appEl.querySelector('.admin-content-body');
+      if (adminMain) {
+        adminMain.innerHTML = content;
+      }
+      const topbarTitle = appEl.querySelector('.admin-location-current');
+      if (topbarTitle) {
+        topbarTitle.textContent = title;
+      }
+      document.title = `${title} · ZUR`;
+    } else {
+      appEl.innerHTML = renderAdminPage(path, data, undefined, { displayName, email });
+      const { title } = renderAdminPageContent(path, data, undefined, { displayName, email });
+      document.title = `${title} · ZUR`;
+      initTheme();
+    }
   } catch(error:any) {
-    const { renderAdminPage } = await import('./pages/admin/AdminPages.ts');
-    appEl.innerHTML=renderAdminPage(path,null,error.message,{displayName,email});
+    if(window.location.pathname+window.location.search!==path&&window.location.pathname!==path.split('?')[0])return;
+    const { renderAdminPage, renderAdminPageContent } = await import('./pages/admin/AdminPages.ts');
+    if (appEl.querySelector('.shell-admin')) {
+      const { title, content } = renderAdminPageContent(path, null, error.message, { displayName, email });
+      const adminMain = appEl.querySelector('.admin-main') || appEl.querySelector('.admin-content-body');
+      if (adminMain) {
+        adminMain.innerHTML = content;
+      }
+      const topbarTitle = appEl.querySelector('.admin-location-current');
+      if (topbarTitle) {
+        topbarTitle.textContent = title;
+      }
+      document.title = `${title} · ZUR`;
+    } else {
+      appEl.innerHTML = renderAdminPage(path, null, error.message, { displayName, email });
+      const { title } = renderAdminPageContent(path, null, error.message, { displayName, email });
+      document.title = `${title} · ZUR`;
+      initTheme();
+    }
   }
 }
 
@@ -2367,6 +3131,8 @@ export function navigateTo(path: string): void {
 }
 
 export function renderApp(path: string = window.location.pathname + window.location.search): void {
+  activeRouteLifecycle++;
+  cleanupActiveModals();
   cleanupLandingHero?.();
   cleanupLandingHero = null;
   releaseLessonMediaObjectUrls();
@@ -2541,9 +3307,10 @@ export function renderApp(path: string = window.location.pathname + window.locat
           })
           .catch((err: any) => {
             if (!isCurrentOverview()) return;
-            const isDenial = err.status === 404 || err.status === 403 || err.message === "This page isn't available.";
+            const isServiceError = (typeof err.status === 'number' && err.status >= 500 && err.status < 600) || err.status === 0 || Boolean(err.isNetworkError);
+            const isDenial = !isServiceError && (err.status === 404 || err.status === 403 || (!err.status && err.message === "This page isn't available."));
             if (isDenial) {
-              appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
+              appEl.innerHTML = renderSafeDenialPage({ type: 'not-found', user: currentUser });
             } else {
               const errorContent = renderCourseOverviewPage({
                 isLoading: false,
@@ -3232,7 +3999,10 @@ print(val * 2)
 
     case 'S6': {
       const actor = currentUser!;
-      showRouteLoading('Admin');
+      const isShellMounted = Boolean(appEl.querySelector('.shell-admin'));
+      if (!isShellMounted) {
+        showRouteLoading('Admin');
+      }
       void loadAdminPage(path, actor.displayName, actor.email);
       break;
     }
@@ -3463,27 +4233,82 @@ function attachCourseOverviewListeners(courseId: string): void {
   });
 }
 
-function attachHelpListeners(courseId?: string): void {
+function attachHelpListeners(courseId?: string, triggerElement?: HTMLElement | null): void {
   const modal = document.getElementById('report-issue-modal');
-  const openBtn = document.querySelector('[data-action="open-report"]');
-  const closeBtns = document.querySelectorAll('[data-action="close-report"]');
+  const openBtns = document.querySelectorAll<HTMLElement>('[data-action="open-report"]');
+  const closeBtns = document.querySelectorAll<HTMLElement>('[data-action="close-report"]');
   const form = document.getElementById('report-issue-form') as HTMLFormElement | null;
 
-  let helpTriggerElement: HTMLElement | null = null;
+  let helpTriggerElement: HTMLElement | null = triggerElement || (openBtns.length > 0 ? openBtns[0] : null);
+
+  const getFocusableElements = (): HTMLElement[] => {
+    if (!modal) return [];
+    const selectors = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled]):not([type="hidden"])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(', ');
+    return Array.from(modal.querySelectorAll<HTMLElement>(selectors)).filter(
+      (el) => el.offsetParent !== null || el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement
+    );
+  };
 
   const handleModalKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
+      e.preventDefault();
       closeReportModal();
+      return;
+    }
+
+    if (e.key === 'Tab') {
+      const focusables = getFocusableElements();
+      if (focusables.length === 0) {
+        e.preventDefault();
+        return;
+      }
+      const firstEl = focusables[0];
+      const lastEl = focusables[focusables.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstEl || !modal?.contains(document.activeElement)) {
+          e.preventDefault();
+          lastEl.focus();
+        }
+      } else {
+        if (document.activeElement === lastEl || !modal?.contains(document.activeElement)) {
+          e.preventDefault();
+          firstEl.focus();
+        }
+      }
     }
   };
 
-  function openReportModal(): void {
+  function openReportModal(trigger?: HTMLElement): void {
     if (!modal) return;
-    helpTriggerElement = document.activeElement as HTMLElement | null;
+    if (trigger) {
+      helpTriggerElement = trigger;
+    } else if (!helpTriggerElement) {
+      helpTriggerElement = document.activeElement as HTMLElement | null;
+    }
+
     modal.style.display = 'flex';
     modal.classList.add('open');
+
+    if (modal instanceof HTMLDialogElement && !modal.open) {
+      try {
+        modal.showModal();
+      } catch {
+        modal.setAttribute('open', '');
+      }
+    }
+
     document.addEventListener('keydown', handleModalKeyDown);
-    const firstInput = modal.querySelector('input, select, textarea, button') as HTMLElement | null;
+
+    const firstInput = (modal.querySelector('#report-course-id, #report-type, #report-description') as HTMLElement | null)
+      || (modal.querySelector('input:not([type="hidden"]), select, textarea, button') as HTMLElement | null);
     firstInput?.focus();
   }
 
@@ -3491,17 +4316,53 @@ function attachHelpListeners(courseId?: string): void {
     if (!modal) return;
     modal.style.display = 'none';
     modal.classList.remove('open');
+
+    if (modal instanceof HTMLDialogElement && modal.open) {
+      try {
+        modal.close();
+      } catch {
+        modal.removeAttribute('open');
+      }
+    }
+
     document.removeEventListener('keydown', handleModalKeyDown);
-    helpTriggerElement?.focus();
+    if (helpTriggerElement && typeof helpTriggerElement.focus === 'function') {
+      helpTriggerElement.focus();
+    }
   }
 
-  if (openBtn) {
-    openBtn.addEventListener('click', openReportModal);
+  if (modal instanceof HTMLDialogElement) {
+    modal.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      closeReportModal();
+    });
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeReportModal();
+      }
+    });
   }
+
+  openBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      openReportModal(btn);
+    });
+  });
 
   closeBtns.forEach((btn) => {
     btn.addEventListener('click', closeReportModal);
   });
+
+  if (modal && (modal.classList.contains('open') || modal.hasAttribute('open') || modal.style.display === 'flex')) {
+    if (modal instanceof HTMLDialogElement && !modal.open) {
+      try {
+        modal.showModal();
+      } catch {
+        modal.setAttribute('open', '');
+      }
+    }
+    document.addEventListener('keydown', handleModalKeyDown);
+  }
 
   if (form) {
     form.addEventListener('submit', async (e) => {
@@ -3540,7 +4401,7 @@ function attachHelpListeners(courseId?: string): void {
           user: currentUser,
           content,
         });
-        attachHelpListeners(reportCourseId);
+        attachHelpListeners(reportCourseId, helpTriggerElement);
       } catch (err: any) {
         const currentUser = authClient.getUser();
         const content = renderHelpPage({
@@ -3558,7 +4419,7 @@ function attachHelpListeners(courseId?: string): void {
           user: currentUser,
           content,
         });
-        attachHelpListeners(reportCourseId);
+        attachHelpListeners(reportCourseId, helpTriggerElement);
         const descEl = document.getElementById('report-description') as HTMLTextAreaElement | null;
         descEl?.focus();
       }
@@ -3842,11 +4703,23 @@ function attachProfileListeners(): void {
 
   if (!input || !saveBtn || !form) return;
 
-  const guard = new ProfileGuard(input.value);
+  const user = authClient.getUser();
+  const draftKey = user ? `zur_profile_draft_${user.id}` : null;
+  if (draftKey) {
+    const existingDraft = safeSessionStorageGet(draftKey);
+    if (existingDraft !== null && existingDraft.trim().length > 0 && existingDraft !== input.value) {
+      input.value = existingDraft;
+    }
+  }
+
+  const guard = new ProfileGuard(user?.displayName || input.value);
   activeProfileGuard = guard;
-  saveBtn.disabled = true;
+  saveBtn.disabled = !guard.isDirty(input.value);
 
   const checkDirty = () => {
+    if (draftKey) {
+      safeSessionStorageSet(draftKey, input.value);
+    }
     if (!guard.isSaving) {
       saveBtn.disabled = !guard.isDirty(input.value);
     }
@@ -3888,6 +4761,9 @@ function attachProfileListeners(): void {
     try {
       const updated = await authClient.updateProfile(displayName);
       guard.markSaveSuccess(updated.displayName);
+      if (draftKey) {
+        safeSessionStorageRemove(draftKey);
+      }
       if (activeProfileCleanup) {
         activeProfileCleanup();
         activeProfileCleanup = null;
@@ -4745,6 +5621,15 @@ document.addEventListener('submit', async (event) => {
   }
 });
 document.addEventListener('change', async (event) => {
+  const replaceSelect = (event.target as HTMLElement).closest('#edit-category-replacement-select, [name="replacementId"]') as HTMLSelectElement | null;
+  if (replaceSelect) {
+    const dialog = replaceSelect.closest('dialog');
+    const submitBtn = dialog?.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (submitBtn && replaceSelect.required) {
+      submitBtn.disabled = !replaceSelect.value;
+    }
+  }
+
   const select=(event.target as HTMLElement).closest('[data-waiver-step]') as HTMLSelectElement|null;
   if(!select)return;
   const form=select.closest('form') as HTMLFormElement|null;if(!form)return;
@@ -4792,6 +5677,7 @@ async function confirmAppearanceDeparture(timeoutMs = 2000): Promise<boolean> {
 let lastActiveAdminTrigger: HTMLElement | null = null;
 
 function clearAdminDialogState(dialog: HTMLDialogElement): void {
+  if (!dialog.classList.contains('admin-modal-dialog')) return;
   dialog.querySelectorAll<HTMLInputElement>('input[type="password"]').forEach((input) => {
     input.value = '';
   });
@@ -4802,8 +5688,14 @@ function clearAdminDialogState(dialog: HTMLDialogElement): void {
     err.textContent = '';
     err.classList.add('hidden');
   });
+  const replaceSelect = dialog.querySelector<HTMLSelectElement>('#edit-category-replacement-select, [name="replacementId"]');
+  if (replaceSelect) {
+    replaceSelect.value = '';
+  }
   dialog.querySelectorAll<HTMLButtonElement>('button[type="submit"]').forEach((btn) => {
-    btn.disabled = Boolean(btn.closest('form')?.querySelector('[data-waiver-step]'));
+    const isWaiver = Boolean(btn.closest('form')?.querySelector('[data-waiver-step]'));
+    const isReplaceRequired = Boolean(replaceSelect && replaceSelect.required && !replaceSelect.value);
+    btn.disabled = Boolean(isWaiver || isReplaceRequired);
     if (btn.dataset.label) {
       btn.textContent = btn.dataset.label;
     }
@@ -4822,7 +5714,7 @@ document.addEventListener(
   'close',
   (event) => {
     const dialog = event.target as HTMLDialogElement | null;
-    if (!dialog || dialog.tagName !== 'DIALOG') return;
+    if (!dialog || dialog.tagName !== 'DIALOG' || !dialog.classList.contains('admin-modal-dialog') || dialog.open) return;
     clearAdminDialogState(dialog);
     if (lastActiveAdminTrigger && typeof lastActiveAdminTrigger.focus === 'function') {
       try {
@@ -4873,7 +5765,6 @@ document.addEventListener('click', async (e) => {
     lastActiveAdminTrigger = editCatBtn;
     const id = editCatBtn.dataset.editCategoryId;
     const name = editCatBtn.dataset.editCategoryName || '';
-    const usage = Number(editCatBtn.dataset.editCategoryUsage || 0);
     const dialog = document.getElementById('edit-category-dialog') as HTMLDialogElement | null;
     if (dialog) {
       clearAdminDialogState(dialog);
@@ -4882,31 +5773,108 @@ document.addEventListener('click', async (e) => {
         editForm.reset();
         if (id) editForm.action = `/api/admin/categories/${encodeURIComponent(id)}`;
       }
+      const nameInput = dialog.querySelector('#edit-category-name') as HTMLInputElement | null;
+      if (nameInput) nameInput.value = name;
+      if (typeof dialog.showModal === 'function') {
+        dialog.showModal();
+      }
+    }
+    return;
+  }
+
+  const removeCatBtn = (e.target as HTMLElement).closest('[data-remove-category-id]') as HTMLElement | null;
+  if (removeCatBtn) {
+    lastActiveAdminTrigger = removeCatBtn;
+    const id = removeCatBtn.dataset.removeCategoryId;
+    const name = removeCatBtn.dataset.removeCategoryName || '';
+    const usage = Number(removeCatBtn.dataset.removeCategoryUsage || 0);
+    const dialog = document.getElementById('remove-category-dialog') as HTMLDialogElement | null;
+    if (dialog) {
+      clearAdminDialogState(dialog);
       const deleteForm = dialog.querySelector('#delete-category-form') as HTMLFormElement | null;
       if (deleteForm) {
         deleteForm.reset();
         if (id) deleteForm.action = `/api/admin/categories/${encodeURIComponent(id)}`;
       }
-      const nameInput = dialog.querySelector('#edit-category-name') as HTMLInputElement | null;
-      if (nameInput) nameInput.value = name;
-      const replaceGroup = dialog.querySelector('#replacement-category-group') as HTMLElement | null;
-      const replaceInput = dialog.querySelector('[name="replacementId"]') as HTMLInputElement | null;
+
+      const targetName = dialog.querySelector('#remove-category-target-name');
+      if (targetName) targetName.textContent = name;
+      const targetUsage = dialog.querySelector('#remove-category-target-usage');
+      if (targetUsage) targetUsage.textContent = String(usage);
+
       const usageWarning = dialog.querySelector('#edit-category-usage-warning') as HTMLElement | null;
+      const consequenceWarning = dialog.querySelector('#remove-category-consequence-warning') as HTMLElement | null;
+
+      if (usage > 0) {
+        if (usageWarning) {
+          usageWarning.textContent = `In use by ${usage} course(s). Reassign before removal.`;
+          usageWarning.classList.remove('hidden');
+        }
+        if (consequenceWarning) consequenceWarning.textContent = `This category is currently in use by ${usage} course(s). Select an eligible replacement category to reassign all courses before removing this category. This action cannot be undone.`;
+      } else {
+        if (usageWarning) {
+          usageWarning.textContent = 'Not currently in use by any courses.';
+          usageWarning.classList.add('hidden');
+        }
+        if (consequenceWarning) consequenceWarning.textContent = 'This category has no courses assigned. Removing it will permanently delete it from public discovery. This action cannot be undone.';
+      }
+
+      const replaceGroup = dialog.querySelector('#replacement-category-group') as HTMLElement | null;
+      const replaceSelect = dialog.querySelector('#edit-category-replacement-select, [name="replacementId"]') as HTMLSelectElement | null;
+      const submitBtn = dialog.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+
+      let allCategories: Array<{ id: string; name: string; usageCount?: number }> = [];
+      if (dialog.dataset.categoryItems) {
+        try {
+          allCategories = JSON.parse(dialog.dataset.categoryItems);
+        } catch {}
+      }
+      if (!allCategories.length) {
+        const catButtons = Array.from(document.querySelectorAll<HTMLElement>('[data-edit-category-id]'));
+        allCategories = catButtons.map((btn) => ({
+          id: btn.dataset.editCategoryId || '',
+          name: btn.dataset.editCategoryName || '',
+          usageCount: Number(btn.dataset.editCategoryUsage || 0),
+        }));
+      }
+
+      const eligible = allCategories.filter((c) => c.id && c.id !== id);
+
+      if (replaceSelect) {
+        replaceSelect.innerHTML = '';
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = eligible.length ? 'Select a replacement category…' : 'No eligible replacement categories';
+        replaceSelect.appendChild(defaultOpt);
+
+        for (const cat of eligible) {
+          const opt = document.createElement('option');
+          opt.value = cat.id;
+          opt.textContent = `${cat.name} (${cat.id})`;
+          replaceSelect.appendChild(opt);
+        }
+      }
+
       if (usage > 0) {
         if (replaceGroup) replaceGroup.classList.remove('hidden');
-        if (replaceInput) {
-          replaceInput.required = true;
-          replaceInput.value = '';
+        if (replaceSelect) {
+          replaceSelect.required = true;
+          replaceSelect.value = '';
         }
-        if (usageWarning) usageWarning.textContent = `In use by ${usage} course(s). Reassign before removal.`;
+        if (submitBtn) {
+          submitBtn.disabled = true;
+        }
       } else {
         if (replaceGroup) replaceGroup.classList.add('hidden');
-        if (replaceInput) {
-          replaceInput.required = false;
-          replaceInput.value = '';
+        if (replaceSelect) {
+          replaceSelect.required = false;
+          replaceSelect.value = '';
         }
-        if (usageWarning) usageWarning.textContent = 'Not currently in use by any courses.';
+        if (submitBtn) {
+          submitBtn.disabled = false;
+        }
       }
+
       if (typeof dialog.showModal === 'function') {
         dialog.showModal();
       }
@@ -4940,12 +5908,14 @@ document.addEventListener('click', async (e) => {
 
   if ((e.target as HTMLElement).tagName === 'DIALOG') {
     const dialog = e.target as HTMLDialogElement;
-    const rect = dialog.getBoundingClientRect();
-    const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height
-      && rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
-    if (!isInDialog && typeof dialog.close === 'function') {
-      clearAdminDialogState(dialog);
-      dialog.close();
+    if (dialog.classList.contains('admin-modal-dialog')) {
+      const rect = dialog.getBoundingClientRect();
+      const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height
+        && rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+      if (!isInDialog && typeof dialog.close === 'function') {
+        clearAdminDialogState(dialog);
+        dialog.close();
+      }
     }
   }
   const hintTrigger = (e.target as HTMLElement).closest('.hint-trigger') as HTMLButtonElement | null;
@@ -4996,8 +5966,37 @@ document.addEventListener('click', async (e) => {
     const pathname = target.pathname;
     if (pathname.startsWith('/api/')) return; // Allow direct API endpoints
 
+    // Same-document fragment navigation (e.g. #main-content skip link)
+    const rawHref = target.getAttribute('href') || '';
+    if (rawHref.startsWith('#') || (target.hash && target.pathname === window.location.pathname && target.search === window.location.search)) {
+      e.preventDefault();
+      const hash = target.hash || (rawHref.startsWith('#') ? rawHref : '');
+      const targetId = hash.replace(/^#/, '');
+      if (targetId) {
+        const targetElem = document.getElementById(targetId);
+        if (targetElem) {
+          if (!targetElem.hasAttribute('tabindex')) {
+            targetElem.setAttribute('tabindex', '-1');
+          }
+          targetElem.focus();
+          targetElem.scrollIntoView?.({ block: 'start' });
+        }
+      }
+      return;
+    }
+
     // Synchronously prevent default for all internal SPA navigation before any async operations
     e.preventDefault();
+
+    // Author dirty check
+    const dirtyAuthorShell = document.querySelector('.shell-author.is-dirty');
+    if (dirtyAuthorShell) {
+      const confirmed = window.confirm('You have unsaved changes. Are you sure you want to leave this page?');
+      if (!confirmed) {
+        return; // Stay on current page, default already prevented
+      }
+      dirtyAuthorShell.classList.remove('is-dirty');
+    }
 
     // Profile guard check
     if (activeProfileGuard) {
@@ -5007,6 +6006,10 @@ document.addEventListener('click', async (e) => {
       if (promptMsg) {
         if (!window.confirm(promptMsg)) {
           return; // Stay on current page, default already prevented
+        }
+        const user = authClient.getUser();
+        if (user) {
+          safeSessionStorageRemove(`zur_profile_draft_${user.id}`);
         }
         if (activeProfileCleanup) {
           activeProfileCleanup();
@@ -5035,13 +6038,59 @@ document.addEventListener('click', async (e) => {
   }
 });
 
-window.addEventListener('popstate', async () => {
+window.addEventListener('popstate', async (event: PopStateEvent) => {
+  if (navigationHistory.checkAndClearReverting()) {
+    return;
+  }
+
+  const dirtyAuthorShell = document.querySelector('.shell-author.is-dirty');
+  if (dirtyAuthorShell) {
+    const confirmed = window.confirm('You have unsaved changes. Are you sure you want to leave this page?');
+    if (!confirmed) {
+      navigationHistory.revertPopstate(event.state);
+      return;
+    }
+    dirtyAuthorShell.classList.remove('is-dirty');
+  }
+
+  if (activeProfileGuard) {
+    const profileInput = document.querySelector('#profile-settings-form input[name="displayName"]') as HTMLInputElement | null;
+    const currentVal = profileInput ? profileInput.value : '';
+    const promptMsg = activeProfileGuard.getNavigationPrompt(currentVal);
+    if (promptMsg) {
+      const confirmed = window.confirm(promptMsg);
+      if (!confirmed) {
+        navigationHistory.revertPopstate(event.state);
+        return;
+      }
+      const user = authClient.getUser();
+      if (user) {
+        safeSessionStorageRemove(`zur_profile_draft_${user.id}`);
+      }
+      if (activeProfileCleanup) {
+        activeProfileCleanup();
+        activeProfileCleanup = null;
+      }
+      activeProfileGuard = null;
+    }
+  }
+
+  cleanupActiveModals();
+  navigationHistory.confirmPopstate(event.state);
+
   const canLeaveAppearance = await confirmAppearanceDeparture(1500);
   if (!canLeaveAppearance) {
     window.history.pushState(null, '', '/settings/appearance');
     return;
   }
   renderApp();
+});
+
+window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
+  if (document.querySelector('.shell-author.is-dirty')) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
 });
 
 // Initial paint

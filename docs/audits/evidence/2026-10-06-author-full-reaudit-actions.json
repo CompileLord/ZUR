@@ -1,0 +1,558 @@
+{
+  "runId": "author-full-reaudit-1791256022200",
+  "auditDate": "2026-10-06",
+  "status": "completed_with_failures",
+  "environment": {
+    "isolation": "fresh temporary SQLite database; own API, worker, Vite, Chrome profile and ephemeral ports",
+    "viewport": "1440x900 desktop",
+    "themes": [
+      "dark",
+      "light"
+    ],
+    "sharedDemoDatabaseTouched": false
+  },
+  "primaryCourse": {
+    "id": "42195d59-d4da-4095-9a0c-bf760b5102e2",
+    "title": "AUDIT 2026-10-06 author-full-reaudit-1791256022200 edited",
+    "versionOne": 1,
+    "enrollmentPath": "/learn/enr-241094a9-a5b0-49bd-94a4-3ad80297afee"
+  },
+  "actionCount": 23,
+  "passCount": 18,
+  "failCount": 5,
+  "blockedCount": 0,
+  "notTestedCount": 0,
+  "actions": [
+    {
+      "timestamp": "2026-10-06T03:07:05.046Z",
+      "feature": "Course list, status filters, search, new-course validation",
+      "status": "PASS",
+      "details": "Status filters and title search changed route/results; blank course title blocked by required validation (visible rows after search: 0).",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:06.074Z",
+      "feature": "Course create and settings save",
+      "status": "PASS",
+      "details": "Created a private draft through the new-course dialog; edited title, description, outcomes, tags, and duration and observed values after save.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:07.307Z",
+      "feature": "Visibility and enrollment policy settings",
+      "status": "PASS",
+      "details": "Applied Public/Open and then Unlisted/Invitation only through the settings form; both configurations reloaded with the saved radio choices.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:08.295Z",
+      "feature": "Module create, rename, reorder, and reload persistence",
+      "status": "PASS",
+      "details": "Created two modules, moved Alpha down, reloaded and confirmed order; renamed Alpha. Initial order was [\"Module 1: Introduction\",\"Module 2: AUDIT Module Alpha\",\"Module 3: AUDIT Module Beta\"].",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:09.311Z",
+      "feature": "Lesson create, rename, reorder, and reload persistence",
+      "status": "PASS",
+      "details": "Created two lessons, moved Lesson One down, reloaded to confirm order, and renamed Lesson One. Before order: [\"1. AUDIT Lesson One\",\"2. AUDIT Lesson Two\"]; after reload: [\"1. AUDIT Lesson Two\",\"2. AUDIT Lesson One\"].",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:11.085Z",
+      "feature": "Step create, reorder, duplicate, all visible step types",
+      "status": "PASS",
+      "details": "Created theory, video, quiz, Python, plus an extra theory step; moved Extra Theory before reload and confirmed persistence; duplicated theory, cancelled deletion once, then deleted the copy. Original order: [\"AUDIT Theory\",\"AUDIT Video\",\"AUDIT Quiz\",\"AUDIT Python\",\"AUDIT Extra Theory\"].",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:11.678Z",
+      "feature": "Delete unused module and lesson with cancel and confirm",
+      "status": "PASS",
+      "details": "On the empty Beta module and spare Lesson Two, cancelled deletion and then confirmed it. The remaining course structure no longer contains those rows.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:12.696Z",
+      "feature": "Video author settings, accessibility fields, and save",
+      "status": "PASS",
+      "details": "Entered an approved YouTube URL, transcript, and verified-caption state; saved and observed the Saved indicator.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:13.984Z",
+      "feature": "Theory editor formatting, preview, and image insertion affordance",
+      "status": "FAIL",
+      "details": "Click would hit DIV#theory-asset-modal.modal-backdrop instead of .theory-tabs [data-tab=\"edit\"]",
+      "evidence": "Skip to content\n← Courses\n/\nAUDIT 2026-10-06 author-full-reaudit-1791256022200 edited\nDraft\nSave changes\nRecent changes\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\n← Back to Course Builder\nStep title \nB\nI\nH\n</>\nEdit\nPreview\nBrowser-authored theory\n\nBold detail, emphasis, and inline code.\n\nFirst point\nSecond point\nA callout.\n\nA callout.\n\nprint(\"hello\")\nStep settings\nEstimated duration\nmin\nRequired step for course completion\nAsset tools\n\nUpload PNG, JPEG, or WebP images up to 10 MB.\n\nUpload asset\nUpload theory image asset\n✕\nImage file (PNG, JPEG, WebP up to 10 MB) *\nImage description (Alt text) *\nCancel\nUpload & Insert"
+    },
+    {
+      "timestamp": "2026-10-06T03:07:15.394Z",
+      "feature": "Quiz answer editor, option add/remove, single/multiple answer modes",
+      "status": "PASS",
+      "details": "Created three answer options, marked two correct in multiple-choice mode, and saved post-pass explanation. Single-choice control had 1 selected before changing modes. No quiz-specific progressive hint field is present.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:17.983Z",
+      "feature": "Python reference-solution validation control",
+      "status": "PASS",
+      "details": "Clicked Check reference solution; panel response=hidden test cases.\n\nReference Solution Validated\nCheck reference solution\nTest Results\nTest\tResult\tDetails\nPublic Test 1\tPASS\tPassed in 166 ms\nPublic Test 2\tPASS\tPassed in 160 ms\nHidden Test 1\tPASS\tPassed in 160 ms\nHidden Test 2\tPASS\tPassed in 182 ms.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:17.983Z",
+      "feature": "Python exercise fields, hidden/public tests, hints, limits, validation control",
+      "status": "PASS",
+      "details": "Saved starter solution, 2 public + 2 hidden cases, 2 hints, runtime limits. Check reference solution control present=true; visible response after click= private reference solution passes all public and hidden test cases.\n\nReference Solution Validated\nCheck reference solution\nTest Results\nTest\tResult\tDetails\nPublic Test 1\tPASS\tPassed in 166 ms\nPublic Test 2\tPASS\tPassed in 160 ms\nHidden Test 1\tPASS\tPassed in 160 ms\nHidden Test 2\tPASS\tPassed in 182 ms.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:21.208Z",
+      "feature": "Preview theory, video, quiz, and Python steps",
+      "status": "PASS",
+      "details": "All four preview routes rendered: theory, video, quiz, python. Video provider/player state excerpt: kip to content\nSTUDENT PREVIEW Preview — your actions won't affect student progress or analytics.\n← Back to editor\nVideo Step\nAUDIT Video\nTranscript\nTranscript: a short example video used only in the local audit fixture..",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:24.170Z",
+      "feature": "Draft validation, publish, version change, and pinned snapshot",
+      "status": "PASS",
+      "details": "Version 1 published. Pre-publication review excerpt: ourse\" to release.\n\n✓ Pre-publish checklist passed with 0 blocking errors\n\nCourse summary\nCourse title\nAUDIT 2026-10-06 author-full-reaudit-1791256022200 edited\nDiscoverability\nUnlisted\nEnrollment policy\nInvitation only\nVersion impact summary\ndraft → v1\n\nExisting students will continue on their current version. New enrollments will receive this update.\n\nCurrent published version: None (Initial release)\nNew version to publish: Version 1\nActive enrolled students: 0\nReady to publish.\nPublish course. Receipt excerpt: Skip to content\n← Courses\n/\nAUDIT 2026-10-06 author-full-reaudit-1791256022200 edited\nPublished\nRecent changes\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\n← Back to Course Builder\nPublication Receipt\n\nYour changes are released and recorded as Version 1.\n\nReleased Version 1\n2026-10-06T03:07:23.402Z\n\nVersion ID: e845d24f-9b2e-4fb1-a714-e766b1212899\n\nActive enrolled students continuing on earlier releases: 0\n\nBack to editor\nView course\nInvite students.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:26.475Z",
+      "feature": "Students roster and shareable invitation",
+      "status": "PASS",
+      "details": "Generated a one-use shareable enrollment link through the UI; invitation is visible in the Invitations tab. Empty email recipient was browser-blocked; no email was sent.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:27.577Z",
+      "feature": "Accept invitation and enroll learner",
+      "status": "PASS",
+      "details": "Ada accepted the one-use shareable link through the browser and landed at /learn/enr-241094a9-a5b0-49bd-94a4-3ad80297afee on Version 1.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:31.215Z",
+      "feature": "Learner exercise run before submit and first version pin",
+      "status": "PASS",
+      "details": "Run produced visible result “Code ran successfully.”; Submit then produced “Verdict: PASSED”. The learner remained pinned to published Version 1.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:50.548Z",
+      "feature": "Publish second version while learner remains pinned to Version 1",
+      "status": "FAIL",
+      "details": "Timed out waiting for version history: Skip to content\n← Courses\n/\nAUDIT 2026-10-06 author-full-reaudit-1791256022200 edited\nPublished\nSaved\nRecent changes\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\nCourse settings\n\nConfigure metadata, delivery settings, and access policies.\n\nBasics\n\nCore course title, summary, and learning prerequisites.\n\nCourse title\nCourse description\nLearning outcomes (one per line)\nPrerequisites\nCatalog\n\nCategorization, difficulty rating, search tags, and estimated duration.\n\nCategory\nProgramming\nDifficulty\nBeginner\nIntermediate\nAdvanced\nTags (up to 5, comma-separated)\n\nTags will be normalized to lowercase.\n\nEstimated duration (minutes)\nDraft metadata is saved to this working copy.\nSave course metadata\nDiscoverability & enrollment\n\nLive settings controlling visibility and access policies. Applied immediately.\n\nVisibility\nPrivate — visible only to course owners, admins, and enrolled learners\nUnlisted — accessible by direct link; hidden from catalog and search\nPublic — featured in course catalog and accessible to all students\nEnrollment policy\nOpen — any registered learner can join directly\nInvitation only — learners require an invite token to join\nApply access settings\nP",
+      "evidence": "Skip to content\n← Courses\n/\nAUDIT 2026-10-06 author-full-reaudit-1791256022200 edited\nPublished\nSaved\nRecent changes\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\nCourse settings\n\nConfigure metadata, delivery settings, and access policies.\n\nBasics\n\nCore course title, summary, and learning prerequisites.\n\nCourse title\nCourse description\nLearning outcomes (one per line)\nPrerequisites\nCatalog\n\nCategorization, difficulty rating, search tags, and estimated duration.\n\nCategory\nProgramming\nDifficulty\nBeginner\nIntermediate\nAdvanced\nTags (up to 5, comma-separated)\n\nTags will be normalized to lowercase.\n\nEstimated duration (minutes)\nDraft metadata is saved to this working copy.\nSave course metadata\nDiscoverability & enrollment\n\nLive settings controlling visibility and access policies. Applied immediately.\n\nVisibility\nPrivate — visible only to course owners, admins, and enrolled learners\nUnlisted — accessible by direct link; hidden from catalog and search\nPublic — featured in course catalog and accessible to all students\nEnrollment policy\nOpen — any registered learner can join directly\nInvitation only — learners require an invite token to join\nApply access settings\nP"
+    },
+    {
+      "timestamp": "2026-10-06T03:07:51.450Z",
+      "feature": "Roster search/filter and safe revoke/reinstate",
+      "status": "FAIL",
+      "details": "Click would hit DIV#panel-enrolled. instead of [data-action=\"open-revoke\"]",
+      "evidence": "Skip to content\n← Courses\n/\nAUDIT 2026-10-06 author-full-reaudit-1791256022200 edited\nPublished\nRecent changes\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\nStudents and invitations\n+\nInvite students\nEnrolled (1)\nInvitations (1)\nSearch students\nFilter by status\nAll access states\nActive\nRevoked\nLeft\nFilter by version\nAll versions\nVersion 1\nVersion 2\nFilter\nReset\nStudent\tEnrolled version\tRequired progress\tLast learning activity\tAccess state\tActions\n\nAda Lovelace\na***a@zur.internal\n\tv1\t\n1 / 6 steps\n17%\n\tOct 6, 2026, 08:07 AM\tActive\t\nView detail\n⋮\n1–1 of 1 students\nPrevious\nNext"
+    },
+    {
+      "timestamp": "2026-10-06T03:07:52.283Z",
+      "feature": "Course analytics visible page and filters",
+      "status": "PASS",
+      "details": "Analytics rendered. Version selector present=true. Visible summary: lease)\n\nAssessed exercises with activity in the last 7 days.\n\nExercise / step\tParticipants\tPass rate\tMedian attempts to pass\tLast assessed activity\tAnnotations\n\nQuiz\nAUDIT Lesson One Renamed\nAUDIT Quiz\n\t0\tNo assessed attempts yet\t—\tNo assessed attempts yet\t\n—\n\n\nPython\nAUDIT Lesson One Renamed\nAUDIT Python exercise\n\t0\tNo assessed attempts yet\t—\tNo assessed attempts yet\t\n—\nMethodology & metric notes.",
+      "evidence": null
+    },
+    {
+      "timestamp": "2026-10-06T03:07:55.590Z",
+      "feature": "AI author connection creation, reveal mask, setup, revoke",
+      "status": "FAIL",
+      "details": "Click would hit TD#.text-right whitespace-nowrap instead of [data-action=\"revoke-token\"][data-token-id=\"tok-1608fd9a-8d55-4b4f-9174-750aaaf8b7fc\"]",
+      "evidence": "Skip to content\nZUR\nMODE\nLearn\nTeach\nYour courses\nAI connections\nHelp\nGR\nGuido van Rossum\nSettings\nSign out\nAI connections\n+ Create access token\n\nLet your tools create and edit courses with access you control.\n\nProfile\nAppearance\nSecurity\nPrivacy & account\nAI connections\nHow connections work\nAll (2)\nActive\nExpired\nRevoked\nConnection\tAccess summary\tCourses\tLast used\tExpires\tStatus\tActions\n\nAudit-only local connector\nzat_5e691190ef8d2955\n\tDraft authoring\tAUDIT 2026-10-06 author-full-reaudit-1791256022200 edited\tNever used\tNov 5, 2026\t\nℹ\nNever used\n\t\nSetup\n⋮\n\n\nMy course-writing agent\nzat_guido_active\n\tDraft authoring\tAll owned courses, including future courses\tNever used\tNov 5, 2026\t\nℹ\nNever used\n\t\nSetup\n⋮"
+    },
+    {
+      "timestamp": "2026-10-06T03:08:13.832Z",
+      "feature": "Agent activity and recovery visible flow",
+      "status": "FAIL",
+      "details": "Timed out waiting for recovery completed: Skip to content\n← Courses\n/\nAUDIT 2026-10-06 author-full-reaudit-1791256022200 edited\nPublished\nRecent changes\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\n← Back to Course Builder\nAgent Activity\n\nInspect AI mutations, review content diffs, and restore recoverable draft snapshots.\n\nConnection\nAll connections\nMy course-writing agent\nDate\nOperation\nAll operations\nBatch authoring\nBatch authoring (apply changes)\nUpdate metadata\nCreate module\nUpdate module\nDelete module\nCreate lesson\nUpdate lesson\nDelete lesson\nCreate step\nUpdate step\nDelete step\nDuplicate step\nRestore draft revision\nOutcome\nAll outcomes\nSuccess\nFailure\nApply filters\nReset\nTime\tConnection\tOperation\tAffected Content\tRevision\tOutcome\tAction\nOct 6, 2026, 3:07 AM\tMy course-writing agent\tUpdate metadata\tcourse metadata\tr26 → r27\tSuccess\tView diff\nMutation Diff — Update metadata\n\nApplied by My course-writing agent · Oct 6, 2026, 3:07 AM\n\n✕\nRevision bump: r26 → r27\nStatus: success\nTechnical identifiers\nAffected Content\n\ncourse metadata\n\nBefore / After Comparison\nDescription\n- An audit-only Python course created and managed through the author interface.\n→\n+ Changed before recovery restore.\nView raw li",
+      "evidence": "Skip to content\n← Courses\n/\nAUDIT 2026-10-06 author-full-reaudit-1791256022200 edited\nPublished\nRecent changes\nPreview as student\nReview & publish\nContent\nStudents\nAnalytics\nSettings\n← Back to Course Builder\nAgent Activity\n\nInspect AI mutations, review content diffs, and restore recoverable draft snapshots.\n\nConnection\nAll connections\nMy course-writing agent\nDate\nOperation\nAll operations\nBatch authoring\nBatch authoring (apply changes)\nUpdate metadata\nCreate module\nUpdate module\nDelete module\nCreate lesson\nUpdate lesson\nDelete lesson\nCreate step\nUpdate step\nDelete step\nDuplicate step\nRestore draft revision\nOutcome\nAll outcomes\nSuccess\nFailure\nApply filters\nReset\nTime\tConnection\tOperation\tAffected Content\tRevision\tOutcome\tAction\nOct 6, 2026, 3:07 AM\tMy course-writing agent\tUpdate metadata\tcourse metadata\tr26 → r27\tSuccess\tView diff\nMutation Diff — Update metadata\n\nApplied by My course-writing agent · Oct 6, 2026, 3:07 AM\n\n✕\nRevision bump: r26 → r27\nStatus: success\nTechnical identifiers\nAffected Content\n\ncourse metadata\n\nBefore / After Comparison\nDescription\n- An audit-only Python course created and managed through the author interface.\n→\n+ Changed before recovery restore.\nView raw li"
+    },
+    {
+      "timestamp": "2026-10-06T03:08:14.577Z",
+      "feature": "Course archive, restore, and draft delete controls",
+      "status": "PASS",
+      "details": "On a second audit-only draft, clicked Archive and Restore, cancelled Delete once, then confirmed Delete and returned to the course list.",
+      "evidence": null
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "01-course-list_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/01-course-list_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:04.174Z"
+    },
+    {
+      "name": "01-course-list_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/01-course-list_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:04.434Z"
+    },
+    {
+      "name": "02-course-settings_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/02-course-settings_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:05.656Z"
+    },
+    {
+      "name": "02-course-settings_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/02-course-settings_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:05.922Z"
+    },
+    {
+      "name": "03-access-settings_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/03-access-settings_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:06.890Z"
+    },
+    {
+      "name": "03-access-settings_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/03-access-settings_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:07.155Z"
+    },
+    {
+      "name": "04-course-builder-structure_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/04-course-builder-structure_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:10.659Z"
+    },
+    {
+      "name": "04-course-builder-structure_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/04-course-builder-structure_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:10.933Z"
+    },
+    {
+      "name": "05-video-editor_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/05-video-editor_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:12.258Z"
+    },
+    {
+      "name": "05-video-editor_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/05-video-editor_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:12.543Z"
+    },
+    {
+      "name": "05-theory-editor_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/05-theory-editor_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:13.169Z"
+    },
+    {
+      "name": "05-theory-editor_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/05-theory-editor_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:13.438Z"
+    },
+    {
+      "name": "06-quiz-editor_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/06-quiz-editor_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:14.892Z"
+    },
+    {
+      "name": "06-quiz-editor_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/06-quiz-editor_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:15.154Z"
+    },
+    {
+      "name": "07-python-editor_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/07-python-editor_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:16.502Z"
+    },
+    {
+      "name": "07-python-editor_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/07-python-editor_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:16.779Z"
+    },
+    {
+      "name": "08-preview-theory_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/08-preview-theory_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:18.367Z"
+    },
+    {
+      "name": "08-preview-theory_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/08-preview-theory_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:18.614Z"
+    },
+    {
+      "name": "09-preview-video_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/09-preview-video_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:19.151Z"
+    },
+    {
+      "name": "09-preview-video_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/09-preview-video_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:19.418Z"
+    },
+    {
+      "name": "10-preview-quiz_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/10-preview-quiz_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:19.971Z"
+    },
+    {
+      "name": "10-preview-quiz_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/10-preview-quiz_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:20.232Z"
+    },
+    {
+      "name": "11-preview-python_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/11-preview-python_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:20.772Z"
+    },
+    {
+      "name": "11-preview-python_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/11-preview-python_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:21.057Z"
+    },
+    {
+      "name": "12-publish-review_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/12-publish-review_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:22.210Z"
+    },
+    {
+      "name": "12-publish-review_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/12-publish-review_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:22.475Z"
+    },
+    {
+      "name": "13-publication-receipt-v1_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/13-publication-receipt-v1_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:23.756Z"
+    },
+    {
+      "name": "13-publication-receipt-v1_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/13-publication-receipt-v1_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:24.018Z"
+    },
+    {
+      "name": "14-students-roster_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/14-students-roster_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:24.551Z"
+    },
+    {
+      "name": "14-students-roster_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/14-students-roster_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:24.819Z"
+    },
+    {
+      "name": "15-shareable-invitation_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/15-shareable-invitation_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:25.518Z"
+    },
+    {
+      "name": "15-shareable-invitation_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/15-shareable-invitation_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:25.846Z"
+    },
+    {
+      "name": "16-enrolled-course-v1_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/16-enrolled-course-v1_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:27.154Z"
+    },
+    {
+      "name": "16-enrolled-course-v1_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/16-enrolled-course-v1_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:27.426Z"
+    },
+    {
+      "name": "17-python-workspace-v1_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/17-python-workspace-v1_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:27.992Z"
+    },
+    {
+      "name": "17-python-workspace-v1_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/17-python-workspace-v1_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:28.282Z"
+    },
+    {
+      "name": "19-roster-filtered_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/19-roster-filtered_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:51.022Z"
+    },
+    {
+      "name": "19-roster-filtered_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/19-roster-filtered_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:51.294Z"
+    },
+    {
+      "name": "20-course-analytics_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/20-course-analytics_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:51.841Z"
+    },
+    {
+      "name": "20-course-analytics_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/20-course-analytics_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:52.111Z"
+    },
+    {
+      "name": "21-ai-connections_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/21-ai-connections_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:52.955Z"
+    },
+    {
+      "name": "21-ai-connections_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/21-ai-connections_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:53.218Z"
+    },
+    {
+      "name": "22-token-reveal-masked_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/22-token-reveal-masked_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:54.017Z"
+    },
+    {
+      "name": "22-token-reveal-masked_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/22-token-reveal-masked_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:54.332Z"
+    },
+    {
+      "name": "23-token-setup_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/23-token-setup_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:55.046Z"
+    },
+    {
+      "name": "23-token-setup_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/23-token-setup_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:55.313Z"
+    },
+    {
+      "name": "24-agent-activity_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/24-agent-activity_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:56.205Z"
+    },
+    {
+      "name": "24-agent-activity_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/24-agent-activity_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:56.471Z"
+    },
+    {
+      "name": "25-activity-diff_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/25-activity-diff_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:57.035Z"
+    },
+    {
+      "name": "25-activity-diff_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/25-activity-diff_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:57.348Z"
+    },
+    {
+      "name": "26-recovery-confirmation_dark.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/26-recovery-confirmation_dark.png",
+      "theme": "dark",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:57.941Z"
+    },
+    {
+      "name": "26-recovery-confirmation_light.png",
+      "path": "/home/compilelord/new/vibecoding/zur/screenshots/audit-2026-10-06/author/26-recovery-confirmation_light.png",
+      "theme": "light",
+      "viewport": "1440x900",
+      "timestamp": "2026-10-06T03:07:58.284Z"
+    }
+  ],
+  "browserErrors": [
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "completedAt": "2026-10-06T03:08:14.577Z"
+}

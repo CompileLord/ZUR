@@ -1,0 +1,27 @@
+{
+  "checks": [
+    {
+      "check": "L2/L4 paged detail context, long code and restore failure preserve draft",
+      "status": "failed",
+      "error": "Failure feedback must be actually visible in the active dialog\n\nfalse !== true\n",
+      "observed": {
+        "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/codex-fixture-attempt-2?offset=10",
+        "headings": [
+          "Modules & lessons",
+          "Attempt 2Attempt #2"
+        ],
+        "collapsed": false,
+        "toggle": "true",
+        "openDialogs": [
+          "restore-confirm-dialog"
+        ]
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 0,
+  "failed": 1,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": "L2/L4"
+}

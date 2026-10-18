@@ -1,0 +1,143 @@
+{
+  "checks": [
+    {
+      "check": "A3 one main and skip target",
+      "status": "failed",
+      "error": "Expected values to be strictly equal:\n\n2 !== 1\n",
+      "observed": {
+        "route": "/teach",
+        "headings": [
+          "Your courses",
+          "\n                    Python foundations\n                  ",
+          "\n                    Unsafe Python Tricks\n                  "
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "A1 title retained after controlled create failure",
+      "status": "failed",
+      "error": "Timed out: create controlled failure",
+      "observed": {
+        "route": "/teach?status=all&search=",
+        "headings": [
+          "Couldn't load this page"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "A2 search and status remain combined through history/reload",
+      "status": "failed",
+      "error": "Expected values to be strictly equal:\n\nnull !== 'Python'\n",
+      "observed": {
+        "route": "/teach?status=draft",
+        "headings": [
+          "Your courses",
+          "No matching courses"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "A5 author list 503 retains safe exits and recovers",
+      "status": "failed",
+      "error": "App navigation remains",
+      "observed": {
+        "route": "/teach",
+        "headings": [
+          "Couldn't load this page"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "A4 Python preview truthful readonly split and editor return",
+      "status": "failed",
+      "error": "Preview source is readonly\n\ntrue !== false\n",
+      "observed": {
+        "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+        "headings": [
+          "Modules & lessons",
+          "Echoing Numbers",
+          "Problem Statement",
+          "Input & Output",
+          "Constraints",
+          "Sample Test Cases",
+          "Hints"
+        ],
+        "collapsed": false,
+        "toggle": "true",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "A4 all four actual preview types preserve course draft and avoid grading mutations",
+      "status": "passed",
+      "observed": {
+        "types": [
+          "theory",
+          "video",
+          "quiz",
+          "python"
+        ],
+        "actualDestinations": true,
+        "noCourseOrGradingMutationRequests": true,
+        "courseRevisionUnchanged": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A6 clean author headers stay quiet",
+      "status": "failed",
+      "error": "Clean success has no routine Saved header",
+      "observed": {
+        "route": "/teach/course-python-foundations/content",
+        "headings": [
+          "Structure",
+          "Python foundations",
+          "Modules in this course"
+        ],
+        "activeFilter": "Content",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "A6 manual save retains actual failure/conflict drafts and quiet acknowledged success",
+      "status": "passed",
+      "observed": {
+        "real503RetainsDraft": true,
+        "retryRealDatabaseAck": true,
+        "quietSuccessfulSave": true,
+        "actualStaleRevision": true,
+        "conflictRetainsLocalAndStoredWork": true,
+        "pendingDelayNotIndependentlyChecked": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "A7 setup preserves safe configuration, native technical disclosure and actual protocol request status",
+      "status": "failed",
+      "error": "The input was expected to not match the regular expression /PRD\\s*\u00a7/. Input:\n\n'Codex disposable readonly setup\\n' +\n  '\u2139\\n' +\n  'Waiting For Requests\\n' +\n  '\\n' +\n  'Identifier: zat_786730d1802f6271 \u00b7 Scopes: Read only\\n' +\n  '\\n' +\n  'Courses: 1 selected courses\\n' +\n  '1\\n' +\n  'Choose a compatible client\\n' +\n  '\\n' +\n  'Select verified client guide. Clients must support explicit HTTP bearer credentials.\\n' +\n  '\\n' +\n  'Official MCP SDK (v2)\\n' +\n  'Generic HTTP Bearer\\n' +\n  'OAuth-only client\\n' +\n  '2\\n' +\n  'Add the MCP endpoint\\n' +\n  '\\n' +\n  'Connect via the official Model Context Protocol (MCP) Streamable HTTP transport:\\n' +\n  '\\n' +\n  'Copy endpoint\\n' +\n  '\\n' +\n  'Transport: Streamable HTTP (protocol 2026-07-28) \u00b7 Loopback development mode enabled.\\n' +\n  '\\n' +\n  'Verified Protocol & Limits (PRD \u00a723.2, \u00a723.5\u201323.6):\\n' +\n  '\u2022 Transport & Revision: Streamable HTTP, protocol 2026-07-28.\\n' +\n  '\u2022 Image Uploads: Max 10 MB per asset. Supported formats: PNG, JPEG, WebP only. SVG, executables, and malformed files rejected.\\n' +\n  '\u2022 Inline Media: Inline base64 capped at 1 MiB decoded size (use create_image_upload for binary assets).\\n' +\n  '\u2022 Batch Mutations: Maximum 100 operations and 1 MiB text per batch.\\n' +\n  '3\\n' +\n  'Set the credential securely\\n' +\n  'Copy configuration\\n' +\n  '\\n' +\n  'Replace YOUR_ZUR_MCP_TOKEN with the secret generated during creation. Never share your secret or paste it into chat prompts.\\n' +\n  '\\n' +\n  \"import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';\\n\" +\n  '\\n' +\n  'const transport = new StreamableHTTPClientTransport(\\n' +\n  \"  new URL('http://127.0.0.1:5173/mcp'),\\n\" +\n  '  {\\n' +\n  '    requestInit: {\\n' +\n  '      headers: {\\n' +\n  \"        Authorization: 'Bearer YOUR_ZUR_MCP_TOKEN',\\n\" +\n  '      },\\n' +\n  '    },\\n' +\n  '  }\\n' +\n  ');\\n' +\n  '\\n' +\n  'const client = new Client(\\n' +\n  \"  { name: 'author-agent', version: '2.1.0' },\\n\" +\n  \"  { capabilities: {}, versionNegotiation: { mode: { pin: '2026-07-28' } } }\\n\" +\n  ');\\n' +\n  '\\n' +\n  'await client.connect(transport);\\n' +\n  '4\\n' +\n  'Verify access\\n' +\n  'Refresh status\\n' +\n  '\\n' +\n  'In your client, invoke the get_author_context tool to complete the verification handshake.\\n' +\n  '\\n' +\n  '\u23f3\\n' +\n  'Waiting for the first authenticated request\\n' +\n  '\\n' +\n  'No requests have been received yet for this token. Run a test prompt in your client to connect.\\n' +\n  '\\n' +\n  'Sample verification prompt:\\n' +\n  'Copy prompt\\n' +\n  '\\n' +\n  '\"Create a private draft course on Python loops with one module, three lessons, Markdown explanations, an uploaded diagram, and exercises with reference solutions. Validate the draft and summarize the changes.\"'\n",
+      "observed": {
+        "route": "/settings/ai-connections/tok-9bfdc26f-77d9-4934-ba40-fe1c3a405b51/setup",
+        "headings": [
+          "Codex disposable readonly setup"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 2,
+  "failed": 7,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

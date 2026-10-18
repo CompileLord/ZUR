@@ -1,0 +1,344 @@
+{
+  "checks": [
+    {
+      "check": "L1 Completed query and rows",
+      "status": "passed",
+      "observed": {
+        "active": "Completed (0)",
+        "text": "My courses\nIn progress (1)\nCompleted (0)\nAll (1)\n\nNo completed courses yet. Keep learning to finish your enrolled courses!\n\nExplore catalog"
+      },
+      "fixture": true
+    },
+    {
+      "check": "L1 All real link, Back and Forward",
+      "status": "passed",
+      "observed": {
+        "history": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L1 invalid filter defaults safely and In progress works",
+      "status": "passed",
+      "observed": {
+        "invalidDefault": true,
+        "actualTab": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L3 real SPA destination and retained collapse, then reload",
+      "status": "passed",
+      "observed": {
+        "destination": "/learn/enr-ada/steps/step-1-theory",
+        "state": {
+          "collapsed": true,
+          "expanded": "false",
+          "text": "Step 1 of 7\n·\nTheory\n·\n~1m\nWhat is a variable?\n\nA variable in Python binds a name to a value in memory.\n\npython\nCopy\nx = 42\nprint(x)\n\nVariables give m"
+        },
+        "reload": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L3 theory-origin toggle persists across reload",
+      "status": "passed",
+      "observed": {
+        "origin": "theory",
+        "observedVersion": "version-2-snapshot",
+        "reloadRetainsToggle": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L2 attempts retain real curriculum/task strip and empty state",
+      "status": "passed",
+      "observed": {
+        "tasks": 4,
+        "lessons": 3,
+        "empty": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L5 native report focus forward/back, Escape return",
+      "status": "passed",
+      "observed": {
+        "trustedKeys": true,
+        "trace": [
+          {
+            "inside": true,
+            "tag": "INPUT",
+            "id": "report-include-code"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "cancel-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "submit-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "close-report-dialog-btn"
+          },
+          {
+            "inside": true,
+            "tag": "SELECT",
+            "id": "report-issue-type"
+          },
+          {
+            "inside": true,
+            "tag": "TEXTAREA",
+            "id": "report-issue-details"
+          },
+          {
+            "inside": true,
+            "tag": "INPUT",
+            "id": "report-include-code"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "cancel-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "submit-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "close-report-dialog-btn"
+          },
+          {
+            "inside": true,
+            "tag": "SELECT",
+            "id": "report-issue-type"
+          },
+          {
+            "inside": true,
+            "tag": "TEXTAREA",
+            "id": "report-issue-details"
+          },
+          {
+            "inside": true,
+            "tag": "SELECT",
+            "id": "report-issue-type"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "close-report-dialog-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "submit-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "cancel-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "INPUT",
+            "id": "report-include-code"
+          },
+          {
+            "inside": true,
+            "tag": "TEXTAREA",
+            "id": "report-issue-details"
+          },
+          {
+            "inside": true,
+            "tag": "SELECT",
+            "id": "report-issue-type"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "close-report-dialog-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "submit-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "BUTTON",
+            "id": "cancel-report-btn"
+          },
+          {
+            "inside": true,
+            "tag": "INPUT",
+            "id": "report-include-code"
+          },
+          {
+            "inside": true,
+            "tag": "TEXTAREA",
+            "id": "report-issue-details"
+          }
+        ],
+        "focusReturned": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L5 report failure retains details and explicit code consent",
+      "status": "passed",
+      "observed": {
+        "fault": "controlled 503",
+        "details": "Independent fixture report details",
+        "consent": true,
+        "open": true,
+        "error": "Could not submit report. Your message is preserved; try again."
+      },
+      "fixture": true
+    },
+    {
+      "check": "L5 leaving open report by native Back cleans keyboard lifecycle",
+      "status": "failed",
+      "error": "Stale report listener must not swallow Tab",
+      "observed": {
+        "route": "/learn",
+        "headings": [
+          "Continue learning",
+          "Python foundations"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 cancelled Back preserves the existing Forward destination",
+      "status": "failed",
+      "error": "Cancel must not discard existing forward entry or add a profile entry\n+ actual - expected\n... Skipped lines\n\n  [\n    'about:blank',\n    'http://127.0.0.1:5174/sign-in',\n    'http://127.0.0.1:5174/learn',\n    'http://127.0.0.1:5174/learn/courses?filter=completed',\n...\n    'http://127.0.0.1:5174/settings/profile',\n-   'http://127.0.0.1:5174/courses'\n  ]\n",
+      "observed": {
+        "route": "/settings/profile",
+        "headings": [
+          "Settings",
+          "Profile settings"
+        ],
+        "activeFilter": "Profile",
+        "profileDraft": "Codex retained forward destination",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 native Back cancelled retains draft and history",
+      "status": "passed",
+      "observed": {
+        "dialogs": [
+          {
+            "type": "confirm",
+            "message": "You have unsaved changes. Leave this page?",
+            "accepted": false
+          }
+        ],
+        "draftRetained": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 profile save failure retains text and dirty guard",
+      "status": "passed",
+      "observed": {
+        "fault": "controlled 503",
+        "draftRetained": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 confirmed Back departs to actual previous route",
+      "status": "passed",
+      "observed": {
+        "destination": "/learn",
+        "dialogs": [
+          {
+            "type": "confirm",
+            "message": "You have unsaved changes. Leave this page?",
+            "accepted": true
+          }
+        ]
+      },
+      "fixture": true
+    },
+    {
+      "check": "L7 authenticated unavailable overview preserves context",
+      "status": "passed",
+      "observed": {
+        "sidebar": true,
+        "signIn": false,
+        "browse": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L7 authenticated overview service failure keeps navigation and retry",
+      "status": "passed",
+      "observed": {
+        "fault": "controlled 503",
+        "authenticatedContext": true,
+        "recovered": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L2/L4 paged detail context, long code and restore failure preserve draft",
+      "status": "failed",
+      "error": "Detail recovery context retained",
+      "observed": {
+        "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/codex-fixture-attempt-2?offset=10",
+        "headings": [
+          "Couldn't load this page"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L2 restore confirmation keyboard containment and trigger return",
+      "status": "failed",
+      "error": "Restore modal contains trusted keyboard focus\n\nfalse !== true\n",
+      "observed": {
+        "route": "/learn/enr-ada/steps/step-4-python-echo/attempts/codex-fixture-attempt-2?offset=10",
+        "headings": [
+          "Modules & lessons",
+          "Attempt 2Attempt #2"
+        ],
+        "collapsed": false,
+        "toggle": "true",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L6 controlled storage denial preserves in-memory profile guard",
+      "status": "failed",
+      "error": "Storage denial must not disable navigation guard\n+ actual - expected\n\n+ '/learn'\n- '/settings/profile'\n",
+      "observed": {
+        "route": "/learn",
+        "headings": [
+          "Continue learning",
+          "Python foundations"
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 13,
+  "failed": 5,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

@@ -1,0 +1,31 @@
+[
+  {
+    "step": 1,
+    "sourceRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "destinationRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "action": "Dispatch trusted CDP Input.dispatchKeyEvent Tab sequence on open report dialog",
+    "expected": "Focus is trapped inside dialog and cycles among modal controls",
+    "actual": "Focus escaped outside dialog to background element: BODY# ()",
+    "assertions": "Native CDP key event focus escape verified: focusEscapedToBackground=true",
+    "passed": true
+  },
+  {
+    "step": 2,
+    "sourceRoute": "/settings/profile",
+    "destinationRoute": "/learn",
+    "action": "Modify profile display name and trigger native CDP browser Back",
+    "expected": "Prompt confirmation modal before leaving; prevent silent discard",
+    "actual": "Browser Back navigated immediately to \"/learn\" without confirmation. Returning revealed draft was discarded to \"Ada Lovelace\".",
+    "assertions": "Confirmed native browser Back defect: popstate lacks dirty profile guard (unconfirmedDeparture=true)",
+    "passed": true
+  },
+  {
+    "step": 3,
+    "sourceRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "action": "Collapse sidebar and click task square 5 in task strip (SPA client transition)",
+    "expected": "Sidebar remains collapsed across consecutive SPA task transitions",
+    "actual": "Sidebar collapsed state was reset to expanded (collapsed) on client-side route change",
+    "assertions": "SPA navigation check: spaNavResetSidebar=false",
+    "passed": false
+  }
+]

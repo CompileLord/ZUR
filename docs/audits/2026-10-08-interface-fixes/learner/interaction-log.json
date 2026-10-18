@@ -1,0 +1,452 @@
+[
+  {
+    "step": 1,
+    "issue": "L1",
+    "action": "Navigate to /learn/courses?filter=in_progress",
+    "observedUrl": "/learn/courses?filter=in_progress",
+    "renderedState": "In progress tab active with active courses",
+    "evidence": "Tab active: true, rows: 1",
+    "passed": true
+  },
+  {
+    "step": 2,
+    "issue": "L1",
+    "action": "Navigate to /learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "renderedState": "Completed tab active with completed courses",
+    "evidence": "Tab active: true, rows: 1, title: Python Advanced Systems",
+    "passed": true
+  },
+  {
+    "step": 3,
+    "issue": "L1",
+    "action": "Navigate to /learn/courses?filter=all",
+    "observedUrl": "/learn/courses?filter=all",
+    "renderedState": "All tab active with all courses",
+    "evidence": "Tab active: true, rows: 2",
+    "passed": true
+  },
+  {
+    "step": 4,
+    "issue": "L1",
+    "action": "Navigate to /learn/courses?filter=in_progress",
+    "observedUrl": "/learn/courses?filter=in_progress",
+    "renderedState": "In progress tab active with active courses",
+    "evidence": "Tab active: true, rows: 1",
+    "passed": true
+  },
+  {
+    "step": 5,
+    "issue": "L1",
+    "action": "Navigate to /learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "renderedState": "Completed tab active with completed courses",
+    "evidence": "Tab active: true, rows: 1, title: Python Advanced Systems",
+    "passed": true
+  },
+  {
+    "step": 6,
+    "issue": "L1",
+    "action": "Navigate to /learn/courses?filter=all",
+    "observedUrl": "/learn/courses?filter=all",
+    "renderedState": "All tab active with all courses",
+    "evidence": "Tab active: true, rows: 2",
+    "passed": true
+  },
+  {
+    "step": 7,
+    "issue": "L1",
+    "action": "Alan Turing /learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "renderedState": "Empty completed state with informative message",
+    "evidence": "Message: No completed courses yet. Keep learning to finish your enrolled courses!",
+    "passed": true
+  },
+  {
+    "step": 8,
+    "issue": "L1",
+    "action": "Alan Turing /learn/courses?filter=completed",
+    "observedUrl": "/learn/courses?filter=completed",
+    "renderedState": "Empty completed state with informative message",
+    "evidence": "Message: No completed courses yet. Keep learning to finish your enrolled courses!",
+    "passed": true
+  },
+  {
+    "step": 9,
+    "issue": "L2",
+    "action": "Navigate to attempts list",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "renderedState": "Attempts list with real curriculum and parent exercise selected",
+    "evidence": "Placeholder removed: true, Real curriculum: true, Selected task: true",
+    "passed": true
+  },
+  {
+    "step": 10,
+    "issue": "L2",
+    "action": "Navigate to empty attempts list",
+    "observedUrl": "/learn/enr-ada/steps/step-6-python-evenodd/attempts",
+    "renderedState": "Empty attempts list retaining curriculum and return link",
+    "evidence": "Notice: \n          No submissions yet.\n          Return to task\n        , return link: true",
+    "passed": true
+  },
+  {
+    "step": 11,
+    "issue": "L2/L4",
+    "action": "Navigate to attempt detail att-ada-1",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "renderedState": "Attempt detail with 800px inset, real curriculum, and restore action",
+    "evidence": "All attempts link: \n                \n                All attempts\n              , Restore btn: true",
+    "passed": true
+  },
+  {
+    "step": 12,
+    "issue": "L4",
+    "action": "Attempt detail with long lines",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "renderedState": "Long code scrolls horizontally without whole-page overflow",
+    "evidence": "pre overflow-x: auto",
+    "passed": true
+  },
+  {
+    "step": 13,
+    "issue": "L2",
+    "action": "Click restore to editor button",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "renderedState": "Explicit confirmation dialog prompts before replacing draft",
+    "evidence": "Dialog title: Restore code to editor?",
+    "passed": true
+  },
+  {
+    "step": 14,
+    "issue": "L2",
+    "action": "Controlled restore 503 failure",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "renderedState": "In-dialog error message displayed with Retry button; attempt code and All attempts exit preserved",
+    "evidence": "Error: \"This attempt could not be restored. Your current editor content is preserved.\", Retry btn: \"Retry restore\", Code intact: true, All attempts exit: true",
+    "passed": true
+  },
+  {
+    "step": 15,
+    "issue": "L2",
+    "action": "Navigate to attempts list",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "renderedState": "Attempts list with real curriculum and parent exercise selected",
+    "evidence": "Placeholder removed: true, Real curriculum: true, Selected task: true",
+    "passed": true
+  },
+  {
+    "step": 16,
+    "issue": "L2",
+    "action": "Navigate to empty attempts list",
+    "observedUrl": "/learn/enr-ada/steps/step-6-python-evenodd/attempts",
+    "renderedState": "Empty attempts list retaining curriculum and return link",
+    "evidence": "Notice: \n          No submissions yet.\n          Return to task\n        , return link: true",
+    "passed": true
+  },
+  {
+    "step": 17,
+    "issue": "L2/L4",
+    "action": "Navigate to attempt detail att-ada-1",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "renderedState": "Attempt detail with 800px inset, real curriculum, and restore action",
+    "evidence": "All attempts link: \n                \n                All attempts\n              , Restore btn: true",
+    "passed": true
+  },
+  {
+    "step": 18,
+    "issue": "L4",
+    "action": "Attempt detail with long lines",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "renderedState": "Long code scrolls horizontally without whole-page overflow",
+    "evidence": "pre overflow-x: auto",
+    "passed": true
+  },
+  {
+    "step": 19,
+    "issue": "L2",
+    "action": "Click restore to editor button",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "renderedState": "Explicit confirmation dialog prompts before replacing draft",
+    "evidence": "Dialog title: Restore code to editor?",
+    "passed": true
+  },
+  {
+    "step": 20,
+    "issue": "L2",
+    "action": "Controlled restore 503 failure",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-2",
+    "renderedState": "In-dialog error message displayed with Retry button; attempt code and All attempts exit preserved",
+    "evidence": "Error: \"This attempt could not be restored. Your current editor content is preserved.\", Retry btn: \"Retry restore\", Code intact: true, All attempts exit: true",
+    "passed": true
+  },
+  {
+    "step": 21,
+    "issue": "L3",
+    "action": "Click sidebar toggle to collapse",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Sidebar collapsed, inert, toggle title Show modules, aria-expanded=false",
+    "evidence": "Title: Show modules, aria-expanded: false, inert: true",
+    "passed": true
+  },
+  {
+    "step": 22,
+    "issue": "L3",
+    "action": "SPA task click to Theory step",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "renderedState": "Sidebar remains collapsed across SPA transition; toggle describes collapsed state",
+    "evidence": "Collapsed: true, title: Show modules, aria-expanded: false",
+    "passed": true
+  },
+  {
+    "step": 23,
+    "issue": "L3",
+    "action": "Page reload",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "renderedState": "Sidebar remains collapsed after full page reload",
+    "evidence": "Collapsed: true",
+    "passed": true
+  },
+  {
+    "step": 24,
+    "issue": "L3",
+    "action": "Click sidebar toggle to collapse",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Sidebar collapsed, inert, toggle title Show modules, aria-expanded=false",
+    "evidence": "Title: Show modules, aria-expanded: false, inert: true",
+    "passed": true
+  },
+  {
+    "step": 25,
+    "issue": "L3",
+    "action": "SPA task click to Theory step",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "renderedState": "Sidebar remains collapsed across SPA transition; toggle describes collapsed state",
+    "evidence": "Collapsed: true, title: Show modules, aria-expanded: false",
+    "passed": true
+  },
+  {
+    "step": 26,
+    "issue": "L3",
+    "action": "Page reload",
+    "observedUrl": "/learn/enr-ada/steps/step-1-theory",
+    "renderedState": "Sidebar remains collapsed after full page reload",
+    "evidence": "Collapsed: true",
+    "passed": true
+  },
+  {
+    "step": 27,
+    "issue": "L5",
+    "action": "Open report modal and cycle Tab 12 times",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Focus contained in native dialog; background inert; code attachment unchecked",
+    "evidence": "Native dialog: true, TaskStrip inert: true, Body inert: true, Unchecked code: true, Focus escaped: false",
+    "passed": true
+  },
+  {
+    "step": 28,
+    "issue": "L5",
+    "action": "Submit issue report under controlled 503",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Form displays visible error alert; details and code consent preserved; retry enabled",
+    "evidence": "Error: \"Could not submit report. Your message is preserved; try again.\", Details preserved: true, Consent preserved: true",
+    "passed": true
+  },
+  {
+    "step": 29,
+    "issue": "L5",
+    "action": "Press Escape on report dialog",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Dialog closes and background inert is cleared",
+    "evidence": "Dialog closed: true",
+    "passed": true
+  },
+  {
+    "step": 30,
+    "issue": "L5",
+    "action": "Open report modal and cycle Tab 12 times",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Focus contained in native dialog; background inert; code attachment unchecked",
+    "evidence": "Native dialog: true, TaskStrip inert: true, Body inert: true, Unchecked code: true, Focus escaped: false",
+    "passed": true
+  },
+  {
+    "step": 31,
+    "issue": "L5",
+    "action": "Submit issue report under controlled 503",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Form displays visible error alert; details and code consent preserved; retry enabled",
+    "evidence": "Error: \"Could not submit report. Your message is preserved; try again.\", Details preserved: true, Consent preserved: true",
+    "passed": true
+  },
+  {
+    "step": 32,
+    "issue": "L5",
+    "action": "Press Escape on report dialog",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Dialog closes and background inert is cleared",
+    "evidence": "Dialog closed: true",
+    "passed": true
+  },
+  {
+    "step": 33,
+    "issue": "L6",
+    "action": "Modify profile name and hit browser Back (Cancel)",
+    "observedUrl": "/settings/profile",
+    "renderedState": "Confirm dialog prompted; cancel preserves URL and draft text",
+    "evidence": "Prompt: \"You have unsaved changes. Leave this page?\", Path: \"/settings/profile\", Draft: \"Ada Lovelace (Draft Edit)\"",
+    "passed": true
+  },
+  {
+    "step": 34,
+    "issue": "L6",
+    "action": "Profile save failure under controlled 503",
+    "observedUrl": "/settings/profile",
+    "renderedState": "Visible form error banner displayed; retry button enabled; draft text preserved",
+    "evidence": "Error: \"⚠ Network error: Could not save profile changes to server.\", Draft preserved: \"Ada Lovelace (Draft Edit)\", Save button disabled: false",
+    "passed": true
+  },
+  {
+    "step": 35,
+    "issue": "L6",
+    "action": "Modify profile name and hit browser Back (Cancel)",
+    "observedUrl": "/settings/profile",
+    "renderedState": "Confirm dialog prompted; cancel preserves URL and draft text",
+    "evidence": "Prompt: \"You have unsaved changes. Leave this page?\", Path: \"/settings/profile\", Draft: \"Ada Lovelace (Draft Edit)\"",
+    "passed": true
+  },
+  {
+    "step": 36,
+    "issue": "L6",
+    "action": "Profile save failure under controlled 503",
+    "observedUrl": "/settings/profile",
+    "renderedState": "Visible form error banner displayed; retry button enabled; draft text preserved",
+    "evidence": "Error: \"⚠ Network error: Could not save profile changes to server.\", Draft preserved: \"Ada Lovelace (Draft Edit)\", Save button disabled: false",
+    "passed": true
+  },
+  {
+    "step": 37,
+    "issue": "L7",
+    "action": "Authenticated navigate to /courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "renderedState": "Retains authenticated shell-app with navigation, user context, and exits",
+    "evidence": "shell-app: true, shell-public: false, Browse link: true, Go back: true, User context: true",
+    "passed": true
+  },
+  {
+    "step": 38,
+    "issue": "L7",
+    "action": "Authenticated navigate to /courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "renderedState": "Retains authenticated shell-app with navigation, user context, and exits",
+    "evidence": "shell-app: true, shell-public: false, Browse link: true, Go back: true, User context: true",
+    "passed": true
+  },
+  {
+    "step": 39,
+    "issue": "L7",
+    "action": "Anonymous navigate to /courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "renderedState": "Renders safe public shell without leaking private data",
+    "evidence": "shell-public: true, shell-app: false",
+    "passed": true
+  },
+  {
+    "step": 40,
+    "issue": "L7",
+    "action": "Anonymous navigate to /courses/nonexistent-course-id-999",
+    "observedUrl": "/courses/nonexistent-course-id-999",
+    "renderedState": "Renders safe public shell without leaking private data",
+    "evidence": "shell-public: true, shell-app: false",
+    "passed": true
+  },
+  {
+    "step": 41,
+    "issue": "L7",
+    "action": "Controlled 503 on course overview",
+    "observedUrl": "/courses/course-python-completed",
+    "renderedState": "Renders recoverable service error state with retry inside authenticated shell",
+    "evidence": "hasRetry: true, isAppShell: true",
+    "passed": true
+  },
+  {
+    "step": 42,
+    "issue": "L7",
+    "action": "Controlled 503 on course overview",
+    "observedUrl": "/courses/course-python-completed",
+    "renderedState": "Renders recoverable service error state with retry inside authenticated shell",
+    "evidence": "hasRetry: true, isAppShell: true",
+    "passed": true
+  },
+  {
+    "step": 43,
+    "issue": "L8",
+    "action": "Inspect workspace toolbar buttons",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Toolbar distinct actions: Test samples, Run, and Submit",
+    "evidence": "Samples: \"Test samples\", Run: \"Run\", Submit: \"Submit\"",
+    "passed": true
+  },
+  {
+    "step": 44,
+    "issue": "L8",
+    "action": "Test samples execution result",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Result mode badge says \"Test samples\" instead of \"Run (Samples)\"",
+    "evidence": "Badge: \"Test samples\"",
+    "passed": true
+  },
+  {
+    "step": 45,
+    "issue": "L8",
+    "action": "Run plain code execution",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Plain stdout displayed in program-output without pass/fail correctness implication",
+    "evidence": "Output: \"10\", Correctness banner present: false",
+    "passed": true
+  },
+  {
+    "step": 46,
+    "issue": "L8",
+    "action": "Submit execution result",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Result mode badge says \"Submit (Graded)\" with official assessment semantics",
+    "evidence": "Badge: \"Submit (Graded)\"",
+    "passed": true
+  },
+  {
+    "step": 47,
+    "issue": "L8",
+    "action": "Inspect workspace toolbar buttons",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Toolbar distinct actions: Test samples, Run, and Submit",
+    "evidence": "Samples: \"Test samples\", Run: \"Run\", Submit: \"Submit\"",
+    "passed": true
+  },
+  {
+    "step": 48,
+    "issue": "L8",
+    "action": "Test samples execution result",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Result mode badge says \"Test samples\" instead of \"Run (Samples)\"",
+    "evidence": "Badge: \"Test samples\"",
+    "passed": true
+  },
+  {
+    "step": 49,
+    "issue": "L8",
+    "action": "Run plain code execution",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Plain stdout displayed in program-output without pass/fail correctness implication",
+    "evidence": "Output: \"10\", Correctness banner present: false",
+    "passed": true
+  },
+  {
+    "step": 50,
+    "issue": "L8",
+    "action": "Submit execution result",
+    "observedUrl": "/learn/enr-ada/steps/step-4-python-echo",
+    "renderedState": "Result mode badge says \"Submit (Graded)\" with official assessment semantics",
+    "evidence": "Badge: \"Submit (Graded)\"",
+    "passed": true
+  }
+]

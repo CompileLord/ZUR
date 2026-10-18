@@ -55,6 +55,7 @@ export interface LearningWorkspaceShellOptions {
     lessonTitle?: string;
     stepTitle?: string;
   };
+  isSidebarCollapsed?: boolean;
 }
 
 export function renderTaskStripHtml(opts: {
@@ -63,7 +64,10 @@ export function renderTaskStripHtml(opts: {
   taskSquares?: TaskSquareItem[];
   previousStepUrl?: string | null;
   nextStepUrl?: string | null;
+  isSidebarCollapsed?: boolean;
 }): string {
+  const isCollapsed = Boolean(opts.isSidebarCollapsed);
+  const toggleLabel = isCollapsed ? 'Show modules' : 'Hide modules';
 
   return `
     <nav class="learning-task-strip" role="navigation" aria-label="Lesson tasks">
@@ -71,11 +75,11 @@ export function renderTaskStripHtml(opts: {
           <a href="/learn" class="btn btn-secondary btn-compact learning-home-link" aria-label="Back to main page" title="Back to main page">
             ${renderIcon('arrow-left', { size: 16 })}
           </a>
-          <button type="button" class="btn btn-secondary btn-compact outline-toggle-btn sidebar-toggle-btn" aria-expanded="true" aria-controls="course-sidebar" title="Hide modules" aria-label="Hide modules">
+          <button type="button" class="btn btn-secondary btn-compact outline-toggle-btn sidebar-toggle-btn" aria-expanded="${!isCollapsed}" aria-controls="course-sidebar" title="${toggleLabel}" aria-label="${toggleLabel}">
             ${renderIcon('book', { size: 14 })}
             <span>Modules</span>
           </button>
-        <span class="task-strip-lesson-title font-semibold text-sm">${escapeHtml(opts.lessonTitle)}</span>
+        <span class="task-strip-lesson-title font-semibold text-sm" title="${escapeHtml(opts.lessonTitle)}">${escapeHtml(opts.lessonTitle)}</span>
 
       </div>
       <div class="task-strip-center" role="tablist" aria-label="Tasks in this lesson">
@@ -195,12 +199,14 @@ export function renderSidebarContentHtml(opts: {
 
 export function renderLearningWorkspaceShell(opts: LearningWorkspaceShellOptions): string {
   const isPython = Boolean(opts.isPythonWorkspace);
+  const isSidebarCollapsed = Boolean(opts.isSidebarCollapsed);
   const taskStripHtml = renderTaskStripHtml({
     taskControls: isPython ? opts.taskActions : undefined,
     lessonTitle: opts.lessonTitle,
     taskSquares: opts.taskSquares,
     previousStepUrl: opts.previousStepUrl,
     nextStepUrl: opts.nextStepUrl,
+    isSidebarCollapsed,
   });
 
   const sidebarContentHtml = renderSidebarContentHtml({
@@ -216,7 +222,7 @@ export function renderLearningWorkspaceShell(opts: LearningWorkspaceShellOptions
 
       ${taskStripHtml}
       <div class="learning-body">
-        <aside id="course-sidebar" class="learning-course-sidebar open" role="navigation" aria-label="Course Syllabus">
+        <aside id="course-sidebar" class="learning-course-sidebar ${isSidebarCollapsed ? 'collapsed' : 'open'}" role="navigation" aria-label="Course Syllabus"${isSidebarCollapsed ? ' inert' : ''}>
           ${sidebarContentHtml}
         </aside>
 
@@ -231,7 +237,7 @@ export function renderLearningWorkspaceShell(opts: LearningWorkspaceShellOptions
       </div>
 
       <!-- In-Workspace Report Issue Dialog -->
-      <div id="exercise-report-dialog" class="dialog-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="exercise-report-title">
+      <dialog id="exercise-report-dialog" class="dialog-overlay modal-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="exercise-report-title">
         <div class="dialog" style="max-width: 480px; width: 100%;">
           <div class="dialog-header">
             <h3 id="exercise-report-title" class="dialog-title">Report issue</h3>
@@ -279,7 +285,7 @@ export function renderLearningWorkspaceShell(opts: LearningWorkspaceShellOptions
             </div>
           </form>
         </div>
-      </div>
+      </dialog>
     </div>
   `;
 }

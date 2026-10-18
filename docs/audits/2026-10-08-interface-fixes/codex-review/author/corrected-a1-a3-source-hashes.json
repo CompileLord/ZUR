@@ -1,0 +1,6 @@
+{
+  "packages/web/src/main.ts": "c3553dfe7214df2cd0ab4ba380366562df5e6702c811bb15690b5a9f57975158",
+  "packages/web/src/pages/author/AuthorCoursesPage.ts": "7c8c75d6ebdb05cd00a32426f5ff866191cccf8c3570a8b62cb98b0ce099c4f5",
+  "packages/web/src/components/shells/AppShell.ts": "361a7d4f9ae452d7391f005bbea2662401bddf8ea5bdf2959c3b03fa1e26d430",
+  "packages/web/tests/author-a1-a7-interface-fixes.test.ts": "f9ef30345208c8a7a794b0723394cda84c290eedcc1f734054fa7f49248c63d8"
+}

@@ -1,0 +1,21 @@
+{
+  "checks": [
+    {
+      "check": "L6 cancelled Forward, repeated Back cancellation and confirmed Forward preserve native history",
+      "status": "passed",
+      "observed": {
+        "cancelledForward": true,
+        "repeatedCancelledBack": true,
+        "entriesAndIndexRetained": true,
+        "confirmedForward": true,
+        "discardedDraftCleared": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

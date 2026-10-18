@@ -17,6 +17,7 @@ export interface TheoryEditorPageOptions {
   estimatedDurationMinutes: number;
   saveStatus?: 'saved' | 'saving' | 'unsaved' | 'conflict';
   saveMessage?: string;
+  errorMessage?: string;
   treeContent?: string;
   modules?: ModuleSummary[];
 }
@@ -52,6 +53,8 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
         </div>
       </header>
 
+      ${opts.errorMessage ? `<div class="alert alert-danger mt-2" role="alert">${opts.errorMessage}</div>` : ''}
+      ${opts.saveStatus === 'conflict' ? `<div class="alert alert-danger mt-2" role="alert">Version conflict: this step has been modified remotely. Review changes before saving.</div>` : ''}
       ${opts.saveMessage ? `<div class="alert alert-info mt-2" role="status">${opts.saveMessage}</div>` : ''}
 
       <!-- Modest formatting toolbar with upload action (design §12 P23) -->

@@ -1,0 +1,212 @@
+[
+  {
+    "step": 1,
+    "sourceRoute": "/sign-in",
+    "destinationRoute": "/learn",
+    "action": "Sign in as Ada Lovelace",
+    "expected": "Session token stored, redirected to dashboard",
+    "actual": "Authenticated session active",
+    "assertions": "localStorage.zur_session_token present",
+    "passed": true
+  },
+  {
+    "step": 2,
+    "sourceRoute": "/sign-in",
+    "destinationRoute": "/learn",
+    "action": "Load Continue Learning Dashboard",
+    "expected": "Render Continue card and recent courses",
+    "actual": "Dashboard rendered with continue card",
+    "assertions": "Continue button and course card verified",
+    "passed": true
+  },
+  {
+    "step": 3,
+    "sourceRoute": "/learn/courses",
+    "destinationRoute": "/learn/courses?filter=completed",
+    "action": "Navigate with ?filter=completed query",
+    "expected": "Active tab switches to \"Completed (0)\" and filters rows",
+    "actual": "Active tab remained \"In progress (1)\" because main.ts omits activeFilter",
+    "assertions": "Confirmed defect: main.ts line 151 passes { user, courses } without activeFilter",
+    "passed": true
+  },
+  {
+    "step": 4,
+    "sourceRoute": "/learn",
+    "destinationRoute": "/learn/enr-ada",
+    "action": "Open course overview from dashboard",
+    "expected": "Render curriculum tree and progress stats",
+    "actual": "Curriculum tree with modules and lessons rendered",
+    "assertions": "Enrolled course header and curriculum outline verified",
+    "passed": true
+  },
+  {
+    "step": 5,
+    "sourceRoute": "/learn/enr-ada",
+    "destinationRoute": "/learn/enr-ada/steps/step-1-theory",
+    "action": "Navigate to theory step",
+    "expected": "Render markdown content and navigation bar",
+    "actual": "Markdown prose and task strip rendered",
+    "assertions": "Step content verified",
+    "passed": true
+  },
+  {
+    "step": 6,
+    "sourceRoute": "/learn/enr-ada/steps/step-1-theory",
+    "destinationRoute": "/learn/enr-ada/steps/step-2-video",
+    "action": "Navigate to video step",
+    "expected": "Render video embed and transcript",
+    "actual": "Video player frame and transcript rendered",
+    "assertions": "Video step verified",
+    "passed": true
+  },
+  {
+    "step": 7,
+    "sourceRoute": "/learn/enr-ada/steps/step-2-video",
+    "destinationRoute": "/learn/enr-ada/steps/step-3-quiz-single",
+    "action": "Navigate to single-choice quiz",
+    "expected": "Render question prompt and radio choices",
+    "actual": "Radio options rendered unselected",
+    "assertions": "Quiz options verified",
+    "passed": true
+  },
+  {
+    "step": 8,
+    "sourceRoute": "/learn/enr-ada/steps/step-5-quiz-multi",
+    "destinationRoute": "/learn/enr-ada/steps/step-5-quiz-multi",
+    "action": "Submit incorrect quiz choices",
+    "expected": "Show failure banner, keep Next hidden",
+    "actual": "Failure feedback strip displayed, Next button omitted",
+    "assertions": "Quiz feedback failure verified",
+    "passed": true
+  },
+  {
+    "step": 9,
+    "sourceRoute": "/learn/enr-ada/steps/step-5-quiz-multi",
+    "destinationRoute": "/learn/enr-ada/steps/step-5-quiz-multi",
+    "action": "Submit correct quiz choices",
+    "expected": "Show success banner, enable inline Next, turn task square green",
+    "actual": "Success banner shown, Next link visible, task square completed",
+    "assertions": "Quiz success and task square verified",
+    "passed": true
+  },
+  {
+    "step": 10,
+    "sourceRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "destinationRoute": "/learn/enr-ada/steps/step-1-theory",
+    "action": "Collapse sidebar then navigate to another step",
+    "expected": "Sidebar collapsed state persists across lesson navigation",
+    "actual": "Sidebar collapsed state was reset to expanded ({\"isCollapsed\":false,\"btnExpanded\":\"true\"}) because DOM state is not persisted",
+    "assertions": "Confirmed defect: main.ts lines 1006-1017 do not persist sidebar collapse state to sessionStorage",
+    "passed": true
+  },
+  {
+    "step": 11,
+    "sourceRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "destinationRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "action": "Run samples with incorrect output",
+    "expected": "Show failure banner and test case diff",
+    "actual": "Failure banner rendered with actual vs expected diff",
+    "assertions": "Samples failure verified",
+    "passed": true
+  },
+  {
+    "step": 12,
+    "sourceRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "destinationRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "action": "Execute code with custom input stdin=\"42\"",
+    "expected": "Show plain stdout \"84\"",
+    "actual": "Standard output displayed without synthetic test suite cards",
+    "assertions": "Plain program output verified",
+    "passed": true
+  },
+  {
+    "step": 13,
+    "sourceRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "destinationRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "action": "Submit correct Python solution",
+    "expected": "Pass all tests, turn task square green, update sidebar progress to completed count",
+    "actual": "Passed banner rendered, checkmark on task square 4, sidebar updated to 6 of 15 completed",
+    "assertions": "Live graded assessment verified",
+    "passed": true
+  },
+  {
+    "step": 14,
+    "sourceRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "destinationRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "action": "Trigger controlled worker infrastructure error",
+    "expected": "Display infrastructure error banner with Retry button, preserve code in editor",
+    "actual": "Infrastructure error banner rendered, Retry button present, code preserved",
+    "assertions": "Infrastructure error recovery state verified",
+    "passed": true
+  },
+  {
+    "step": 15,
+    "sourceRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "destinationRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "action": "Press Tab key inside open Report Issue modal",
+    "expected": "Focus traps inside modal controls and prevents focusing background editor",
+    "actual": "Focus is not trapped: main.ts only handles Escape (line 1050), allowing Tab to escape dialog into background",
+    "assertions": "Confirmed defect: exercise-report-dialog lacks modal focus trapping and aria-modal containment",
+    "passed": true
+  },
+  {
+    "step": 16,
+    "sourceRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "destinationRoute": "http://127.0.0.1:35877/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "action": "Open Submission History route",
+    "expected": "Show real course outline with modules and task strip alongside submission history",
+    "actual": "Sidebar renders hardcoded placeholder \"<li>History</li>\" with 0 modules and 0 task squares",
+    "assertions": "Confirmed defect: AttemptHistoryPage.ts line 177 supplies literal \"<nav class='outline-nav'><ul><li>History</li></ul></nav>\"",
+    "passed": true
+  },
+  {
+    "step": 17,
+    "sourceRoute": "http://127.0.0.1:35877/learn/enr-ada/steps/step-4-python-echo/attempts",
+    "destinationRoute": "http://127.0.0.1:35877/learn/enr-ada/steps/step-4-python-echo/attempts/att-ada-1",
+    "action": "Click attempt #1 to view detail",
+    "expected": "Display code snapshot, runtime version, verdict, and All attempts return link",
+    "actual": "Attempt detail drawer rendered with code snapshot and return link",
+    "assertions": "Attempt detail verified",
+    "passed": true
+  },
+  {
+    "step": 18,
+    "sourceRoute": "/learn/enr-ada/steps/step-4-python-echo",
+    "destinationRoute": "/learn",
+    "action": "Click main-page return link in workspace header",
+    "expected": "Navigate cleanly back to /learn with main app sidebar present",
+    "actual": "Dashboard loaded with active app-sidebar",
+    "assertions": "Recent fix verified: workspace return link restores main navigation shell",
+    "passed": true
+  },
+  {
+    "step": 19,
+    "sourceRoute": "/learn",
+    "destinationRoute": "/courses",
+    "action": "Click Explore courses in authenticated sidebar",
+    "expected": "Navigate to /courses while preserving authenticated sidebar shell with active state",
+    "actual": "Catalog rendered with intact app-sidebar and Explore marked active",
+    "assertions": "Recent fix verified: authenticated Explore sidebar preserved",
+    "passed": true
+  },
+  {
+    "step": 20,
+    "sourceRoute": "/courses",
+    "destinationRoute": "/courses/course-python-foundations",
+    "action": "Open course card from catalog",
+    "expected": "Display course overview syllabus with Resume/Continue button",
+    "actual": "Overview rendered with Continue learning CTA",
+    "assertions": "Authenticated course overview verified",
+    "passed": true
+  },
+  {
+    "step": 21,
+    "sourceRoute": "/settings/profile",
+    "destinationRoute": "/learn",
+    "action": "Edit profile display name and trigger browser Back",
+    "expected": "Prompt user with unsaved changes dialog before discarding draft",
+    "actual": "main.ts popstate listener (line 5038) only calls confirmAppearanceDeparture and allows immediate departure without dirty guard",
+    "assertions": "Confirmed defect: profile edits lack popstate dirty guard and are discarded silently on browser Back",
+    "passed": true
+  }
+]

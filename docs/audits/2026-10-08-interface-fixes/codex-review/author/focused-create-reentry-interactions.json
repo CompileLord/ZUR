@@ -1,0 +1,25 @@
+{
+  "checks": [
+    {
+      "check": "A1 stale create acknowledgement respects actual Back and Forward Teach reentry",
+      "status": "failed",
+      "error": "Late create must not redirect after native Back and Forward reentry: {\"route\":\"/teach/7255ce6e-fdfb-4238-9c2d-24f2c11906ef/content\",\"authorEditor\":true}\n+ actual - expected\n\n+ '/teach/7255ce6e-fdfb-4238-9c2d-24f2c11906ef/content'\n- '/teach'\n         ^\n",
+      "observed": {
+        "route": "/teach/7255ce6e-fdfb-4238-9c2d-24f2c11906ef/content",
+        "headings": [
+          "Structure",
+          "Codex own pending create after Back fixture",
+          "Modules in this course"
+        ],
+        "activeFilter": "Content",
+        "openDialogs": []
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 0,
+  "failed": 1,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

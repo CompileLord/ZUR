@@ -204,7 +204,7 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
             </p>
           </header>
 
-          <div class="dialog-body my-4 space-y-3 text-sm text-secondary">
+          <div class="dialog-body my-2 space-y-2 text-sm text-secondary">
             <ul class="list-disc pl-5 space-y-2 text-xs">
               <li>All active browser sessions and author access tokens will be terminated immediately.</li>
               <li>You will immediately lose access to all enrolled courses and ongoing exercises.</li>
@@ -218,7 +218,7 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
             </label>
           </div>
 
-          <footer class="dialog-footer flex justify-end gap-3 mt-6">
+          <footer class="dialog-footer flex justify-end gap-3 mt-4">
             <button type="button" id="btn-cancel-deletion" class="btn btn-secondary">Cancel</button>
             <button type="button" id="btn-confirm-deletion" class="btn btn-destructive" disabled>
               Submit deletion request

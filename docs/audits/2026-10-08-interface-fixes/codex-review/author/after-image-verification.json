@@ -1,0 +1,378 @@
+{
+  "decoded": 62,
+  "failures": 0,
+  "images": [
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a1-create-failure-dark.png",
+      "sha256": "795955122a41010a806c83efcdb1e20cb461a91f5c65bfa636c41fc547646f63",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a1-create-failure-light.png",
+      "sha256": "9efbef0805759cb62ed5340dec080c8184c61b45a0c291cdec9f230b2b3863f8",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a1-create-success-dark.png",
+      "sha256": "612ab1eb25606994478f67339775f29c453801cf8b77254fdd8671f0a13fb486",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a1-create-success-light.png",
+      "sha256": "d45dce8131a1e22b89c85154f82bce5ea5b990f48e65b07d0bb1d13640a2a900",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a2-combined-filter-dark.png",
+      "sha256": "e2fb26238b710b4a7b1cf8f6d242571e18faf80df5fd9e7244290b616f8aa0b8",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-21-44-523Z-94882712/author-a2-empty-match-dark.png",
+      "sha256": "a38d5a37d5bcc1cf0198f24b46a31f2834275ada104fda0d528d053a5d63ceed",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a1-create-failure-dark.png",
+      "sha256": "795955122a41010a806c83efcdb1e20cb461a91f5c65bfa636c41fc547646f63",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a1-create-failure-light.png",
+      "sha256": "9efbef0805759cb62ed5340dec080c8184c61b45a0c291cdec9f230b2b3863f8",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a1-create-success-dark.png",
+      "sha256": "612ab1eb25606994478f67339775f29c453801cf8b77254fdd8671f0a13fb486",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a1-create-success-light.png",
+      "sha256": "d45dce8131a1e22b89c85154f82bce5ea5b990f48e65b07d0bb1d13640a2a900",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a2-cleared-filter-dark.png",
+      "sha256": "c378dd96b359dbf989ff6f1d2af3c204ec0fce4ed1e13d3ca1a3ce18d2911ee8",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a2-cleared-filter-light.png",
+      "sha256": "73c4c4acf6f09f7630e8c7ff1449d42a375343e6f15cde644a49386f007e2767",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a2-combined-filter-dark.png",
+      "sha256": "e2fb26238b710b4a7b1cf8f6d242571e18faf80df5fd9e7244290b616f8aa0b8",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a2-combined-filter-light.png",
+      "sha256": "dab97cfde44251b8be11ec8d2ead4516d60a5a90a4c553a1ec122e45a8ab2122",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a2-empty-match-dark.png",
+      "sha256": "a38d5a37d5bcc1cf0198f24b46a31f2834275ada104fda0d528d053a5d63ceed",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a2-empty-match-light.png",
+      "sha256": "87f5a062dc16426754165534bd0c6287cb1a1eecf7ee887823dff934b0142ca9",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a3-main-landmark-dark.png",
+      "sha256": "c378dd96b359dbf989ff6f1d2af3c204ec0fce4ed1e13d3ca1a3ce18d2911ee8",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a3-main-landmark-light.png",
+      "sha256": "73c4c4acf6f09f7630e8c7ff1449d42a375343e6f15cde644a49386f007e2767",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-editor-return-dark.png",
+      "sha256": "7e96b6efc562d3dc92ed00c21fb391ebf254bbd39bfb5cf3f2774c0dfec353c1",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-editor-return-light.png",
+      "sha256": "4e163fe4b7f2a2375ef9529392bb4e31ffa77fee17b71d743d5bb60a1d686fbc",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-python-dark.png",
+      "sha256": "2eb0000a7e6cb2b4087fc44120222e332b8b8ed4d914ec0ff0b57c146e0946b6",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-python-light.png",
+      "sha256": "52b2612de59466ad5d9f14ddf3e09af636989fb539c2cdceecbcab42ffe41029",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-python-narrow-dark.png",
+      "sha256": "086e6bb31f3f0fda91704a8fd89431455b625def7949e15a4c10ca225a1ca3dd",
+      "width": 1024,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-python-narrow-light.png",
+      "sha256": "f1f16141e9d212efff8f5378cf2c2552b1862dd3e965a375d908253c9905a988",
+      "width": 1024,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-quiz-dark.png",
+      "sha256": "534f4a829043b3b3cd6459b75c79a50593cb52f3adfcb2cbe75c3a5ee3515e18",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-quiz-light.png",
+      "sha256": "2d4a53aa823b9c2ea626a437b0d2c51d69a7434a6e9966ff4e71866fe7a48e03",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-theory-dark.png",
+      "sha256": "03feb0fb54ca12174caf64739279da6277fced63df9b1374ae2dbc24e30fa189",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-theory-light.png",
+      "sha256": "1e06cdf66a54b7f904605bdb49db6b13212e75868a13b2dabbe99152b549cae6",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-video-dark.png",
+      "sha256": "07fe79a57613da0c7b3ff8463c1096a2c2681f96e395cd7c60ec7a191cde64cd",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-video-light.png",
+      "sha256": "029303896582e2817cf973e00d597a7fd35e77c47f2ff4e7ad69a474f55d3a0d",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a5-403-denial-dark.png",
+      "sha256": "46e1dab94b0fb44c02eae8521be5c187af4d9a9bffa9b056eed31688f2628be9",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a5-403-denial-light.png",
+      "sha256": "56b5f8ae94d87aad8d352a56ff38c253262f6649e37c698a5d7cdea593034e61",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a5-503-failure-dark.png",
+      "sha256": "e4c8b1274905ceafb9fbbfa32ab92c44906eb73476e94a2949afa83ab6ff4e44",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a5-503-failure-light.png",
+      "sha256": "b14e200f39be4a85443240b6c9c77c9561a2bed98b1933c5ed257369c00dbd2f",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a5-loading-dark.png",
+      "sha256": "033bfa8410f5c2db2178369c2263b94cc938b0ae6f164dc25fca664ddd4d3701",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a5-loading-light.png",
+      "sha256": "139ef8ecc6c9d57dc2517430214f9d8fbf4b9113103a44a6210267deecb2208a",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a5-recovery-dark.png",
+      "sha256": "4cf6cf35d2043fee34eb53c35a28181827691109410e4d6da8ab151c1ad3c03c",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a5-recovery-light.png",
+      "sha256": "cd8f24a0010290fd000939b546fbe8062b1a93011be6c5c8126d1b0e448e2b66",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a6-clean-header-dark.png",
+      "sha256": "c1c60b5dd15b638c486445b03928b8573419590fa20c115d7efb2fe1ca8b10bf",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a6-clean-header-light.png",
+      "sha256": "1d95fba3378f9ee35cc42d065639b1d6c66ed521e20a8d6426291d8aa5147b10",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a6-dirty-header-dark.png",
+      "sha256": "3cf99e3b92e0224b6c02a95ad5cd5a3f8e9c1b691aa17b0b972c2280b84bd6e8",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a6-dirty-header-light.png",
+      "sha256": "4f78487b21fbcd8ca644aed667e26de779c5c5cc79b9ce1d0ede5dea7638714b",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a6-publish-blocked-dark.png",
+      "sha256": "240f1a5ff489c2ad086605f8b366051b89a14b44a970e97660d2267c4890155a",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a6-publish-blocked-light.png",
+      "sha256": "d5ce6aca792469f0df1d983eef6654c2bab77842beefe49600cc574eb2e541a1",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a6-publish-ready-dark.png",
+      "sha256": "047bb53d9db95dcbd7af3e4ae0030713bb3cc01503f0a7cd5933caaf96d64828",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a6-publish-ready-light.png",
+      "sha256": "2249dcce28a1a537a5c7641f4187d4d3b16fd85508e708049baa232147b76ccc",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a6-save-error-dark.png",
+      "sha256": "6bb609c5aca490a8fe78634dcaed665b8fab98c1b51de5c25aa0273e7d45e221",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a6-save-error-light.png",
+      "sha256": "02eaf8d62967414cbe035590ec2f154f26a0122df80f38be75859f2de45b06e7",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-collapsed-dark.png",
+      "sha256": "561e320beb9b8a4b0567b5f44dfffba8c454fc28f038183608b7b958297e8f79",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-collapsed-light.png",
+      "sha256": "33c6c132070806460c2353423424b7f2d8765c8164a01150c5c9e835990fedd6",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-error-dark.png",
+      "sha256": "ad5fce6dbb102100732612d55347eeabbdbb880956bd80454fbe0b3da698fa3c",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-error-light.png",
+      "sha256": "7243787168f99857a39ae54dfb64df649df85cbd63f471cc112100f5064be798",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-expanded-dark.png",
+      "sha256": "d3869535ea97a350dfc4edae5e14121221e4085852b5bc31240663b8989d6f6b",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-expanded-light.png",
+      "sha256": "f6592162b1c5718d4a7e6ea388ce9ca51d7e99dcb014ad2150b5ec96e27ca7a4",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-fullpage-dark.png",
+      "sha256": "01eec6defb975696da6ea8673da0317f2c712bb72f1bb7cd6e75e8a397f66457",
+      "width": 1440,
+      "height": 1552
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-fullpage-light.png",
+      "sha256": "42db5c441578f41a860a18cb7e346ad62fba74cc839b47049ac787d5b925a916",
+      "width": 1440,
+      "height": 1552
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-narrow-dark.png",
+      "sha256": "e85ac6e22454f560126677647a5dea22b052bb493a714f909a3ba2b0f4e07a12",
+      "width": 1024,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-narrow-light.png",
+      "sha256": "6d4350fe29039e6bd7031a0cf7d9291a4c5f01cfc8f926d0c97650e4dabe51b0",
+      "width": 1024,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-verified-dark.png",
+      "sha256": "a4aa4c8aac320ce9099f32c9e7c41eabb088c831e4f0ed2b9faecfcc34169305",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-verified-light.png",
+      "sha256": "d2222c8f133a499ad48f8d7690a95ade0419d9ceff44b4aaedf79fd06206c278",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-waiting-dark.png",
+      "sha256": "d3869535ea97a350dfc4edae5e14121221e4085852b5bc31240663b8989d6f6b",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a7-setup-waiting-light.png",
+      "sha256": "f6592162b1c5718d4a7e6ea388ce9ca51d7e99dcb014ad2150b5ec96e27ca7a4",
+      "width": 1440,
+      "height": 900
+    }
+  ]
+}

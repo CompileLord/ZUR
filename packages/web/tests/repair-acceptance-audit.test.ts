@@ -51,7 +51,7 @@ test('U01: Python workspace results banner includes active run mode badge', () =
       testResults: [{ position: 0, passed: true, input: '1', expectedOutput: '1', actualOutput: '1' }],
     },
   });
-  assert.ok(samplesHtml.includes('Run (Samples)'));
+  assert.ok(samplesHtml.includes('Test samples'));
 
   const submitHtml = renderPythonWorkspacePage({
     courseTitle: 'Course',

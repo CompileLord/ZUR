@@ -18,6 +18,7 @@ export interface VideoEditorPageOptions {
   estimatedDurationMinutes: number;
   saveStatus?: 'saved' | 'saving' | 'unsaved' | 'conflict';
   saveMessage?: string;
+  errorMessage?: string;
   treeContent?: string;
   modules?: ModuleSummary[];
 }
@@ -65,7 +66,7 @@ export function renderVideoEditorPage(opts: VideoEditorPageOptions): string {
       ? 'Unsaved edits (offline)'
       : opts.saveStatus === 'conflict'
       ? 'Draft conflict'
-      : 'Saved';
+      : undefined;
 
   const { embedUrl, provider } = deriveEmbedUrl(opts.videoUrl);
 
@@ -83,7 +84,6 @@ export function renderVideoEditorPage(opts: VideoEditorPageOptions): string {
     `
     : `
       <div class="video-preview-placeholder card p-4 text-center">
-        <span class="placeholder-icon">🎬</span>
         <p class="text-secondary mt-2">Enter an approved YouTube, Vimeo, or Loom URL above to preview the embedded player.</p>
       </div>
     `;
@@ -104,6 +104,8 @@ export function renderVideoEditorPage(opts: VideoEditorPageOptions): string {
         </div>
       </header>
 
+      ${opts.errorMessage ? `<div class="alert alert-danger mt-2" role="alert">${opts.errorMessage}</div>` : ''}
+      ${opts.saveStatus === 'conflict' ? `<div class="alert alert-danger mt-2" role="alert">Version conflict: this step has been modified remotely. Review changes before saving.</div>` : ''}
       ${opts.saveMessage ? `<div class="alert alert-info mt-2" role="status">${opts.saveMessage}</div>` : ''}
 
       <div class="form-group mt-3">

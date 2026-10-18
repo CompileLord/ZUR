@@ -1,0 +1,53 @@
+{
+  "checks": [
+    {
+      "check": "L7 fallback service 500 preserves navigation and Retry",
+      "status": "passed",
+      "observed": {
+        "controlledHttpStatus": 500,
+        "body": "empty detail JSON fixture",
+        "retryRecovered": true,
+        "authenticatedContext": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L7 fallback service 502 preserves navigation and Retry",
+      "status": "passed",
+      "observed": {
+        "controlledHttpStatus": 502,
+        "body": "empty detail JSON fixture",
+        "retryRecovered": true,
+        "authenticatedContext": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L7 fallback service 503 preserves navigation and Retry",
+      "status": "passed",
+      "observed": {
+        "controlledHttpStatus": 503,
+        "body": "empty detail JSON fixture",
+        "retryRecovered": true,
+        "authenticatedContext": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L7 fallback service 504 preserves navigation and Retry",
+      "status": "passed",
+      "observed": {
+        "controlledHttpStatus": 504,
+        "body": "empty detail JSON fixture",
+        "retryRecovered": true,
+        "authenticatedContext": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 4,
+  "failed": 0,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

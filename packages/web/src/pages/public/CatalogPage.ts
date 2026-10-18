@@ -223,7 +223,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
           ? c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1)
           : undefined;
 
-        return renderCourseRow({
+        const rendered = renderCourseRow({
           id: c.id,
           title: c.title,
           description: c.description,
@@ -233,6 +233,20 @@ export function renderCatalogPage(props: CatalogPageProps): string {
           actionText: 'View course',
           actionHref: `/courses/${c.id}`,
         });
+
+        return rendered
+          .replace(
+            'class="course-row"',
+            'class="course-row course-card catalog-card"'
+          )
+          .replace(
+            'class="course-row-title"',
+            'class="course-row-title card-title"'
+          )
+          .replace(
+            'class="course-row-description"',
+            `class="course-row-description card-description" title="${escapeHtml(c.description)}"`
+          );
       })
       .join('');
 
@@ -303,7 +317,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
 
         <div class="filter-toolbar flex items-center justify-between flex-wrap gap-3">
           <!-- Desktop Filter Dropdowns -->
-          <div class="desktop-filters flex items-center gap-3 flex-wrap">
+          <div class="desktop-filters category-filter-tabs flex items-center gap-2 flex-wrap">
             <div class="filter-group">
               <label for="filter-category" class="sr-only">Category</label>
               <select id="filter-category" class="form-select form-input-compact">

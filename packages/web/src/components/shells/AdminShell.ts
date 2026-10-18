@@ -82,7 +82,7 @@ export function renderAdminShell(opts: AdminShellOptions): string {
           </nav>
         </header>
 
-        <main id="main-content" class="admin-content-body" role="main">
+        <main id="main-content" class="admin-main admin-content-body" role="main">
           ${opts.content}
         </main>
       </div>

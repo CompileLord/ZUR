@@ -1,0 +1,11 @@
+# Learner correction round: interim extra journey probes
+
+These observations were collected while the executor was still correcting the first audit. They must be rechecked against its finished result before the next correction request or acceptance. They do not supersede a later verified repair.
+
+- Canceled native Forward leaves the URL `/courses` with the profile form still mounted. The rollback always calls `history.forward()` and cannot reverse a Forward traversal. Probe: `/tmp/zur-independent-fix-audit/learner-history.ts` (unchanged parent-owned acceptance probe), `learner-history-interim.json`.
+- Controlled delayed restore acknowledgment redirects to the editor after the user already followed native Back to the attempts list. The earlier confirmed restore was authorized; the failure is the late callback hijacking the user's chosen route. Probe: `/tmp/zur-independent-fix-audit/learner-restore-pending.ts`, `learner-restore-pending-interim.json`. Use current-route/mount ownership after asynchronous acknowledgment; do not claim a request already sent can be magically canceled or its mutation undone.
+- Attempts-origin sidebar scope and reload PASS in the updated source. Preserve the pinned-version scope. Probe: `/tmp/zur-independent-fix-audit/learner-attempt-scope.ts`, `learner-attempt-scope-interim.json`.
+
+Source review also flags the new `(window as any).navigateTo = navigateTo` production global added for capture convenience. The capture must follow actual app controls; remove the unnecessary global if no real product caller requires it. Modal cleanup should restore only inertness/listeners it owns rather than clearing every unrelated inert element in the document.
+
+- L7 generic-detail HTTP500 and503 recover correctly, but generic-detail502 and504 are misclassified as unavailable-page denial without Retry. The revised classifier special-cases only500/503 despite the accepted 5xx requirement. `CourseClient.getCourseOverview` always preserves the actual HTTP status. Probe `/tmp/zur-independent-fix-audit/learner-service-status.ts`, results `learner-service-status-interim.json`; use actual status for denial/service classification rather than generic fallback message text.

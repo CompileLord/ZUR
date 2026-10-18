@@ -1,0 +1,14 @@
+{
+  "runId": "run-2026-10-08T16-14-19-550Z-eaed51a5",
+  "completed": false,
+  "failure": "Navigation DOMContentLoaded timeout for loaderId: 439F9A890BCF2D8875E3F5765526E0B7 at http://127.0.0.1:40677/sign-in",
+  "images": 0,
+  "interactions": 0,
+  "failedInteractions": 0,
+  "faultReceipts": {
+    "create503": 0,
+    "authorList503": 0,
+    "stepSave503": 0,
+    "tokenRefresh503": 0
+  }
+}

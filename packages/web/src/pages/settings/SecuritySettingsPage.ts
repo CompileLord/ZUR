@@ -151,7 +151,7 @@ export function renderSecuritySettingsPage(opts: SecuritySettingsPageOptions): s
               This will revoke all active browser sessions. You will be redirected to the sign-in page to log in again.
             </p>
           </header>
-          <footer class="dialog-footer flex justify-end gap-3 mt-6">
+          <footer class="dialog-footer flex justify-end gap-3 mt-4">
             <button type="button" id="btn-cancel-signout-all" class="btn btn-secondary">Cancel</button>
             <button type="button" id="btn-confirm-signout-all" class="btn btn-destructive">Sign out everywhere</button>
           </footer>

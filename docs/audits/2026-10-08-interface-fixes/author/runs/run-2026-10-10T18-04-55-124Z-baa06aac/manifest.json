@@ -1,0 +1,824 @@
+[
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a1-create-failure-dark.png",
+    "issue": "A1",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "Populated create course dialog retains title through controlled 503 service failure",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:03.810Z",
+    "fixture": "Guido van Rossum seeded course creation dialog",
+    "fault": "Controlled 503 on POST /api/author/courses",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a1-create-success-dark.png",
+    "issue": "A1",
+    "route": "/teach/47253d62-3a90-4d2b-a1dd-b64258420759/content",
+    "observedUrl": "/teach/47253d62-3a90-4d2b-a1dd-b64258420759/content",
+    "pageIdentity": "Structure",
+    "renderedState": "Created course acknowledged destination in Course Builder",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:04.053Z",
+    "fixture": "Guido van Rossum created disposable course",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a1-create-failure-light.png",
+    "issue": "A1",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "Populated create course dialog retains title through controlled 503 service failure",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:04.676Z",
+    "fixture": "Guido van Rossum seeded course creation dialog",
+    "fault": "Controlled 503 on POST /api/author/courses",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a1-create-success-light.png",
+    "issue": "A1",
+    "route": "/teach/1e60e64b-9663-43f1-9c2f-4ff15cff23c0/content",
+    "observedUrl": "/teach/1e60e64b-9663-43f1-9c2f-4ff15cff23c0/content",
+    "pageIdentity": "Structure",
+    "renderedState": "Created course acknowledged destination in Course Builder",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:04.938Z",
+    "fixture": "Guido van Rossum created disposable course",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a2-combined-filter-dark.png",
+    "issue": "A2",
+    "route": "/teach?status=draft&search=Concurrency",
+    "observedUrl": "/teach?status=draft&search=Concurrency",
+    "pageIdentity": "Your courses",
+    "renderedState": "Combined status filter and search query persistence",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:05.308Z",
+    "fixture": "Guido van Rossum draft courses filtered by Concurrency",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a2-empty-match-dark.png",
+    "issue": "A2",
+    "route": "/teach?status=draft&search=NonexistentQuantum",
+    "observedUrl": "/teach?status=draft&search=NonexistentQuantum",
+    "pageIdentity": "Your courses",
+    "renderedState": "No matching courses empty state with explicit Clear filters action",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:05.594Z",
+    "fixture": "Guido van Rossum empty search query in drafts",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a2-cleared-filter-dark.png",
+    "issue": "A2",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "All courses displayed after explicit filter reset",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:05.734Z",
+    "fixture": "Guido van Rossum default courses list",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a2-combined-filter-light.png",
+    "issue": "A2",
+    "route": "/teach?status=draft&search=Concurrency",
+    "observedUrl": "/teach?status=draft&search=Concurrency",
+    "pageIdentity": "Your courses",
+    "renderedState": "Combined status filter and search query persistence",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:06.111Z",
+    "fixture": "Guido van Rossum draft courses filtered by Concurrency",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a2-empty-match-light.png",
+    "issue": "A2",
+    "route": "/teach?status=draft&search=NonexistentQuantum",
+    "observedUrl": "/teach?status=draft&search=NonexistentQuantum",
+    "pageIdentity": "Your courses",
+    "renderedState": "No matching courses empty state with explicit Clear filters action",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:06.372Z",
+    "fixture": "Guido van Rossum empty search query in drafts",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a2-cleared-filter-light.png",
+    "issue": "A2",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "All courses displayed after explicit filter reset",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:06.518Z",
+    "fixture": "Guido van Rossum default courses list",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a3-main-landmark-dark.png",
+    "issue": "A3",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "Single main landmark owned by AppShell with focused skip link target",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:07.071Z",
+    "fixture": "Guido van Rossum teach dashboard skip link",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a3-main-landmark-light.png",
+    "issue": "A3",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "Single main landmark owned by AppShell with focused skip link target",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:07.635Z",
+    "fixture": "Guido van Rossum teach dashboard skip link",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-preview-python-dark.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+    "observedUrl": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Read-only Python exercise preview with problem pane, starter code, and concise preview notice",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:08.133Z",
+    "fixture": "Python foundations step 4 echo exercise preview",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-preview-python-narrow-dark.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+    "observedUrl": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Narrow desktop read-only Python exercise preview layout",
+    "theme": "dark",
+    "viewport": "1024x900",
+    "dimensions": {
+      "width": 1024,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:08.364Z",
+    "fixture": "Python foundations step 4 echo exercise narrow preview",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-preview-theory-dark.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/preview?stepId=step-1-theory",
+    "observedUrl": "/teach/course-python-foundations/preview?stepId=step-1-theory",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Theory reading step student preview with authored markdown rendering",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:08.755Z",
+    "fixture": "Python foundations step 1 theory preview",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-preview-video-dark.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/preview?stepId=step-2-video",
+    "observedUrl": "/teach/course-python-foundations/preview?stepId=step-2-video",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Video lesson step student preview with player and transcript card",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:09.004Z",
+    "fixture": "Python foundations step 2 video preview",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-preview-quiz-dark.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/preview?stepId=step-3-quiz-single",
+    "observedUrl": "/teach/course-python-foundations/preview?stepId=step-3-quiz-single",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Quiz checkpoint step student preview with interaction preview and grading disabled",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:09.244Z",
+    "fixture": "Python foundations step 3 quiz preview",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-editor-return-dark.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+    "observedUrl": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+    "pageIdentity": "Course Outline",
+    "renderedState": "Step editor workspace reached via Back to editor exit link",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:09.385Z",
+    "fixture": "Quiz editor for step 3",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-preview-python-light.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+    "observedUrl": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Read-only Python exercise preview with problem pane, starter code, and concise preview notice",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:09.756Z",
+    "fixture": "Python foundations step 4 echo exercise preview",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-preview-python-narrow-light.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+    "observedUrl": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Narrow desktop read-only Python exercise preview layout",
+    "theme": "light",
+    "viewport": "1024x900",
+    "dimensions": {
+      "width": 1024,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:09.991Z",
+    "fixture": "Python foundations step 4 echo exercise narrow preview",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-preview-theory-light.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/preview?stepId=step-1-theory",
+    "observedUrl": "/teach/course-python-foundations/preview?stepId=step-1-theory",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Theory reading step student preview with authored markdown rendering",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:10.339Z",
+    "fixture": "Python foundations step 1 theory preview",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-preview-video-light.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/preview?stepId=step-2-video",
+    "observedUrl": "/teach/course-python-foundations/preview?stepId=step-2-video",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Video lesson step student preview with player and transcript card",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:10.611Z",
+    "fixture": "Python foundations step 2 video preview",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-preview-quiz-light.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/preview?stepId=step-3-quiz-single",
+    "observedUrl": "/teach/course-python-foundations/preview?stepId=step-3-quiz-single",
+    "pageIdentity": "Modules & lessons",
+    "renderedState": "Quiz checkpoint step student preview with interaction preview and grading disabled",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:10.957Z",
+    "fixture": "Python foundations step 3 quiz preview",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a4-editor-return-light.png",
+    "issue": "A4",
+    "route": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+    "observedUrl": "/teach/course-python-foundations/content/quiz/step-3-quiz-single",
+    "pageIdentity": "Course Outline",
+    "renderedState": "Step editor workspace reached via Back to editor exit link",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:11.102Z",
+    "fixture": "Quiz editor for step 3",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a5-loading-dark.png",
+    "issue": "A5",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "Author loading state within continuous AppShell navigation",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:11.497Z",
+    "fixture": "Guido van Rossum teach loading state",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a5-403-denial-dark.png",
+    "issue": "A5",
+    "route": "/teach/course-forbidden-xyz/content",
+    "observedUrl": "/teach/course-forbidden-xyz/content",
+    "pageIdentity": "Course not found",
+    "renderedState": "Safe author denial state within AppShell disclosing no private course data",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:11.748Z",
+    "fixture": "Controlled 403 forbidden course editor access",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a5-503-failure-dark.png",
+    "issue": "A5",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Couldn't load course content",
+    "renderedState": "Controlled 503 author service failure retaining AppShell navigation, retry, and safe exits",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:11.988Z",
+    "fixture": "Controlled 503 on GET /api/author/courses",
+    "fault": "Controlled 503 on author courses endpoint",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a5-recovery-dark.png",
+    "issue": "A5",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "Successful recovery of author course list after transient 503 service error",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:12.225Z",
+    "fixture": "Guido van Rossum recovered course list",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a5-loading-light.png",
+    "issue": "A5",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "Author loading state within continuous AppShell navigation",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:12.623Z",
+    "fixture": "Guido van Rossum teach loading state",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a5-403-denial-light.png",
+    "issue": "A5",
+    "route": "/teach/course-forbidden-xyz/content",
+    "observedUrl": "/teach/course-forbidden-xyz/content",
+    "pageIdentity": "Course not found",
+    "renderedState": "Safe author denial state within AppShell disclosing no private course data",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:12.888Z",
+    "fixture": "Controlled 403 forbidden course editor access",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a5-503-failure-light.png",
+    "issue": "A5",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Couldn't load course content",
+    "renderedState": "Controlled 503 author service failure retaining AppShell navigation, retry, and safe exits",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:13.143Z",
+    "fixture": "Controlled 503 on GET /api/author/courses",
+    "fault": "Controlled 503 on author courses endpoint",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a5-recovery-light.png",
+    "issue": "A5",
+    "route": "/teach",
+    "observedUrl": "/teach",
+    "pageIdentity": "Your courses",
+    "renderedState": "Successful recovery of author course list after transient 503 service error",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:13.411Z",
+    "fixture": "Guido van Rossum recovered course list",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a6-clean-header-dark.png",
+    "issue": "A6",
+    "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "observedUrl": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "pageIdentity": "Course Outline",
+    "renderedState": "Quiet clean author workspace header suppressing routine Saved indicator",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:13.953Z",
+    "fixture": "Python foundations step 1 clean theory editor",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a6-dirty-header-dark.png",
+    "issue": "A6",
+    "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "observedUrl": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "pageIdentity": "Course Outline",
+    "renderedState": "Dirty author editor state with active Save changes primary control",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:14.155Z",
+    "fixture": "Python foundations step 1 dirty theory editor",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a6-save-error-dark.png",
+    "issue": "A6",
+    "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "observedUrl": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "pageIdentity": "Course Outline",
+    "renderedState": "Actionable Retry save state after transient network save failure",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:14.514Z",
+    "fixture": "Python foundations step 1 theory editor under controlled 503",
+    "fault": "Controlled 503 on PUT /api/author/steps/:id/content",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a6-publish-ready-dark.png",
+    "issue": "A6",
+    "route": "/teach/course-python-foundations/publish",
+    "observedUrl": "/teach/course-python-foundations/publish",
+    "pageIdentity": "Review publication",
+    "renderedState": "Uncluttered ready publication review omitting duplicate Next action guidance",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:16.199Z",
+    "fixture": "Python foundations publish review",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a6-publish-blocked-dark.png",
+    "issue": "A6",
+    "route": "/teach/course-with-issues/publish",
+    "observedUrl": "/teach/course-with-issues/publish",
+    "pageIdentity": "Review publication",
+    "renderedState": "Actionable blocked publication review with deep-linked exercise issues and disabled publish control",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:16.499Z",
+    "fixture": "Disposable course with deliberate starter code validation issue",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a6-clean-header-light.png",
+    "issue": "A6",
+    "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "observedUrl": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "pageIdentity": "Course Outline",
+    "renderedState": "Quiet clean author workspace header suppressing routine Saved indicator",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:16.888Z",
+    "fixture": "Python foundations step 1 clean theory editor",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a6-dirty-header-light.png",
+    "issue": "A6",
+    "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "observedUrl": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "pageIdentity": "Course Outline",
+    "renderedState": "Dirty author editor state with active Save changes primary control",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:17.088Z",
+    "fixture": "Python foundations step 1 dirty theory editor",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a6-save-error-light.png",
+    "issue": "A6",
+    "route": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "observedUrl": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "pageIdentity": "Course Outline",
+    "renderedState": "Actionable Retry save state after transient network save failure",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:17.433Z",
+    "fixture": "Python foundations step 1 theory editor under controlled 503",
+    "fault": "Controlled 503 on PUT /api/author/steps/:id/content",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a6-publish-ready-light.png",
+    "issue": "A6",
+    "route": "/teach/course-python-foundations/publish",
+    "observedUrl": "/teach/course-python-foundations/publish",
+    "pageIdentity": "Review publication",
+    "renderedState": "Uncluttered ready publication review omitting duplicate Next action guidance",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:19.097Z",
+    "fixture": "Python foundations publish review",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a6-publish-blocked-light.png",
+    "issue": "A6",
+    "route": "/teach/course-with-issues/publish",
+    "observedUrl": "/teach/course-with-issues/publish",
+    "pageIdentity": "Review publication",
+    "renderedState": "Actionable blocked publication review with deep-linked exercise issues and disabled publish control",
+    "theme": "light",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:19.454Z",
+    "fixture": "Disposable course with deliberate starter code validation issue",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a7-setup-collapsed-dark.png",
+    "issue": "A7",
+    "route": "/settings/ai-connections/tok-disposable-audit/setup",
+    "observedUrl": "/settings/ai-connections/tok-disposable-audit/setup",
+    "pageIdentity": "Auditing Agent Connection",
+    "renderedState": "AI connection setup guide with collapsed keyboard-accessible Technical limits disclosure",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:19.907Z",
+    "fixture": "Guido van Rossum tok-disposable-audit connection setup",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a7-setup-expanded-dark.png",
+    "issue": "A7",
+    "route": "/settings/ai-connections/tok-disposable-audit/setup",
+    "observedUrl": "/settings/ai-connections/tok-disposable-audit/setup",
+    "pageIdentity": "Auditing Agent Connection",
+    "renderedState": "Expanded Technical limits disclosure revealing transport, upload, and batch mutation specifications",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:20.107Z",
+    "fixture": "Guido van Rossum tok-disposable-audit expanded limits",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a7-setup-narrow-dark.png",
+    "issue": "A7",
+    "route": "/settings/ai-connections/tok-disposable-audit/setup",
+    "observedUrl": "/settings/ai-connections/tok-disposable-audit/setup",
+    "pageIdentity": "Auditing Agent Connection",
+    "renderedState": "Narrow desktop layout of AI connection setup guide",
+    "theme": "dark",
+    "viewport": "1024x900",
+    "dimensions": {
+      "width": 1024,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:20.355Z",
+    "fixture": "Guido van Rossum tok-disposable-audit narrow layout",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a7-setup-fullpage-dark.png",
+    "issue": "A7",
+    "route": "/settings/ai-connections/tok-disposable-audit/setup",
+    "observedUrl": "/settings/ai-connections/tok-disposable-audit/setup",
+    "pageIdentity": "Auditing Agent Connection",
+    "renderedState": "Full-page desktop capture of all setup steps and configuration guide",
+    "theme": "dark",
+    "viewport": "1440x1552",
+    "dimensions": {
+      "width": 1440,
+      "height": 1552
+    },
+    "timestamp": "2026-10-10T18:05:20.758Z",
+    "fixture": "Guido van Rossum tok-disposable-audit full-page",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a7-setup-waiting-dark.png",
+    "issue": "A7",
+    "route": "/settings/ai-connections/tok-disposable-audit/setup",
+    "observedUrl": "/settings/ai-connections/tok-disposable-audit/setup",
+    "pageIdentity": "Auditing Agent Connection",
+    "renderedState": "Waiting for first authenticated request status indicator",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:21.013Z",
+    "fixture": "tok-disposable-audit waiting status",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  },
+  {
+    "filePath": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-10T18-04-55-124Z-baa06aac/author-a7-setup-verified-dark.png",
+    "issue": "A7",
+    "route": "/settings/ai-connections/tok-disposable-audit/setup",
+    "observedUrl": "/settings/ai-connections/tok-disposable-audit/setup",
+    "pageIdentity": "Auditing Agent Connection",
+    "renderedState": "Verified connection state reflecting live MCP protocol request timestamp",
+    "theme": "dark",
+    "viewport": "1440x900",
+    "dimensions": {
+      "width": 1440,
+      "height": 900
+    },
+    "timestamp": "2026-10-10T18:05:21.427Z",
+    "fixture": "tok-disposable-audit verified after real MCP initialize request",
+    "provenance": "Automated CDP capture harness with DOM, network and SQLite assertions"
+  }
+]

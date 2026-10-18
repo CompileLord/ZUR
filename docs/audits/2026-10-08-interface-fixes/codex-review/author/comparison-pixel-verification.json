@@ -1,0 +1,22 @@
+{
+  "checks": [
+    {
+      "comparison": "screenshots/interface-fixes-2026-10-08/comparisons/author/python-preview-dark-before-after.png",
+      "source": "screenshots/interface-review-2026-10-06/author/author-p26-student-preview-python-dark.png",
+      "origin": [
+        16,
+        60
+      ],
+      "wholeSourceRGBEqual": true
+    },
+    {
+      "comparison": "screenshots/interface-fixes-2026-10-08/comparisons/author/python-preview-dark-before-after.png",
+      "source": "screenshots/interface-fixes-2026-10-08/author/run-2026-10-08T16-23-30-073Z-26a6da86/author-a4-preview-python-dark.png",
+      "origin": [
+        1472,
+        60
+      ],
+      "wholeSourceRGBEqual": true
+    }
+  ]
+}

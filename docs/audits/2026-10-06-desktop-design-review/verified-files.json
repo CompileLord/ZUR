@@ -1,0 +1,401 @@
+[
+  {
+    "file": "learner/01-learner-dashboard.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 32004,
+    "sha256": "d19d5c6095acff48d9c1cefbc661d9a5b09259d434775d2c8ffe47ded661a919"
+  },
+  {
+    "file": "learner/02-my-courses.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 32909,
+    "sha256": "dd1484d90edf9dd94657eef48753758145b8a99368217a01a35537c4fd14d7a0"
+  },
+  {
+    "file": "learner/03-course-outline.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 58778,
+    "sha256": "551054d316b34e032a099c4d2d7e19f83a0dc3198596f3e18355982d69716481"
+  },
+  {
+    "file": "learner/03-course-outline__full.png",
+    "width": 1440,
+    "height": 1103,
+    "bytes": 71276,
+    "sha256": "6c4b17a3753fb866c75836358a8785da5e4501a81943fa28d400762338105e14"
+  },
+  {
+    "file": "learner/04-step-theory.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 36506,
+    "sha256": "3f846dd203dd462e05f90a5214b0106cf3bf7113e9749d34d315d27f7889f970"
+  },
+  {
+    "file": "learner/05-step-video.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 39117,
+    "sha256": "844382dd1761e3646d90a19b6db575e6f8d987d58915c5cfcaef9c6830593aa4"
+  },
+  {
+    "file": "learner/06-step-quiz.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 41033,
+    "sha256": "498594e551b3b01da090005df5abd5ec5142c5456309b3825b60a6d3ee023aaf"
+  },
+  {
+    "file": "learner/07-python-workspace-editor.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 62072,
+    "sha256": "cc1091cacba12d392f7baf7bb923a18252e3a37ebdc463ac3c940b0743745195"
+  },
+  {
+    "file": "learner/08-python-workspace-custom-input.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 62551,
+    "sha256": "3605e7edd8358f971c80e89c0ca5b8972987966d7f4772edaa6d1dfc57088377"
+  },
+  {
+    "file": "learner/09-python-workspace-run-feedback.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 65649,
+    "sha256": "230c843409d2a9b3e2ec15fb4fdfc6d8411170293da7cbfe4ea2b5fea7a45df1"
+  },
+  {
+    "file": "learner/10-python-workspace-report-modal.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 84783,
+    "sha256": "894698fe1a9f1822c61c2f97c0e5cc1aaf62378251edb29c0fac1b7be28c464c"
+  },
+  {
+    "file": "learner/10-python-workspace-report-modal__full.png",
+    "width": 1440,
+    "height": 1360,
+    "bytes": 122979,
+    "sha256": "cbcbda840d56268f460bc8011e39792194685f3e4e5c2af3dee77561d3f5115c"
+  },
+  {
+    "file": "learner/11-submission-history.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 28627,
+    "sha256": "1dcc4f667cf8a25502ad4e5e3750a6e2c9b11ffb0b00c5d03c72f2b467fe6f50"
+  },
+  {
+    "file": "learner/12-settings-profile.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 54501,
+    "sha256": "1becd01d12ec9c4d81d1901f096f4274759401e8f121dcb56179366452edccf9"
+  },
+  {
+    "file": "learner/13-settings-appearance.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 68620,
+    "sha256": "76ec245aaa6effdf8ec8574c85e2234ddb00b8155e7bc709b63c82e64b5d5ae8"
+  },
+  {
+    "file": "learner/14-settings-security.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 69968,
+    "sha256": "e6f4a419464a7ccd275e9305bec98dd9b19a55f123580b694d891150a6e5694a"
+  },
+  {
+    "file": "learner/15-settings-privacy.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 91173,
+    "sha256": "92a53dda336a7d4b087a2426fe4a137692fbbc499dd2810e1747bd3f58beb8f3"
+  },
+  {
+    "file": "author/01-author-dashboard.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 53266,
+    "sha256": "774db2d399bc44d24587691ff910b18452a0ab6bab523aa8c418c398312c1c8f"
+  },
+  {
+    "file": "author/02-course-builder-outline.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 99983,
+    "sha256": "aa1c56a071ee6600dd8baa97d28b81b7cff1daf21f581932e3e1a87489d20f39"
+  },
+  {
+    "file": "author/03-step-editor-theory.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 68285,
+    "sha256": "6c4ac45d7836e5765c6ac84c8bd937d09205d5965452a7114164cdf9d5395865"
+  },
+  {
+    "file": "author/04-step-editor-video.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 92302,
+    "sha256": "d9ba937d90db7fbc551991b010ced0c7c29ba76a2335ac7b4517e027a5822fb5"
+  },
+  {
+    "file": "author/05-step-editor-quiz.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 77738,
+    "sha256": "16bd2237bbe91f342603027ca11d9bf2627bf4ed9531253a98fe84cc24c1812b"
+  },
+  {
+    "file": "author/06-step-editor-python.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 71102,
+    "sha256": "49cf70ed99efb2ef08562e442f40743eac55516a587af2c40d07eaaa0170a1e5"
+  },
+  {
+    "file": "author/07-student-preview.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 37579,
+    "sha256": "0c5ec6dd5b455fe10a150fbad379230cd0b46ce174dfdee0cf39ee755dab75fd"
+  },
+  {
+    "file": "author/08-publish-review.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 109009,
+    "sha256": "8b1fbe8b1c0c2e9803883c4a77c42238dc4de7d5d76f5a67c40b9dd679b42966"
+  },
+  {
+    "file": "author/09-roster-students.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 89476,
+    "sha256": "22b90b552f8eeff28d2f80ff4201599c57e52559052fb7367bca5546abd6ea3e"
+  },
+  {
+    "file": "author/10-course-analytics.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 110720,
+    "sha256": "e61add01c2ae5d7e552dc8f5e0f15f8dbc4d303a4d1583e1f4c3c3321659cf8e"
+  },
+  {
+    "file": "author/11-course-settings.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 74767,
+    "sha256": "48d18970ce319f7a9c7772858c67f3b21831d46e3f8f984139082c5ebde690aa"
+  },
+  {
+    "file": "author/12-ai-connections.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 63521,
+    "sha256": "be7c2b37fdb215be106566edf58deb4c9961eb1fab05e93e2f5030fb96408a5c"
+  },
+  {
+    "file": "author/13-agent-activity-drafts.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 58713,
+    "sha256": "20e33e2e966886faffba53ad31cf4714fde7f528438a26696f5417f1a8867ac1"
+  },
+  {
+    "file": "admin/01-operations-overview.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 92928,
+    "sha256": "980affcd4b7ace851fadf8b1a431116136650c908930a559d86a64f89f5756e1"
+  },
+  {
+    "file": "admin/02-users-management.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 86860,
+    "sha256": "73df383989e42ef549c69a94c64d57033ca412caa6aa93de24dfb16e17544564"
+  },
+  {
+    "file": "admin/03-user-detail.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 72385,
+    "sha256": "3620d75ba3c58145063bc74d6d1217b6eed7c6d70bab3d2fa6a4f0faef7b25ce"
+  },
+  {
+    "file": "admin/03-user-detail__full.png",
+    "width": 1440,
+    "height": 1776,
+    "bytes": 117602,
+    "sha256": "979f184a700dc06ca7637fb4fd940979313c4be9817bfd6b67d4d3986578949d"
+  },
+  {
+    "file": "admin/04-courses-management.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 64750,
+    "sha256": "5ec8b610785976c8e5da6f3638b4f0c360382f19b9e8d8e41ebe7b447300589c"
+  },
+  {
+    "file": "admin/05-course-detail.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 79507,
+    "sha256": "3b00addd58af87b435dc7ed86d889734a4938215c1c38bf0f8c3d64c09998085"
+  },
+  {
+    "file": "admin/05-course-detail__full.png",
+    "width": 1440,
+    "height": 1561,
+    "bytes": 131178,
+    "sha256": "03ed1066430f0a62b67aa557af07f3aa598fc367ae2f15abacc19497e1d9ef0a"
+  },
+  {
+    "file": "admin/06-categories-management.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 46098,
+    "sha256": "4bc763cf5232e89c4450d5e2760ae50b9d7c87b945c18f649d3088788a9e128f"
+  },
+  {
+    "file": "admin/07-reports-triage.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 46059,
+    "sha256": "1dfe09bf79569a13a8d566718e013c780c4ca0bd3da0114734a2d9f2339e1083"
+  },
+  {
+    "file": "admin/08-media-operations.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 46502,
+    "sha256": "e923b1eab11d0848300efb8288a1dfc204189f063e86a6bd8ae0a21ecdb9f56b"
+  },
+  {
+    "file": "admin/09-execution-operations.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 100868,
+    "sha256": "d205c35a9c6ee885e94836b3cb18e117c99105d8163eec3b7e509e2703f4f230"
+  },
+  {
+    "file": "admin/10-audit-log.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 51943,
+    "sha256": "8b25946e16b526ec5e139e430794bee925c115f7bf642549aa634e00de9b61d2"
+  },
+  {
+    "file": "public-shared/01-landing.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 194349,
+    "sha256": "ba23a9c059b3112879e6e0fd59e6a2e929f84c127e41fc2676a55aff267fc495"
+  },
+  {
+    "file": "public-shared/01-landing__full.png",
+    "width": 1440,
+    "height": 2102,
+    "bytes": 334154,
+    "sha256": "b631a5147e5ddcfad06f7a66d394efca9d69afaa53e3c444251d31ea5bd06d81"
+  },
+  {
+    "file": "public-shared/02-catalog.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 51144,
+    "sha256": "6adc6fa9735158cc85e59d9461b920aa5159850f56e7e323e8c9d049de17bb78"
+  },
+  {
+    "file": "public-shared/03-course-overview-public.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 89578,
+    "sha256": "84b16784a23814107e5637ef9851da5316b94023865499b6447d6c9242912682"
+  },
+  {
+    "file": "public-shared/03-course-overview-public__full.png",
+    "width": 1440,
+    "height": 1369,
+    "bytes": 117782,
+    "sha256": "912598236da284edd59f44e5ec13ff2a62a4febd0dd2cc4b75b8aeb7af6c60b6"
+  },
+  {
+    "file": "public-shared/04-sign-in.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 26083,
+    "sha256": "c50e4bb21609efcb80ebde0b9b4ef8f529ab127d75a7f5e88ffd5febce959706"
+  },
+  {
+    "file": "public-shared/05-sign-up.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 38639,
+    "sha256": "6c8755d1c1ba966d5d66150ecd85635bdd8ea6a5ed0de9efaa513e6c812022ef"
+  },
+  {
+    "file": "public-shared/06-forgot-password.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 31688,
+    "sha256": "b4ffca8eb694398e1c1ad03390077f2147d1f2402c883b717207fdaf43e88abb"
+  },
+  {
+    "file": "public-shared/07-verify-email.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 29006,
+    "sha256": "14a63ad30e7607152cee605b5c19074d899aef804df72d0cf2bcd02b65a9631f"
+  },
+  {
+    "file": "public-shared/08-help.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 126886,
+    "sha256": "36912a7d51b62349eb16d86697703d6f2e85d16196a7b1b5ff517723f89b590a"
+  },
+  {
+    "file": "public-shared/08-help__full.png",
+    "width": 1440,
+    "height": 1360,
+    "bytes": 170601,
+    "sha256": "5b26a63842dc854906b7cb29064bdca055ea8097b94711d24f5423c40a52d133"
+  },
+  {
+    "file": "public-shared/09-privacy.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 64468,
+    "sha256": "bd7776ac5e3d7cbe423919fe3f55182fba8bbcea05bd3a844f6d8ae13bdea38c"
+  },
+  {
+    "file": "public-shared/10-terms.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 65565,
+    "sha256": "5822b6773b842e68916ae07935fe675cfd5d557eefc4b26e6899251c798422de"
+  },
+  {
+    "file": "public-shared/11-access-denied.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 27889,
+    "sha256": "621c4dbee3c407bf94557dee53ab0b6828cacfecc34e04fc7c47dd38ceea415e"
+  },
+  {
+    "file": "public-shared/12-not-found.png",
+    "width": 1440,
+    "height": 900,
+    "bytes": 31164,
+    "sha256": "d14e18558063356b6b62b90c7c21d3f53625792f481a2a85851344b3c5e5ce02"
+  }
+]

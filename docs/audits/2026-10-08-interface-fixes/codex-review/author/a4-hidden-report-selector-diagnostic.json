@@ -1,0 +1,46 @@
+{
+  "checks": [
+    {
+      "check": "A4 Python preview truthful readonly split and editor return",
+      "status": "failed",
+      "error": "Preview source is readonly: [{\"id\":\"report-issue-details\",\"cls\":\"form-textarea w-full\",\"visible\":false,\"hiddenParent\":true,\"snippet\":\"<textarea id=\\\"report-issue-details\\\" name=\\\"details\\\" class=\\\"form-textarea w-full\\\" rows=\\\"4\\\" placeholder=\\\"Describe the problem you encountered..\"}]\n+ actual - expected\n\n+ [\n+   {\n+     cls: 'form-textarea w-full',\n+     hiddenParent: true,\n+     id: 'report-issue-details',\n+     snippet: '<textarea id=\"report-issue-details\" name=\"details\" class=\"form-textarea w-full\" rows=\"4\" placeholder=\"Describe the problem you encountered..',\n+     visible: false\n+   }\n+ ]\n- []\n",
+      "observed": {
+        "route": "/teach/course-python-foundations/preview?stepId=step-4-python-echo",
+        "headings": [
+          "Modules & lessons",
+          "Echoing Numbers",
+          "Problem Statement",
+          "Input & Output",
+          "Constraints",
+          "Sample Test Cases",
+          "Hints"
+        ],
+        "collapsed": false,
+        "toggle": "true",
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "A4 all four actual preview types preserve course draft and avoid grading mutations",
+      "status": "passed",
+      "observed": {
+        "types": [
+          "theory",
+          "video",
+          "quiz",
+          "python"
+        ],
+        "actualDestinations": true,
+        "noCourseOrGradingMutationRequests": true,
+        "courseRevisionUnchanged": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 1,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": "A4"
+}

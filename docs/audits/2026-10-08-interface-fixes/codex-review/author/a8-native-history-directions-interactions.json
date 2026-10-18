@@ -1,0 +1,21 @@
+{
+  "checks": [
+    {
+      "check": "A8 canceled Back and Forward retain exact author draft and history entries",
+      "status": "passed",
+      "observed": {
+        "backAndForwardCanceledTwice": true,
+        "exactDraftRetained": true,
+        "nativeConfirmations": true,
+        "indexAndLengthPreserved": true,
+        "databaseUnchanged": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent author disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

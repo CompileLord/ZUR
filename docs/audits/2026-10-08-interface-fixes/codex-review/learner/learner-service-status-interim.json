@@ -1,0 +1,57 @@
+{
+  "checks": [
+    {
+      "check": "L7 fallback service 500 preserves navigation and Retry",
+      "status": "passed",
+      "observed": {
+        "controlledHttpStatus": 500,
+        "body": "empty detail JSON fixture",
+        "retryRecovered": true,
+        "authenticatedContext": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L7 fallback service 502 preserves navigation and Retry",
+      "status": "failed",
+      "error": "Any 5xx with absent detail remains a recoverable service failure\n\nfalse !== true\n",
+      "observed": {
+        "route": "/courses/course-python-foundations",
+        "headings": [
+          "This page isn't available."
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    },
+    {
+      "check": "L7 fallback service 503 preserves navigation and Retry",
+      "status": "passed",
+      "observed": {
+        "controlledHttpStatus": 503,
+        "body": "empty detail JSON fixture",
+        "retryRecovered": true,
+        "authenticatedContext": true
+      },
+      "fixture": true
+    },
+    {
+      "check": "L7 fallback service 504 preserves navigation and Retry",
+      "status": "failed",
+      "error": "Any 5xx with absent detail remains a recoverable service failure\n\nfalse !== true\n",
+      "observed": {
+        "route": "/courses/course-python-foundations",
+        "headings": [
+          "This page isn't available."
+        ],
+        "openDialogs": []
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 2,
+  "failed": 2,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}

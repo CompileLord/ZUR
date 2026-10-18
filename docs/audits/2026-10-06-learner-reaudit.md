@@ -1,0 +1,36 @@
+# ZUR learner re-audit after bug repairs
+
+**Date:** 2026-10-06  
+**Scope:** learner flow regression against repaired report context and Python resource-limit classification, plus course entry, lessons, editor, attempts, and progress.  
+**Result:** 27 executed observations passed; 0 failed and 0 blocked. The repaired exercise-report context and CPU-vs-memory verdicts were verified with actual browser actions and actual API/runner outcomes. `summary.json` counts executed actions only; untested features are listed at the end.
+
+## Setup and evidence
+
+I created an isolated SQLite database from the current seed, added a disposable verified learner fixture, and used the visible catalog, sign-in, and enrollment UI to enroll it in Python foundations. The API, Vite server, execution worker, Chrome profile, free ports, and upload directory were isolated under a temporary fixture. The profile ran at 1440×900. I used Chrome DevTools Protocol for real pointer clicks and keyboard typing in the visible CodeMirror editor; no application files were edited.
+
+The final machine-readable trace is [actions-results.json](../../screenshots/audit-2026-10-06/learner/actions-results.json); its 27-action count is [summary.json](../../screenshots/audit-2026-10-06/learner/summary.json). Chrome recorded HTTP 200 for `/courses` and `/src/main.ts`; the isolated Vite output is [vite.log](../../screenshots/audit-2026-10-06/learner/vite.log). The screenshots are in [the re-audit evidence folder](../../screenshots/audit-2026-10-06/learner/).
+
+## Results
+
+| Area | Status | What was verified |
+|---|---|---|
+| Catalog, sign-in, enrollment, outline | PASS | Opened Python foundations from the public catalog, signed in as the disposable learner, enrolled using the UI, and opened the seven-step outline. [Course entry](../../screenshots/audit-2026-10-06/learner/catalog-overview.png), [outline](../../screenshots/audit-2026-10-06/learner/outline.png) |
+| Theory, video, quiz, progress | PASS, limited | Opened theory from the outline and completed it into the video step. Video iframe URL and transcript rendered. Completed video, checked a wrong quiz answer, then a correct answer; the interface showed feedback and advanced. After the Python step passed, course overview showed 4 of 7. [Theory](../../screenshots/audit-2026-10-06/learner/theory.png), [video](../../screenshots/audit-2026-10-06/learner/video.png), [quiz](../../screenshots/audit-2026-10-06/learner/quiz-correct.png), [progress](../../screenshots/audit-2026-10-06/learner/progress-overview.png) |
+| Desktop themes and editor | PASS | At 1440×900, the Python editor was editable and showed Run samples, Run code, and Submit. Opened the exercise in both dark and light themes. [Dark](../../screenshots/audit-2026-10-06/learner/python-dark.png), [light](../../screenshots/audit-2026-10-06/learner/python-light.png) |
+| Reset, draft save, reload | PASS | Typed into the visible editor; Reset opened a native confirmation and restored starter source after acceptance. A replacement draft reached Saved and returned exactly after navigating away and reloading the exercise. [Reset](../../screenshots/audit-2026-10-06/learner/reset-confirmed.png), [draft reload](../../screenshots/audit-2026-10-06/learner/draft-reloaded.png) |
+| Run samples before Submit | PASS | Wrong output produced `WRONG_ANSWER`; syntax and runtime errors produced `SYNTAX_ERROR` and `RUNTIME_ERROR`; correct code passed samples before any submission. [Wrong output](../../screenshots/audit-2026-10-06/learner/run-samples-wrong-answer.png), [passing samples](../../screenshots/audit-2026-10-06/learner/samples-pass.png) |
+| CPU, wall, and memory limits | PASS | `while True: pass` returned `TIME_LIMIT` in about 2.3s; `time.sleep(10)` returned `TIME_LIMIT` in about 5.1s; sleeping before allocating 512 MiB returned `MEMORY_LIMIT` with `MemoryError` in about 1.3s. These are actual isolated-worker results. [CPU](../../screenshots/audit-2026-10-06/learner/cpu-loop-classification.png), [wall timeout](../../screenshots/audit-2026-10-06/learner/wall-time-limit.png), [memory](../../screenshots/audit-2026-10-06/learner/delayed-memory-limit.png) |
+| Custom stdin before Submit | PASS | Entered `21` in Custom input, ran the visible editor with Ctrl+Enter, and observed `42`; input remained `21` after switching Results and Custom input. This occurred before either submission. [Custom input](../../screenshots/audit-2026-10-06/learner/custom-stdin.png) |
+| Wrong/correct submissions, history, detail, restore | PASS | `print("wrong")` submitted through the UI created a `WRONG_ANSWER` attempt with its exact source snapshot. History displayed Wrong Answer; detail showed the code; Restore returned it to the editor. A correct solution then passed grading. History subsequently showed both Wrong Answer and Passed. [Wrong submission](../../screenshots/audit-2026-10-06/learner/wrong-submit.png), [failed detail](../../screenshots/audit-2026-10-06/learner/wrong-detail.png), [both attempts](../../screenshots/audit-2026-10-06/learner/wrong-and-correct-history.png), [correct submission](../../screenshots/audit-2026-10-06/learner/correct-submit.png) |
+| Repaired exercise-report context | PASS | The lesson link auto-opened the report modal. It carried course `course-python-foundations`, pinned version `version-2-snapshot`, step `step-4-python-echo`, and issue type `broken_exercise`. After submit, the SQLite report row contained the same reporter, course, version, step, type, and description. [Context-filled modal](../../screenshots/audit-2026-10-06/learner/report-context.png), [success](../../screenshots/audit-2026-10-06/learner/report-success.png) |
+| Report error and retry | PASS | I intercepted the first `/api/reports` POST at the isolated browser network boundary. The UI displayed “Failed to fetch” while retaining course, pinned version, step, and entered description. After removing the interception, retry succeeded and the saved row matched those fields. [Preserved error form](../../screenshots/audit-2026-10-06/learner/report-error.png) |
+
+No learner-facing defect was reproduced in the repaired flows. The report prefill, report retry path, CPU timeout classification, and delayed-memory classification all passed these checks.
+
+## Coverage limits
+
+These were not independently tested in this re-audit: actual playback/audio from the external video provider; reading back clipboard contents after Copy; screen-reader output or exhaustive keyboard-only navigation; concurrent draft edits/conflict handling; multi-select quiz regression; an infrastructure retry after a worker has leased a job; and author/teacher or administrative CRUD. Prior audits contain evidence for some neighboring cases, but they are not counted in this 27-action result.
+
+One early isolated Chrome startup attempt remained on a blank/loading document. I treated it as a harness startup failure, not a product defect; a subsequent clean profile run loaded the app and completed all 27 actions. The only expected network failure in the final trace is the deliberately intercepted report POST described above.
+
+No application implementation was changed. The temporary API, Vite process, worker, browser profile, SQLite database, and upload directory were cleaned up after the run.

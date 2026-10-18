@@ -2,6 +2,7 @@ import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
 import { renderIcon } from '../../components/common/icons.ts';
 import { formatDate } from '../../utils/formatters.ts';
+import { escapeHtml } from '../../components/escape-html.ts';
 
 export interface AuthorCourseItem {
   id: string;
@@ -22,11 +23,38 @@ export interface AuthorCoursesPageOptions {
   activeFilter?: 'all' | 'draft' | 'published' | 'archived';
   searchQuery?: string;
   showNewCourseModal?: boolean;
+  newCourseTitle?: string;
   newCourseError?: string | null;
+  isSubmitting?: boolean;
+}
+
+export function buildAuthorFilterUrl(status: string, search?: string): string {
+  const params = new URLSearchParams();
+  const normalizedStatus = ['all', 'draft', 'published', 'archived'].includes(status) ? status : 'all';
+  if (normalizedStatus !== 'all') {
+    params.set('status', normalizedStatus);
+  }
+  if (search && search.trim()) {
+    params.set('search', search.trim());
+  }
+  const qs = params.toString();
+  return qs ? `/teach?${qs}` : '/teach';
 }
 
 export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string {
-  opts = safeTemplateData(opts);
+  const rawSearchQuery = (opts.searchQuery || '').trim();
+  const rawNewCourseTitle = opts.newCourseTitle || '';
+  const activeFilter = opts.activeFilter || 'all';
+
+  const rawCourses = opts.courses || [];
+  const filteredRawCourses = rawCourses.filter((c) => {
+    if (activeFilter === 'draft' && c.publicationStatus !== 'draft') return false;
+    if (activeFilter === 'published' && c.publicationStatus !== 'published') return false;
+    if (activeFilter === 'archived' && c.publicationStatus !== 'archived') return false;
+    if (rawSearchQuery && !c.title.toLowerCase().includes(rawSearchQuery.toLowerCase())) return false;
+    return true;
+  });
+
   const isAuthor = opts.user.capabilities.includes('author') || opts.user.capabilities.includes('admin');
 
   if (!isAuthor) {
@@ -46,27 +74,21 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
     });
   }
 
-  const activeFilter = opts.activeFilter || 'all';
-  const searchQuery = opts.searchQuery || '';
-
-  const filteredCourses = opts.courses.filter((c) => {
-    if (activeFilter === 'draft' && c.publicationStatus !== 'draft') return false;
-    if (activeFilter === 'published' && c.publicationStatus !== 'published') return false;
-    if (activeFilter === 'archived' && c.publicationStatus !== 'archived') return false;
-    if (searchQuery && !c.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
+  const safeOpts = safeTemplateData({
+    ...opts,
+    courses: filteredRawCourses,
   });
 
   const renderNewCourseModal = opts.showNewCourseModal
     ? `
-      <div class="modal-backdrop" role="presentation">
+      <dialog id="new-course-dialog" open class="modal-backdrop dialog-overlay" style="border:none;margin:0;max-width:100vw;max-height:100vh;width:100vw;height:100vh;padding:var(--space-4);" role="presentation">
         <div class="modal-dialog author-modal-440" role="dialog" aria-modal="true" aria-labelledby="new-course-title">
           <div class="modal-header">
             <h2 id="new-course-title" class="modal-title">Create new course</h2>
-            <button type="button" class="btn-close" aria-label="Close dialog" data-action="close-modal">&times;</button>
+            <button type="button" class="btn-close" aria-label="Close dialog" data-action="close-modal"${opts.isSubmitting ? ' disabled' : ''}>&times;</button>
           </div>
           <form class="modal-body" method="POST" action="/teach">
-            ${opts.newCourseError ? `<div class="alert alert-danger" role="alert">${opts.newCourseError}</div>` : ''}
+            ${opts.newCourseError ? `<div class="alert alert-danger" id="new-course-error" role="alert">${escapeHtml(opts.newCourseError)}</div>` : ''}
             <div class="form-group">
               <label for="course-title-input" class="field-label">Course title</label>
               <input
@@ -77,24 +99,26 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
                 required
                 maxlength="200"
                 placeholder="e.g. Algorithmic Problem Solving"
-                aria-describedby="new-course-helper"
+                value="${escapeHtml(rawNewCourseTitle)}"
+                aria-describedby="${opts.newCourseError ? 'new-course-error ' : ''}new-course-helper"
+                ${opts.isSubmitting ? 'disabled ' : ''}
                 autofocus
               />
               <p id="new-course-helper" class="field-hint">Starts as a private draft. You choose discoverability and delivery settings before publication.</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-action="close-modal">Cancel</button>
-              <button type="submit" class="btn btn-primary">Create course</button>
+              <button type="button" class="btn btn-secondary" data-action="close-modal"${opts.isSubmitting ? ' disabled' : ''}>Cancel</button>
+              <button type="submit" class="btn btn-primary" id="btn-create-course"${opts.isSubmitting ? ' disabled aria-busy="true"' : ''}>${opts.isSubmitting ? 'Creating...' : 'Create course'}</button>
             </div>
           </form>
         </div>
-      </div>
+      </dialog>
     `
     : '';
 
   let courseListHtml = '';
 
-  if (opts.courses.length === 0) {
+  if (rawCourses.length === 0) {
     courseListHtml = `
       <div class="empty-state-card" role="region" aria-label="No courses yet">
         <h2 class="empty-state-title">No courses yet</h2>
@@ -110,18 +134,18 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
         </div>
       </div>
     `;
-  } else if (filteredCourses.length === 0) {
+  } else if (safeOpts.courses.length === 0) {
     courseListHtml = `
       <div class="empty-state-card" role="region" aria-label="No matching courses">
         <h2 class="empty-state-title">No matching courses</h2>
-        <p class="empty-state-description">No courses match the query "${searchQuery}" in ${activeFilter} courses.</p>
+        <p class="empty-state-description">No courses match the query "${escapeHtml(rawSearchQuery)}" in ${escapeHtml(activeFilter)} courses.</p>
         <a href="/teach" class="btn btn-secondary">Clear filters</a>
       </div>
     `;
   } else {
     courseListHtml = `
       <div class="author-course-list" role="feed" aria-label="Your courses">
-        ${filteredCourses
+        ${safeOpts.courses
           .map((c) => {
             const isDraft = c.publicationStatus === 'draft';
             const isPublished = c.publicationStatus === 'published';
@@ -170,14 +194,14 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
 
       <div class="author-toolbar flex flex-wrap items-center justify-between gap-3 mb-6">
         <nav class="segmented-control segmented-tabs" role="tablist" aria-label="Course Status Filters">
-          <a href="/teach?status=all" class="segmented-control-btn filter-tab ${activeFilter === 'all' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'all'}">All</a>
-          <a href="/teach?status=draft" class="segmented-control-btn filter-tab ${activeFilter === 'draft' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'draft'}">Drafts</a>
-          <a href="/teach?status=published" class="segmented-control-btn filter-tab ${activeFilter === 'published' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'published'}">Published</a>
-          <a href="/teach?status=archived" class="segmented-control-btn filter-tab ${activeFilter === 'archived' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'archived'}">Archived</a>
+          <a href="${escapeHtml(buildAuthorFilterUrl('all', rawSearchQuery))}" class="segmented-control-btn filter-tab ${activeFilter === 'all' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'all'}">All</a>
+          <a href="${escapeHtml(buildAuthorFilterUrl('draft', rawSearchQuery))}" class="segmented-control-btn filter-tab ${activeFilter === 'draft' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'draft'}">Drafts</a>
+          <a href="${escapeHtml(buildAuthorFilterUrl('published', rawSearchQuery))}" class="segmented-control-btn filter-tab ${activeFilter === 'published' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'published'}">Published</a>
+          <a href="${escapeHtml(buildAuthorFilterUrl('archived', rawSearchQuery))}" class="segmented-control-btn filter-tab ${activeFilter === 'archived' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'archived'}">Archived</a>
         </nav>
 
         <form class="search-form" method="GET" action="/teach">
-          <input type="hidden" name="status" value="${activeFilter}" />
+          ${activeFilter !== 'all' ? `<input type="hidden" name="status" value="${escapeHtml(activeFilter)}" />` : ''}
           <div class="search-input-wrapper">
             <span class="search-input-icon" aria-hidden="true">
               ${renderIcon('search', { size: 14 })}
@@ -187,16 +211,16 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
               name="search"
               class="text-input search-input"
               placeholder="Search courses..."
-              value="${searchQuery}"
+              value="${escapeHtml(rawSearchQuery)}"
               aria-label="Search courses by title"
             />
           </div>
         </form>
       </div>
 
-      <main id="main-content" role="main">
+      <section class="author-courses-content" aria-label="Course list">
         ${courseListHtml}
-      </main>
+      </section>
 
       ${renderNewCourseModal}
     </div>

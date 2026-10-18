@@ -1,0 +1,62 @@
+[
+  {
+    "step": 1,
+    "sourceRoute": "/sign-in",
+    "destinationRoute": "/teach",
+    "action": "Sign in as Guido van Rossum (Author)",
+    "expected": "Session token created, author mode accessible",
+    "actual": "Authenticated author session active",
+    "assertions": "localStorage.zur_session_token present",
+    "passed": true
+  },
+  {
+    "step": 2,
+    "sourceRoute": "/sign-in",
+    "destinationRoute": "/teach",
+    "action": "Load Author Courses Dashboard",
+    "expected": "Display course cards with Edit curriculum CTA",
+    "actual": "Dashboard loaded with Python foundations card",
+    "assertions": "Course card verified",
+    "passed": true
+  },
+  {
+    "step": 3,
+    "sourceRoute": "/teach",
+    "destinationRoute": "/teach/course-python-foundations/content",
+    "action": "Open Course Builder",
+    "expected": "Display modules and lessons tree with reorder/add step controls",
+    "actual": "Curriculum outline tree rendered",
+    "assertions": "Builder tree verified",
+    "passed": true
+  },
+  {
+    "step": 4,
+    "sourceRoute": "/teach/course-python-foundations/content",
+    "destinationRoute": "/teach/course-python-foundations/content/theory/step-1-theory",
+    "action": "Edit markdown theory content",
+    "expected": "Display dirty state and enable Save button",
+    "actual": "Unsaved changes indicator active",
+    "assertions": "Theory dirty state verified",
+    "passed": true
+  },
+  {
+    "step": 5,
+    "sourceRoute": "/teach/course-python-foundations/content/python/step-4-python-echo",
+    "destinationRoute": "/teach/course-python-foundations/content/python/step-4-python-echo?tab=tests",
+    "action": "Navigate with ?tab=tests query parameter",
+    "expected": "Automatically switch and reveal Tests sub-tab",
+    "actual": "Tests pane displayed with input/expected pairs",
+    "assertions": "Deep link navigation verified",
+    "passed": true
+  },
+  {
+    "step": 6,
+    "sourceRoute": "/teach/course-python-foundations/content",
+    "destinationRoute": "/teach/course-python-foundations/publish",
+    "action": "Open Review Publication page",
+    "expected": "Render publication checklist cards and validation status",
+    "actual": "Publication checklist rendered",
+    "assertions": "Publish checklist verified",
+    "passed": true
+  }
+]

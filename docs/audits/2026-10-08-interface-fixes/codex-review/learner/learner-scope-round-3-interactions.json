@@ -1,0 +1,23 @@
+{
+  "checks": [
+    {
+      "check": "L3 module expansion reload and account/enrollment separation",
+      "status": "passed",
+      "observed": {
+        "trustedSummaryEnter": true,
+        "reload": true,
+        "actualSignOutSignIn": true,
+        "otherAccountIndependent": true,
+        "originalAccountRetained": true,
+        "versionIsolationSeparatelyUnverified": true,
+        "longSidebarScrollUnverified": true
+      },
+      "fixture": true
+    }
+  ],
+  "passed": 1,
+  "failed": 0,
+  "source": "Codex independent disposable browser fixture; native CDP keys/history",
+  "screenshotsTaken": false,
+  "checkFilter": null
+}
