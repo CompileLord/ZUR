@@ -89,17 +89,27 @@ export interface TableCol {
   align?: 'left' | 'right' | 'center';
 }
 
-const table = (headers: (string | TableCol)[], rows: string[], empty: string) => {
+const table = (headers: (string | TableCol)[], rows: string[], empty: string, nextStep = '') => {
   const headerCells = headers.map((h) => {
     const label = typeof h === 'string' ? h : h.label;
     const alignClass = typeof h === 'object' && h.align === 'right' ? ' class="text-right"' : '';
     return `<th scope="col"${alignClass}>${escapeAdmin(label)}</th>`;
   }).join('');
-  return `<div class="data-table-wrapper"><table class="data-table admin-table"><thead><tr>${headerCells}</tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td colspan="${headers.length}" class="empty-state">${escapeAdmin(empty)}</td></tr>`}</tbody></table></div>`;
+  return `<div class="data-table-wrapper"><table class="data-table admin-table"><thead><tr>${headerCells}</tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td colspan="${headers.length}" class="empty-state"><span class="admin-empty"><span class="admin-empty-icon" aria-hidden="true">${renderIcon('list', { size: 20 })}</span><span class="admin-empty-title">${escapeAdmin(empty)}</span>${nextStep ? `<span class="admin-empty-next">${nextStep}</span>` : ''}</span></td></tr>`}</tbody></table></div>`;
 };
 
 const pill = (text: string, kind = 'info') =>
   `<span class="status-badge ${kind}">${escapeAdmin(text)}</span>`;
+
+const idChip = (id: string, label: string) =>
+  `<button type="button" class="admin-id-chip" data-copy-text="${escapeAdmin(id)}" title="Copy ${escapeAdmin(label)}" aria-label="Copy ${escapeAdmin(label)}"><span class="admin-id-chip-label">${escapeAdmin(label)}</span><code>${escapeAdmin(id)}</code>${renderIcon('copy', { size: 13 })}</button>`;
+
+const healthDot = (kind: 'ok' | 'warn' | 'bad' | 'idle') => `<span class="health-dot health-dot-${kind}" aria-hidden="true"></span>`;
+
+const reportTone = (status: string) => (status === 'open' ? 'warning' : status === 'investigating' ? 'info' : 'success');
+
+const detailHeader = (title: string, badge: string, chip: string) =>
+  `<div class="admin-page-header admin-detail-header"><div class="admin-detail-title-row"><h1 class="page-title">${title}</h1>${badge}</div>${chip}</div>`;
 
 const pageNav = (data: any, path: string) => {
   if (!data || !Number.isFinite(data.total) || !Number.isFinite(data.limit) || data.total === 0) return '';
@@ -181,58 +191,71 @@ export function renderAdminPageContent(
 
       const refreshedDisplay = formatDate(data.refreshedAt) || escapeAdmin(data.refreshedAt);
 
-      // Attention items for active operational problems
-      const attentionItems: string[] = [];
-      if (data.execution?.paused) {
-        attentionItems.push(`
-          <div class="admin-attention-banner warning">
-            <div class="admin-attention-content">
-              ${renderIcon('alert-triangle', { size: 16 })}
-              <span><strong>Execution admission paused:</strong> New student code execution jobs are currently blocked.</span>
-            </div>
-            <a href="/admin/execution" class="btn btn-secondary btn-compact">Execution operations</a>
-          </div>
-        `);
-      }
+      type Attention = { tone: 'critical' | 'warning'; icon: IconName; html: string; href?: string; cta?: string; role?: string };
+      const attention: Attention[] = [];
       if (data.openReports > 0) {
-        attentionItems.push(`
-          <div class="admin-attention-banner warning">
-            <div class="admin-attention-content">
-              ${renderIcon('alert-triangle', { size: 16 })}
-              <span><strong>${data.openReports} open report${data.openReports === 1 ? '' : 's'}</strong> awaiting triage.</span>
-            </div>
-            <a href="/admin/reports" class="btn btn-secondary btn-compact">Open report triage</a>
-          </div>
-        `);
+        attention.push({
+          tone: 'warning',
+          icon: 'alert-triangle',
+          html: `<strong>${data.openReports} open report${data.openReports === 1 ? '' : 's'}</strong> awaiting triage`,
+          href: '/admin/reports?status=open',
+          cta: 'Triage reports',
+        });
+      }
+      if (data.execution?.paused) {
+        attention.push({
+          tone: 'warning',
+          icon: 'alert-triangle',
+          html: '<strong>Execution admission paused</strong> — new student code jobs are blocked',
+          href: '/admin/execution',
+          cta: 'Open execution',
+        });
+      }
+      if (data.executionInfrastructureErrors?.failures > 0) {
+        const f = data.executionInfrastructureErrors.failures;
+        attention.push({
+          tone: 'warning',
+          icon: 'alert-triangle',
+          html: `<strong>${escapeAdmin(f)} runner failure${f === 1 ? '' : 's'}</strong> in the last 24h`,
+          href: '/admin/execution',
+          cta: 'Review jobs',
+        });
       }
       if (data.emailDeliveryIssues > 0) {
-        attentionItems.push(`
-          <div class="admin-attention-banner warning">
-            <div class="admin-attention-content">
-              ${renderIcon('alert-circle', { size: 16 })}
-              <span><strong>${data.emailDeliveryIssues} email delivery issue(s)</strong> detected.</span>
-            </div>
-            <a href="/admin/users" class="btn btn-secondary btn-compact">Review accounts</a>
-          </div>
-        `);
+        attention.push({
+          tone: 'warning',
+          icon: 'info',
+          html: `<strong>${data.emailDeliveryIssues} email delivery issue(s)</strong> detected`,
+          href: '/admin/users',
+          cta: 'Review accounts',
+        });
       }
-      if (data.operational?.alerts?.length) {
-        for (const alert of data.operational.alerts) {
-          attentionItems.push(`
-            <div class="admin-attention-banner ${alert.severity === 'critical' ? 'critical' : 'warning'}" role="${alert.severity === 'critical' ? 'alert' : 'status'}">
-              <div class="admin-attention-content">
-                ${renderIcon('alert-triangle', { size: 16 })}
-                <span><strong>${escapeAdmin(alert.code)}:</strong> ${escapeAdmin(alert.message)}</span>
-              </div>
-            </div>
-          `);
-        }
+      for (const alert of data.operational?.alerts || []) {
+        const critical = alert.severity === 'critical';
+        attention.push({
+          tone: critical ? 'critical' : 'warning',
+          icon: 'alert-triangle',
+          html: `<strong>${escapeAdmin(alert.code)}</strong> ${escapeAdmin(alert.message)}`,
+          role: critical ? 'alert' : 'status',
+        });
       }
 
-      // Email status pill: ensure "No delivery data" remains neutral/unknown, not green healthy!
+      const attentionHtml = attention.length
+        ? `<ul class="attention-items-list">${attention
+            .map(
+              (a) => `<li class="admin-attention-banner ${a.tone}"${a.role ? ` role="${a.role}"` : ''}>
+                <span class="admin-attention-content">${renderIcon(a.icon, { size: 16 })}<span>${a.html}</span></span>
+                ${a.href ? `<a href="${a.href}" class="btn btn-secondary btn-compact">${a.cta}</a>` : ''}
+              </li>`
+            )
+            .join('')}</ul>`
+        : `<p class="ops-alert-calm" role="status">${renderIcon('check', { size: 16 })} Nothing needs attention right now.</p>`;
+
       const hasEmailData = data.email && data.email.status && data.email.status !== 'No delivery data';
-      const emailPillKind = data.emailDeliveryIssues > 0 ? 'warning' : hasEmailData ? 'success' : 'neutral';
-      const emailPillText = data.emailDeliveryIssues > 0 ? `${data.emailDeliveryIssues} issue(s)` : hasEmailData ? 'Normal' : 'No telemetry';
+      const errAvailable = errRateDisplay !== 'Unavailable';
+      const errObserved = Boolean(errRate && errRate.numerator > 0);
+
+      const notConfigured = (text = 'Not configured') => `<span class="admin-chip-quiet">${text}</span>`;
 
       content = `
         <div class="admin-page-header">
@@ -240,91 +263,47 @@ export function renderAdminPageContent(
           <p class="admin-page-subtitle text-secondary">Updated <time datetime="${escapeAdmin(data.refreshedAt)}" title="${escapeAdmin(data.refreshedAt)}">${escapeAdmin(refreshedDisplay)}</time></p>
         </div>
 
-        <section class="admin-attention-section" aria-labelledby="ops-alert-title">
-          <h2 id="ops-alert-title" class="sr-only">Operational alerts</h2>
-          ${
-            attentionItems.length
-              ? `<div class="attention-items-list">${attentionItems.join('')}</div>`
-              : '<p class="ops-alert-calm text-secondary" role="status">No active threshold alerts.</p>'
-          }
+        <section class="admin-attention-section" aria-label="Operational alerts">
+          <h2 class="admin-section-heading">Needs attention${attention.length ? ` <span class="status-badge warning">${attention.length}</span>` : ''}</h2>
+          ${attentionHtml}
         </section>
 
-        <div class="admin-ops-grid">
-          <article class="admin-overview-card">
-            <div class="card-header">
-              <h2>Execution</h2>
-              ${pill(data.execution.paused ? 'Paused' : 'Active', data.execution.paused ? 'warning' : 'success')}
-            </div>
-            <div class="card-metric-value"><strong>${data.execution.paused ? 'Admission paused' : 'Accepting jobs'}</strong></div>
-            <p class="card-hint">New Python jobs ${data.execution.paused ? 'are paused' : 'can be accepted'}.${data.executionInfrastructureErrors ? ` ${escapeAdmin(data.executionInfrastructureErrors.failures)} runner failure${data.executionInfrastructureErrors.failures === 1 ? '' : 's'} in 24h.` : ''}</p>
-            <div class="card-action">
-              <a href="/admin/execution" class="card-action-link">Execution operations</a>
-            </div>
-          </article>
-
-          <article class="admin-overview-card">
-            <div class="card-header">
-              <h2>Queue</h2>
-              ${pill(data.queue.queued > 0 ? `${data.queue.queued} queued` : 'Idle', data.queue.queued > 0 ? 'info' : 'neutral')}
-            </div>
-            <div class="card-metric-value"><strong>${data.queue.queued} queued · ${data.queue.running} running</strong></div>
-            <p class="card-hint">Oldest queued: ${escapeAdmin(data.queue.oldestQueuedAt ? formatDate(data.queue.oldestQueuedAt) : 'No queued jobs')}</p>
-            <div class="card-action">
-              <a href="/admin/execution" class="card-action-link">Review jobs</a>
-            </div>
-          </article>
-
-          <article class="admin-overview-card">
-            <div class="card-header">
-              <h2>Runner telemetry</h2>
-              ${pill(data.workers.lastObservedAt ? 'Active' : 'Unavailable', data.workers.lastObservedAt ? 'info' : 'neutral')}
-            </div>
-            <div class="card-metric-value"><strong>${data.workers.lastObservedAt ? 'Active' : 'Unavailable'}</strong></div>
-            <p class="card-hint">${data.workers.lastObservedAt ? `Last observed: ${formatDate(data.workers.lastObservedAt)}` : 'No separate worker heartbeat configured'}</p>
-          </article>
-
-          <article class="admin-overview-card">
-            <div class="card-header">
-              <h2>Internal-error rate</h2>
-              ${pill(errRateDisplay === 'Unavailable' ? 'Unavailable' : (errRate && errRate.numerator > 0 ? 'Errors observed' : 'No 5xx errors'), errRateDisplay === 'Unavailable' ? 'neutral' : (errRate && errRate.numerator > 0 ? 'warning' : 'success'))}
-            </div>
-            <div class="card-metric-value"><strong>${errRateDisplay}</strong></div>
-            <p class="card-hint">${errRateSub}</p>
-            ${data.operational ? '<div class="card-action"><a href="#recent-request-metrics">Recent request metrics</a></div>' : ''}
-          </article>
-
-          <article class="admin-overview-card">
-            <div class="card-header">
-              <h2>Outstanding reports</h2>
-              ${pill(data.openReports > 0 ? `${data.openReports} open` : 'None', data.openReports > 0 ? 'warning' : 'neutral')}
-            </div>
-            <div class="card-metric-value"><strong>${data.openReports}</strong></div>
-            <p class="card-hint">Learner reports awaiting triage</p>
-            <div class="card-action">
-              <a href="/admin/reports" class="card-action-link">Open report triage</a>
-            </div>
-          </article>
-
-          <article class="admin-overview-card">
-            <div class="card-header">
-              <h2>Email delivery</h2>
-              ${pill(emailPillText, emailPillKind)}
-            </div>
-            <div class="card-metric-value"><strong>${data.emailDeliveryIssues > 0 ? `${data.emailDeliveryIssues} issue(s)` : hasEmailData ? 'Active' : 'No telemetry'}</strong></div>
-            <p class="card-hint">${escapeAdmin(data.email?.lastSentAt ? `Last sent ${formatDate(data.email.lastSentAt)}` : 'No delivery events recorded')}</p>
-            <div class="card-action">
-              <a href="/admin/users" class="card-action-link">Review account records</a>
-            </div>
-          </article>
-        </div>
-
-        <details class="disclosure-card telemetry-disclosure mt-5">
-          <summary class="cursor-pointer font-medium">Telemetry status and explanation</summary>
-          <div class="disclosure-body">
-            <p class="text-muted mb-2">Request samples are in memory and reset on process restart. p95 values use the last five minutes; no request payloads or user identifiers are retained.</p>
-            <p class="text-muted">Telemetry status: queue ${escapeAdmin(data.telemetry.queue)}, worker heartbeat ${escapeAdmin(data.telemetry.workerHeartbeat)}, email ${escapeAdmin(data.telemetry.email)}, internal errors ${escapeAdmin(data.telemetry.internalErrorRate || 'unavailable')}.</p>
+        <section class="admin-health-section" aria-labelledby="health-title">
+          <div class="admin-health-heading">
+            <h2 id="health-title" class="admin-section-heading">Health</h2>
+            <details class="admin-info-popover">
+              <summary aria-label="About this telemetry">${renderIcon('info', { size: 15 })}<span>About telemetry</span></summary>
+              <div class="admin-info-popover-panel">
+                <p>Request samples are in memory and reset on process restart. p95 values use the last five minutes; no request payloads or user identifiers are retained.</p>
+                <p>Telemetry status: queue ${escapeAdmin(data.telemetry.queue)}, worker heartbeat ${escapeAdmin(data.telemetry.workerHeartbeat)}, email ${escapeAdmin(data.telemetry.email)}, internal errors ${escapeAdmin(data.telemetry.internalErrorRate || 'unavailable')}.</p>
+              </div>
+            </details>
           </div>
-        </details>
+          <div class="admin-health-strip">
+            <div class="health-item">
+              <span class="health-label">${healthDot(data.execution.paused ? 'warn' : 'ok')} Execution</span>
+              <strong class="health-value">${data.execution.paused ? 'Admission paused' : 'Accepting jobs'}</strong>
+              <span class="health-hint">New Python jobs ${data.execution.paused ? 'are paused' : 'can be accepted'}.</span>
+            </div>
+            <div class="health-item">
+              <span class="health-label">${healthDot(data.queue.queued > 0 ? 'warn' : 'ok')} Queue</span>
+              <strong class="health-value">${data.queue.queued} queued · ${data.queue.running} running</strong>
+              <span class="health-hint">Oldest queued: ${escapeAdmin(data.queue.oldestQueuedAt ? formatDate(data.queue.oldestQueuedAt) : 'No queued jobs')}</span>
+              <span class="health-hint">Runner heartbeat: ${data.workers.lastObservedAt ? `last observed ${escapeAdmin(formatDate(data.workers.lastObservedAt))}` : `${notConfigured()} <span class="sr-only">No separate worker heartbeat configured</span>`}</span>
+            </div>
+            <div class="health-item">
+              <span class="health-label">${healthDot(!errAvailable ? 'idle' : errObserved ? 'warn' : 'ok')} Internal-error rate</span>
+              <strong class="health-value">${errAvailable ? errRateDisplay : notConfigured('Unavailable')}</strong>
+              <span class="health-hint">${errRateSub}</span>
+              ${data.operational ? '<a href="#recent-request-metrics">Recent request metrics</a>' : ''}
+            </div>
+            <div class="health-item">
+              <span class="health-label">${healthDot(data.emailDeliveryIssues > 0 ? 'warn' : hasEmailData ? 'ok' : 'idle')} Email delivery</span>
+              <strong class="health-value">${data.emailDeliveryIssues > 0 ? `${data.emailDeliveryIssues} issue(s)` : hasEmailData ? 'Normal' : notConfigured('No telemetry')}</strong>
+              <span class="health-hint">${escapeAdmin(data.email?.lastSentAt ? `Last sent ${formatDate(data.email.lastSentAt)}` : 'No delivery events recorded')}</span>
+            </div>
+          </div>
+        </section>
 
         ${
           data.operational?.requestMetrics
@@ -384,7 +363,7 @@ export function renderAdminPageContent(
           ${isFiltered ? `<a href="/admin/users" class="btn btn-ghost btn-compact">Clear filters</a>` : ''}
         </form>
 
-        ${table(['User', 'Email', 'Verification', 'Roles', 'Account state', 'Created'], rows, 'No matching users.')}
+        ${table(['User', 'Email', 'Verification', 'Roles', 'Account state', 'Created'], rows, 'No matching users.', isFiltered ? '<a href="/admin/users">Clear filters</a> to see every account.' : 'Accounts appear here once people sign up.')}
         ${pageNav(data, path)}
       `;
     } else if (route.startsWith('/admin/users/')) {
@@ -399,21 +378,10 @@ export function renderAdminPageContent(
 
       content = `
         <p class="mb-4"><a href="/admin/users" class="back-link">${renderIcon('arrow-left', { size: 14 })} Back to users</a></p>
-        <div class="admin-page-header">
-          <div class="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h1 class="page-title">${escapeAdmin(u.displayName)}</h1>
-              <p class="admin-page-subtitle text-secondary">
-                User ID: <code class="font-mono text-xs">${escapeAdmin(u.id)}</code>
-                <button type="button" class="btn-icon btn-compact" data-copy-text="${escapeAdmin(u.id)}" title="Copy user ID" aria-label="Copy user ID">${renderIcon('copy', { size: 13 })}</button>
-              </p>
-            </div>
-            <div>
-              ${pill(sentenceCase(u.accountStatus), isSuspended ? 'danger' : 'success')}
-            </div>
-          </div>
-        </div>
+        ${detailHeader(escapeAdmin(u.displayName), pill(sentenceCase(u.accountStatus), isSuspended ? 'danger' : 'success'), idChip(u.id, 'User ID'))}
 
+        <div class="admin-detail-layout">
+          <div class="admin-detail-main">
         <div class="admin-entity-card mb-5">
           <div class="admin-definition-grid">
             <div class="admin-def-item">
@@ -433,21 +401,6 @@ export function renderAdminPageContent(
               <span class="admin-def-value text-secondary">${formatDate(u.createdAt)}</span>
             </div>
           </div>
-        </div>
-
-        <div class="admin-actions-bar">
-          <span class="actions-title">Account actions:</span>
-          ${
-            isSuspended
-              ? `<button type="button" class="btn btn-primary btn-compact" data-open-dialog="dialog-restore-user">${renderIcon('check', { size: 14 })} Restore account…</button>`
-              : `<button type="button" class="btn btn-danger btn-compact" data-open-dialog="dialog-suspend-user">${renderIcon('alert-triangle', { size: 14 })} Suspend account…</button>`
-          }
-          <button type="button" class="btn btn-secondary btn-compact" data-open-dialog="dialog-manage-roles">${renderIcon('users', { size: 14 })} Manage roles…</button>
-          ${
-            data.enrollments?.length && !supported
-              ? `<button type="button" class="btn btn-secondary btn-compact" data-open-dialog="dialog-support-access">${renderIcon('shield', { size: 14 })} Open support access…</button>`
-              : ''
-          }
         </div>
 
         ${
@@ -485,7 +438,7 @@ export function renderAdminPageContent(
             : ''
         }
 
-        <h2 class="section-title">Privacy requests</h2>
+        <h2 class="section-title mt-5">Privacy requests</h2>
         ${table(
           ['Type', 'Status', 'Blocker', 'Created', 'Support action'],
           (data.privacyRequests || []).map((r: any) => `
@@ -522,8 +475,29 @@ export function renderAdminPageContent(
               </td>
             </tr>
           `),
-          'No privacy requests.'
+          'No privacy requests.',
+          'Export and deletion requests from this user will be listed here.'
         )}
+
+          </div>
+          <aside class="admin-detail-side admin-actions-card" aria-label="Account actions">
+            <h2 class="admin-side-title">Account actions</h2>
+            <div class="admin-actions-stack">
+              ${
+                data.enrollments?.length && !supported
+                  ? `<button type="button" class="btn btn-secondary" data-open-dialog="dialog-support-access">${renderIcon('shield', { size: 14 })} Open support access…</button>`
+                  : ''
+              }
+              <button type="button" class="btn btn-secondary" data-open-dialog="dialog-manage-roles">${renderIcon('users', { size: 14 })} Manage roles…</button>
+              ${isSuspended ? `<button type="button" class="btn btn-primary" data-open-dialog="dialog-restore-user">${renderIcon('check', { size: 14 })} Restore account…</button>` : ''}
+            </div>
+            ${
+              isSuspended
+                ? ''
+                : `<div class="admin-danger-zone"><h3>Danger zone</h3><button type="button" class="btn btn-danger" data-open-dialog="dialog-suspend-user">${renderIcon('alert-triangle', { size: 14 })} Suspend account…</button></div>`
+            }
+          </aside>
+        </div>
 
         <!-- Dialog: Suspend Account -->
         ${renderActionDialog({
@@ -627,7 +601,8 @@ export function renderAdminPageContent(
         ${table(
           ['Course', 'Owner', 'Publication', 'Visibility', { label: 'Latest version', align: 'right' }, 'Availability', { label: 'Open reports', align: 'right' }],
           rows,
-          'No matching courses.'
+          'No matching courses.',
+          searchVal ? '<a href="/admin/courses">Clear search</a> to list every course.' : 'Courses appear here once an author creates one.'
         )}
         ${pageNav(data, path)}
       `;
@@ -686,14 +661,11 @@ export function renderAdminPageContent(
 
       const versionsList = (data.versions || [])
         .map((v: any) => `
-          <li class="py-2 border-b border-subtle last:border-b-0 flex items-center justify-between flex-wrap gap-2">
-            <div>
-              <span class="font-medium">Version ${v.versionNumber}</span>
-              <span class="text-secondary text-xs ml-2">Published ${formatDate(v.createdAt)}</span>
-              <details class="inline-block ml-2 text-xs">
-                <summary class="cursor-pointer text-muted font-mono">ID</summary>
-                <code class="text-xs bg-canvas px-1 rounded">${escapeAdmin(v.id)}</code>
-              </details>
+          <li class="admin-version-row">
+            <div class="admin-version-meta">
+              <span class="admin-version-name">Version ${v.versionNumber}</span>
+              <span class="text-secondary text-xs">Published ${formatDate(v.createdAt)}</span>
+              ${idChip(v.id, 'Version ID')}
             </div>
             <a href="/admin/courses/${encodeURIComponent(data.id)}?versionId=${encodeURIComponent(v.id)}" class="btn btn-secondary btn-compact">Inspect exact snapshot</a>
           </li>
@@ -702,29 +674,18 @@ export function renderAdminPageContent(
 
       content = `
         <p class="mb-4"><a href="/admin/courses" class="back-link">${renderIcon('arrow-left', { size: 14 })} Back to courses</a></p>
-        <div class="admin-page-header">
-          <div class="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h1 class="page-title">${escapeAdmin(data.title)}</h1>
-              <p class="admin-page-subtitle text-secondary">
-                Course ID: <code class="font-mono text-xs">${escapeAdmin(data.id)}</code>
-                <button type="button" class="btn-icon btn-compact" data-copy-text="${escapeAdmin(data.id)}" title="Copy course ID" aria-label="Copy course ID">${renderIcon('copy', { size: 13 })}</button>
-              </p>
-            </div>
-            <div>
-              ${data.isSuspended ? pill('Suspended', 'danger') : pill('Available', 'success')}
-            </div>
-          </div>
-        </div>
+        ${detailHeader(escapeAdmin(data.title), data.isSuspended ? pill('Suspended', 'danger') : pill('Available', 'success'), idChip(data.id, 'Course ID'))}
 
         ${inspectionBanner}
         ${snapshotInspectionPanel}
 
+        <div class="admin-detail-layout">
+          <div class="admin-detail-main">
         <div class="admin-entity-card mb-5">
           <div class="admin-definition-grid">
             <div class="admin-def-item">
               <span class="admin-def-label">Owner</span>
-              <span class="admin-def-value">${escapeAdmin(data.ownerName)} · <span class="text-secondary text-xs">${escapeAdmin(data.ownerEmail)}</span></span>
+              <span class="admin-def-value">${escapeAdmin(data.ownerName)}<br><span class="text-secondary text-xs">${escapeAdmin(data.ownerEmail)}</span></span>
             </div>
             <div class="admin-def-item">
               <span class="admin-def-label">Published release</span>
@@ -741,24 +702,24 @@ export function renderAdminPageContent(
           </div>
         </div>
 
-        <div class="admin-actions-bar">
-          <span class="actions-title">Course actions:</span>
-          ${
-            data.isSuspended
-              ? `<button type="button" class="btn btn-primary btn-compact" data-open-dialog="dialog-course-availability">${renderIcon('play', { size: 14 })} Restore availability…</button>`
-              : `<button type="button" class="btn btn-danger btn-compact" data-open-dialog="dialog-course-availability">${renderIcon('pause', { size: 14 })} Suspend course…</button>`
-          }
-          <button type="button" class="btn btn-secondary btn-compact" data-open-dialog="dialog-course-waiver">${renderIcon('alert-circle', { size: 14 })} Waive broken step…</button>
-          ${
-            data.ownerDeletionPending && data.publicationStatus !== 'archived'
-              ? `<button type="button" class="btn btn-warning btn-compact" data-open-dialog="dialog-course-archive">Archive to resolve ownership blocker…</button>`
-              : ''
-          }
-        </div>
-
         <div class="admin-section-card mb-6">
           <h2 class="section-title">Published versions</h2>
-          <ul class="text-sm space-y-1">${versionsList || '<li class="text-muted">No published releases yet.</li>'}</ul>
+          <ul class="admin-version-rows">${versionsList || '<li class="text-muted">No published releases yet.</li>'}</ul>
+        </div>
+          </div>
+          <aside class="admin-detail-side admin-actions-card" aria-label="Course actions">
+            <h2 class="admin-side-title">Course actions</h2>
+            <div class="admin-actions-stack">
+              <button type="button" class="btn btn-secondary" data-open-dialog="dialog-course-waiver">${renderIcon('alert-triangle', { size: 14 })} Waive broken step…</button>
+              ${
+                data.ownerDeletionPending && data.publicationStatus !== 'archived'
+                  ? `<button type="button" class="btn btn-warning" data-open-dialog="dialog-course-archive">Archive to resolve ownership blocker…</button>`
+                  : ''
+              }
+              ${data.isSuspended ? `<button type="button" class="btn btn-primary" data-open-dialog="dialog-course-availability">${renderIcon('play', { size: 14 })} Restore availability…</button>` : ''}
+            </div>
+            ${data.isSuspended ? '' : `<div class="admin-danger-zone"><h3>Danger zone</h3><button type="button" class="btn btn-danger" data-open-dialog="dialog-course-availability">${renderIcon('alert-triangle', { size: 14 })} Suspend course…</button></div>`}
+          </aside>
         </div>
 
         <!-- Dialog: Course Availability -->
@@ -950,11 +911,11 @@ export function renderAdminPageContent(
 
       const rows = (data.items || []).map(
         (r: any) => `
-        <tr>
+        <tr class="report-row report-row-${escapeAdmin(r.status)}">
           <td><a href="/admin/reports/${encodeURIComponent(r.id)}" class="table-link font-medium">${escapeAdmin(humanizeEnum(r.type))}</a></td>
           <td><span class="text-secondary">${escapeAdmin(r.courseTitle)}</span></td>
           <td><span class="text-secondary">${escapeAdmin(r.reporterName)}</span></td>
-          <td>${pill(sentenceCase(r.status), r.status === 'open' ? 'warning' : r.status === 'investigating' ? 'info' : 'success')}</td>
+          <td>${pill(sentenceCase(r.status), reportTone(r.status))}</td>
           <td><time datetime="${escapeAdmin(r.createdAt)}" title="${escapeAdmin(r.createdAt)}" class="text-secondary">${formatDate(r.createdAt)}</time></td>
         </tr>
       `
@@ -980,7 +941,7 @@ export function renderAdminPageContent(
           </nav>
         </div>
 
-        ${table(['Type', 'Course', 'Reporter', 'Status', 'Submitted'], rows, emptyMessage)}
+        ${table(['Type', 'Course', 'Reporter', 'Status', 'Submitted'], rows, emptyMessage, activeStatus ? '<a href="/admin/reports">Show all reports</a>' : 'Learner reports appear here for triage.')}
         ${pageNav(data, path)}
       `;
     } else if (route.startsWith('/admin/reports/')) {
@@ -1003,65 +964,68 @@ export function renderAdminPageContent(
 
       content = `
         <p class="mb-4"><a href="/admin/reports" class="back-link">${renderIcon('arrow-left', { size: 14 })} Back to reports</a></p>
-        <div class="admin-page-header">
-          <div class="flex items-center justify-between flex-wrap gap-2">
-            <div>
-              <h1 class="page-title">${escapeAdmin(humanizeEnum(data.type))} · ${escapeAdmin(data.courseTitle)}</h1>
-              <p class="admin-page-subtitle text-secondary">Report ID: <code class="font-mono text-xs">${escapeAdmin(data.id)}</code></p>
+        ${detailHeader(`${escapeAdmin(humanizeEnum(data.type))} · ${escapeAdmin(data.courseTitle)}`, pill(sentenceCase(data.status), reportTone(data.status)), idChip(data.id, 'Report ID'))}
+
+        <div class="admin-detail-layout">
+          <div class="admin-detail-main">
+            <div class="admin-section-card mb-4">
+              <h2 class="section-title">Report description</h2>
+              <p class="text-sm leading-relaxed">${escapeAdmin(data.description)}</p>
             </div>
-            <div>
-              ${pill(sentenceCase(data.status), data.status === 'open' ? 'warning' : data.status === 'investigating' ? 'info' : 'success')}
+
+            <div class="report-context-panel mb-4">
+              <h3 class="text-sm font-semibold mb-3">Reported learning context</h3>
+              <dl class="admin-context-list">
+                <div><dt>Course</dt><dd><a href="/admin/courses/${encodeURIComponent(data.courseId)}" class="underline font-medium">${escapeAdmin(data.courseTitle)}</a></dd></div>
+                <div><dt>Immutable version</dt><dd>${versionLinkHtml}</dd></div>
+                <div><dt>Step</dt><dd>${stepLinkHtml}</dd></div>
+              </dl>
+              ${data.versionDetails?.createdAt ? `<p class="text-xs text-muted mt-3 pt-2 border-t border-subtle">Pinned to immutable version published ${formatDate(data.versionDetails.createdAt)}.</p>` : ''}
             </div>
+
+            ${data.submittedCode ? `<details class="disclosure-card mb-4"><summary class="cursor-pointer font-medium">Consented submitted code</summary><div class="disclosure-body"><pre class="code-pre">${escapeAdmin(data.submittedCode)}</pre></div></details>` : ''}
           </div>
+
+          <aside class="admin-detail-side admin-triage-card" aria-labelledby="triage-title">
+            <h2 id="triage-title" class="admin-side-title">Resolution and triage</h2>
+            <form data-admin-mutation action="/api/admin/reports/${encodeURIComponent(data.id)}" method="patch" class="admin-mutation-form">
+              <label class="form-group">
+                <span class="form-label">Status</span>
+                <select name="status" class="form-input form-select">
+                  <option value="open" ${data.status === 'open' ? 'selected' : ''}>Open</option>
+                  <option value="investigating" ${data.status === 'investigating' ? 'selected' : ''}>Investigating</option>
+                  <option value="resolved" ${data.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                </select>
+              </label>
+              ${formField('outcome', 'Resolution outcome', 'text', false)}
+              <label class="form-group">
+                <span class="form-label">Internal notes</span>
+                <textarea class="form-input form-textarea" name="internalNotes">${escapeAdmin(data.internalNotes || '')}</textarea>
+              </label>
+              ${formField('reason', 'Reason')}
+              ${formField('currentPassword', 'Confirm administrator password', 'password')}
+              <div class="flex justify-end gap-2 mt-4">
+                <button class="btn btn-primary" type="submit">Update report</button>
+              </div>
+              <p class="form-error hidden" role="alert"></p>
+            </form>
+          </aside>
         </div>
-
-        <div class="admin-section-card mb-4">
-          <h2 class="section-title">Report description</h2>
-          <p class="text-sm leading-relaxed">${escapeAdmin(data.description)}</p>
-        </div>
-
-        <div class="report-context-panel border border-subtle p-4 rounded mb-4 bg-surface">
-          <h3 class="text-sm font-semibold mb-3">Reported learning context</h3>
-          <div class="space-y-2 text-sm">
-            <p><strong>Course:</strong> <a href="/admin/courses/${encodeURIComponent(data.courseId)}" class="underline font-medium">${escapeAdmin(data.courseTitle)}</a></p>
-            <p><strong>Immutable version:</strong> ${versionLinkHtml}</p>
-            <p><strong>Step:</strong> ${stepLinkHtml}</p>
-          </div>
-          ${data.versionDetails?.createdAt ? `<p class="text-xs text-muted mt-3 pt-2 border-t border-subtle">Pinned to immutable version published ${formatDate(data.versionDetails.createdAt)}.</p>` : ''}
-        </div>
-
-        ${data.submittedCode ? `<details class="disclosure-card mb-4"><summary class="cursor-pointer font-medium">Consented submitted code</summary><div class="disclosure-body"><pre class="code-pre">${escapeAdmin(data.submittedCode)}</pre></div></details>` : ''}
-
-        <h2 class="section-title">Resolution and triage</h2>
-        <form data-admin-mutation action="/api/admin/reports/${encodeURIComponent(data.id)}" method="patch" class="admin-mutation-form">
-          <label class="form-group">
-            <span class="form-label">Status</span>
-            <select name="status" class="form-input form-select">
-              <option value="open" ${data.status === 'open' ? 'selected' : ''}>Open</option>
-              <option value="investigating" ${data.status === 'investigating' ? 'selected' : ''}>Investigating</option>
-              <option value="resolved" ${data.status === 'resolved' ? 'selected' : ''}>Resolved</option>
-            </select>
-          </label>
-          ${formField('outcome', 'Resolution outcome', 'text', false)}
-          <label class="form-group">
-            <span class="form-label">Internal notes</span>
-            <textarea class="form-input form-textarea" name="internalNotes">${escapeAdmin(data.internalNotes || '')}</textarea>
-          </label>
-          ${formField('reason', 'Reason')}
-          ${formField('currentPassword', 'Confirm administrator password', 'password')}
-          <div class="flex justify-end gap-2 mt-4">
-            <button class="btn btn-primary" type="submit">Update report</button>
-          </div>
-          <p class="form-error hidden" role="alert"></p>
-        </form>
       `;
     } else if (route === '/admin/media') {
+      const mediaThumb = (mime: string) => {
+        const kind = String(mime || '').split('/')[0];
+        const ext = String(mime || '').split('/')[1]?.split('+')[0]?.toUpperCase() || 'FILE';
+        const icon: IconName = kind === 'image' ? 'image' : kind === 'video' ? 'video' : 'file-text';
+        return `<span class="media-thumb media-thumb-${escapeAdmin(kind || 'file')}" aria-hidden="true">${renderIcon(icon, { size: 20 })}<span class="media-thumb-ext">${escapeAdmin(ext.slice(0, 5))}</span></span>`;
+      };
+
       const rows = (data.items || []).map(
         (a: any) => `
         <tr>
+          <td class="media-thumb-cell">${mediaThumb(a.mimeType)}</td>
           <td>
             <div class="media-cell-wrapper flex items-center gap-2">
-              <span class="media-placeholder-icon" aria-hidden="true">${renderIcon('image', { size: 16 })}</span>
               <code class="font-mono text-xs" title="${escapeAdmin(a.id)}">${escapeAdmin(a.id.slice(0, 8))}…</code>
               <button type="button" class="btn-icon btn-compact" data-copy-text="${escapeAdmin(a.id)}" title="Copy asset ID" aria-label="Copy asset ID">${renderIcon('copy', { size: 13 })}</button>
             </div>
@@ -1132,7 +1096,7 @@ export function renderAdminPageContent(
           <h1 class="page-title">Media</h1>
         </div>
 
-        ${table(['Asset', 'Course', 'Type / size', 'Processing', { label: 'References', align: 'right' }, 'Review'], rows, 'No media assets.')}
+        ${table(['Preview', 'Asset', 'Course', 'Type / size', 'Processing', { label: 'References', align: 'right' }, 'Review'], rows, 'No media assets.', 'Uploads from authors appear here for review.')}
         ${pageNav(data, path)}
         ${dialogs}
       `;
@@ -1168,8 +1132,9 @@ export function renderAdminPageContent(
                 ${isPaused ? 'Execution is currently paused. No new student code runs are admitted.' : 'Execution is active. Disabling accepts no new jobs while preserving reading and code drafts.'}
               </p>
             </div>
-            <button type="button" class="btn ${isPaused ? 'btn-secondary' : 'btn-danger'}" data-open-dialog="execution-toggle-dialog">
-              ${isPaused ? 'Reactivate execution…' : 'Pause new runs…'}
+            <button type="button" class="admin-switch ${isPaused ? 'is-paused' : 'is-on'}" role="switch" aria-checked="${isPaused ? 'false' : 'true'}" data-open-dialog="execution-toggle-dialog">
+              <span class="admin-switch-track" aria-hidden="true"><span class="admin-switch-thumb"></span></span>
+              <span class="admin-switch-text"><span class="admin-switch-state">${isPaused ? 'Runs paused' : 'Accepting runs'}</span><span class="admin-switch-action">${isPaused ? 'Reactivate execution…' : 'Pause new runs…'}</span></span>
             </button>
           </div>
         </div>
@@ -1178,17 +1143,17 @@ export function renderAdminPageContent(
         <div class="admin-stats-grid mb-6">
           <div class="stat-tile">
             <span class="stat-label">Queued jobs</span>
-            <span class="stat-value font-mono">${data.overview.queue.queued}</span>
+            <span class="stat-value">${data.overview.queue.queued}</span>
             <span class="stat-hint text-xs text-muted">Awaiting worker lease</span>
           </div>
           <div class="stat-tile">
             <span class="stat-label">Running jobs</span>
-            <span class="stat-value font-mono">${data.overview.queue.running}</span>
+            <span class="stat-value">${data.overview.queue.running}</span>
             <span class="stat-hint text-xs text-muted">Active in sandbox</span>
           </div>
           <div class="stat-tile">
             <span class="stat-label">Oldest queued</span>
-            <span class="stat-value text-sm font-mono">${escapeAdmin(data.overview.queue.oldestQueuedAt ? formatDate(data.overview.queue.oldestQueuedAt) : 'None')}</span>
+            <span class="stat-value stat-value-text">${escapeAdmin(data.overview.queue.oldestQueuedAt ? formatDate(data.overview.queue.oldestQueuedAt) : 'None')}</span>
             <span class="stat-hint text-xs text-muted">${escapeAdmin(data.overview.queue.oldestQueuedAt || 'No queued jobs')}</span>
           </div>
           <div class="stat-tile">
@@ -1211,7 +1176,7 @@ export function renderAdminPageContent(
           <span class="text-xs text-muted ml-auto">Dates in system timezone</span>
         </form>
 
-        ${table(['Job reference', 'Type', 'State', 'Accepted', 'Updated'], rows, 'No execution jobs in this time range.')}
+        ${table(['Job reference', 'Type', 'State', 'Accepted', 'Updated'], rows, 'No execution jobs in this time range.', query.get('from') || query.get('to') ? '<a href="/admin/execution">Clear the date range</a> to see all jobs.' : 'Jobs appear here when learners run code.')}
         ${pageNav(data.jobs, path)}
 
         <!-- Accessible Dialog: Execution Toggle -->
@@ -1244,6 +1209,8 @@ export function renderAdminPageContent(
         query.get('to')
       );
 
+      const hasAnyFilter = Boolean(hasAdvancedActive || query.get('action') || query.get('reason'));
+
       const activeAdvancedCount = [
         query.get('actorId'),
         query.get('targetType'),
@@ -1253,22 +1220,55 @@ export function renderAdminPageContent(
         query.get('to'),
       ].filter(Boolean).length;
 
-      const rows = (data.items || []).map(
-        (e: any) => `
+      const dayKey = (iso: string) => {
+        const d = new Date(iso);
+        return Number.isNaN(d.getTime()) ? String(iso) : `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      };
+      const dayLabel = (iso: string) => {
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return String(iso);
+        const today = new Date();
+        const yesterday = new Date(today.getTime() - 86400000);
+        if (dayKey(iso) === dayKey(today.toISOString())) return 'Today';
+        if (dayKey(iso) === dayKey(yesterday.toISOString())) return 'Yesterday';
+        return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+      };
+      const clock = (iso: string) => {
+        const d = new Date(iso);
+        return Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      };
+
+      let lastDay = '';
+      const rows: string[] = [];
+      for (const e of data.items || []) {
+        const key = dayKey(e.createdAt);
+        if (key !== lastDay) {
+          lastDay = key;
+          rows.push(`<tr class="audit-day-row"><th scope="colgroup" colspan="5">${escapeAdmin(dayLabel(e.createdAt))}</th></tr>`);
+        }
+        rows.push(`
         <tr>
-          <td class="admin-nowrap"><time datetime="${escapeAdmin(e.createdAt)}" title="${escapeAdmin(e.createdAt)}" class="text-secondary">${formatDate(e.createdAt)}</time></td>
+          <td class="admin-nowrap"><time datetime="${escapeAdmin(e.createdAt)}" title="${escapeAdmin(e.createdAt)}" class="text-secondary">${escapeAdmin(clock(e.createdAt) || formatDate(e.createdAt))}</time></td>
           <td class="admin-nowrap"><span class="font-medium">${escapeAdmin(e.actorName)}</span></td>
-          <td class="admin-nowrap">
+          <td>
             <a href="/admin/audit/${encodeURIComponent(e.id)}" class="table-link font-medium" title="Action code: ${escapeAdmin(e.action)}" aria-label="${escapeAdmin(formatAuditAction(e.action))} (${escapeAdmin(e.action)})">
               ${escapeAdmin(formatAuditAction(e.action))}
             </a>
+            <span class="audit-target-type text-secondary">${escapeAdmin(humanizeEnum(e.targetType))}</span>
           </td>
-          <td class="audit-target-cell"><span class="text-secondary">${escapeAdmin(e.targetType)} · <code class="font-mono text-xs">${escapeAdmin(e.targetId)}</code></span></td>
           <td class="audit-reason-cell"><span class="text-secondary">${escapeAdmin(e.reason || '—')}</span></td>
-          <td class="admin-nowrap"><code class="font-mono text-xs text-muted">${escapeAdmin(e.correlationId || '—')}</code></td>
-        </tr>
-      `
-      );
+          <td class="audit-details-cell">
+            <details class="audit-details">
+              <summary>Details</summary>
+              <dl>
+                <div><dt>Action</dt><dd><code>${escapeAdmin(e.action)}</code></dd></div>
+                <div><dt>Target</dt><dd><code>${escapeAdmin(e.targetType)} · ${escapeAdmin(e.targetId)}</code></dd></div>
+                <div><dt>Correlation</dt><dd><code>${escapeAdmin(e.correlationId || '—')}</code></dd></div>
+              </dl>
+            </details>
+          </td>
+        </tr>`);
+      }
 
       content = `
         <div class="admin-page-header">
@@ -1298,7 +1298,7 @@ export function renderAdminPageContent(
           </details>
         </form>
 
-        ${table(['Time', 'Actor', 'Action', 'Target', 'Reason', 'Correlation'], rows, 'No audit events match these filters.')}
+        ${table(['Time', 'Actor', 'Action', 'Reason', 'Details'], rows, 'No audit events match these filters.', hasAnyFilter ? '<a href="/admin/audit">Clear filters</a> to see recent activity.' : 'Administrative actions will be recorded here.')}
         ${pageNav(data, path)}
       `;
     } else if (route.startsWith('/admin/audit/')) {

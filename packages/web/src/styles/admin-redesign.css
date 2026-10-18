@@ -1,1 +1,478 @@
 /* admin-redesign */
+
+/* ---- Section headings, ID chips, quiet chips ---- */
+.shell-admin .admin-section-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.shell-admin .admin-id-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-height: 28px;
+  padding: 2px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--bg-raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.shell-admin .admin-id-chip:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.shell-admin .admin-id-chip code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell-admin .admin-id-chip-label {
+  color: var(--text-muted);
+}
+
+.shell-admin .admin-chip-quiet {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border: 1px dashed var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ---- Overview: needs attention + health strip ---- */
+.shell-admin .attention-items-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.shell-admin .admin-attention-banner {
+  margin-bottom: 0;
+}
+
+.shell-admin .admin-attention-banner.warning {
+  border-color: var(--warning);
+  background: var(--warning-bg);
+}
+
+.shell-admin .admin-attention-banner.critical {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.shell-admin .ops-alert-calm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  color: var(--success);
+  font-size: 14px;
+}
+
+.shell-admin .admin-health-section {
+  margin-bottom: var(--space-5);
+}
+
+.shell-admin .admin-health-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.shell-admin .admin-health-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+.shell-admin .health-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-4);
+  min-width: 0;
+}
+
+.shell-admin .health-item + .health-item {
+  border-left: 1px solid var(--border-subtle);
+}
+
+.shell-admin .health-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.shell-admin .health-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.shell-admin .health-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.shell-admin .health-item a {
+  font-size: 12px;
+}
+
+.shell-admin .health-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--text-muted);
+}
+
+.shell-admin .health-dot-ok { background: var(--success); }
+.shell-admin .health-dot-warn { background: var(--warning); }
+.shell-admin .health-dot-bad { background: var(--danger); }
+.shell-admin .health-dot-idle { background: transparent; border: 1.5px solid var(--text-muted); }
+
+.shell-admin .admin-info-popover {
+  position: relative;
+}
+
+.shell-admin .admin-info-popover > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.shell-admin .admin-info-popover > summary::-webkit-details-marker { display: none; }
+.shell-admin .admin-info-popover > summary:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.shell-admin .admin-info-popover-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  width: 340px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-raised);
+  box-shadow: var(--shadow-dialog);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.shell-admin .admin-info-popover-panel p { margin: 0 0 var(--space-2); }
+.shell-admin .admin-info-popover-panel p:last-child { margin: 0; }
+
+/* ---- Tables: hover, empty states, reports, audit, media ---- */
+.shell-admin .data-table tbody tr:hover td,
+.shell-admin .data-table tbody tr:hover th[scope="row"] {
+  background: var(--bg-hover);
+}
+
+.shell-admin .data-table td.empty-state {
+  padding: var(--space-6, 40px) var(--space-4);
+  text-align: center;
+  background: transparent;
+}
+
+.shell-admin .data-table tbody tr:hover td.empty-state {
+  background: transparent;
+}
+
+.shell-admin .admin-empty {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.shell-admin .admin-empty-icon {
+  display: inline-flex;
+  padding: 10px;
+  border-radius: 50%;
+  background: var(--bg-raised);
+  color: var(--text-muted);
+}
+
+.shell-admin .admin-empty-title { color: var(--text-primary); font-weight: 500; }
+.shell-admin .admin-empty-next { color: var(--text-secondary); font-size: 13px; }
+
+.shell-admin .report-row td:first-child {
+  box-shadow: inset 3px 0 0 transparent;
+}
+.shell-admin .report-row-open td:first-child { box-shadow: inset 3px 0 0 var(--warning); }
+.shell-admin .report-row-investigating td:first-child { box-shadow: inset 3px 0 0 var(--info); }
+.shell-admin .report-row-resolved td:first-child { box-shadow: inset 3px 0 0 var(--success); }
+
+.shell-admin .media-thumb-cell { width: 64px; }
+
+.shell-admin .media-thumb {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--bg-raised);
+  color: var(--text-secondary);
+}
+
+.shell-admin .media-thumb-ext { font-size: 9px; letter-spacing: 0.04em; color: var(--text-muted); }
+
+.shell-admin .audit-day-row th {
+  position: static;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-canvas);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  letter-spacing: 0.02em;
+}
+
+.shell-admin .audit-target-type {
+  display: block;
+  font-size: 12px;
+}
+
+.shell-admin .audit-details summary {
+  cursor: pointer;
+  color: var(--link);
+  font-size: 12px;
+}
+
+.shell-admin .audit-details dl { margin: var(--space-2) 0 0; display: grid; gap: 4px; }
+.shell-admin .audit-details dl > div { display: flex; gap: 8px; font-size: 12px; }
+.shell-admin .audit-details dt { min-width: 80px; color: var(--text-muted); }
+.shell-admin .audit-details dd { margin: 0; overflow-wrap: anywhere; }
+
+/* ---- Detail pages: two columns ---- */
+.shell-admin .admin-detail-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.shell-admin .admin-detail-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.shell-admin .admin-detail-title-row .page-title { margin: 0; }
+
+.shell-admin .admin-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.shell-admin .admin-detail-main { min-width: 0; }
+
+.shell-admin .admin-detail-side {
+  position: sticky;
+  top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+.shell-admin .admin-side-title {
+  margin: 0 0 var(--space-3);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.shell-admin .admin-actions-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.shell-admin .admin-actions-stack .btn,
+.shell-admin .admin-danger-zone .btn {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.shell-admin .admin-danger-zone {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.shell-admin .admin-danger-zone h3 {
+  margin: 0 0 var(--space-2);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--danger);
+  text-transform: none;
+}
+
+.shell-admin .admin-version-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.shell-admin .admin-version-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+.shell-admin .admin-version-row + .admin-version-row {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.shell-admin .admin-version-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.shell-admin .admin-version-name { font-weight: 600; }
+
+.shell-admin .admin-context-list { margin: 0; display: grid; gap: var(--space-2); font-size: 14px; }
+.shell-admin .admin-context-list > div { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: var(--space-3); }
+.shell-admin .admin-context-list dt { color: var(--text-muted); }
+.shell-admin .admin-context-list dd { margin: 0; overflow-wrap: anywhere; }
+
+.shell-admin .report-context-panel {
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+.shell-admin .report-context-panel > p:last-child {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+}
+
+.shell-admin .admin-triage-card .form-group { margin-bottom: var(--space-3); }
+.shell-admin .admin-triage-card .form-textarea { min-height: 96px; }
+
+/* ---- Execution: switch and date inputs ---- */
+.shell-admin .admin-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px 8px 10px;
+  min-height: 44px;
+  border: 1px solid var(--border-control);
+  border-radius: 999px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.shell-admin .admin-switch:hover { background: var(--bg-hover); }
+
+.shell-admin .admin-switch-track {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--text-muted);
+}
+
+.shell-admin .admin-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-canvas);
+  transition: transform 0.15s ease;
+}
+
+.shell-admin .admin-switch.is-on .admin-switch-track { background: var(--success); }
+.shell-admin .admin-switch.is-on .admin-switch-thumb { transform: translateX(18px); }
+.shell-admin .admin-switch.is-paused { border-color: var(--warning); }
+
+.shell-admin .admin-switch-text { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.3; }
+.shell-admin .admin-switch-state { font-size: 13px; font-weight: 600; }
+.shell-admin .admin-switch-action { font-size: 12px; color: var(--text-secondary); }
+
+.shell-admin .stat-value { font-family: inherit; font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.shell-admin .stat-value.stat-value-text { font-size: 16px; }
+
+.shell-admin input[type="date"] {
+  color-scheme: dark;
+  min-height: 36px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-sm, 8px);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+}
+
+:root[data-theme="light"] .shell-admin input[type="date"] { color-scheme: light; }
+
+.shell-admin input[type="date"]:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell-admin .admin-switch-thumb { transition: none; }
+}
+
+@media (max-width: 1100px) {
+  .shell-admin .admin-health-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .shell-admin .admin-detail-layout { grid-template-columns: minmax(0, 1fr); }
+  .shell-admin .admin-detail-side { position: static; }
+}

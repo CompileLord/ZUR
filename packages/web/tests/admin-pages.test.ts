@@ -5,7 +5,7 @@ import { renderPrivacySettingsPage } from '../src/pages/settings/PrivacySettings
 
 test('admin operations screens render real empty and unavailable states safely',()=>{
   const overview=renderAdminPage('/admin',{refreshedAt:'now',execution:{paused:false},queue:{queued:0,running:0,oldestQueuedAt:null},workers:{health:'Unavailable',lastObservedAt:null},internalErrors:0,openReports:0,emailDeliveryIssues:0,telemetry:{queue:'available',workerHeartbeat:'unavailable',email:'available'}});
-  assert.match(overview,/Runner telemetry/);assert.match(overview,/Unavailable/);assert.match(overview,/No queued jobs/);
+  assert.match(overview,/Not configured/);assert.match(overview,/Unavailable/);assert.match(overview,/No queued jobs/);
   const media=renderAdminPage('/admin/media',{items:[{id:'asset-1',courseTitle:'Course',mimeType:'image/png',fileSize:1024,processingStatus:'quarantined',referenceCount:2}]});
   assert.match(media,/2/);assert.match(media,/restore/);assert.doesNotMatch(media,/Delete unreferenced asset/);
   const free=renderAdminPage('/admin/media',{items:[{id:'asset-2',courseTitle:'Course',mimeType:'image/png',fileSize:1024,processingStatus:'quarantined',referenceCount:0}]});
@@ -370,7 +370,7 @@ test('overview distinguishes execution admission from worker telemetry and avoid
   assert.match(overview, /No telemetry/);
   assert.doesNotMatch(overview, /<span class="status-badge success">Normal<\/span>/);
   // Runner telemetry shortened metric value to Unknown/Unavailable with short supporting reason
-  assert.match(overview, /<div class="card-metric-value"><strong>Unavailable<\/strong><\/div>/);
+  assert.match(overview, /Runner heartbeat: <span class="admin-chip-quiet">Not configured<\/span>/);
   assert.match(overview, /No separate worker heartbeat configured/);
   // Attention section for open report
   assert.match(overview, /1 open report/);
