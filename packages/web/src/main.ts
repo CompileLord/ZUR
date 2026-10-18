@@ -9,6 +9,9 @@ import './styles/learner-redesign.css';
 import './styles/public-redesign.css';
 import './styles/admin-redesign.css';
 import './styles/author-redesign.css';
+import './styles/home-redesign.css';
+import './styles/workspace-redesign.css';
+import './styles/author-editors-redesign.css';
 import './pages/public/landing-hero.css';
 import { PYTHON_RUNTIME_LABEL, type UserPreferences } from 'zur-shared';
 
