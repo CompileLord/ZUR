@@ -3,6 +3,12 @@ import './styles/typography.css';
 import './styles/layout.css';
 import './styles/components.css';
 import './styles/shells.css';
+import './styles/motion.css';
+import './styles/settings-redesign.css';
+import './styles/learner-redesign.css';
+import './styles/public-redesign.css';
+import './styles/admin-redesign.css';
+import './styles/author-redesign.css';
 import './pages/public/landing-hero.css';
 import { PYTHON_RUNTIME_LABEL, type UserPreferences } from 'zur-shared';
 
