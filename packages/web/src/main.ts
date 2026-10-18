@@ -704,6 +704,10 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         const { renderPythonExerciseEditorPage } = await import('./pages/author/PythonExerciseEditorPage.ts');
         appEl.innerHTML = renderPythonExerciseEditorPage({ ...base, problemStatement: c.problemStatement || '', inputFormat: c.inputFormat || '', outputFormat: c.outputFormat || '', constraints: c.constraints || '', starterCode: c.starterCode || '', referenceSolution: c.referenceSolution || '', hints: c.hints || [], solutionExplanation: c.solutionExplanation || '', publicTests: c.publicTests || [], hiddenTests: c.hiddenTests || [], runtimeLimits: c.runtimeLimits || { cpuTimeoutSeconds: 2, wallTimeoutSeconds: 5, memoryLimitMib: 128 } });
       }
+      {
+        const { initAuthorTree } = await import('./pages/author/AuthorTreeComponent.ts');
+        initAuthorTree(appEl, { courseId, request: (route, method, body) => s2Request(route, method, body), refresh: () => renderApp(path), navigate: (url) => navigateTo(url) });
+      }
       if (step.type === 'quiz') {
         const { initQuizEditor } = await import('./pages/author/QuizEditorPage.ts');
         initQuizEditor(appEl);
