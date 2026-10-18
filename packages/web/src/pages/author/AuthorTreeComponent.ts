@@ -88,7 +88,7 @@ export function renderAuthorTree(opts: RenderAuthorTreeOptions): string {
                       ${renderIcon(STEP_ICON[st.type], { size: 14 })}
                     </span>
                     <a href="${editHref}" class="tree-label" title="${st.title}">${st.title}</a>
-                    ${invalid.has(st.id) ? '<span class="tree-invalid-dot" role="img" aria-label="Blocks publishing" title="Blocks publishing"></span>' : ''}
+                    ${invalid.has(st.id) ? '<span class="tree-invalid-dot" role="img" aria-label="Needs fixes before publishing" title="Needs fixes before publishing"></span>' : ''}
                     <div class="tree-node-actions">
                       <a href="/teach/${cid}/preview?stepId=${encodeURIComponent(st.id)}" class="btn-icon" aria-label="Preview ${st.title}" title="Preview">${renderIcon('eye', { size: 12 })}</a>
                       ${rowMenuButton(st.title)}
@@ -418,4 +418,35 @@ export function initAuthorTree(root: ParentNode, opts: AuthorTreeInitOptions): v
       }
     });
   });
+}
+
+/** Adds the "needs fixes" dot to tree step rows after an asynchronous validation call. Idempotent. */
+export function applyInvalidStepDots(root: ParentNode, invalidStepIds: string[]): void {
+  const ids = new Set(invalidStepIds);
+  root.querySelectorAll<HTMLElement>('.steps-table tr[data-id]').forEach((row) => {
+    const has = row.querySelector('.tree-invalid-dot');
+    const cell = row.querySelector('.col-title');
+    if (ids.has(row.dataset.id!) && !has) cell?.insertAdjacentHTML('beforeend', '<span class="tree-invalid-dot" role="img" aria-label="Needs fixes before publishing" title="Needs fixes before publishing"></span>');
+    else if (!ids.has(row.dataset.id!) && has) has.remove();
+  });
+  root.querySelectorAll<HTMLElement>('.tree-step[data-id]').forEach((row) => {
+    const has = row.querySelector('.tree-invalid-dot');
+    if (ids.has(row.dataset.id!) && !has) {
+      const label = row.querySelector('.tree-label');
+      label?.insertAdjacentHTML('afterend', '<span class="tree-invalid-dot" role="img" aria-label="Needs fixes before publishing" title="Needs fixes before publishing"></span>');
+    } else if (!ids.has(row.dataset.id!) && has) {
+      has.remove();
+    }
+  });
+}
+
+/** Non-blocking: resolves to step ids with blocking validation errors, or [] on any failure. */
+export async function fetchInvalidStepIds(request: (route: string, method?: string, body?: unknown) => Promise<any>, courseId: string): Promise<string[]> {
+  try {
+    const r = await request(`/api/author/courses/${encodeURIComponent(courseId)}/validate`, 'POST', {});
+    const errs: Array<{ stepId?: string; blocking?: boolean }> = Array.isArray(r?.errors) ? r.errors : [];
+    return Array.from(new Set(errs.filter((e) => e.blocking !== false && e.stepId).map((e) => e.stepId as string)));
+  } catch {
+    return [];
+  }
 }

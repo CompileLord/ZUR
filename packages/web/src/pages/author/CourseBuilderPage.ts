@@ -50,6 +50,41 @@ export interface CourseBuilderPageOptions {
   feedbackMessage?: string;
   remoteUpdate?: RemoteUpdateInfo;
   lastEditTime?: string;
+  /** Ids of steps with blocking validation errors (shown as a dot in the tree). */
+  invalidStepIds?: string[];
+}
+
+/** Overflow (three-dot) menu holding destructive row actions. Uses the existing data-confirm-delete submit flow. */
+function overflowDelete(label: string, action: string, confirmText: string, itemLabel: string): string {
+  return `
+    <details class="row-overflow">
+      <summary class="row-overflow-btn" aria-label="More actions for ${label}" title="More actions">${renderIcon('more-vertical', { size: 16 })}</summary>
+      <div class="row-overflow-menu" role="group" aria-label="More actions for ${label}">
+        <form method="POST" action="${action}" data-confirm-delete="${confirmText}">
+          <button type="submit" class="row-overflow-item is-danger">${renderIcon('trash', { size: 14 })}${itemLabel}</button>
+        </form>
+      </div>
+    </details>`;
+}
+
+/** Closes open row overflow menus on outside click or Escape. Safe to call after every render. */
+export function initRowOverflowMenus(root: ParentNode): void {
+  const open = () => Array.from(root.querySelectorAll<HTMLDetailsElement>('details.row-overflow[open]'));
+  const onClick = (e: Event) => {
+    if (!root.querySelector('details.row-overflow')) { document.removeEventListener('click', onClick, true); return; }
+    open().forEach((d) => { if (!d.contains(e.target as Node)) d.open = false; });
+  };
+  document.addEventListener('click', onClick, true);
+  root.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key !== 'Escape') return;
+    const d = open()[0];
+    if (!d) return;
+    d.open = false;
+    d.querySelector<HTMLElement>('summary')?.focus();
+  });
+  root.querySelectorAll<HTMLDetailsElement>('details.row-overflow').forEach((d) => d.addEventListener('toggle', () => {
+    if (d.open) open().forEach((o) => { if (o !== d) o.open = false; });
+  }));
 }
 
 export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string {
@@ -64,6 +99,7 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
     selectedType,
     selectedId,
     title: 'Structure',
+    invalidStepIds: opts.invalidStepIds,
   });
   const menuBtn = (label: string) =>
     `<button type="button" class="tree-row-menu-btn" data-reorder-menu aria-haspopup="menu" aria-expanded="false" aria-label="Actions for ${label}" title="Actions (Alt+Up / Alt+Down to move)">${renderIcon('more-horizontal', { size: 14 })}</button>`;
@@ -143,65 +179,52 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
     const mod = opts.modules.find((m) => m.id === selectedId);
     if (mod) {
       editorContent = `
-        <div class="builder-center-pane">
-          <header class="pane-header">
-            <div class="breadcrumbs"><a href="/teach/${opts.courseId}/content">Course</a> / Module</div>
-            <h1 class="page-title">${mod.title}</h1>
+        <div class="builder-center-pane builder-entity">
+          <header class="entity-head">
+            <nav class="entity-crumbs" aria-label="Breadcrumb"><a href="/teach/${opts.courseId}/content">Course</a><span aria-hidden="true">/</span><span>Module</span></nav>
+            <div class="entity-title-row">
+              <form method="POST" action="/teach/${opts.courseId}/modules/${mod.id}/rename" class="entity-rename">
+                <label for="module-rename-input" class="sr-only">Module title</label>
+                <input id="module-rename-input" type="text" name="title" class="entity-title-input" value="${mod.title}" required />
+                <button type="submit" class="btn btn-secondary btn-compact">Rename</button>
+              </form>
+              ${overflowDelete(mod.title, `/teach/${opts.courseId}/modules/${mod.id}/delete`, 'Delete this module and all its lessons?', 'Delete module')}
+            </div>
           </header>
 
-          <form method="POST" action="/teach/${opts.courseId}/modules/${mod.id}/rename" class="rename-form">
-            <div class="form-group">
-              <label for="module-rename-input" class="field-label">Rename module</label>
-              <div class="input-with-button">
-                <input id="module-rename-input" type="text" name="title" class="text-input" value="${mod.title}" required />
-                <button type="submit" class="btn btn-secondary">Rename</button>
-              </div>
-            </div>
-          </form>
-
-          <form method="POST" action="/teach/${opts.courseId}/modules/${mod.id}/delete" data-confirm-delete="Delete this module and all its lessons?">
-            <button type="submit" class="btn btn-destructive btn-compact">Delete module</button>
-          </form>
-          <hr class="section-divider" />
-
           <section class="module-lessons-section">
-            <h2 class="section-title">Lessons in this module</h2>
+            <h2 class="section-title">Lessons <span class="count-pill">${mod.lessons.length}</span></h2>
             <div class="lessons-list" data-reorder-scope="module-lessons">
               ${mod.lessons
                 .map(
                   (l, idx) => `
-                  <div class="card lesson-card" data-reorder="lesson" data-id="${l.id}" data-parent="${mod.id}" draggable="true">
-                    <div class="card-header flex items-center justify-between">
-                      <h4 class="flex items-center gap-2">${grip}${idx + 1}. ${l.title}</h4>
-                      <div class="flex gap-1 items-center">
-                        <a href="/teach/${opts.courseId}/content?type=lesson&id=${l.id}" class="btn btn-secondary btn-compact">Open lesson</a>
-                        ${menuBtn(l.title)}
-                      </div>
+                  <div class="lesson-row" data-reorder="lesson" data-id="${l.id}" data-parent="${mod.id}" draggable="true">
+                    ${grip}
+                    <span class="lesson-row-index">${idx + 1}</span>
+                    <div class="lesson-row-main">
+                      <a class="lesson-row-title" href="/teach/${opts.courseId}/content?type=lesson&id=${l.id}">${l.title}</a>
+                      <span class="lesson-row-sub">${l.description ? l.description : 'No description'}</span>
                     </div>
-                    <div class="card-body">
-                      <p class="text-secondary">${l.description || 'No description provided.'}</p>
-                      <p class="text-sm text-secondary">${l.steps.length} of 20 steps used</p>
-                    </div>
+                    <span class="lesson-row-count">${l.steps.length} of 20 steps</span>
+                    <a href="/teach/${opts.courseId}/content?type=lesson&id=${l.id}" class="btn btn-secondary btn-compact">Open lesson</a>
+                    ${menuBtn(l.title)}
                   </div>
                 `
                 )
                 .join('')}
             </div>
 
-            <div class="add-lesson-box mt-4">
-              <h3>+ Add lesson to ${mod.title}</h3>
-              <form method="POST" action="/teach/${opts.courseId}/modules/${mod.id}/lessons" class="add-lesson-form">
-                <div class="form-group">
-                  <label for="new-lesson-title" class="field-label">Lesson title</label>
-                  <input id="new-lesson-title" type="text" name="title" class="text-input" placeholder="e.g. Variables and Memory" required />
-                </div>
-                <div class="form-group">
-                  <label for="new-lesson-desc" class="field-label">Lesson description (optional)</label>
-                  <input id="new-lesson-desc" type="text" name="description" class="text-input" placeholder="Brief summary of learning goals" />
-                </div>
-                <button type="submit" class="btn btn-primary">+ Create lesson</button>
-              </form>
-            </div>
+            <form method="POST" action="/teach/${opts.courseId}/modules/${mod.id}/lessons" class="inline-add-form add-lesson-form" aria-label="Add lesson to ${mod.title}">
+              <div class="inline-add-field">
+                <label for="new-lesson-title" class="inline-add-label">New lesson</label>
+                <input id="new-lesson-title" type="text" name="title" class="text-input" placeholder="Lesson title, e.g. Variables and Memory" required />
+              </div>
+              <div class="inline-add-field">
+                <label for="new-lesson-desc" class="inline-add-label">Description <span class="text-muted">(optional)</span></label>
+                <input id="new-lesson-desc" type="text" name="description" class="text-input" placeholder="Brief summary of learning goals" />
+              </div>
+              <button type="submit" class="btn btn-primary btn-compact">Add lesson</button>
+            </form>
           </section>
         </div>
       `;
@@ -233,75 +256,69 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
       const stepCount = targetLesson.steps.length;
       const canAddStep = stepCount < 20;
 
+      const stepIcon = (t: StepSummary['type']) => (t === 'theory' ? 'file-text' : t === 'video' ? 'video' : t === 'quiz' ? 'list-checks' : 'code');
+      const invalidSet = new Set(opts.invalidStepIds || []);
       editorContent = `
-        <div class="builder-center-pane">
-          <header class="pane-header">
-            <div class="breadcrumbs">
-              <a href="/teach/${opts.courseId}/content">Course</a> /
-              <a href="/teach/${opts.courseId}/content?type=module&id=${targetModule.id}">${targetModule.title}</a> / Lesson
+        <div class="builder-center-pane builder-entity">
+          <header class="entity-head">
+            <nav class="entity-crumbs" aria-label="Breadcrumb">
+              <a href="/teach/${opts.courseId}/content">Course</a><span aria-hidden="true">/</span>
+              <a href="/teach/${opts.courseId}/content?type=module&id=${targetModule.id}">${targetModule.title}</a><span aria-hidden="true">/</span><span>Lesson</span>
+            </nav>
+            <div class="entity-title-row">
+              <form method="POST" action="/teach/${opts.courseId}/lessons/${targetLesson.id}/rename" class="entity-rename">
+                <label for="lesson-rename-input" class="sr-only">Lesson title</label>
+                <input id="lesson-rename-input" type="text" name="title" class="entity-title-input" value="${targetLesson.title}" required />
+                <input type="hidden" name="description" value="${targetLesson.description || ''}" />
+                <button type="submit" class="btn btn-secondary btn-compact">Rename</button>
+              </form>
+              ${overflowDelete(targetLesson.title, `/teach/${opts.courseId}/lessons/${targetLesson.id}/delete`, 'Delete this lesson and all its steps?', 'Delete lesson')}
             </div>
-            <h1 class="page-title">${targetLesson.title}</h1>
-            <p class="text-secondary">${targetLesson.description || ''}</p>
+            ${targetLesson.description ? `<p class="entity-desc">${targetLesson.description}</p>` : ''}
           </header>
 
-          <form method="POST" action="/teach/${opts.courseId}/lessons/${targetLesson.id}/rename" class="rename-form">
-            <label for="lesson-rename-input" class="field-label">Lesson title</label>
-            <div class="input-with-button">
-              <input id="lesson-rename-input" type="text" name="title" class="text-input" value="${targetLesson.title}" required />
-              <input type="hidden" name="description" value="${targetLesson.description || ''}" />
-              <button type="submit" class="btn btn-secondary btn-compact">Rename</button>
-            </div>
-          </form>
-          <form method="POST" action="/teach/${opts.courseId}/lessons/${targetLesson.id}/delete" data-confirm-delete="Delete this lesson and all its steps?">
-            <button type="submit" class="btn btn-destructive btn-compact">Delete lesson</button>
-          </form>
           <section class="lesson-steps-section">
             <div class="section-header-row">
-              <h2 class="section-title">Steps (${stepCount} of 20)</h2>
+              <h2 class="section-title">Steps <span class="count-pill">${stepCount} of 20</span></h2>
               ${!canAddStep ? '<span class="status-badge badge-warning">20 of 20 steps limit reached</span>' : ''}
             </div>
 
-            <div class="steps-table-wrapper">
-              <table class="data-table steps-table">
+            ${
+              stepCount === 0
+                ? '<p class="steps-empty text-secondary">No steps yet. Add the first step below.</p>'
+                : `<div class="steps-table-wrapper">
+              <table class="steps-table">
                 <thead>
                   <tr>
-                    <th>#</th>
-                    <th>Type</th>
-                    <th>Title</th>
-                    <th>Required</th>
-                    <th>Duration</th>
-                    <th>Actions</th>
+                    <th scope="col" class="col-num">#</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Title</th>
+                    <th scope="col" class="col-meta">Required</th>
+                    <th scope="col" class="col-meta">Time</th>
+                    <th scope="col" class="col-actions"><span class="sr-only">Actions</span></th>
                   </tr>
                 </thead>
                 <tbody data-reorder-scope="lesson-steps">
                   ${targetLesson.steps
                     .map((s, idx) => {
-                      const editUrl =
-                        s.type === 'theory'
-                          ? `/teach/${opts.courseId}/content/theory/${s.id}`
-                          : s.type === 'video'
-                          ? `/teach/${opts.courseId}/content/video/${s.id}`
-                          : s.type === 'quiz'
-                          ? `/teach/${opts.courseId}/content/quiz/${s.id}`
-                          : `/teach/${opts.courseId}/content/python/${s.id}`;
-
+                      const editUrl = `/teach/${opts.courseId}/content/${s.type}/${s.id}`;
                       return `
                         <tr data-reorder="step" data-id="${s.id}" data-parent="${targetLesson.id}" draggable="true">
-                          <td><span class="flex items-center gap-1">${grip}${idx + 1}</span></td>
-                          <td><span class="step-type-badge badge-${s.type}">${s.type}</span></td>
-                          <td><a href="${editUrl}"><strong>${s.title}</strong></a></td>
-                          <td>${s.isRequired ? 'Yes' : 'Optional'}</td>
-                          <td>${s.estimatedDurationMinutes} min</td>
-                          <td class="action-cell">
-                            ${menuBtn(s.title)}
-                            <a href="${editUrl}" class="btn btn-secondary btn-compact">Edit</a>
-                            <a href="/teach/${opts.courseId}/preview?stepId=${s.id}" class="btn btn-secondary btn-compact">Preview</a>
-                            <form method="POST" action="/teach/${opts.courseId}/steps/${s.id}/duplicate" style="display:inline;">
-                              <button type="submit" class="btn btn-secondary btn-compact" ${!canAddStep ? 'disabled' : ''}>Duplicate</button>
-                            </form>
-                            <form method="POST" action="/teach/${opts.courseId}/steps/${s.id}/delete" data-confirm-delete="Delete this step?" style="display:inline;">
-                              <button type="submit" class="btn btn-destructive btn-compact">Delete</button>
-                            </form>
+                          <td class="col-num"><span class="step-num-cell">${grip}${idx + 1}</span></td>
+                          <td><span class="step-type-badge badge-${s.type} step-type-${s.type}">${renderIcon(stepIcon(s.type), { size: 12 })}${s.type}</span></td>
+                          <td class="col-title"><a href="${editUrl}">${s.title}</a>${invalidSet.has(s.id) ? '<span class="tree-invalid-dot" role="img" aria-label="Needs fixes before publishing" title="Needs fixes before publishing"></span>' : ''}</td>
+                          <td class="col-meta">${s.isRequired ? 'Required' : 'Optional'}</td>
+                          <td class="col-meta">${s.estimatedDurationMinutes} min</td>
+                          <td class="col-actions">
+                            <div class="row-actions">
+                              <a href="${editUrl}" class="btn btn-secondary btn-compact">Edit</a>
+                              <a href="/teach/${opts.courseId}/preview?stepId=${s.id}" class="btn btn-secondary btn-compact">Preview</a>
+                              <form method="POST" action="/teach/${opts.courseId}/steps/${s.id}/duplicate">
+                                <button type="submit" class="btn btn-secondary btn-compact" ${!canAddStep ? 'disabled' : ''}>Duplicate</button>
+                              </form>
+                              ${menuBtn(s.title)}
+                              ${overflowDelete(s.title, `/teach/${opts.courseId}/steps/${s.id}/delete`, 'Delete this step?', 'Delete step')}
+                            </div>
                           </td>
                         </tr>
                       `;
@@ -309,32 +326,28 @@ export function renderCourseBuilderPage(opts: CourseBuilderPageOptions): string 
                     .join('')}
                 </tbody>
               </table>
-            </div>
+            </div>`
+            }
 
             ${
               canAddStep
                 ? `
-                  <div class="add-step-box mt-4">
-                    <h3 class="box-title">Add step</h3>
-                    <form method="POST" action="/teach/${opts.courseId}/lessons/${targetLesson.id}/steps" class="add-step-form">
-                      <div class="form-row">
-                        <div class="form-group col-half">
-                          <label for="step-title-input" class="field-label">Step title</label>
-                          <input id="step-title-input" type="text" name="title" class="text-input" placeholder="e.g. Variable Scope" required />
-                        </div>
-                        <div class="form-group col-half">
-                          <label for="step-type-select" class="field-label">Step type</label>
-                          <select id="step-type-select" name="type" class="select-input">
-                            <option value="theory">Theory (Markdown)</option>
-                            <option value="video">Video (Approved provider)</option>
-                            <option value="quiz">Quiz (Single or Multiple Choice)</option>
-                            <option value="python">Python Exercise (Coding)</option>
-                          </select>
-                        </div>
+                    <form method="POST" action="/teach/${opts.courseId}/lessons/${targetLesson.id}/steps" class="inline-add-form add-step-form" aria-label="Add step">
+                      <div class="inline-add-field">
+                        <label for="step-title-input" class="inline-add-label">New step</label>
+                        <input id="step-title-input" type="text" name="title" class="text-input" placeholder="Step title, e.g. Variable Scope" required />
                       </div>
-                      <button type="submit" class="btn btn-primary">+ Add step</button>
+                      <div class="inline-add-field inline-add-type">
+                        <label for="step-type-select" class="inline-add-label">Type</label>
+                        <select id="step-type-select" name="type" class="select-input">
+                          <option value="theory">Theory (Markdown)</option>
+                          <option value="video">Video (Approved provider)</option>
+                          <option value="quiz">Quiz (Single or Multiple Choice)</option>
+                          <option value="python">Python Exercise (Coding)</option>
+                        </select>
+                      </div>
+                      <button type="submit" class="btn btn-primary btn-compact">Add step</button>
                     </form>
-                  </div>
                 `
                 : '<div class="alert alert-info mt-4" role="note">Maximum 20 steps per lesson reached. Create a new lesson to add more steps.</div>'
             }

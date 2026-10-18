@@ -1,5 +1,6 @@
 import { renderLoadingSkeleton, renderNoMatchesState } from '../../components/states/UniversalStates.ts';
 import { renderIcon } from '../../components/common/icons.ts';
+import { renderCourseThumb } from '../../utils/course-thumb.ts';
 
 export interface CatalogCourseItem {
   id: string;
@@ -360,17 +361,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
   `;
 }
 
-const THUMB_HUES = [95, 140, 165, 185, 205, 225, 38];
-
-function hueFor(id: string): number {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 997;
-  return THUMB_HUES[h % THUMB_HUES.length];
-}
-
 function renderCatalogCard(c: CatalogCourseItem): string {
-  const hue = hueFor(c.id || c.title);
-  const initial = escapeHtml((c.title.trim().charAt(0) || '?').toUpperCase());
   const level = c.difficulty ? c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1) : '';
   const chips = [
     level ? `<span class="catalog-chip catalog-chip-level">${escapeHtml(level)}</span>` : '',
@@ -381,9 +372,7 @@ function renderCatalogCard(c: CatalogCourseItem): string {
   ].join('');
   return `
     <article class="course-card catalog-card" role="listitem" data-course-id="${escapeHtml(c.id)}">
-      <a class="catalog-thumb" href="/courses/${escapeHtml(c.id)}" tabindex="-1" aria-hidden="true" style="--thumb-hue: ${hue}">
-        <span class="catalog-thumb-initial">${initial}</span>
-      </a>
+      ${renderCourseThumb({ seed: c.id || c.title, title: c.title, className: 'catalog-thumb', href: `/courses/${c.id}`, initialClassName: 'catalog-thumb-initial' })}
       <div class="catalog-card-body">
         <div class="catalog-chips">${chips}</div>
         <h2 class="card-title"><a href="/courses/${escapeHtml(c.id)}" class="card-title-link">${escapeHtml(c.title)}</a></h2>

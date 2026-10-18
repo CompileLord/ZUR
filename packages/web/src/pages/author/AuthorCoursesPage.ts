@@ -2,6 +2,7 @@ import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
 import { renderIcon } from '../../components/common/icons.ts';
 import { formatDate } from '../../utils/formatters.ts';
+import { renderCourseThumb } from '../../utils/course-thumb.ts';
 import { escapeHtml } from '../../components/escape-html.ts';
 
 export interface AuthorCourseItem {
@@ -154,14 +155,9 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
             const studentText = c.studentCount === 1 ? '1 student' : `${c.studentCount} students`;
             const editDateFormatted = c.lastEditTime ? (formatDate(c.lastEditTime) || new Date(c.lastEditTime).toLocaleDateString()) : '';
 
-            let hash = 0;
-            for (let i = 0; i < (c.id || c.title).length; i++) hash = (hash * 31 + (c.id || c.title).charCodeAt(i)) % 360;
-            const hue = 70 + (hash % 160);
-            const initial = (c.title.replace(/&[#a-z0-9]+;/gi, '').trim().charAt(0) || 'C').toUpperCase();
-
             return `
               <article class="course-card author-course-row author-course-card" aria-labelledby="course-heading-${c.id}">
-                <a class="author-course-thumb" href="/teach/${c.id}/content" tabindex="-1" aria-hidden="true" style="--thumb-hue: ${hue}"><span>${initial}</span></a>
+                ${renderCourseThumb({ seed: c.id || c.title, title: c.title, className: 'author-course-thumb', href: `/teach/${c.id}/content` })}
                 <div class="course-row-main">
                   <div class="course-row-meta">
                     <span class="${statusBadgeClass}">${c.publicationStatus === 'published' ? 'Published' : c.publicationStatus === 'draft' ? 'Draft' : 'Archived'}</span>

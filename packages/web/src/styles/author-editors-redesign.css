@@ -128,3 +128,5 @@
 .analytics-insights:has(#toggle-empty-steps:checked) .insight-all-empty-note { display: none; }
 .metrics-definition-item[title] { cursor: help; }
 .python-editor-container .test-case-card textarea.code-editor { min-height: 4.5rem; }
+
+.theory-editor-container .theory-toolbar-row { margin-top: 16px; }

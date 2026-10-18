@@ -1,6 +1,6 @@
 import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderMarkdownToHtml, PYTHON_RUNTIME_LABEL } from 'zur-shared';
-import { renderLearningWorkspaceShell, type CourseModuleItem, type TaskSquareItem } from '../../components/shells/LearningWorkspaceShell.ts';
+import { renderLearningWorkspaceShell, attachOutlineDrawer, resolveOutlineCollapsed, setLearningOutlineState, type CourseModuleItem, type TaskSquareItem } from '../../components/shells/LearningWorkspaceShell.ts';
 import { deriveEmbedUrl } from './VideoEditorPage.ts';
 import { authorStyles } from './AuthorStyles.ts';
 import { escapeHtml } from '../../components/escape-html.ts';
@@ -330,6 +330,7 @@ export function renderAuthorPreviewPage(opts: AuthorPreviewPageOptions): string 
     workspaceContent: stepViewHtml,
     previousStepUrl,
     nextStepUrl,
+    outlineDrawer: true,
   });
 
   return `
@@ -345,17 +346,11 @@ export function initAuthorPreviewInteractions(container?: HTMLElement | Document
   const root = container || (typeof document !== 'undefined' ? document : null);
   if (!root) return;
 
-  const sidebar = root.querySelector('.learning-course-sidebar');
-  const sidebarButtons = root.querySelectorAll<HTMLButtonElement>('.outline-toggle-btn, .sidebar-collapse-toggle');
-  sidebarButtons.forEach(btn => btn.addEventListener('click', () => {
-    const collapsed = sidebar?.classList.toggle('collapsed') || false;
-    if (sidebar instanceof HTMLElement) sidebar.inert = collapsed;
-    sidebarButtons.forEach(button => {
-      button.setAttribute('aria-expanded', String(!collapsed));
-      button.setAttribute('aria-label', collapsed ? 'Show modules' : 'Hide modules');
-      button.setAttribute('title', collapsed ? 'Show modules' : 'Hide modules');
-    });
-  }));
+  const shellEl = root.querySelector<HTMLElement>('.shell-learning.outline-drawer-mode');
+  if (shellEl) {
+    attachOutlineDrawer(shellEl, () => { /* preview does not persist outline state */ });
+    setLearningOutlineState(shellEl, resolveOutlineCollapsed({ outlineDrawer: true, isPythonWorkspace: shellEl.classList.contains('paired-workspace') }));
+  }
 
   const quizBtn = root.querySelector('[data-action="submit-preview-quiz"]');
   quizBtn?.addEventListener('click', (event) => {

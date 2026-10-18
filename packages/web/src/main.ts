@@ -548,6 +548,8 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       appEl.innerHTML = renderCourseBuilderPage({ courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, modules: tree.modules, selectedType: (query.get('type') as any) || 'course', selectedId: query.get('id') || courseId, remoteUpdate, lastEditTime: course.lastEditTime });
       const { initAuthorTree } = await import('./pages/author/AuthorTreeComponent.ts');
       initAuthorTree(appEl, { courseId, request: (route, method, body) => s2Request(route, method, body), refresh: () => renderApp(path), navigate: (url) => navigateTo(url) });
+      { const { initRowOverflowMenus } = await import('./pages/author/CourseBuilderPage.ts'); initRowOverflowMenus(appEl); }
+      { const { fetchInvalidStepIds, applyInvalidStepDots } = await import('./pages/author/AuthorTreeComponent.ts'); void fetchInvalidStepIds(s2Request, courseId).then((ids) => { if (s2Current(path)) applyInvalidStepDots(appEl, ids); }); }
 
       if (sessionStorage.getItem(`zur_builder_unsaved_${courseId}`)) {
         appEl.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input:not([data-no-persist]), textarea').forEach(input => {
@@ -787,6 +789,8 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       {
         const { initAuthorTree } = await import('./pages/author/AuthorTreeComponent.ts');
         initAuthorTree(appEl, { courseId, request: (route, method, body) => s2Request(route, method, body), refresh: () => renderApp(path), navigate: (url) => navigateTo(url) });
+        const { fetchInvalidStepIds, applyInvalidStepDots } = await import('./pages/author/AuthorTreeComponent.ts');
+        void fetchInvalidStepIds(s2Request, courseId).then((ids) => { if (s2Current(path)) applyInvalidStepDots(appEl, ids); });
       }
       if (step.type === 'quiz') {
         const { initQuizEditor } = await import('./pages/author/QuizEditorPage.ts');

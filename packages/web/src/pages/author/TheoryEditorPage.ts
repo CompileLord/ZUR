@@ -155,15 +155,30 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
   });
 }
 
-const FORMATS: Record<string, { wrap?: [string, string, string]; line?: string; block?: string }> = {
+const FORMATS: Record<string, { wrap?: [string, string, string]; line?: string; block?: string; fence?: boolean }> = {
   bold: { wrap: ['**', '**', 'bold text'] },
   italic: { wrap: ['*', '*', 'italic text'] },
-  code: { wrap: ['\n```python\n', '\n```\n', 'code'] },
+  code: { fence: true },
   heading: { line: '## ' },
   list: { line: '- ' },
-  table: { block: '\n| Column A | Column B |\n| --- | --- |\n| Value | Value |\n' },
-  callout: { block: '\n> **Note**\n> Write the callout text here.\n' },
+  table: { block: '| Column A | Column B |\n| --- | --- |\n| Value | Value |' },
+  callout: { block: '> **Note**\n> Write the callout text here.' },
 };
+
+/**
+ * Inserts a markdown block so that it is separated from surrounding text by a
+ * blank line (the shared renderer only recognises tables, callouts, fences and
+ * lists that start a new block). Returns the new value and caret range of the
+ * inserted text.
+ */
+export function insertMarkdownBlock(value: string, start: number, end: number, block: string): { next: string; caretStart: number; caretEnd: number } {
+  const before = value.slice(0, start);
+  const after = value.slice(end);
+  const lead = before.length === 0 ? '' : before.endsWith('\n\n') ? '' : before.endsWith('\n') ? '\n' : '\n\n';
+  const tail = after.length === 0 ? '\n' : after.startsWith('\n\n') ? '' : after.startsWith('\n') ? '\n' : '\n\n';
+  const caretStart = before.length + lead.length;
+  return { next: before + lead + block + tail + after, caretStart, caretEnd: caretStart + block.length };
+}
 
 export function applyMarkdownFormat(area: HTMLTextAreaElement, format: string): void {
   const spec = FORMATS[format];
@@ -180,11 +195,20 @@ export function applyMarkdownFormat(area: HTMLTextAreaElement, format: string): 
     caretEnd = caretStart + selected.length;
   } else if (spec.line) {
     const lineStart = value.lastIndexOf('\n', start - 1) + 1;
-    next = value.slice(0, lineStart) + spec.line + value.slice(lineStart);
-    caretStart = caretEnd = end + spec.line.length;
+    const prevLine = lineStart > 0 ? value.slice(value.lastIndexOf('\n', lineStart - 2) + 1, lineStart - 1) : '';
+    const pad = format === 'list' && lineStart > 0 && prevLine.trim() !== '' && !/^\s*([-*]|\d+\.)\s/.test(prevLine) ? '\n' : '';
+    next = value.slice(0, lineStart) + pad + spec.line + value.slice(lineStart);
+    caretStart = caretEnd = end + pad.length + spec.line.length;
+  } else if (spec.fence) {
+    const code = value.slice(start, end) || 'code';
+    const r = insertMarkdownBlock(value, start, end, '```python\n' + code + '\n```');
+    next = r.next;
+    caretStart = r.caretStart + '```python\n'.length;
+    caretEnd = caretStart + code.length;
   } else if (spec.block) {
-    next = value.slice(0, start) + spec.block + value.slice(end);
-    caretStart = caretEnd = start + spec.block.length;
+    const r = insertMarkdownBlock(value, start, end, spec.block);
+    next = r.next;
+    caretStart = caretEnd = r.caretEnd;
   }
   area.value = next;
   area.focus();

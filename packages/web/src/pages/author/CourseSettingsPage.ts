@@ -197,19 +197,19 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
           <form class="access-form" method="POST" action="/teach/${c.id}/settings/access">
             <div class="form-group mb-4">
               <fieldset class="radio-fieldset">
-                <legend class="field-label text-xs font-semibold block mb-2">Visibility</legend>
-                <div class="space-y-2">
-                  <label class="radio-label flex items-start gap-2 text-sm text-secondary cursor-pointer">
-                    <input type="radio" name="visibility" value="private" ${isPrivate ? 'checked' : ''} class="mt-0.5" />
-                    <span><strong>Private</strong> — visible only to course owners, admins, and enrolled learners</span>
+                <legend class="option-legend">Visibility</legend>
+                <div class="option-card-list">
+                  <label class="radio-label option-card">
+                    <input type="radio" name="visibility" value="private" ${isPrivate ? 'checked' : ''} />
+                    <span class="option-text"><strong>Private</strong><span class="option-desc">visible only to course owners, admins, and enrolled learners</span></span>
                   </label>
-                  <label class="radio-label flex items-start gap-2 text-sm text-secondary cursor-pointer">
-                    <input type="radio" name="visibility" value="unlisted" ${c.visibility === 'unlisted' ? 'checked' : ''} class="mt-0.5" />
-                    <span><strong>Unlisted</strong> — accessible by direct link; hidden from catalog and search</span>
+                  <label class="radio-label option-card">
+                    <input type="radio" name="visibility" value="unlisted" ${c.visibility === 'unlisted' ? 'checked' : ''} />
+                    <span class="option-text"><strong>Unlisted</strong><span class="option-desc">accessible by direct link; hidden from catalog and search</span></span>
                   </label>
-                  <label class="radio-label flex items-start gap-2 text-sm text-secondary cursor-pointer">
-                    <input type="radio" name="visibility" value="public" ${c.visibility === 'public' ? 'checked' : ''} class="mt-0.5" />
-                    <span><strong>Public</strong> — featured in course catalog and accessible to all students</span>
+                  <label class="radio-label option-card">
+                    <input type="radio" name="visibility" value="public" ${c.visibility === 'public' ? 'checked' : ''} />
+                    <span class="option-text"><strong>Public</strong><span class="option-desc">featured in course catalog and accessible to all students</span></span>
                   </label>
                 </div>
               </fieldset>
@@ -217,28 +217,26 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
 
             <div class="form-group mb-4">
               <fieldset class="radio-fieldset">
-                <legend class="field-label text-xs font-semibold block mb-2">Enrollment policy</legend>
-                <div class="space-y-2">
-                  <label class="radio-label flex items-start gap-2 text-sm text-secondary ${isPrivate ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}">
+                <legend class="option-legend">Enrollment policy</legend>
+                <div class="option-card-list">
+                  <label class="radio-label option-card ${isPrivate ? 'is-disabled' : ''}">
                     <input
                       type="radio"
                       name="enrollmentPolicy"
                       value="open"
                       ${c.enrollmentPolicy === 'open' && !isPrivate ? 'checked' : ''}
                       ${isPrivate ? 'disabled' : ''}
-                      class="mt-0.5"
                     />
-                    <span><strong>Open</strong> — any registered learner can join directly</span>
+                    <span class="option-text"><strong>Open</strong><span class="option-desc">any registered learner can join directly</span></span>
                   </label>
-                  <label class="radio-label flex items-start gap-2 text-sm text-secondary cursor-pointer">
+                  <label class="radio-label option-card">
                     <input
                       type="radio"
                       name="enrollmentPolicy"
                       value="invitation_only"
                       ${c.enrollmentPolicy === 'invitation_only' || isPrivate ? 'checked' : ''}
-                      class="mt-0.5"
                     />
-                    <span><strong>Invitation only</strong> — learners require an invite token to join</span>
+                    <span class="option-text"><strong>Invitation only</strong><span class="option-desc">learners require an invite token to join</span></span>
                   </label>
                 </div>
                 ${isPrivate ? '<p class="field-hint text-warning text-xs mt-2">Private courses automatically enforce invitation-only enrollment.</p>' : ''}
