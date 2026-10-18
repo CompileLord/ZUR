@@ -139,7 +139,7 @@ export function renderAdminPageContent(
   path: string,
   data: any,
   error?: string,
-  adminUser?: { displayName: string; email: string }
+  adminUser?: { displayName: string; email: string; capabilities?: ('student' | 'author' | 'admin')[] }
 ): { title: string; content: string } {
   const route = path.split('?')[0];
   const title =
@@ -228,6 +228,21 @@ export function renderAdminPageContent(
           html: `<strong>${data.emailDeliveryIssues} email delivery issue(s)</strong> detected`,
           href: '/admin/users',
           cta: 'Review accounts',
+        });
+      }
+      const suspended = data.suspendedCourses;
+      if (suspended && Number(suspended.count) > 0) {
+        const items: any[] = Array.isArray(suspended.items) ? suspended.items : [];
+        const n = Number(suspended.count);
+        const list = items.length
+          ? `<ul class="admin-attention-sublist">${items.map((c) => `<li><a href="/admin/courses/${encodeURIComponent(String(c.id))}">${escapeAdmin(c.title)}</a>${c.ownerName ? ` <span class="text-muted">by ${escapeAdmin(c.ownerName)}</span>` : ''}</li>`).join('')}</ul>`
+          : '';
+        attention.push({
+          tone: 'warning',
+          icon: 'alert-triangle',
+          html: `<strong>${n} suspended course${n === 1 ? '' : 's'}</strong>${list}`,
+          href: '/admin/courses',
+          cta: 'Review courses',
         });
       }
       for (const alert of data.operational?.alerts || []) {
@@ -1332,7 +1347,7 @@ export function renderAdminPage(
   path: string,
   data: any,
   error?: string,
-  adminUser = { displayName: 'Administrator', email: '' }
+  adminUser: { displayName: string; email: string; capabilities?: ('student' | 'author' | 'admin')[] } = { displayName: 'Administrator', email: '' }
 ): string {
   const { title, content } = renderAdminPageContent(path, data, error, adminUser);
   return renderAdminShell({

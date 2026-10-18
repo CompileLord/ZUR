@@ -5,7 +5,7 @@ import { adminStyles } from '../../pages/admin/admin-styles.ts';
 
 export interface AdminShellOptions {
   activePath: string;
-  adminUser: { displayName: string; email: string };
+  adminUser: { displayName: string; email: string; capabilities?: ('student' | 'author' | 'admin')[] };
   headerTitle: string;
   content: string;
 }
@@ -40,6 +40,20 @@ export function renderAdminShell(opts: AdminShellOptions): string {
     })
     .join('');
 
+  const canTeach = Boolean(opts.adminUser.capabilities?.includes('author'));
+  const modeLinks: Array<{ id: string; href: string; label: string; aria?: string }> = [
+    { id: 'learn', href: '/learn', label: 'Learn' },
+    ...(canTeach ? [{ id: 'teach', href: '/teach', label: 'Teach' }] : []),
+    { id: 'admin', href: '/admin', label: 'Admin', aria: 'Administration' },
+  ];
+  const modeSwitchHtml = `
+        <div class="mode-switch-container">
+          <label class="mode-switch-label">Mode</label>
+          <div class="mode-switch" role="radiogroup" aria-label="Application Mode">
+            ${modeLinks.map((m) => `<a href="${m.href}" class="mode-btn ${m.id === 'admin' ? 'active' : ''}" role="radio" aria-checked="${m.id === 'admin'}"${m.aria ? ` aria-label="${m.aria}"` : ''}>${m.label}</a>`).join('')}
+          </div>
+        </div>`;
+
   return `
     <style id="admin-styles">${adminStyles}</style>
     <div class="shell-admin">
@@ -51,6 +65,8 @@ export function renderAdminShell(opts: AdminShellOptions): string {
           </a>
           <span class="admin-quiet-badge" title="Administration">Admin<span class="sr-only">istration</span></span>
         </div>
+
+        ${modeSwitchHtml}
 
         <nav class="admin-nav-list" aria-label="Administrative areas">
           ${navHtml}

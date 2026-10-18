@@ -89,3 +89,6 @@
 .home-welcome .welcome-title { margin: 0; font-size: 24px; }
 .home-welcome .welcome-description { margin: 0; color: var(--text-secondary); max-width: 52ch; }
 .home-welcome .welcome-actions { margin-top: var(--space-3); }
+
+.home-notice { margin: 0; padding: var(--space-3) var(--space-4); border: 1px solid var(--border-subtle); border-left: 3px solid var(--accent); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--text-primary); font-size: var(--type-metadata-size); }
+#home-leave-course-dialog .form-error { margin-top: var(--space-3); }

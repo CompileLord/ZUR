@@ -476,3 +476,7 @@
   .shell-admin .admin-detail-layout { grid-template-columns: minmax(0, 1fr); }
   .shell-admin .admin-detail-side { position: static; }
 }
+
+.shell-admin .admin-attention-sublist { list-style: none; margin: var(--space-2) 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; font-size: var(--type-metadata-size); }
+.shell-admin .admin-attention-sublist a { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; }
+.shell-admin .admin-attention-content { align-items: flex-start; }

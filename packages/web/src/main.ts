@@ -64,7 +64,7 @@ import { renderAttemptHistoryPage, getAttemptDocumentTitle } from './pages/learn
 import { DraftManager } from './services/draft-manager.ts';
 import { DraftSaveQueue } from './services/draft-save-queue.ts';
 import { AppearanceSaveQueue } from './services/appearance-save-queue.ts';
-import { confirmLeaveDialog } from './components/common/Dialog.ts';
+import { confirmLeaveDialog, renderDialog } from './components/common/Dialog.ts';
 import { renderPageSkeleton } from './components/states/UniversalStates.ts';
 import { ProfileGuard } from './services/profile-guard.ts';
 import { CourseClient } from './services/course-client.ts';
@@ -149,6 +149,84 @@ async function s2Request(url: string, method = 'GET', body?: unknown): Promise<a
 }
 
 function s2Current(path: string): boolean { return window.location.pathname + window.location.search === path; }
+
+let pendingHomeNotice: string | null = null;
+
+function showHomeNotice(message: string): void {
+  const container = appEl.querySelector('.home-container');
+  if (!container) return;
+  container.querySelector('.home-notice')?.remove();
+  const notice = document.createElement('p');
+  notice.className = 'home-notice';
+  notice.setAttribute('role', 'status');
+  notice.textContent = message;
+  const heading = container.querySelector(':scope > .page-title');
+  if (heading) heading.after(notice); else container.prepend(notice);
+}
+
+/** Wires the Home "Leave course" menu item: branded confirm dialog, POST leave, SPA re-render. */
+function attachHomeLeaveHandlers(path: string): void {
+  if (pendingHomeNotice) { showHomeNotice(pendingHomeNotice); pendingHomeNotice = null; }
+  const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  appEl.querySelectorAll<HTMLButtonElement>('.leave-course-trigger').forEach((trigger) => {
+    trigger.addEventListener('click', () => {
+      const courseId = trigger.dataset.courseId || '';
+      const courseTitle = trigger.dataset.courseTitle || 'this course';
+      const returnFocus = trigger.closest('details')?.querySelector<HTMLElement>('summary') || trigger;
+      trigger.closest('details')?.removeAttribute('open');
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = renderDialog({
+        id: 'home-leave-course-dialog',
+        title: 'Leave course?',
+        bodyHtml: `<p>Are you sure you want to leave &quot;${esc(courseTitle)}&quot;? Your progress and completed steps will be saved, but this course will no longer appear in Your courses. You can rejoin later.</p><p class="form-error hidden" role="alert" data-leave-error></p>`,
+        confirmLabel: 'Leave course',
+        cancelLabel: 'Cancel',
+        isDestructive: true,
+        variant: 'confirm',
+      });
+      const backdrop = wrapper.firstElementChild as HTMLElement;
+      document.body.append(backdrop);
+      const cancel = backdrop.querySelector<HTMLButtonElement>('[data-dialog-action="cancel"]')!;
+      const confirm = backdrop.querySelector<HTMLButtonElement>('[data-dialog-action="confirm"]')!;
+      const errorEl = backdrop.querySelector<HTMLElement>('[data-leave-error]')!;
+      let busy = false;
+      const close = (restoreFocus = true) => {
+        document.removeEventListener('keydown', onKeydown, true);
+        backdrop.remove();
+        if (restoreFocus) returnFocus.focus?.();
+      };
+      const onKeydown = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') { event.preventDefault(); if (!busy) close(); }
+        else if (event.key === 'Tab') {
+          const order = [cancel, confirm];
+          const index = order.indexOf(document.activeElement as HTMLButtonElement);
+          event.preventDefault();
+          order[(index + (event.shiftKey ? order.length - 1 : 1)) % order.length].focus();
+        }
+      };
+      document.addEventListener('keydown', onKeydown, true);
+      cancel.addEventListener('click', () => { if (!busy) close(); });
+      backdrop.addEventListener('mousedown', (event) => { if (event.target === backdrop && !busy) close(); });
+      confirm.addEventListener('click', async () => {
+        if (busy) return;
+        busy = true; confirm.disabled = true; cancel.disabled = true;
+        errorEl.classList.add('hidden'); errorEl.textContent = '';
+        try {
+          await authClient.fetchApi(`/api/courses/${encodeURIComponent(courseId)}/leave`, { method: 'POST' });
+          close(false);
+          pendingHomeNotice = `You left "${courseTitle}". Your progress is saved and you can rejoin from Previous enrollments.`;
+          if (s2Current(path)) void loadS2Page('P09', {}, path);
+          else pendingHomeNotice = null;
+        } catch (err: any) {
+          busy = false; confirm.disabled = false; cancel.disabled = false;
+          errorEl.textContent = err?.message || 'Could not leave the course. Try again.';
+          errorEl.classList.remove('hidden');
+        }
+      });
+      cancel.focus();
+    });
+  });
+}
 
 async function loadS2Page(pageId: string, params: Record<string, string>, path: string): Promise<void> {
   const user = authClient.getUser()!;
@@ -377,6 +455,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         appEl.innerHTML = coursesData
           ? renderDashboardContinuePage({ user, continueCourse: data.continueCourse, courses, activeFilter })
           : renderDashboardContinuePage({ user, continueCourse: data.continueCourse, recentCourses: data.recentCourses });
+        attachHomeLeaveHandlers(path);
       }
       return;
     }
@@ -3136,6 +3215,7 @@ function attachPublishReviewListeners(
 }
 
 async function loadAdminPage(path: string, displayName: string, email: string): Promise<void> {
+  const adminActor = { displayName, email, capabilities: authClient.getUser()?.capabilities };
   const isShellMounted = Boolean(appEl.querySelector('.shell-admin'));
   const activeBasePath = path.split('?')[0];
   if (isShellMounted) {
@@ -3192,7 +3272,7 @@ async function loadAdminPage(path: string, displayName: string, email: string): 
     if(window.location.pathname+window.location.search!==path&&window.location.pathname!==path.split('?')[0])return;
     const { renderAdminPage, renderAdminPageContent } = await import('./pages/admin/AdminPages.ts');
     if (appEl.querySelector('.shell-admin')) {
-      const { title, content } = renderAdminPageContent(path, data, undefined, { displayName, email });
+      const { title, content } = renderAdminPageContent(path, data, undefined, adminActor);
       const adminMain = appEl.querySelector('.admin-main') || appEl.querySelector('.admin-content-body');
       if (adminMain) {
         adminMain.innerHTML = content;
@@ -3203,8 +3283,8 @@ async function loadAdminPage(path: string, displayName: string, email: string): 
       }
       document.title = `${title} · ZUR`;
     } else {
-      appEl.innerHTML = renderAdminPage(path, data, undefined, { displayName, email });
-      const { title } = renderAdminPageContent(path, data, undefined, { displayName, email });
+      appEl.innerHTML = renderAdminPage(path, data, undefined, adminActor);
+      const { title } = renderAdminPageContent(path, data, undefined, adminActor);
       document.title = `${title} · ZUR`;
       initTheme();
     }
@@ -3212,7 +3292,7 @@ async function loadAdminPage(path: string, displayName: string, email: string): 
     if(window.location.pathname+window.location.search!==path&&window.location.pathname!==path.split('?')[0])return;
     const { renderAdminPage, renderAdminPageContent } = await import('./pages/admin/AdminPages.ts');
     if (appEl.querySelector('.shell-admin')) {
-      const { title, content } = renderAdminPageContent(path, null, error.message, { displayName, email });
+      const { title, content } = renderAdminPageContent(path, null, error.message, adminActor);
       const adminMain = appEl.querySelector('.admin-main') || appEl.querySelector('.admin-content-body');
       if (adminMain) {
         adminMain.innerHTML = content;
@@ -3223,8 +3303,8 @@ async function loadAdminPage(path: string, displayName: string, email: string): 
       }
       document.title = `${title} · ZUR`;
     } else {
-      appEl.innerHTML = renderAdminPage(path, null, error.message, { displayName, email });
-      const { title } = renderAdminPageContent(path, null, error.message, { displayName, email });
+      appEl.innerHTML = renderAdminPage(path, null, error.message, adminActor);
+      const { title } = renderAdminPageContent(path, null, error.message, adminActor);
       document.title = `${title} · ZUR`;
       initTheme();
     }
@@ -3627,25 +3707,36 @@ export function renderApp(path: string = window.location.pathname + window.locat
         });
         attachProfileListeners();
       } else if (route.pageId === 'P18') {
-        // Appearance Settings
+        // Appearance Settings: load saved preferences so a reload shows persisted values.
         const savedTheme = (localStorage.getItem('zur_theme_preference') as 'dark' | 'light' | 'system') || 'dark';
         const resolvedSystem = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        appEl.innerHTML = renderAppShell({
-          activePath: path,
-          user,
-          headerTitle: 'Settings',
-          content: renderAppearanceSettingsPage({
-            preferences: {
-              userId: user.id,
-              theme: savedTheme,
-              editorFontSize: 14,
-              indentationSpaces: 4,
-              updatedAt: new Date().toISOString(),
-            },
-            resolvedSystemTheme: resolvedSystem,
-          }),
-        });
-        attachAppearanceListeners();
+        const appearancePath = window.location.pathname + window.location.search;
+        const drawAppearance = (saved: Partial<UserPreferences> | null, error?: string) => {
+          appEl.innerHTML = renderAppShell({
+            activePath: path,
+            user,
+            headerTitle: 'Settings',
+            content: renderAppearanceSettingsPage({
+              preferences: {
+                userId: user.id,
+                theme: savedTheme,
+                editorFontSize: (saved?.editorFontSize ?? 14) as UserPreferences['editorFontSize'],
+                indentationSpaces: (saved?.indentationSpaces ?? 4) as UserPreferences['indentationSpaces'],
+                updatedAt: saved?.updatedAt || new Date().toISOString(),
+              },
+              resolvedSystemTheme: resolvedSystem,
+              error,
+            }),
+          });
+          attachAppearanceListeners();
+        };
+        void (async () => {
+          let savedPrefs: UserPreferences | null = null;
+          let loadError: string | undefined;
+          try { savedPrefs = await authClient.getAppearance(); } catch (e: any) { loadError = `Could not load your saved preferences. ${e?.message || ''}`.trim(); }
+          if (window.location.pathname + window.location.search !== appearancePath) return;
+          drawAppearance(savedPrefs, loadError);
+        })();
       } else if (route.pageId === 'P19') {
         // Security Settings
         appEl.innerHTML = renderAppShell({
