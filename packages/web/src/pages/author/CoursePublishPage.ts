@@ -195,7 +195,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
             </h2>
             <span class="text-secondary text-xs mt-0.5 block">${exerciseGroups.length} ${exerciseGroups.length === 1 ? 'exercise needs' : 'exercises need'} review</span>
           </div>
-          <a href="/teach/${encodeURIComponent(opts.courseId)}/publish" class="btn btn-secondary btn-compact text-xs" id="retry-validation-btn" data-action="retry-validation" onclick="window.location.reload();">Retry validation</a>
+          <a href="/teach/${encodeURIComponent(opts.courseId)}/publish" class="btn btn-secondary btn-compact text-xs" id="retry-validation-btn" data-action="retry-validation" data-route-retry>Retry validation</a>
         </div>
         <p class="text-secondary mb-3 text-xs">Fix blocking issues before publishing.</p>
 
@@ -205,7 +205,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
       </section>
     `
     : `
-      <section class="status-strip mb-4 p-3 bg-surface border border-subtle rounded-md" aria-label="Pre-publish Checklist Passed" style="border-left: 4px solid var(--success);">
+      <section class="status-strip sr-only mb-4 p-3 bg-surface border border-subtle rounded-md" aria-label="Pre-publish Checklist Passed" style="border-left: 4px solid var(--success);">
         <p class="text-success m-0" style="font-weight: 600;">✓ Pre-publish checklist passed with 0 blocking errors</p>
       </section>
     `;
@@ -281,78 +281,68 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
       ? 'Open enrollment'
       : 'Invitation only';
 
+  const icon = (kind: 'ok' | 'fail' | 'warn') =>
+    `<span class="check-icon check-${kind}" aria-hidden="true">${kind === 'ok' ? '&#10003;' : kind === 'fail' ? '&#10005;' : '!'}</span>`;
+  const checklistRows = [
+    ...(hasBlockingErrors
+      ? exerciseGroups.map((grp) => `
+        <li class="check-row check-row-fail">
+          ${icon('fail')}
+          <div class="check-text"><strong>${escapeHtml(grp.title)}</strong><span class="text-secondary text-xs">${grp.issues.length} blocking ${grp.issues.length === 1 ? 'issue' : 'issues'}</span></div>
+          <a href="${grp.baseEditorUrl}" class="check-link">${grp.stepId === 'general' ? 'Open settings' : 'Fix step'} &rarr;</a>
+        </li>`)
+      : [`<li class="check-row check-row-ok">${icon('ok')}<div class="check-text"><strong>All steps pass validation</strong><span class="text-secondary text-xs">No blocking issues in this draft</span></div></li>`]),
+    warnings.length > 0
+      ? `<li class="check-row check-row-warn">${icon('warn')}<div class="check-text"><strong>${warnings.length} ${warnings.length === 1 ? 'warning' : 'warnings'} to review</strong><span class="text-secondary text-xs">Does not block publishing</span></div></li>`
+      : `<li class="check-row check-row-ok">${icon('ok')}<div class="check-text"><strong>No warnings</strong></div></li>`,
+    opts.staleRevision
+      ? `<li class="check-row check-row-fail">${icon('fail')}<div class="check-text"><strong>Draft changed while validating</strong><span class="text-secondary text-xs">Revalidate before publishing</span></div></li>`
+      : `<li class="check-row check-row-ok">${icon('ok')}<div class="check-text"><strong>Validated against the latest saved draft</strong><span class="text-secondary text-xs">Draft Rev ${opts.draftRevision}</span></div></li>`,
+  ].join('');
+
   const editorContent = `
-    <div class="publish-review-container" style="max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem;">
-      <header class="publish-header mb-4">
-        <div class="breadcrumbs mb-2">
-          <a href="/teach/${encodeURIComponent(opts.courseId)}/content">← Back to Course Builder</a>
+    <div class="publish-review-container publish-layout">
+      <header class="publish-header">
+        <div>
+          <h1 class="page-title">Review publication</h1>
+          <p class="text-secondary mt-1">Validate the saved draft, review issues, and confirm version release impact.</p>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-          <div>
-            <h1 class="page-title">Review publication</h1>
-            <p class="text-secondary mt-1">Validate the saved draft, review issues, and confirm version release impact.</p>
-          </div>
-          <div class="revision-badge">
-            <span class="status-badge" style="background-color: var(--bg-hover);">Draft Rev ${opts.draftRevision}</span>
-          </div>
-        </div>
+        <span class="status-badge neutral">Draft Rev ${opts.draftRevision}</span>
       </header>
 
-      <nav class="author-workflow-nav mb-3 text-xs" aria-label="Authoring lifecycle">
-        <ol class="workflow-steps flex gap-1 list-none p-0 m-0 text-muted" style="list-style: none">
-          <li><a href="/teach/${encodeURIComponent(opts.courseId)}/settings" class="text-secondary">1. Basics</a> →</li>
-          <li><a href="/teach/${encodeURIComponent(opts.courseId)}/content" class="text-secondary">2. Structure</a> →</li>
-          <li><a href="/teach/${encodeURIComponent(opts.courseId)}/content" class="text-secondary">3. Build steps</a> →</li>
-          <li><a href="/teach/${encodeURIComponent(opts.courseId)}/preview" class="text-secondary">4. Preview</a> →</li>
-          <li class="font-semibold text-primary">5. Publish</li>
-        </ol>
-      </nav>
-
-      ${hasBlockingErrors ? `
-      <div class="next-action-callout mb-3 p-2 bg-surface border border-subtle rounded text-xs flex items-center justify-between">
-        <div>
-          <strong>Next action:</strong>
-          <span class="text-secondary ml-1">Resolve ${errors.length} blocking issue${errors.length === 1 ? '' : 's'} before releasing Version ${opts.newVersionNumber}.</span>
+      <div class="publish-grid">
+        <div class="publish-main">
+          <section class="card p-4 publish-checklist" aria-label="Publish checklist">
+            <h2 class="section-title">Checklist</h2>
+            ${hasBlockingErrors ? `<p class="check-next text-xs"><strong>Next action:</strong> <span class="text-secondary">Resolve ${errors.length} blocking issue${errors.length === 1 ? '' : 's'} before releasing Version ${opts.newVersionNumber}.</span></p>` : ''}
+            <ul class="check-list" role="list">${checklistRows}</ul>
+          </section>
+          ${staleRevisionHtml}
+          ${errorsHtml}
+          ${warningsHtml}
         </div>
-      </div>
-      ` : ''}
 
-      ${staleRevisionHtml}
-      ${errorsHtml}
-      ${warningsHtml}
-
-      <section class="card p-4 publish-impact-card" aria-label="Version and Access Impact" style="background-color: var(--bg-surface);">
-        <h2 class="section-title mb-3" style="font-size: 1.125rem;">Release impact</h2>
-        <div class="impact-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-          <div class="impact-item">
-            <span class="text-secondary text-sm">Release version</span>
-            <div class="font-semibold text-lg">Version ${opts.newVersionNumber}</div>
-            <span class="text-muted text-xs">${isInitialRelease ? 'Initial release' : `Current published version: Version ${opts.currentVersionNumber}`}</span>
-          </div>
-          <div class="impact-item">
-            <span class="text-secondary text-sm">Active enrolled students</span>
-            <div class="font-semibold text-lg">${opts.activeEnrolledStudents}</div>
-            <span class="text-muted text-xs">Pinned to their current version</span>
-          </div>
-          <div class="impact-item">
-            <span class="text-secondary text-sm">Visibility &amp; enrollment</span>
-            <div class="font-semibold text-base">${visibilityLabel}</div>
-            <span class="text-muted text-xs">${enrollmentPolicyLabel}</span>
-          </div>
-        </div>
-        <p class="text-secondary text-xs mt-3">Existing students will continue on their current version. New enrollments will receive this update.</p>
-      </section>
-
-      <div class="publish-action-bar mt-4" style="display: flex; justify-content: flex-end; gap: 0.75rem;">
-        <a href="/teach/${encodeURIComponent(opts.courseId)}/content" class="btn btn-secondary">Back to editor</a>
-        <button
-          type="button"
-          id="publish-open-confirm"
-          class="btn btn-primary"
-          ${hasBlockingErrors || opts.staleRevision ? 'disabled aria-disabled="true"' : ''}
-        >
-          ${escapeHtml(publishButtonLabel)}
-        </button>
+        <aside class="publish-side" aria-label="Version and Access Impact">
+          <section class="card p-4 publish-impact-card">
+            <h2 class="section-title">What changes for students</h2>
+            <dl class="impact-list">
+              <div><dt>Release</dt><dd><strong>Version ${opts.newVersionNumber}</strong><span class="text-muted text-xs">${isInitialRelease ? 'Initial release' : `Current published version: Version ${opts.currentVersionNumber}`}</span></dd></div>
+              <div><dt>Active enrolled students</dt><dd><strong>${opts.activeEnrolledStudents}</strong><span class="text-muted text-xs">Pinned to their current version</span></dd></div>
+              <div><dt>Visibility &amp; enrollment</dt><dd><strong>${visibilityLabel}</strong><span class="text-muted text-xs">${enrollmentPolicyLabel}</span></dd></div>
+            </dl>
+            <p class="text-secondary text-xs">Existing students will continue on their current version. New enrollments will receive this update.</p>
+            <button
+              type="button"
+              id="publish-open-confirm"
+              class="btn btn-primary publish-primary"
+              ${hasBlockingErrors || opts.staleRevision ? 'disabled aria-disabled="true"' : ''}
+            >
+              ${escapeHtml(publishButtonLabel)}
+            </button>
+            ${hasBlockingErrors ? '<p class="text-secondary text-xs">Fix blocking issues before publishing.</p>' : ''}
+            <a href="/teach/${encodeURIComponent(opts.courseId)}/content" class="publish-back-link">Back to editor</a>
+          </section>
+        </aside>
       </div>
 
       ${confirmModalHtml}

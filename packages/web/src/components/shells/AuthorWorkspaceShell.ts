@@ -26,7 +26,6 @@ export function renderAuthorWorkspaceShell(opts: AuthorWorkspaceShellOptions): s
     ? `<span class="status-badge ${statusBadgeClass}" title="${opts.hasUnpublishedChanges ? 'Published (Unpublished changes)' : 'Published'}">Published</span>${opts.hasUnpublishedChanges ? ' <span class="status-badge warning status-badge-subtle">Draft changes</span>' : ''}`
     : `<span class="status-badge ${statusBadgeClass}">${opts.publicationState === 'draft' ? 'Draft' : 'Archived'}</span>`;
 
-  // Pure render of course tree from provided treeContent or modules
   let treeHtml = '';
   if (isContentTab) {
     if (opts.treeContent) {
@@ -43,39 +42,45 @@ export function renderAuthorWorkspaceShell(opts: AuthorWorkspaceShellOptions): s
     }
   }
 
+  const tab = (id: AuthorWorkspaceShellOptions['activeTab'], label: string) =>
+    `<a href="/teach/${opts.courseId}/${id}" class="tab-link ${opts.activeTab === id ? 'active' : ''}" aria-selected="${opts.activeTab === id}"${opts.activeTab === id ? ' aria-current="page"' : ''}>${label}</a>`;
+
   return `
     <style id="author-workspace-styles">${authorStyles}</style>
     <div class="shell-author" oninput="this.classList.add('is-dirty'); const btn = this.querySelector('.author-header-right > button.btn-primary'); if (btn && btn.textContent === 'Saved') btn.textContent = 'Save changes';">
-      <header class="author-header" role="banner">
-        <div class="author-header-left">
-          <a href="/teach" class="back-link" aria-label="Back to Your courses">← Courses</a>
-          <span class="header-divider">/</span>
-          <span class="author-course-title">${opts.courseTitle}</span>
-          ${statusBadgeText}
-        </div>
+      <div class="author-chrome">
+        <header class="author-header" role="banner">
+          <div class="author-header-left">
+            <a href="/teach" class="back-link" aria-label="Back to Your courses">&larr; Courses</a>
+            <span class="header-divider">/</span>
+            <span class="author-course-title" title="${opts.courseTitle}">${opts.courseTitle}</span>
+            ${statusBadgeText}
+          </div>
 
-        <div class="author-header-right">
-          ${opts.saveStatusText && opts.saveStatusText !== 'Saved' ? `<div class="save-indicator ${opts.saveStatusText.toLowerCase().includes('saving') ? 'saving' : opts.saveStatusText.toLowerCase().includes('unsaved') || opts.saveStatusText.toLowerCase().includes('conflict') ? 'unsaved' : 'saved'}" aria-live="polite">${opts.saveStatusText}</div>` : ''}
-          <a href="/teach/${opts.courseId}/activity" class="btn btn-secondary btn-compact" title="View changes and draft history">Recent changes</a>
-          <a href="/teach/${opts.courseId}/preview${opts.selectedType === 'step' && opts.selectedId ? `?stepId=${encodeURIComponent(opts.selectedId)}` : ''}" class="btn btn-secondary btn-compact">Preview as student</a>
-          ${!opts.isPublishPage ? `<a href="/teach/${opts.courseId}/publish" class="btn btn-secondary btn-compact">Review & publish</a>` : ''}
-        </div>
-      </header>
+          <div class="author-header-right">
+            ${opts.saveStatusText && opts.saveStatusText !== 'Saved' ? `<div class="save-indicator ${opts.saveStatusText.toLowerCase().includes('saving') ? 'saving' : opts.saveStatusText.toLowerCase().includes('unsaved') || opts.saveStatusText.toLowerCase().includes('conflict') ? 'unsaved' : 'saved'}" aria-live="polite">${opts.saveStatusText}</div>` : ''}
+            <a href="/teach/${opts.courseId}/preview${opts.selectedType === 'step' && opts.selectedId ? `?stepId=${encodeURIComponent(opts.selectedId)}` : ''}" class="btn btn-secondary btn-compact" title="Preview as student" aria-label="Preview as student">Preview</a>
+            ${!opts.isPublishPage ? `<a href="/teach/${opts.courseId}/publish" class="btn btn-primary btn-compact">Review & publish</a>` : ''}
+          </div>
+        </header>
 
-      <nav class="author-tabs-bar" role="navigation" aria-label="Course Management Tabs">
-        <div class="tabs-nav container">
-          <a href="/teach/${opts.courseId}/content" class="tab-link ${opts.activeTab === 'content' ? 'active' : ''}" aria-selected="${opts.activeTab === 'content'}">Content</a>
-          <a href="/teach/${opts.courseId}/students" class="tab-link ${opts.activeTab === 'students' ? 'active' : ''}" aria-selected="${opts.activeTab === 'students'}">Students</a>
-          <a href="/teach/${opts.courseId}/analytics" class="tab-link ${opts.activeTab === 'analytics' ? 'active' : ''}" aria-selected="${opts.activeTab === 'analytics'}">Analytics</a>
-          <a href="/teach/${opts.courseId}/settings" class="tab-link ${opts.activeTab === 'settings' ? 'active' : ''}" aria-selected="${opts.activeTab === 'settings'}">Settings</a>
-        </div>
-      </nav>
+        <nav class="author-tabs-bar" role="navigation" aria-label="Course Management Tabs">
+          <div class="tabs-nav">
+            ${tab('content', 'Content')}
+            ${tab('students', 'Students')}
+            ${tab('analytics', 'Analytics')}
+            ${tab('settings', 'Settings')}
+          </div>
+          <a href="/teach/${opts.courseId}/activity" class="tabs-aside-link" title="View changes and draft history">Recent changes</a>
+        </nav>
+      </div>
 
       <main id="main-content" class="author-workspace-main ${isContentTab ? 'has-tree' : 'full-pane'}" role="main">
         ${isContentTab ? `
           <aside class="author-tree-pane" id="author-tree-pane" role="region" aria-label="Course Structure" data-course-id="${opts.courseId}" data-step-id="${opts.selectedId || ''}">
             ${treeHtml || '<div class="p-3 text-xs text-secondary">Course structure not loaded</div>'}
           </aside>
+          <div class="tree-resizer" role="separator" aria-orientation="vertical" aria-label="Resize course structure" aria-valuemin="220" aria-valuemax="560" tabindex="0" title="Drag to resize (or use left/right arrow keys)"></div>
         ` : ''}
 
         <div class="author-editor-pane">

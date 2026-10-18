@@ -46,19 +46,20 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
       : undefined;
 
   const editorContent = `
-    <div class="settings-form-wrapper" style="max-width: 820px; margin: 0 auto; padding: 2rem 1rem;">
+    <div class="settings-form-wrapper settings-layout">
       <header class="settings-header mb-6 pb-4 border-b border-subtle">
         <h1 class="page-title text-2xl font-bold">Course settings</h1>
       </header>
 
-      <nav class="settings-jump-links flex gap-2 p-2 bg-surface border border-subtle rounded-md mb-6 overflow-x-auto" aria-label="Course settings sections">
-        <a href="#basics-heading" class="settings-jump-link text-xs font-medium text-secondary hover:text-primary px-2.5 py-1 rounded">Basics</a>
-        <a href="#catalog-heading" class="settings-jump-link text-xs font-medium text-secondary hover:text-primary px-2.5 py-1 rounded">Catalog</a>
-        <a href="#delivery-heading" class="settings-jump-link text-xs font-medium text-secondary hover:text-primary px-2.5 py-1 rounded">Enrollment</a>
-        <a href="#versions-heading" class="settings-jump-link text-xs font-medium text-secondary hover:text-primary px-2.5 py-1 rounded">Versions</a>
-        <a href="#danger-heading" class="settings-jump-link text-xs font-medium text-secondary hover:text-primary px-2.5 py-1 rounded">Lifecycle</a>
+      <nav class="settings-rail" aria-label="Course settings sections">
+        <a href="#basics" class="settings-rail-link" data-settings-link="basics">Basics</a>
+        <a href="#catalog" class="settings-rail-link" data-settings-link="catalog">Catalog</a>
+        <a href="#enrollment" class="settings-rail-link" data-settings-link="enrollment">Enrollment</a>
+        <a href="#versions" class="settings-rail-link" data-settings-link="versions">Versions</a>
+        <a href="#lifecycle" class="settings-rail-link settings-rail-danger" data-settings-link="lifecycle">Lifecycle</a>
       </nav>
 
+      <div class="settings-main">
       ${opts.errorMessage ? `<div class="alert alert-danger mb-6 p-3 border border-danger rounded text-sm" role="alert">${opts.errorMessage}</div>` : ''}
       ${opts.saveMessage ? `<div class="alert alert-success mb-6 p-3 border border-success rounded text-sm text-success" role="alert">${opts.saveMessage}</div>` : ''}
 
@@ -66,7 +67,7 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
         <input type="hidden" name="expectedRevision" value="${c.draftRevision}" />
 
         <!-- Section 1: Basics -->
-        <section class="settings-section settings-two-col grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 mb-8 pb-8 border-b border-subtle" aria-labelledby="basics-heading">
+        <section class="settings-section settings-two-col grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 mb-8 pb-8 border-b border-subtle" aria-labelledby="basics-heading" data-settings-section="basics">
           <div class="settings-col-meta">
             <h2 id="basics-heading" class="settings-col-title text-base font-semibold text-primary">Basics</h2>
             <p class="settings-col-desc text-xs text-secondary mt-1">Core course title, summary, and learning prerequisites.</p>
@@ -121,7 +122,7 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
         </section>
 
         <!-- Section 2: Catalog & Classification -->
-        <section class="settings-section settings-two-col grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 mb-8 pb-8 border-b border-subtle" aria-labelledby="catalog-heading">
+        <section class="settings-section settings-two-col grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 mb-8 pb-8 border-b border-subtle" aria-labelledby="catalog-heading" data-settings-section="catalog">
           <div class="settings-col-meta">
             <h2 id="catalog-heading" class="settings-col-title text-base font-semibold text-primary">Catalog</h2>
             <p class="settings-col-desc text-xs text-secondary mt-1">Categorization, difficulty rating, search tags, and estimated duration.</p>
@@ -187,7 +188,7 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
       </form>
 
       <!-- Section 3: Discoverability and Delivery Settings (Live) -->
-      <section class="settings-section settings-two-col grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 mb-8 pb-8 border-b border-subtle" aria-labelledby="delivery-heading">
+      <section class="settings-section settings-two-col grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 mb-8 pb-8 border-b border-subtle" aria-labelledby="delivery-heading" data-settings-section="enrollment">
         <div class="settings-col-meta">
           <h2 id="delivery-heading" class="settings-col-title text-base font-semibold text-primary">Discoverability &amp; enrollment</h2>
           <p class="settings-col-desc text-xs text-secondary mt-1">Live settings controlling visibility and access policies. Applied immediately.</p>
@@ -252,7 +253,7 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
       </section>
 
       <!-- Section 4: Publication & Version Information -->
-      <section class="settings-section settings-two-col grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 mb-8 pb-8 border-b border-subtle" aria-labelledby="versions-heading">
+      <section class="settings-section settings-two-col grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 mb-8 pb-8 border-b border-subtle" aria-labelledby="versions-heading" data-settings-section="versions">
         <div class="settings-col-meta">
           <h2 id="versions-heading" class="settings-col-title text-base font-semibold text-primary">Publication &amp; versions</h2>
           <p class="settings-col-desc text-xs text-secondary mt-1">History of published releases and student version pinning.</p>
@@ -280,7 +281,7 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
       </section>
 
       <!-- Section 5: Danger Zone -->
-      <section class="settings-section danger-zone settings-two-col grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6" aria-labelledby="danger-heading">
+      <section class="settings-section danger-zone settings-two-col grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6" aria-labelledby="danger-heading" data-settings-section="lifecycle">
         <div class="settings-col-meta">
           <h2 id="danger-heading" class="settings-col-title text-base font-semibold text-danger">Course lifecycle</h2>
           <p class="settings-col-desc text-xs text-secondary mt-1">Irreversible and restrictive lifecycle operations.</p>
@@ -316,6 +317,7 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
           </div>
         </div>
       </section>
+      </div>
     </div>
   `;
 
@@ -328,4 +330,37 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
     activeTab: 'settings',
     editorContent,
   });
+}
+
+const SETTINGS_SECTIONS = ['basics', 'catalog', 'enrollment', 'versions', 'lifecycle'];
+const LEGACY_HASHES: Record<string, string> = {
+  'basics-heading': 'basics', 'catalog-heading': 'catalog', 'delivery-heading': 'enrollment',
+  'versions-heading': 'versions', 'danger-heading': 'lifecycle',
+};
+
+/** Shows one settings section at a time, synced to the URL hash so deep links work. */
+export function initSettingsSections(root: ParentNode): void {
+  const layout = root.querySelector<HTMLElement>('.settings-layout');
+  if (!layout) return;
+  const show = (raw: string) => {
+    const id = SETTINGS_SECTIONS.includes(raw) ? raw : LEGACY_HASHES[raw] || 'basics';
+    layout.querySelectorAll<HTMLElement>('[data-settings-section]').forEach((s) => { s.hidden = s.dataset.settingsSection !== id; });
+    layout.querySelectorAll<HTMLElement>('[data-settings-link]').forEach((a) => {
+      const on = a.dataset.settingsLink === id;
+      a.classList.toggle('active', on);
+      if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+    });
+  };
+  layout.querySelectorAll<HTMLAnchorElement>('[data-settings-link]').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    history.replaceState(history.state, '', `${window.location.pathname}${window.location.search}#${a.dataset.settingsLink}`);
+    show(a.dataset.settingsLink!);
+  }));
+  const onHash = () => {
+    if (!layout.isConnected) { window.removeEventListener('hashchange', onHash); return; }
+    show(window.location.hash.slice(1));
+  };
+  window.addEventListener('hashchange', onHash);
+  show(window.location.hash.slice(1));
 }

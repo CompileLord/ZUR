@@ -407,8 +407,9 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
     if (!s2Current(path)) return;
     if (pageId === 'P31') {
       const categories = await s2Request('/api/categories');
-      const { renderCourseSettingsPage } = await import('./pages/author/CourseSettingsPage.ts');
+      const { renderCourseSettingsPage, initSettingsSections } = await import('./pages/author/CourseSettingsPage.ts');
       if (s2Current(path)) appEl.innerHTML = renderCourseSettingsPage({ course, categories });
+      initSettingsSections(appEl);
       appEl.querySelectorAll<HTMLFormElement>('form[data-course-lifecycle]').forEach(form => form.addEventListener('submit', async event => {
         event.preventDefault();
         const action = form.dataset.courseLifecycle;
@@ -464,10 +465,12 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         }
       } catch { /* activity optional */ }
       const { renderCourseBuilderPage } = await import('./pages/author/CourseBuilderPage.ts');
-      appEl.innerHTML = renderCourseBuilderPage({ courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, modules: tree.modules, selectedType: (query.get('type') as any) || 'course', selectedId: query.get('id') || courseId, remoteUpdate });
+      appEl.innerHTML = renderCourseBuilderPage({ courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, modules: tree.modules, selectedType: (query.get('type') as any) || 'course', selectedId: query.get('id') || courseId, remoteUpdate, lastEditTime: course.lastEditTime });
+      const { initAuthorTree } = await import('./pages/author/AuthorTreeComponent.ts');
+      initAuthorTree(appEl, { courseId, request: (route, method, body) => s2Request(route, method, body), refresh: () => renderApp(path), navigate: (url) => navigateTo(url) });
 
       if (sessionStorage.getItem(`zur_builder_unsaved_${courseId}`)) {
-        appEl.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea').forEach(input => {
+        appEl.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input:not([data-no-persist]), textarea').forEach(input => {
           const key = `zur_builder_unsaved_val_${courseId}_${input.name || input.id}`;
           const val = sessionStorage.getItem(key);
           if (val !== null && val !== undefined) {
@@ -475,7 +478,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
           }
         });
       }
-      appEl.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea').forEach(input => {
+      appEl.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input:not([data-no-persist]), textarea').forEach(input => {
         input.addEventListener('input', () => {
           sessionStorage.setItem(`zur_builder_unsaved_${courseId}`, 'true');
           sessionStorage.setItem(`zur_builder_unsaved_val_${courseId}_${input.name || input.id}`, input.value);

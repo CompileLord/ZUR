@@ -139,13 +139,9 @@ test('U03: Course publish page connects blockers to actual step editor routes an
   });
   assert.ok(htmlWithType.includes('href="/teach/course-1/content/python/step-err-99"'), 'Must target actual python step editor route');
   assert.ok(htmlWithType.includes('Edit step →'));
-  assert.ok(htmlWithType.includes('1. Basics'));
-  assert.ok(htmlWithType.includes('2. Structure'));
-  assert.ok(htmlWithType.includes('3. Build steps'));
-  assert.ok(htmlWithType.includes('4. Preview'));
-  assert.ok(htmlWithType.includes('5. Publish'));
-  assert.ok(htmlWithType.includes('Next action:'));
-  assert.ok(htmlWithType.includes('Resolve 1 blocking issue'));
+  assert.ok(htmlWithType.includes('aria-label="Publish checklist"'), 'Checklist replaces the duplicate step trail');
+  assert.ok(!htmlWithType.includes('1. Basics'), 'No duplicate step trail');
+  assert.ok(htmlWithType.includes('1 blocking issue'));
 
   // 2. Without stepTypeMap fallback to content builder query
   const htmlFallback = renderCoursePublishPage({

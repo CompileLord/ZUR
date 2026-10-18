@@ -405,7 +405,7 @@ test('A6: Quiet clean save headers and uncluttered publication review', () => {
     'Primary publish control is rendered'
   );
   assert.ok(
-    readyPublishHtml.includes('Release impact'),
+    readyPublishHtml.includes('What changes for students'),
     'Release impact panel is rendered'
   );
 

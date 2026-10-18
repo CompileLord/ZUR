@@ -289,7 +289,7 @@ test('Author Interface Redesign Acceptance Suite (2026-10-06)', async (t) => {
     assert.ok(!shellHtml.includes('onload="window.__zurHydrateTree'), 'No img onload hydration hack');
     assert.ok(!shellHtml.includes('sessionStorage'), 'No sessionStorage script injected');
     assert.ok(shellHtml.includes('Module 1: Basics'), 'Tree rendered synchronously from supplied modules');
-    assert.ok(shellHtml.includes('btn btn-secondary btn-compact">Review & publish</a>'), 'Review & publish is secondary button');
+    assert.ok(shellHtml.includes('btn btn-primary btn-compact">Review & publish</a>'), 'Review & publish is the single primary header action');
   });
 
   await t.test('Audit Requirement 2: AuthorPreviewPage renders real learner shell with 248px sidebar & task strip', () => {

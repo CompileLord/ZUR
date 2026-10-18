@@ -154,21 +154,26 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
             const studentText = c.studentCount === 1 ? '1 student' : `${c.studentCount} students`;
             const editDateFormatted = c.lastEditTime ? (formatDate(c.lastEditTime) || new Date(c.lastEditTime).toLocaleDateString()) : '';
 
+            let hash = 0;
+            for (let i = 0; i < (c.id || c.title).length; i++) hash = (hash * 31 + (c.id || c.title).charCodeAt(i)) % 360;
+            const hue = 70 + (hash % 160);
+            const initial = (c.title.replace(/&[#a-z0-9]+;/gi, '').trim().charAt(0) || 'C').toUpperCase();
+
             return `
-              <article class="course-card author-course-row" aria-labelledby="course-heading-${c.id}">
+              <article class="course-card author-course-row author-course-card" aria-labelledby="course-heading-${c.id}">
+                <a class="author-course-thumb" href="/teach/${c.id}/content" tabindex="-1" aria-hidden="true" style="--thumb-hue: ${hue}"><span>${initial}</span></a>
                 <div class="course-row-main">
                   <div class="course-row-meta">
                     <span class="${statusBadgeClass}">${c.publicationStatus === 'published' ? 'Published' : c.publicationStatus === 'draft' ? 'Draft' : 'Archived'}</span>
                     ${c.hasUnpublishedChanges ? '<span class="status-badge warning status-badge-subtle">Draft changes<span class="sr-only"> (Unpublished changes)</span></span>' : ''}
-                    ${c.studentCount > 0 ? `
-                      <span class="meta-separator">·</span>
-                      <span class="student-count-text">${studentText}</span>
-                    ` : ''}
                   </div>
                   <h2 id="course-heading-${c.id}" class="course-row-title">
                     <a href="/teach/${c.id}/content">${c.title}</a>
                   </h2>
-                  ${editDateFormatted ? `<div class="course-row-date text-xs text-muted">Edited ${editDateFormatted}</div>` : ''}
+                  <div class="course-row-stats text-xs text-muted">
+                    <span class="student-count-text">${studentText}</span>
+                    ${editDateFormatted ? `<span class="meta-separator">&middot;</span><span class="course-row-date">Edited ${editDateFormatted}</span>` : ''}
+                  </div>
                 </div>
                 <div class="course-row-actions">
                   <a href="/teach/${c.id}/content" class="btn btn-secondary btn-compact" aria-label="${actionLabel}">Open<span class="sr-only"> (${actionLabel})</span></a>
