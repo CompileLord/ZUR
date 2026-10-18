@@ -51,7 +51,7 @@ export const ROUTES: RouteDefinition[] = [
   createRoute('P08', '/join/:token', 'S2', 'Join course'),
 
   // Student Experience (P09–P16)
-  createRoute('P09', '/learn', 'S3', 'Continue learning', 'student'),
+  createRoute('P09', '/learn', 'S3', 'Home', 'student'),
   createRoute('P10', '/learn/courses', 'S3', 'My courses', 'student'),
   createRoute('P11', '/learn/:enrollmentId', 'S3', 'Course Overview', 'student'),
   createRoute('P12', '/learn/:enrollmentId/steps/:stepId', 'S4', 'Learning Step', 'student'),
@@ -168,7 +168,7 @@ export function getSafeReturnDestination(destination?: string | null): string {
 
 /**
  * Where to land after sign-in: an explicit safe returnTo always wins,
- * otherwise admins go to /admin, author-only users to /teach, everyone else to /learn.
+ * otherwise admins go to /admin, any author to /teach (including student+author), everyone else to /learn.
  */
 export function getPostSignInDestination(
   returnTo?: string | null,
@@ -179,6 +179,6 @@ export function getPostSignInDestination(
   }
   const capabilities = user?.capabilities ?? [];
   if (capabilities.includes('admin')) return '/admin';
-  if (capabilities.includes('author') && !capabilities.includes('student')) return '/teach';
+  if (capabilities.includes('author')) return '/teach';
   return '/learn';
 }

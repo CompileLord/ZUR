@@ -9,8 +9,8 @@ export interface AppShellOptions {
     email: string;
     capabilities: ('student' | 'author' | 'admin')[];
   };
-  currentMode?: 'learn' | 'teach';
-  activeMode?: 'learn' | 'teach';
+  currentMode?: 'learn' | 'teach' | 'admin';
+  activeMode?: 'learn' | 'teach' | 'admin';
   headerTitle?: string;
   headerActions?: string;
   breadcrumbs?: Array<{ label: string; href?: string }>;
@@ -23,25 +23,23 @@ export function renderAppShell(opts: AppShellOptions): string {
   const activePath = opts.activePath || '';
 
   // Determine active mode: explicit option wins, otherwise infer from current route
-  const mode: 'learn' | 'teach' =
+  const mode: 'learn' | 'teach' | 'admin' =
     opts.currentMode ??
     opts.activeMode ??
-    (activePath.startsWith('/teach') || activePath.startsWith('/settings/ai-connections')
-      ? 'teach'
-      : 'learn');
+    (activePath.startsWith('/admin')
+      ? 'admin'
+      : activePath.startsWith('/teach') || activePath.startsWith('/settings/ai-connections')
+        ? 'teach'
+        : 'learn');
+  const isHomeActive = activePath === '/learn' || activePath === '/learn/courses' || /^\/learn\/[^/]+$/.test(activePath);
 
   let navItemsHtml = '';
-  if (mode === 'learn') {
+  if (mode !== 'teach') {
     navItemsHtml = `
-      <a href="/learn" class="app-nav-item ${activePath === '/learn' ? 'active' : ''}">
+      <a href="/learn" class="app-nav-item ${isHomeActive ? 'active' : ''}" ${isHomeActive ? 'aria-current="page"' : ''}>
         <span class="nav-indicator" aria-hidden="true"></span>
         <span class="nav-icon" aria-hidden="true">${renderIcon('play', { size: 16 })}</span>
-        <span class="nav-label">Continue</span>
-      </a>
-      <a href="/learn/courses" class="app-nav-item ${activePath === '/learn/courses' ? 'active' : ''}">
-        <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-icon" aria-hidden="true">${renderIcon('book', { size: 16 })}</span>
-        <span class="nav-label">My courses</span>
+        <span class="nav-label">Home</span>
       </a>
       <a href="/courses" class="app-nav-item ${activePath === '/courses' ? 'active' : ''}">
         <span class="nav-indicator" aria-hidden="true"></span>
@@ -65,24 +63,20 @@ export function renderAppShell(opts: AppShellOptions): string {
     `;
   }
 
-  const modeSwitchHtml = isAuthor
+  const modeLinks: Array<{ id: 'learn' | 'teach' | 'admin'; href: string; label: string; aria?: string }> = [
+    { id: 'learn', href: '/learn', label: 'Learn' },
+    ...(isAuthor ? [{ id: 'teach' as const, href: '/teach', label: 'Teach' }] : []),
+    ...(isAdmin ? [{ id: 'admin' as const, href: '/admin', label: 'Admin', aria: 'Administration' }] : []),
+  ];
+  const modeSwitchHtml = isAuthor || isAdmin
     ? `
       <div class="mode-switch-container">
         <label class="mode-switch-label">Mode</label>
         <div class="mode-switch" role="radiogroup" aria-label="Application Mode">
-          <a href="/learn" class="mode-btn ${mode === 'learn' ? 'active' : ''}" role="radio" aria-checked="${mode === 'learn'}">Learn</a>
-          <a href="/teach" class="mode-btn ${mode === 'teach' ? 'active' : ''}" role="radio" aria-checked="${mode === 'teach'}">Teach</a>
+          ${modeLinks.map((m) => `<a href="${m.href}" class="mode-btn ${mode === m.id ? 'active' : ''}" role="radio" aria-checked="${mode === m.id}"${m.aria ? ` aria-label="${m.aria}"` : ''}>${m.label}</a>`).join('')}
         </div>
       </div>
     `
-    : '';
-
-  const adminLinkHtml = isAdmin
-    ? `<a href="/admin" class="app-nav-item admin-nav-link ${activePath.startsWith('/admin') ? 'active' : ''}">
-        <span class="nav-indicator" aria-hidden="true"></span>
-        <span class="nav-icon" aria-hidden="true">${renderIcon('shield', { size: 16 })}</span>
-        <span class="nav-label">Administration</span>
-       </a>`
     : '';
 
   // Breadcrumbs or context for slim location bar
@@ -121,7 +115,6 @@ export function renderAppShell(opts: AppShellOptions): string {
 
         <nav class="sidebar-nav">
           ${navItemsHtml}
-          ${adminLinkHtml}
         </nav>
 
         <div class="sidebar-footer">

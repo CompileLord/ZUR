@@ -1,6 +1,5 @@
 import { safeTemplateData } from '../../utils/safe-template-data.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
-import { renderProgressLine } from '../../components/common/CourseRow.ts';
 import { renderDialog } from '../../components/common/Dialog.ts';
 import { renderIcon } from '../../components/common/icons.ts';
 import { humanizeEnum } from '../../utils/formatters.ts';
@@ -22,13 +21,15 @@ export interface EnrolledCourseItem {
   updatedAt: string;
 }
 
+export type CourseFilter = 'in_progress' | 'completed' | 'all';
+
 export interface MyCoursesPageOptions {
   user: {
     displayName: string;
     email: string;
     capabilities: ('student' | 'author' | 'admin')[];
   };
-  activeFilter?: 'in_progress' | 'completed' | 'all';
+  activeFilter?: CourseFilter;
   courses: EnrolledCourseItem[];
   previousCourses?: EnrolledCourseItem[];
   leaveCourseDialogFor?: {
@@ -37,8 +38,62 @@ export interface MyCoursesPageOptions {
   } | null;
 }
 
-export function renderMyCoursesPage(opts: MyCoursesPageOptions): string {
-  opts = safeTemplateData(opts);
+/** Muted hues from the citron / slate / teal / blue family of tokens.css; never magenta or red. */
+const THUMB_HUES = [78, 96, 150, 172, 196, 212, 228, 42];
+
+export function courseHue(seed: string): number {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  return THUMB_HUES[hash % THUMB_HUES.length];
+}
+
+export function courseInitial(title: string): string {
+  return (title.match(/[A-Za-z0-9]/)?.[0] || 'C').toUpperCase();
+}
+
+export function renderProgressRing(percent: number, label: string, size = 56): string {
+  const radius = 34;
+  const circumference = 2 * Math.PI * radius;
+  const value = Math.min(100, Math.max(0, Math.round(percent)));
+  return `
+    <div class="home-ring" style="--ring-size: ${size}px" role="img" aria-label="${label}">
+      <svg viewBox="0 0 80 80" aria-hidden="true" focusable="false">
+        <circle class="ring-track" cx="40" cy="40" r="${radius}" fill="none" stroke-width="8"></circle>
+        <circle class="ring-value" cx="40" cy="40" r="${radius}" fill="none" stroke-width="8" stroke-linecap="round"
+          stroke-dasharray="${circumference.toFixed(2)}" stroke-dashoffset="${(circumference * (1 - value / 100)).toFixed(2)}"
+          transform="rotate(-90 40 40)"></circle>
+      </svg>
+      <span class="ring-percent" aria-hidden="true">${value}%</span>
+    </div>
+  `;
+}
+
+export function formatLastActivity(iso?: string, now: number = Date.now()): string {
+  const then = iso ? Date.parse(iso) : NaN;
+  if (Number.isNaN(then)) return '';
+  const minutes = Math.max(0, Math.round((now - then) / 60000));
+  if (minutes < 2) return 'Active just now';
+  if (minutes < 60) return `Active ${minutes} min ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `Active ${hours} h ago`;
+  const days = Math.round(hours / 24);
+  if (days < 30) return `Active ${days} day${days === 1 ? '' : 's'} ago`;
+  const months = Math.round(days / 30);
+  return months < 12 ? `Active ${months} mo ago` : 'Active over a year ago';
+}
+
+export function renderCourseThumb(seed: string, title: string, extraClass = ''): string {
+  return `<span class="home-thumb ${extraClass}" style="--thumb-h: ${courseHue(seed)}" aria-hidden="true"><span class="home-thumb-initial">${courseInitial(title)}</span></span>`;
+}
+
+export function percentOf(c: { percentage?: number; completedRequired: number; totalRequired: number }): number {
+  return c.totalRequired > 0
+    ? Math.min(100, Math.round((c.completedRequired / c.totalRequired) * 100))
+    : Math.min(100, Math.max(0, Math.round(c.percentage || 0)));
+}
+
+/** "Your courses" block of the Home page: filter chips, card grid, previous enrollments, leave dialog. */
+export function renderYourCoursesSection(opts: MyCoursesPageOptions): string {
   const activeFilter = opts.activeFilter || 'in_progress';
   const activeCourses = opts.courses.filter((c) => c.status === 'active');
   const previousCourses =
@@ -53,18 +108,15 @@ export function renderMyCoursesPage(opts: MyCoursesPageOptions): string {
     filteredCourses = activeCourses;
   }
 
-  // Filter tabs
-  const tabsHtml = `
-    <nav class="tabs-nav" aria-label="Course status filters">
-      <a href="/learn/courses?filter=in_progress" class="tab-link ${activeFilter === 'in_progress' ? 'active' : ''}" aria-selected="${activeFilter === 'in_progress'}">
-        In progress (${activeCourses.filter((c) => !c.isCompleted).length})
-      </a>
-      <a href="/learn/courses?filter=completed" class="tab-link ${activeFilter === 'completed' ? 'active' : ''}" aria-selected="${activeFilter === 'completed'}">
-        Completed (${activeCourses.filter((c) => c.isCompleted).length})
-      </a>
-      <a href="/learn/courses?filter=all" class="tab-link ${activeFilter === 'all' ? 'active' : ''}" aria-selected="${activeFilter === 'all'}">
-        All (${activeCourses.length})
-      </a>
+  const chip = (filter: CourseFilter, label: string, count: number) => `
+    <a href="/learn?filter=${filter}" class="filter-chip ${activeFilter === filter ? 'active' : ''}" ${activeFilter === filter ? 'aria-current="true"' : ''}>
+      ${label} (${count})
+    </a>`;
+  const chipsHtml = `
+    <nav class="filter-chips" aria-label="Course status filters">
+      ${chip('in_progress', 'In progress', activeCourses.filter((c) => !c.isCompleted).length)}
+      ${chip('completed', 'Completed', activeCourses.filter((c) => c.isCompleted).length)}
+      ${chip('all', 'All', activeCourses.length)}
     </nav>
   `;
 
@@ -78,59 +130,56 @@ export function renderMyCoursesPage(opts: MyCoursesPageOptions): string {
     }
 
     coursesListHtml = `
-      <div class="empty-state-panel" role="region" aria-label="Filter results">
+      <div class="empty-state-panel home-empty" role="region" aria-label="Filter results">
         <p class="empty-message">${emptyMessage}</p>
         <a href="/courses" class="btn btn-secondary">Explore catalog</a>
       </div>
     `;
   } else {
-    // Flat rows, no card-in-card
     coursesListHtml = `
-      <div class="enrolled-courses-flat-list" role="feed" aria-label="Enrolled courses">
+      <div class="home-course-grid" role="feed" aria-label="Enrolled courses">
         ${filteredCourses.map((c) => {
           const actionUrl = c.isCompleted
             ? `/learn/${c.id}`
             : (c.nextStepId ? `/learn/${c.id}/steps/${c.nextStepId}` : `/learn/${c.id}`);
+          const percent = percentOf(c);
+          const activity = formatLastActivity(c.updatedAt);
 
           return `
-            <article class="enrolled-course-flat-row" data-enrollment-id="${c.id}">
-              <div class="course-row-info">
-                <div class="course-row-title-line">
-                  <a href="/learn/${c.id}" class="course-row-title">${c.courseTitle}</a>
-                  <span class="version-quiet-meta">v${c.pinnedVersionNumber}</span>
-                  <span class="sr-only">Version ${c.pinnedVersionNumber}</span>
-                  <span class="difficulty-quiet-meta">${humanizeEnum(c.difficulty)}</span>
-                  ${c.isCompleted ? '<span class="status-badge success">Completed</span>' : ''}
+            <article class="home-course-card" data-enrollment-id="${c.id}">
+              <a href="/learn/${c.id}" class="home-course-thumb-link" tabindex="-1" aria-hidden="true">${renderCourseThumb(c.courseId, c.courseTitle, 'home-thumb-card')}</a>
+              <div class="home-course-body">
+                <div class="home-course-head">
+                  <div class="home-course-titles">
+                    <a href="/learn/${c.id}" class="course-row-title">${c.courseTitle}</a>
+                    <p class="home-course-meta">
+                      <span>${humanizeEnum(c.difficulty)}</span>
+                      <span class="version-quiet-meta">v${c.pinnedVersionNumber}</span>
+                      <span class="sr-only">Version ${c.pinnedVersionNumber}</span>
+                      ${activity ? `<span>${activity}</span>` : ''}
+                    </p>
+                  </div>
+                  ${renderProgressRing(percent, `${percent}% complete: ${c.completedRequired} of ${c.totalRequired} required steps`, 52)}
                 </div>
-
-                <div class="course-row-progress-block">
-                  ${renderProgressLine({
-                    satisfiedRequiredCount: c.completedRequired,
-                    totalRequiredCount: c.totalRequired,
-                    isCompleted: c.isCompleted,
-                  })}
-                </div>
-
-                ${c.nextStepTitle ? `<p class="next-step-indicator">Next: <strong>${c.nextStepTitle}</strong></p>` : ''}
-              </div>
-
-              <div class="course-row-actions">
-                <a href="${actionUrl}" class="btn btn-secondary btn-compact">
-                  ${c.isCompleted ? 'Review course' : 'Resume'}
-                </a>
-
-                <div class="row-overflow-wrapper">
-                  <details class="row-overflow-menu">
-                    <summary class="btn-icon btn-compact overflow-trigger" aria-label="More options for ${c.courseTitle}">
-                      ${renderIcon('more-horizontal', { size: 16 })}
-                    </summary>
-                    <div class="overflow-dropdown">
-                      <button type="button" class="overflow-menu-item leave-course-trigger text-danger" data-course-id="${c.courseId}" data-course-title="${c.courseTitle}">
-                        ${renderIcon('logout', { size: 14 })}
-                        <span>Leave course</span>
-                      </button>
-                    </div>
-                  </details>
+                ${c.isCompleted ? '<span class="status-badge success">Completed</span>' : ''}
+                ${c.nextStepTitle && !c.isCompleted ? `<p class="next-step-indicator">Next: <strong>${c.nextStepTitle}</strong></p>` : ''}
+                <div class="home-course-actions">
+                  <a href="${actionUrl}" class="btn ${c.isCompleted ? 'btn-secondary' : 'btn-primary'} btn-compact">
+                    ${c.isCompleted ? 'Review course' : 'Resume'}
+                  </a>
+                  <div class="row-overflow-wrapper">
+                    <details class="row-overflow-menu">
+                      <summary class="btn-icon btn-compact overflow-trigger" aria-label="More options for ${c.courseTitle}">
+                        ${renderIcon('more-horizontal', { size: 16 })}
+                      </summary>
+                      <div class="overflow-dropdown">
+                        <button type="button" class="overflow-menu-item leave-course-trigger text-danger" data-course-id="${c.courseId}" data-course-title="${c.courseTitle}">
+                          ${renderIcon('logout', { size: 14 })}
+                          <span>Leave course</span>
+                        </button>
+                      </div>
+                    </details>
+                  </div>
                 </div>
               </div>
             </article>
@@ -140,7 +189,6 @@ export function renderMyCoursesPage(opts: MyCoursesPageOptions): string {
     `;
   }
 
-  // Previous enrollments section (left/revoked)
   let previousSectionHtml = '';
   if (previousCourses.length > 0) {
     previousSectionHtml = `
@@ -180,39 +228,48 @@ export function renderMyCoursesPage(opts: MyCoursesPageOptions): string {
     `;
   }
 
-  // Leave course confirmation dialog
   let dialogHtml = '';
   if (opts.leaveCourseDialogFor) {
     dialogHtml = renderDialog({
       isOpen: true,
       title: 'Leave course?',
-      description: `Are you sure you want to leave "${opts.leaveCourseDialogFor.courseTitle}"? Your progress and completed steps will be saved, but this course will no longer appear on your continue dashboard.`,
+      description: `Are you sure you want to leave "${opts.leaveCourseDialogFor.courseTitle}"? Your progress and completed steps will be saved, but this course will no longer appear on your Home page.`,
       confirmText: 'Leave course',
       cancelText: 'Cancel',
       isDestructive: true,
     });
   }
 
-  const content = `
-    <div class="my-courses-page">
-      <div class="my-courses-container">
-        <header class="page-header">
-          <h1 class="page-title">My courses</h1>
-        </header>
+  return `
+    <section class="home-courses" aria-labelledby="home-courses-heading">
+      <div class="home-courses-head">
+        <h2 id="home-courses-heading" class="section-title">Your courses</h2>
+        ${chipsHtml}
+      </div>
+      ${coursesListHtml}
+      ${previousSectionHtml}
+      ${dialogHtml}
+    </section>
+  `;
+}
 
-        ${tabsHtml}
-        ${coursesListHtml}
-        ${previousSectionHtml}
-        ${dialogHtml}
+/** Standalone courses list (the Home page composes renderYourCoursesSection with the Continue hero). */
+export function renderMyCoursesPage(opts: MyCoursesPageOptions): string {
+  opts = safeTemplateData(opts);
+  const content = `
+    <div class="home-page">
+      <div class="home-container">
+        <h1 class="page-title">Home</h1>
+        ${renderYourCoursesSection(opts)}
       </div>
     </div>
   `;
 
   return renderAppShell({
-    activePath: '/learn/courses',
+    activePath: '/learn',
     user: opts.user,
     currentMode: 'learn',
-    headerTitle: 'My courses',
+    headerTitle: 'Home',
     content,
   });
 }

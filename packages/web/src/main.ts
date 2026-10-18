@@ -72,7 +72,6 @@ import { renderTheoryStepPage, renderTheoryWorkspaceContent, type TheoryStepPage
 import { renderVideoStepPage, renderVideoWorkspaceContent, type VideoStepPageOptions } from './pages/learning/VideoStepPage.ts';
 import { renderQuizStepPage, renderQuizWorkspaceContent, type QuizStepPageOptions } from './pages/learning/QuizStepPage.ts';
 import { renderDashboardContinuePage } from './pages/learning/DashboardContinuePage.ts';
-import { renderMyCoursesPage } from './pages/learning/MyCoursesPage.ts';
 import { renderEnrolledCoursePage } from './pages/learning/EnrolledCoursePage.ts';
 import { renderAcceptInvitationPage } from './pages/learning/AcceptInvitationPage.ts';
 
@@ -341,8 +340,11 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       return;
     }
     if (pageId === 'P09') {
-      showRouteLoading('Continue learning');
-      const data = await s2Request('/api/student/dashboard');
+      showRouteLoading('Home');
+      const [data, coursesData] = await Promise.all([
+        s2Request('/api/student/dashboard'),
+        s2Request('/api/student/courses').catch(() => null),
+      ]);
       if (!s2Current(path)) return;
       if (data.continueCourse?.enrollmentId && (data.continueCourse.nextIncompleteStepId || data.continueCourse.lastVisitedStepId)) {
         try {
@@ -355,14 +357,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
           }
         } catch { /* optional enrichment */ }
       }
-      if (s2Current(path)) appEl.innerHTML = renderDashboardContinuePage({ user, continueCourse: data.continueCourse, recentCourses: data.recentCourses });
-      return;
-    }
-    if (pageId === 'P10') {
-      showRouteLoading('My courses');
-      const data = await s2Request('/api/student/courses');
-      if (!s2Current(path)) return;
-      const courses = data.enrollments.map((e: any) => ({
+      const courses = (coursesData?.enrollments || []).map((e: any) => ({
         ...e,
         percentage: e.progress?.percentage || 0,
         completedRequired: e.progress?.completedRequired || 0,
@@ -371,15 +366,24 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         nextStepId: e.progress?.nextIncompleteStepId || e.progress?.lastVisitedStepId,
         nextStepTitle: e.progress?.nextIncompleteStepTitle || e.progress?.lastVisitedStepTitle,
       }));
-      const searchParams = path.includes('?')
-        ? new URL(path, window.location.origin).searchParams
-        : new URLSearchParams(window.location.search);
-      const rawFilter = searchParams.get('filter');
+      const rawFilter = new URL(path, window.location.origin).searchParams.get('filter');
+      const activeCourses = courses.filter((e: any) => e.status === 'active');
       const activeFilter: 'in_progress' | 'completed' | 'all' =
         rawFilter === 'completed' || rawFilter === 'all' || rawFilter === 'in_progress'
           ? rawFilter
-          : 'in_progress';
-      appEl.innerHTML = renderMyCoursesPage({ user, courses, activeFilter });
+          : activeCourses.length > 0 && activeCourses.every((e: any) => e.isCompleted) ? 'all' : 'in_progress';
+      if (s2Current(path)) {
+        appEl.innerHTML = coursesData
+          ? renderDashboardContinuePage({ user, continueCourse: data.continueCourse, courses, activeFilter })
+          : renderDashboardContinuePage({ user, continueCourse: data.continueCourse, recentCourses: data.recentCourses });
+      }
+      return;
+    }
+    if (pageId === 'P10') {
+      const query = new URL(path, window.location.origin).search;
+      const target = `/learn${query}`;
+      window.history.replaceState({}, '', target);
+      renderApp(target);
       return;
     }
     if (pageId === 'P11') {

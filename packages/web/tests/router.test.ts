@@ -78,7 +78,7 @@ test('Post sign-in landing is role-aware and explicit returnTo wins', () => {
   assert.strictEqual(getPostSignInDestination(null, { capabilities: ['student'] }), '/learn');
   assert.strictEqual(getPostSignInDestination('', { capabilities: ['student', 'admin'] }), '/admin');
   assert.strictEqual(getPostSignInDestination(undefined, { capabilities: ['author'] }), '/teach');
-  assert.strictEqual(getPostSignInDestination(undefined, { capabilities: ['student', 'author'] }), '/learn');
+  assert.strictEqual(getPostSignInDestination(undefined, { capabilities: ['student', 'author'] }), '/teach');
   assert.strictEqual(getPostSignInDestination('/courses', { capabilities: ['admin'] }), '/courses');
   assert.strictEqual(getPostSignInDestination('//evil.com', { capabilities: ['author'] }), '/teach');
 });

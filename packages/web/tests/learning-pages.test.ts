@@ -153,7 +153,7 @@ test('Learning Pages & Shell Workspaces (P08–P14, S2–S4)', async (t) => {
       },
     });
 
-    assert.ok(html.includes('My courses'));
+    assert.ok(html.includes('Your courses'));
     assert.ok(html.includes('In progress (1)'));
     assert.ok(html.includes('Python 101'));
     assert.ok(html.includes('Leave course?'));

@@ -60,27 +60,27 @@ test('L1: MyCoursesPage parses and reflects requested filter in tabs, counts, an
   const inProgressHtml = renderMyCoursesPage({ user: mockUser, courses, activeFilter: 'in_progress' });
   assert.ok(inProgressHtml.includes('Active Course'));
   assert.ok(!inProgressHtml.includes('Finished Course'));
-  assert.ok(inProgressHtml.includes('href="/learn/courses?filter=in_progress" class="tab-link active" aria-selected="true"'));
-  assert.ok(inProgressHtml.includes('href="/learn/courses?filter=completed" class="tab-link " aria-selected="false"'));
+  assert.ok(inProgressHtml.includes('href="/learn?filter=in_progress" class="filter-chip active" aria-current="true"'));
+  assert.ok(inProgressHtml.includes('href="/learn?filter=completed" class="filter-chip "'));
 
   // Completed view
   const completedHtml = renderMyCoursesPage({ user: mockUser, courses, activeFilter: 'completed' });
   assert.ok(!completedHtml.includes('Active Course'));
   assert.ok(completedHtml.includes('Finished Course'));
-  assert.ok(completedHtml.includes('href="/learn/courses?filter=completed" class="tab-link active" aria-selected="true"'));
-  assert.ok(completedHtml.includes('href="/learn/courses?filter=in_progress" class="tab-link " aria-selected="false"'));
+  assert.ok(completedHtml.includes('href="/learn?filter=completed" class="filter-chip active" aria-current="true"'));
+  assert.ok(completedHtml.includes('href="/learn?filter=in_progress" class="filter-chip "'));
 
   // All view
   const allHtml = renderMyCoursesPage({ user: mockUser, courses, activeFilter: 'all' });
   assert.ok(allHtml.includes('Active Course'));
   assert.ok(allHtml.includes('Finished Course'));
-  assert.ok(allHtml.includes('href="/learn/courses?filter=all" class="tab-link active" aria-selected="true"'));
+  assert.ok(allHtml.includes('href="/learn?filter=all" class="filter-chip active" aria-current="true"'));
 
   // Empty completed view
   const emptyCompletedHtml = renderMyCoursesPage({ user: mockUser, courses: [inProgressCourse], activeFilter: 'completed' });
   assert.ok(emptyCompletedHtml.includes('No completed courses yet'));
-  assert.ok(emptyCompletedHtml.includes('href="/learn/courses?filter=in_progress" class="tab-link " aria-selected="false"'));
-  assert.ok(emptyCompletedHtml.includes('href="/learn/courses?filter=completed" class="tab-link active" aria-selected="true"'));
+  assert.ok(emptyCompletedHtml.includes('href="/learn?filter=in_progress" class="filter-chip "'));
+  assert.ok(emptyCompletedHtml.includes('href="/learn?filter=completed" class="filter-chip active" aria-current="true"'));
 });
 
 test('L2: AttemptHistoryPage retains real curriculum navigation and parent exercise context', () => {
