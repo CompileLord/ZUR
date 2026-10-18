@@ -25,37 +25,37 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
 
 
       <!-- Read → Try → Check Section (P01) -->
-      <section class="reading-progression-section border-t border-subtle py-16" aria-labelledby="progression-heading">
+      <section class="reading-progression-section landing-steps" aria-labelledby="progression-heading">
         <div class="container-landing">
-          <h2 id="progression-heading" class="sr-only">How learning works</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="progression-col">
-              <div class="progression-rail-marker" aria-hidden="true">
-                <span class="rail-ordinal font-mono">01</span>
-                <span class="rail-line"></span>
+          <h2 id="progression-heading" class="landing-section-title">How learning works</h2>
+          <div class="landing-step-grid">
+            <div class="progression-col landing-step-card">
+              <div class="landing-step-visual" aria-hidden="true">
+                <svg viewBox="0 0 120 64" fill="none"><rect x="14" y="8" width="92" height="48" rx="6" class="v-surface"/><rect x="24" y="18" width="48" height="5" rx="2.5" class="v-strong"/><rect x="24" y="29" width="72" height="4" rx="2" class="v-soft"/><rect x="24" y="38" width="62" height="4" rx="2" class="v-soft"/><rect x="24" y="47" width="30" height="4" rx="2" class="v-soft"/></svg>
               </div>
-              <h3 class="section-title text-lg font-semibold mb-2">Read</h3>
-              <p class="text-sm text-secondary leading-relaxed">
+              <span class="landing-step-ordinal font-mono">01 · ${renderIcon('book', { size: 14 })}</span>
+              <h3 class="landing-step-title">Read</h3>
+              <p class="landing-step-text">
                 Focused concept explanations with clear syntax and real examples.
               </p>
             </div>
-            <div class="progression-col">
-              <div class="progression-rail-marker" aria-hidden="true">
-                <span class="rail-ordinal font-mono">02</span>
-                <span class="rail-line"></span>
+            <div class="progression-col landing-step-card">
+              <div class="landing-step-visual" aria-hidden="true">
+                <svg viewBox="0 0 120 64" fill="none"><rect x="14" y="8" width="92" height="48" rx="6" class="v-surface"/><path d="m28 22 8 7-8 7" class="v-line"/><rect x="44" y="34" width="26" height="4" rx="2" class="v-accent"/><rect x="44" y="24" width="40" height="4" rx="2" class="v-soft"/><rect x="44" y="44" width="50" height="4" rx="2" class="v-soft"/></svg>
               </div>
-              <h3 class="section-title text-lg font-semibold mb-2">Try</h3>
-              <p class="text-sm text-secondary leading-relaxed">
+              <span class="landing-step-ordinal font-mono">02 · ${renderIcon('code', { size: 14 })}</span>
+              <h3 class="landing-step-title">Try</h3>
+              <p class="landing-step-text">
                 Write real Python code directly in the browser. No setup needed.
               </p>
             </div>
-            <div class="progression-col">
-              <div class="progression-rail-marker" aria-hidden="true">
-                <span class="rail-ordinal font-mono">03</span>
-                <span class="rail-line"></span>
+            <div class="progression-col landing-step-card">
+              <div class="landing-step-visual" aria-hidden="true">
+                <svg viewBox="0 0 120 64" fill="none"><rect x="14" y="8" width="92" height="48" rx="6" class="v-surface"/><circle cx="34" cy="24" r="6" class="v-ok"/><path d="m31 24 2.2 2.2L37.5 22" class="v-tick"/><rect x="46" y="22" width="48" height="4" rx="2" class="v-soft"/><circle cx="34" cy="42" r="6" class="v-ok"/><path d="m31 42 2.2 2.2L37.5 40" class="v-tick"/><rect x="46" y="40" width="36" height="4" rx="2" class="v-soft"/></svg>
               </div>
-              <h3 class="section-title text-lg font-semibold mb-2">Check</h3>
-              <p class="text-sm text-secondary leading-relaxed">
+              <span class="landing-step-ordinal font-mono">03 · ${renderIcon('list-checks', { size: 14 })}</span>
+              <h3 class="landing-step-title">Check</h3>
+              <p class="landing-step-text">
                 Instant automated feedback against public test cases and hidden checks.
               </p>
             </div>
@@ -64,7 +64,7 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
       </section>
 
       <!-- Authoring Section (P01: #teaching) -->
-      <section id="teaching" class="authoring-section border-t border-subtle py-16" aria-labelledby="teaching-heading">
+      <section id="teaching" class="authoring-section landing-teach" aria-labelledby="teaching-heading">
         <div class="container-landing">
           <div class="mb-10 max-w-reading">
             <h2 id="teaching-heading" class="page-title font-semibold mb-3">Teach with practice beside explanation</h2>

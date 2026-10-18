@@ -194,12 +194,12 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
   const outcomes = course.learningOutcomes || [];
   const outcomesHtml = outcomes.length > 0
     ? `
-      <section class="course-outcomes-section mb-10" aria-labelledby="outcomes-heading">
+      <section class="course-outcomes-section outcomes-card mb-10" aria-labelledby="outcomes-heading">
         <h2 id="outcomes-heading" class="section-title text-lg font-semibold mb-4">What you will learn</h2>
-        <ul class="outcomes-list flex flex-col gap-2.5 list-none p-0">
+        <ul class="outcomes-list list-none p-0">
           ${outcomes.map((o) => `
             <li class="flex items-start gap-3 text-secondary text-sm">
-              <span class="text-accent text-base leading-none font-bold" aria-hidden="true">✓</span>
+              <span class="outcome-check" aria-hidden="true">${renderIcon('check', { size: 14, strokeWidth: 2.5 })}</span>
               <span>${escapeHtml(o)}</span>
             </li>
           `).join('')}
@@ -284,7 +284,8 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
       return `
         <details class="module-section" ${modIdx === 0 ? 'open' : ''}>
           <summary class="module-heading cursor-pointer flex justify-between items-center select-none">
-            <span>Module ${modIdx + 1}: ${withoutOrdinal(mod.title, 'Module')}</span>
+            <span class="module-chevron" aria-hidden="true">${renderIcon('chevron-right', { size: 16 })}</span>
+            <span class="module-title">Module ${modIdx + 1}: ${withoutOrdinal(mod.title, 'Module')}</span>
             <span class="text-xs text-muted font-normal tabular-nums">${lessonCountText} · ${taskCountText}</span>
           </summary>
           <div class="module-lessons flex flex-col gap-2 mt-2">
@@ -349,7 +350,7 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
         </main>
 
         <!-- Secondary Column: Enrollment Summary Card (1/3 width, sticky) -->
-        <aside class="overview-sidebar md:col-span-1 sticky top-10" aria-label="Enrollment details">
+        <aside class="overview-sidebar md:col-span-1" aria-label="Enrollment details">
           <div class="enrollment-summary-card p-6 bg-surface border border-subtle rounded-lg flex flex-col gap-6">
             <h3 class="text-base font-semibold text-primary">Course summary</h3>
 

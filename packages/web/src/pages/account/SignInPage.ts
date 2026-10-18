@@ -9,6 +9,32 @@ export interface SignInPageOptions {
   isLoading?: boolean;
 }
 
+const BENEFITS = [
+  ['book', 'Short lessons', 'Read a concept, then use it right away.'],
+  ['code', 'Run Python in the browser', 'No setup, no installs.'],
+  ['list-checks', 'Instant feedback', 'Tests tell you what to fix next.'],
+] as const;
+
+export function renderAuthValuePanel(): string {
+  return `
+    <aside class="auth-value" aria-label="Why ZUR">
+      <ul class="auth-value-list">
+        ${BENEFITS.map(
+          ([icon, title, text]) => `
+          <li>
+            <span class="auth-value-icon" aria-hidden="true">${renderIcon(icon, { size: 16 })}</span>
+            <span><strong>${title}</strong><br />${text}</span>
+          </li>`
+        ).join('')}
+      </ul>
+      <pre class="auth-value-code" aria-hidden="true"><code><span class="c">&gt;&gt;&gt; </span>squares = [n * n for n in range(1, 6)]
+<span class="c">&gt;&gt;&gt; </span>print(squares)
+[1, 4, 9, 16, 25]
+<span class="ok">&check; Tests passed (2/2)</span></code></pre>
+    </aside>
+  `;
+}
+
 export function renderSignInPage(opts: SignInPageOptions = {}): string {
   const returnToParam = opts.returnTo ? `?returnTo=${encodeURIComponent(opts.returnTo)}` : '';
   const formContent = `
@@ -86,6 +112,6 @@ export function renderSignInPage(opts: SignInPageOptions = {}): string {
 
   return renderAccountShell({
     title: 'Welcome back',
-    formContent,
+    formContent: `<div class="auth-split"><div class="auth-form-col">${formContent}</div>${renderAuthValuePanel()}</div>`,
   });
 }

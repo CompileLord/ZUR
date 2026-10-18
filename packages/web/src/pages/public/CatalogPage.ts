@@ -1,4 +1,3 @@
-import { renderCourseRow } from '../../components/common/CourseRow.ts';
 import { renderLoadingSkeleton, renderNoMatchesState } from '../../components/states/UniversalStates.ts';
 import { renderIcon } from '../../components/common/icons.ts';
 
@@ -15,6 +14,7 @@ export interface CatalogCourseItem {
   tags?: string[];
   currentVersionId?: string;
   versionNumber?: number;
+  lessonCount?: number;
 }
 
 export interface CatalogCategoryItem {
@@ -213,42 +213,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
       `;
     }
   } else {
-    const courseRows = courses
-      .map((c) => {
-        const durationText = c.estimatedDurationMinutes
-          ? `${c.estimatedDurationMinutes} mins`
-          : undefined;
-
-        const levelCapitalized = c.difficulty
-          ? c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1)
-          : undefined;
-
-        const rendered = renderCourseRow({
-          id: c.id,
-          title: c.title,
-          description: c.description,
-          authorName: c.authorName,
-          level: levelCapitalized,
-          durationText,
-          actionText: 'View course',
-          actionHref: `/courses/${c.id}`,
-        });
-
-        return rendered
-          .replace(
-            'class="course-row"',
-            'class="course-row course-card catalog-card"'
-          )
-          .replace(
-            'class="course-row-title"',
-            'class="course-row-title card-title"'
-          )
-          .replace(
-            'class="course-row-description"',
-            `class="course-row-description card-description" title="${escapeHtml(c.description)}"`
-          );
-      })
-      .join('');
+    const courseRows = courses.map((c) => renderCatalogCard(c)).join('');
 
     const paginationControls = `
       <nav class="catalog-pagination flex justify-between items-center mt-10 pt-6 border-t border-subtle" aria-label="Course list pagination">
@@ -275,7 +240,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
     `;
 
     content = `
-      <div class="course-list flex flex-col gap-3 my-6" role="list">
+      <div class="course-list catalog-grid" role="list">
         ${courseRows}
       </div>
       ${totalPages > 1 ? paginationControls : ''}
@@ -317,7 +282,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
 
         <div class="filter-toolbar flex items-center justify-between flex-wrap gap-3">
           <!-- Desktop Filter Dropdowns -->
-          <div class="desktop-filters category-filter-tabs flex items-center gap-2 flex-wrap">
+          <div class="desktop-filters category-filter-tabs catalog-filter-chips flex items-center gap-2 flex-wrap">
             <div class="filter-group">
               <label for="filter-category" class="sr-only">Category</label>
               <select id="filter-category" class="form-select form-input-compact">
@@ -346,7 +311,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
 
             ${
               filters.q || filters.category || filters.level || filters.language
-                ? `<button type="button" class="btn btn-ghost btn-compact text-xs text-muted" data-action="clear-filters">Clear filters</button>`
+                ? `<button type="button" class="catalog-reset" data-action="clear-filters" aria-label="Clear filters" title="Clear filters">${renderIcon('x', { size: 12 })}<span>Reset</span></button>`
                 : ''
             }
           </div>
@@ -392,6 +357,41 @@ export function renderCatalogPage(props: CatalogPageProps): string {
 
       ${mobileFilterSheet}
     </div>
+  `;
+}
+
+function hueFor(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
+  return h;
+}
+
+function renderCatalogCard(c: CatalogCourseItem): string {
+  const hue = hueFor(c.id || c.title);
+  const initial = escapeHtml((c.title.trim().charAt(0) || '?').toUpperCase());
+  const level = c.difficulty ? c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1) : '';
+  const chips = [
+    level ? `<span class="catalog-chip catalog-chip-level">${escapeHtml(level)}</span>` : '',
+    c.estimatedDurationMinutes ? `<span class="catalog-chip">${c.estimatedDurationMinutes} mins</span>` : '',
+    c.lessonCount
+      ? `<span class="catalog-chip">${c.lessonCount} ${c.lessonCount === 1 ? 'lesson' : 'lessons'}</span>`
+      : '',
+  ].join('');
+  return `
+    <article class="course-card catalog-card" role="listitem" data-course-id="${escapeHtml(c.id)}">
+      <a class="catalog-thumb" href="/courses/${escapeHtml(c.id)}" tabindex="-1" aria-hidden="true" style="--thumb-hue: ${hue}">
+        <span class="catalog-thumb-initial">${initial}</span>
+      </a>
+      <div class="catalog-card-body">
+        <div class="catalog-chips">${chips}</div>
+        <h2 class="card-title"><a href="/courses/${escapeHtml(c.id)}" class="card-title-link">${escapeHtml(c.title)}</a></h2>
+        <p class="card-description" title="${escapeHtml(c.description)}">${escapeHtml(c.description)}</p>
+        <div class="catalog-card-footer">
+          <span class="catalog-author">${c.authorName ? escapeHtml(c.authorName) : ''}</span>
+          <a href="/courses/${escapeHtml(c.id)}" class="btn btn-secondary btn-compact">View course</a>
+        </div>
+      </div>
+    </article>
   `;
 }
 

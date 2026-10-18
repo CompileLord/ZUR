@@ -1,9 +1,8 @@
 import { renderPublicShell } from '../../components/shells/PublicShell.ts';
 import { renderAppShell } from '../../components/shells/AppShell.ts';
-import { renderIcon } from '../../components/common/icons.ts';
+import { renderIcon, type IconName } from '../../components/common/icons.ts';
 import { escapeHtml } from '../../utils/escape-html.ts';
 import {
-  renderNotFoundState,
   renderRateLimitAlert,
 } from '../../components/states/UniversalStates.ts';
 
@@ -14,46 +13,63 @@ export interface SafeDenialPageOptions {
   user?: any;
 }
 
+interface StatusStateOptions {
+  stateClass: string;
+  icon: IconName;
+  tone: 'neutral' | 'warning';
+  heading: string;
+  message: string;
+  actions: string;
+}
+
+const BACK_BUTTON = `<button type="button" class="btn btn-ghost btn-compact" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/courses'">Go back</button>`;
+
+function renderStatusState(o: StatusStateOptions): string {
+  return `
+    <div class="state-container status-state ${o.stateClass}" role="alert">
+      <div class="status-state-icon status-state-icon-${o.tone}" aria-hidden="true">
+        ${renderIcon(o.icon, { size: 32, strokeWidth: 1.5 })}
+      </div>
+      <h1 class="status-state-heading">${o.heading}</h1>
+      <p class="status-state-message">${o.message}</p>
+      <div class="status-state-actions">${o.actions}</div>
+    </div>
+  `;
+}
+
 export function renderSafeDenialPage(opts: SafeDenialPageOptions): string {
   let content = '';
 
   switch (opts.type) {
     case 'not-found':
-      content = renderNotFoundState();
+      content = renderStatusState({
+        stateClass: 'state-not-found',
+        icon: 'compass',
+        tone: 'neutral',
+        heading: "This page isn't available.",
+        message: 'The link may be out of date, or the page has moved. Let\'s get you back on track.',
+        actions: `<a href="/courses" class="btn btn-primary btn-compact">Browse courses</a>${BACK_BUTTON}`,
+      });
       break;
     case 'access-denied':
-      content = `
-        <div class="state-container state-denied" role="alert">
-          <div class="state-icon text-muted mb-4" aria-hidden="true">
-            ${renderIcon('shield', { size: 36, strokeWidth: 1.5 })}
-          </div>
-          <h1 class="state-heading page-title text-xl font-semibold mb-2">This page isn't available.</h1>
-          <p class="state-message text-secondary text-sm mb-6 max-w-sm mx-auto">
-            ${escapeHtml(opts.message || 'You do not have permission to view this content.')}
-          </p>
-          <div class="state-actions flex items-center justify-center gap-3">
-            <a href="/courses" class="btn btn-primary btn-compact">Browse courses</a>
-            <button type="button" class="btn btn-ghost btn-compact" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/courses'">Go back</button>
-          </div>
-        </div>
-      `;
+      content = renderStatusState({
+        stateClass: 'state-denied',
+        icon: 'shield',
+        tone: 'neutral',
+        heading: "This page isn't available.",
+        message: escapeHtml(opts.message || 'You may need a different account or an invitation to see this.'),
+        actions: `<a href="/courses" class="btn btn-primary btn-compact">Browse courses</a>${BACK_BUTTON}`,
+      });
       break;
     case 'suspended':
-      content = `
-        <div class="state-container state-suspended" role="alert">
-          <div class="state-icon text-warning mb-4" aria-hidden="true">
-            ${renderIcon('alert-triangle', { size: 36, strokeWidth: 1.5 })}
-          </div>
-          <h1 class="state-heading page-title text-xl font-semibold mb-2">This account is suspended.</h1>
-          <p class="state-message text-secondary text-sm mb-6 max-w-sm mx-auto">
-            ${escapeHtml(opts.message || 'An administrative hold is placed on this account. Contact support for assistance.')}
-          </p>
-          <div class="state-actions flex items-center justify-center gap-3">
-            <a href="/help" class="btn btn-primary btn-compact">Help and support</a>
-            <a href="/courses" class="btn btn-secondary btn-compact">Browse courses</a>
-          </div>
-        </div>
-      `;
+      content = renderStatusState({
+        stateClass: 'state-suspended',
+        icon: 'alert-triangle',
+        tone: 'warning',
+        heading: 'This account is suspended.',
+        message: escapeHtml(opts.message || 'An administrative hold is placed on this account. Contact support for assistance.'),
+        actions: `<a href="/help" class="btn btn-primary btn-compact">Help and support</a><a href="/courses" class="btn btn-secondary btn-compact">Browse courses</a>`,
+      });
       break;
     case 'rate-limited':
       content = `
@@ -67,8 +83,7 @@ export function renderSafeDenialPage(opts: SafeDenialPageOptions): string {
       break;
   }
 
-  const wrapperClass = 'status-page container flex flex-col items-center justify-center py-24 text-center';
-  const pageContent = `<div class="${wrapperClass}">${content}</div>`;
+  const pageContent = `<div class="status-page">${content}</div>`;
 
   if (opts.user) {
     return renderAppShell({

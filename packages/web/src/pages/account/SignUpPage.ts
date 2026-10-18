@@ -1,5 +1,6 @@
 import { escapeHtml } from '../../utils/escape-html.ts';
 import { renderAccountShell } from '../../components/shells/AccountShell.ts';
+import { renderAuthValuePanel } from './SignInPage.ts';
 import { renderTextInput, renderButton, renderIcon } from '../../components/common/index.ts';
 
 export interface SignUpPageOptions {
@@ -109,6 +110,6 @@ export function renderSignUpPage(opts: SignUpPageOptions = {}): string {
 
   return renderAccountShell({
     title: 'Create your account',
-    formContent,
+    formContent: `<div class="auth-split"><div class="auth-form-col">${formContent}</div>${renderAuthValuePanel()}</div>`,
   });
 }

@@ -55,11 +55,11 @@ export function renderLandingHero(isSignedIn = false): string {
             <!-- Optional topic shortcuts -->
             <div class="hero-topics" data-hero-entrance="0.2">
               <div class="hero-shortcuts" role="group" aria-label="Popular topics">
-                <span class="hero-shortcuts-label">Topics:</span>
+                <span class="hero-shortcuts-label">Jump to a topic</span>
                 ${LANDING_INTERESTS.map(
                   (interest) => `
                   <button type="button" class="hero-pill" aria-pressed="false" data-hero-interest="${interest}">
-                    <span class="hero-pill-check" hidden>${renderIcon('check', { size: 14 })}</span>
+                    <span class="hero-pill-arrow" aria-hidden="true">${renderHeroIcon('arrow-right')}</span><span class="hero-pill-check" hidden>${renderIcon('check', { size: 14 })}</span>
                     ${interest}
                   </button>
                 `
