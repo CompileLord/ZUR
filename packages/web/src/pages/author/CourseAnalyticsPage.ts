@@ -79,6 +79,12 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
   const completionPercent = totalActive > 0 ? (comp.ratePercent ?? comp.completionRatePercent ?? comp.percentage ?? null) : null;
   const avgProgress = totalActive > 0 ? (an.averageProgressPercent ?? an.averageProgress ?? null) : null;
   const insightsList: any[] = an.exerciseInsights || [];
+  const isEmptyInsight = (ex: any) => {
+    const participants = ex.distinctParticipants ?? 0;
+    const rate = ex.passRatePercent ?? ex.passRatePercentage;
+    return !(participants > 0 && rate !== null && rate !== undefined);
+  };
+  const emptyInsightCount = insightsList.filter(isEmptyInsight).length;
 
   const content = `
     <div class="analytics-page-container p-6 max-w-7xl mx-auto" data-course-id="${escapeHtml(props.courseId)}">
@@ -116,58 +122,68 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
         </div>
       </header>
 
-      <details class="disclosure-card mb-6" style="margin-bottom: 1.5rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
-        <summary style="padding: 0.5rem 0.75rem; font-size: 0.8125rem; font-weight: 500; cursor: pointer; color: var(--text-secondary);">Methodology and scope</summary>
-        <div style="padding: 0 0.75rem 0.75rem; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5;">
-          <p class="analytics-version-scope" role="note" style="margin: 0 0 0.25rem;">
-            Enrollment metrics follow the selected version scope. Exercise insights show one immutable version${filters?.versionId ? `, Version ${escapeHtml(filters.versionId)}` : `; latest release, Version ${escapeHtml(String(an.versionNumber ?? 'unavailable'))}`}.
-          </p>
-          <p style="margin: 0;">
-            Exercise results use one immutable release at a time and are never combined across versions. The reporting window is ${currentWindowDays} days. Excludes infrastructure failures and admin waivers.
-          </p>
-        </div>
-      </details>
+      <div class="analytics-info-row mb-4">
+        <details class="info-popover">
+          <summary class="info-popover-trigger" aria-label="Methodology and scope">${renderIcon('info', { size: 14 })}<span>Methodology</span></summary>
+          <div class="info-popover-panel" role="note">
+            <p class="analytics-version-scope">
+              Enrollment metrics follow the selected version scope. Exercise insights show one immutable version${filters?.versionId ? `, Version ${escapeHtml(filters.versionId)}` : `; latest release, Version ${escapeHtml(String(an.versionNumber ?? 'unavailable'))}`}.
+            </p>
+            <p>
+              Exercise results use one immutable release at a time and are never combined across versions. The reporting window is ${currentWindowDays} days. Excludes infrastructure failures and admin waivers.
+            </p>
+            <p>
+              Admin and preview activity is excluded from product metrics. Pass rates reflect distinct students with a verified pass over distinct students with at least one non-infrastructure submission. Waivers are tracked separately and never counted as passed student submissions.
+            </p>
+          </div>
+        </details>
+      </div>
 
       <!-- Horizontal Definition List of Metrics (Design §12 P30 & PRD §14) -->
       <section class="horizontal-metrics-section mb-8" aria-label="Course summary metrics">
         <dl class="metrics-definition-list">
           <!-- Metric 1: Active Enrollments -->
-          <div class="metrics-definition-item">
+          <div class="metrics-definition-item" title="Learners currently enrolled in Active state">
             <dt>Active enrollments</dt>
             <dd>${an.activeEnrollments ?? 0}</dd>
-            <p class="metric-caption">Learners currently enrolled in Active state</p>
           </div>
 
           <!-- Metric 2: Learning-active Students -->
-          <div class="metrics-definition-item">
+          <div class="metrics-definition-item" title="Active students with a completion or assessment submission in the last ${currentWindowDays} days">
             <dt>Learning-active students</dt>
             <dd>${an.learningActiveStudents ?? 0}</dd>
-            <p class="metric-caption">Active students with a completion or assessment submission in the last ${currentWindowDays} days</p>
           </div>
 
           <!-- Metric 3: Completion Rate -->
-          <div class="metrics-definition-item">
+          <div class="metrics-definition-item" title="Share of active students who finished all required steps">
             <dt>Completion rate</dt>
             <dd>${completionPercent === null ? 'No activity yet' : `${completionPercent}%`}</dd>
             <p class="metric-caption">${totalActive === 0 ? 'No active enrollments' : `${completedCount} / ${totalActive} active students finished`}</p>
           </div>
 
           <!-- Metric 4: Average Progress -->
-          <div class="metrics-definition-item">
+          <div class="metrics-definition-item" title="Mean required-step completion across all active enrollments">
             <dt>Average progress</dt>
             <dd>${avgProgress === null ? 'No activity yet' : `${avgProgress}%`}</dd>
-            <p class="metric-caption">${totalActive === 0 ? 'No active enrollments' : 'Mean required-step completion across all active enrollments'}</p>
+            ${totalActive === 0 ? '<p class="metric-caption">No active enrollments</p>' : ''}
           </div>
         </dl>
       </section>
 
       <!-- Exercise Insights Section -->
-      <section class="exercise-insights-section space-y-4" aria-labelledby="insights-heading">
+      <section class="exercise-insights-section analytics-insights space-y-4" aria-labelledby="insights-heading">
         <div class="flex justify-between items-end pb-2">
           <div>
             <h2 id="insights-heading" class="text-lg font-bold text-primary">Exercise insights — Version ${escapeHtml(String(an.versionNumber ?? 'latest'))}${!filters?.versionId ? ' (latest release)' : ''}</h2>
             <p class="text-xs text-secondary mt-0.5">Assessed exercises with activity in the last ${currentWindowDays} days.</p>
           </div>
+          ${emptyInsightCount > 0 ? `
+            <label class="switch-label insight-empty-toggle">
+              <input type="checkbox" id="toggle-empty-steps" class="switch-input" />
+              <span class="switch-track" aria-hidden="true"></span>
+              <span>Show steps without attempts (${emptyInsightCount})</span>
+            </label>
+          ` : ''}
         </div>
 
         <div class="data-table-wrapper border border-subtle rounded-xl bg-surface overflow-x-auto shadow-sm">
@@ -190,7 +206,10 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
                     <p class="text-xs text-muted">This course does not contain assessed exercises (python/quiz) in the selected version.</p>
                   </td>
                 </tr>
-              ` : insightsList.map((ex: any) => {
+              ` : `${emptyInsightCount === insightsList.length ? `
+                <tr class="insight-all-empty-note">
+                  <td colspan="6" class="p-6 text-center text-secondary text-sm">No step has assessed attempts in this window yet. Use "Show steps without attempts" to list them.</td>
+                </tr>` : ''}` + insightsList.map((ex: any) => {
                 const distinctParticipants = ex.distinctParticipants ?? 0;
                 const distinctPassing = ex.distinctPassingStudents ?? ex.distinctPassCount ?? 0;
                 const passRate = ex.passRatePercent ?? ex.passRatePercentage;
@@ -204,7 +223,7 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
                 const typeIcon = stepType === 'python' ? 'code' : 'list-checks';
 
                 return `
-                  <tr class="hover:bg-hover transition-colors">
+                  <tr class="hover:bg-hover transition-colors${isEmptyInsight(ex) ? ' insight-row-empty' : ''}">
                     <td class="py-3.5 px-4">
                       <div class="exercise-header-meta flex items-center mb-1" style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                         <span class="inline-flex items-center gap-1 font-mono text-[11px] px-1.5 py-0.5 rounded bg-raised border border-subtle text-secondary" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; font-size: 11px; background: var(--bg-raised); border: 1px solid var(--border-subtle); margin-right: 6px;">
@@ -278,12 +297,6 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
           </table>
         </div>
 
-        <details class="disclosure-card p-3 bg-surface border border-subtle rounded-lg text-xs text-secondary mt-4">
-          <summary class="cursor-pointer font-medium text-primary">Methodology &amp; metric notes</summary>
-          <p class="mt-2 text-muted leading-relaxed">
-            Admin and preview activity is excluded from product metrics. Pass rates reflect distinct students with a verified pass over distinct students with at least one non-infrastructure submission. Waivers are tracked separately and never counted as passed student submissions.
-          </p>
-        </details>
       </section>
     </div>
   `;

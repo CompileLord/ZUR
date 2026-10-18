@@ -31,6 +31,47 @@ export interface QuizEditorPageOptions {
   modules?: ModuleSummary[];
 }
 
+
+export function renderQuizOptionRow(o: { id: string; text: string; isCorrect: boolean; letter: string; inputType: string; inputName: string; canRemove: boolean }): string {
+  return `
+        <div class="quiz-option-row" data-option-id="${o.id}">
+          <span class="drag-handle" role="button" tabindex="0" draggable="true" aria-label="Reorder option ${o.letter}. Press Alt+Up or Alt+Down to move." title="Drag to reorder (or Alt+Up / Alt+Down)">
+            ${renderIcon('grip-vertical', { size: 16 })}
+          </span>
+          <span class="option-letter" aria-hidden="true">${o.letter}</span>
+          <input
+            type="text"
+            class="text-input option-text-input"
+            value="${o.text}"
+            placeholder="Enter answer choice text..."
+            required
+          />
+          <label class="correct-toggle" title="Mark as correct answer">
+            <input
+              type="${o.inputType}"
+              name="${o.inputName}"
+              value="${o.id}"
+              class="correct-input"
+              ${o.isCorrect ? 'checked' : ''}
+              aria-label="Mark Option ${o.letter} as correct answer"
+            />
+            <span class="correct-toggle-face" aria-hidden="true">${renderIcon('check', { size: 14 })} Correct</span><span class="sr-only">Correct answer</span>
+          </label>
+          <button
+            type="button"
+            class="btn btn-ghost btn-compact text-danger remove-option-btn"
+            data-option-id="${o.id}"
+            ${!o.canRemove ? 'disabled' : ''}
+            aria-label="Remove option ${o.letter}"
+            title="Remove option"
+          >
+            ${renderIcon('trash', { size: 14 })}
+            <span class="sr-only">Remove</span>
+          </button>
+        </div>
+      `;
+}
+
 export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
   opts = safeTemplateData(opts);
   const saveStatusText =
@@ -51,47 +92,13 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
       const inputType = isSingleChoice ? 'radio' : 'checkbox';
       const inputName = isSingleChoice ? 'correctOption' : `correctOption_${opt.id}`;
 
-      return `
-        <div class="quiz-option-row flex items-center gap-2 p-2 mb-2 bg-surface border border-subtle rounded-md" data-option-id="${opt.id}">
-          <span class="drag-handle text-muted cursor-grab flex-shrink-0" aria-hidden="true" title="Reorder option">
-            ${renderIcon('grip-vertical', { size: 14 })}
-          </span>
-          <label class="correct-answer-label flex items-center cursor-pointer flex-shrink-0 px-1" title="Mark as correct answer">
-            <input
-              type="${inputType}"
-              name="${inputName}"
-              value="${opt.id}"
-              ${opt.isCorrect ? 'checked' : ''}
-              aria-label="Mark Option ${String.fromCharCode(65 + idx)} as correct answer"
-            />
-            <span class="sr-only">Correct answer</span>
-          </label>
-          <span class="option-letter font-mono text-xs font-semibold text-muted w-5 text-center flex-shrink-0">${String.fromCharCode(65 + idx)}</span>
-          <input
-            type="text"
-            class="text-input option-text-input flex-1 text-sm"
-            value="${opt.text}"
-            placeholder="Enter answer choice text..."
-            required
-          />
-          <button
-            type="button"
-            class="btn btn-ghost btn-compact text-danger remove-option-btn p-1.5 flex-shrink-0"
-            data-option-id="${opt.id}"
-            ${!canRemoveOption ? 'disabled' : ''}
-            aria-label="Remove option ${String.fromCharCode(65 + idx)}"
-            title="Remove option"
-          >
-            ${renderIcon('trash', { size: 14 })}
-            <span class="sr-only">Remove</span>
-          </button>
-        </div>
-      `;
+      const letter = String.fromCharCode(65 + idx);
+      return renderQuizOptionRow({ id: opt.id, text: opt.text, isCorrect: opt.isCorrect, letter, inputType, inputName, canRemove: canRemoveOption });
     })
     .join('');
 
   const editorContent = `
-    <div class="quiz-editor-container" style="max-width: 860px; margin: 0 auto; padding: 1.5rem 1rem;">
+    <div class="quiz-editor-container editor-wide editor-narrow">
       <header class="editor-header">
         <div class="title-input-row">
           <label for="step-title-input" class="visually-hidden">Step title</label>
@@ -148,7 +155,7 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
 
       <div class="quiz-options-section mt-4">
         <div class="section-header-row flex justify-between items-center mb-1">
-          <h2 class="section-title text-sm font-semibold">Answer choices (${opts.options.length} of 8)</h2>
+          <h2 class="section-title text-sm font-semibold">Answer choices <span class="option-counter" id="option-counter" aria-live="polite">Answers ${opts.options.length} / 8 (min 2)</span></h2>
           ${!canAddOption ? '<span class="status-badge warning text-xs">Max 8 options</span>' : ''}
         </div>
         <p class="text-xs text-secondary mb-2">${isSingleChoice ? 'Select the correct answer choice below.' : 'Select all correct answer choices below.'}</p>
@@ -168,8 +175,9 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
         }
       </div>
 
-      <div class="form-group mt-4">
-        <label for="quiz-explanation-input" class="field-label">Post-pass explanation</label>
+      <details class="explanation-accordion mt-4"${opts.explanation ? ' open' : ''}>
+        <summary class="field-label">Post-pass explanation</summary>
+        <div class="form-group mt-2">
         <textarea
           id="quiz-explanation-input"
           class="textarea-input w-full text-sm"
@@ -178,7 +186,8 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
           aria-describedby="explanation-hint"
         >${opts.explanation}</textarea>
         <p id="explanation-hint" class="field-hint text-xs text-muted mt-1.5">Shown after a correct answer.</p>
-      </div>
+        </div>
+      </details>
     </div>
   `;
 
@@ -188,7 +197,7 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
 
       <div class="form-group mt-3">
         <label for="step-duration" class="field-label">Duration</label>
-        <div class="input-with-unit flex items-center">
+        <div class="input-with-unit">
           <input
             id="step-duration"
             type="number"
@@ -197,17 +206,19 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
             class="text-input input-compact"
             value="${opts.estimatedDurationMinutes}"
           />
-          <span class="unit-text text-xs text-muted ml-1.5">min</span>
+          <span class="unit-text">min</span>
         </div>
       </div>
 
       <div class="form-group mt-3">
-        <label class="checkbox-label flex items-center gap-2 text-sm text-secondary">
+        <label class="switch-label">
           <input
             id="step-required"
             type="checkbox"
+            class="switch-input"
             ${opts.isRequired ? 'checked' : ''}
           />
+          <span class="switch-track" aria-hidden="true"></span>
           <span>Required step for course completion</span>
         </label>
       </div>
@@ -227,5 +238,83 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
     selectedId: opts.stepId,
     editorContent,
     inspectorContent,
+  });
+}
+
+export function initQuizEditor(root: HTMLElement): void {
+  const container = root.querySelector<HTMLElement>('.options-container');
+  if (!container) return;
+  const rows = () => Array.from(container.querySelectorAll<HTMLElement>('.quiz-option-row'));
+  const markDirty = () => root.querySelector('.shell-author')?.classList.add('is-dirty');
+  const typeInput = () => ((root.querySelector('#quiz-type-select') as HTMLSelectElement | null)?.value === 'multiple_choice' ? 'checkbox' : 'radio');
+
+  const refresh = () => {
+    const list = rows();
+    list.forEach((row, i) => {
+      const letter = String.fromCharCode(65 + i);
+      const l = row.querySelector('.option-letter');
+      if (l) l.textContent = letter;
+      row.querySelector('.correct-input')?.setAttribute('aria-label', `Mark Option ${letter} as correct answer`);
+      row.querySelector('.drag-handle')?.setAttribute('aria-label', `Reorder option ${letter}. Press Alt+Up or Alt+Down to move.`);
+      const rm = row.querySelector<HTMLButtonElement>('.remove-option-btn');
+      if (rm) { rm.disabled = list.length <= 2; rm.setAttribute('aria-label', `Remove option ${letter}`); }
+    });
+    const counter = root.querySelector('#option-counter');
+    if (counter) counter.textContent = `Answers ${list.length} / 8 (min 2)`;
+    const add = root.querySelector<HTMLButtonElement>('[data-action="add-option"]');
+    if (add) add.disabled = list.length >= 8;
+  };
+
+  root.querySelector('[data-action="add-option"]')?.addEventListener('click', () => {
+    if (rows().length >= 8) return;
+    const id = crypto.randomUUID();
+    const multi = typeInput() === 'checkbox';
+    const wrap = document.createElement('div');
+    wrap.innerHTML = renderQuizOptionRow({ id, text: '', isCorrect: false, letter: '', inputType: typeInput(), inputName: multi ? `correctOption_${id}` : 'correctOption', canRemove: true }).trim();
+    const row = wrap.firstElementChild as HTMLElement;
+    container.append(row);
+    refresh();
+    markDirty();
+    row.querySelector<HTMLInputElement>('.option-text-input')?.focus();
+  });
+
+  container.addEventListener('click', (event) => {
+    const button = (event.target as Element).closest('.remove-option-btn');
+    if (button && rows().length > 2) { button.closest('.quiz-option-row')?.remove(); refresh(); markDirty(); }
+  });
+
+  let dragged: HTMLElement | null = null;
+  container.addEventListener('dragstart', (e) => {
+    const row = (e.target as Element).closest<HTMLElement>('.quiz-option-row');
+    if (!row || !(e.target as Element).closest('.drag-handle')) { e.preventDefault(); return; }
+    dragged = row;
+    row.classList.add('is-dragging');
+    e.dataTransfer?.setData('text/plain', row.dataset.optionId || '');
+  });
+  container.addEventListener('dragover', (e) => {
+    if (!dragged) return;
+    e.preventDefault();
+    const over = (e.target as Element).closest<HTMLElement>('.quiz-option-row');
+    if (!over || over === dragged) return;
+    const after = e.clientY > over.getBoundingClientRect().top + over.offsetHeight / 2;
+    container.insertBefore(dragged, after ? over.nextSibling : over);
+  });
+  container.addEventListener('dragend', () => { dragged?.classList.remove('is-dragging'); dragged = null; refresh(); markDirty(); });
+  container.addEventListener('keydown', (e) => {
+    const handle = (e.target as Element).closest<HTMLElement>('.drag-handle');
+    if (!handle || !e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+    e.preventDefault();
+    const row = handle.closest<HTMLElement>('.quiz-option-row')!;
+    const sibling = e.key === 'ArrowUp' ? row.previousElementSibling : row.nextElementSibling;
+    if (!sibling) return;
+    if (e.key === 'ArrowUp') container.insertBefore(row, sibling); else container.insertBefore(sibling, row);
+    refresh();
+    markDirty();
+    handle.focus();
+  });
+
+  root.querySelector('#quiz-type-select')?.addEventListener('change', () => {
+    const multi = typeInput() === 'checkbox';
+    container.querySelectorAll<HTMLInputElement>('.correct-input').forEach((input) => { input.type = multi ? 'checkbox' : 'radio'; input.name = multi ? `correctOption_${input.value}` : 'correctOption'; });
   });
 }

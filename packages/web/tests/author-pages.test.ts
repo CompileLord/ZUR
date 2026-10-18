@@ -223,7 +223,7 @@ test('Author Pages & Shell Workspaces (P21–P26, P31)', async (t) => {
     });
 
     assert.ok(quizHtml.includes('Which component performs addition?'), 'Prompt rendered');
-    assert.ok(quizHtml.includes('Answer choices (3 of 8)'), 'Choice counter rendered');
+    assert.ok(quizHtml.includes('Answers 3 / 8 (min 2)'), 'Choice counter rendered');
     assert.ok(quizHtml.includes('The Mill'), 'Option 1 text');
     assert.ok(quizHtml.includes('Correct answer'), 'Answer-key control label present');
     assert.ok(quizHtml.includes('Shown after a correct answer'), 'Post-pass explanation note present');

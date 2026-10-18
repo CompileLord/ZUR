@@ -89,7 +89,7 @@ export function renderVideoEditorPage(opts: VideoEditorPageOptions): string {
     `;
 
   const editorContent = `
-    <div class="video-editor-container" style="max-width: 860px; margin: 0 auto; padding: 1.5rem 1rem;">
+    <div class="video-editor-container editor-wide">
       <header class="editor-header">
         <div class="title-input-row">
           <label for="step-title-input" class="visually-hidden">Step title</label>
@@ -124,21 +124,24 @@ export function renderVideoEditorPage(opts: VideoEditorPageOptions): string {
         </p>
       </div>
 
-      <div class="video-preview-section mt-4">
-        <h2 class="section-title text-sm font-semibold mb-2">Player Preview</h2>
-        ${previewBlock}
-      </div>
+      <div class="video-editor-grid mt-4">
+        <div class="video-preview-section">
+          <h2 class="section-title text-sm font-semibold mb-2">Player preview</h2>
+          ${previewBlock}
+          ${embedUrl ? `<p class="field-hint text-xs text-muted mt-1">${provider === 'vimeo' ? 'Vimeo' : provider === 'loom' ? 'Loom' : 'YouTube'} player. If the preview stays blank you may be offline or the provider is blocked; the URL is still saved.</p>` : ''}
+        </div>
 
-      <div class="form-group mt-4">
-        <label for="video-transcript-input" class="field-label" aria-label="Transcript or verified captions">Transcript</label>
-        <textarea
-          id="video-transcript-input"
-          class="textarea-input w-full"
-          rows="6"
-          placeholder="Paste or edit the video transcript here..."
-          aria-describedby="transcript-hint"
-        >${opts.transcript}</textarea>
-        <p id="transcript-hint" class="field-hint text-xs text-muted mt-1">Add a transcript for learners who cannot play the video.<span class="sr-only"> Ensures WCAG 2.2 AA accessibility and provides an alternative text stream if video playback fails.</span></p>
+        <div class="form-group video-transcript-group">
+          <label for="video-transcript-input" class="field-label" aria-label="Transcript or verified captions">Transcript</label>
+          <textarea
+            id="video-transcript-input"
+            class="textarea-input w-full"
+            rows="10"
+            placeholder="Paste or edit the video transcript here..."
+            aria-describedby="transcript-hint"
+          >${opts.transcript}</textarea>
+          <p id="transcript-hint" class="field-hint text-xs text-muted mt-1">Add a transcript for learners who cannot play the video.<span class="sr-only"> Ensures WCAG 2.2 AA accessibility and provides an alternative text stream if video playback fails.</span></p>
+        </div>
       </div>
     </div>
   `;
@@ -163,23 +166,27 @@ export function renderVideoEditorPage(opts: VideoEditorPageOptions): string {
       </div>
 
       <div class="form-group mt-3">
-        <label class="checkbox-label">
+        <label class="switch-label">
           <input
             id="step-required"
             type="checkbox"
+            class="switch-input"
             ${opts.isRequired ? 'checked' : ''}
           />
+          <span class="switch-track" aria-hidden="true"></span>
           <span>Required step for course completion</span>
         </label>
       </div>
 
       <div class="form-group mt-3">
-        <label class="checkbox-label">
+        <label class="switch-label">
           <input
             id="caption-verified"
             type="checkbox"
+            class="switch-input"
             ${opts.captionVerified ? 'checked' : ''}
           />
+          <span class="switch-track" aria-hidden="true"></span>
           <span>Captions verified accurate</span>
         </label>
       </div>

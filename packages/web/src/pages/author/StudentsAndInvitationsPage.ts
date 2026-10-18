@@ -75,6 +75,21 @@ function formatDate(iso: string | null | undefined): string {
   }
 }
 
+export function formatRelativeTime(iso: string | null | undefined, now: number = Date.now()): string {
+  if (!iso) return 'No activity yet';
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return iso;
+  const sec = Math.max(0, Math.round((now - then) / 1000));
+  if (sec < 60) return 'Just now';
+  const min = Math.round(sec / 60);
+  if (min < 60) return `${min} min ago`;
+  const hr = Math.round(min / 60);
+  if (hr < 24) return `${hr} h ago`;
+  const day = Math.round(hr / 24);
+  if (day < 30) return `${day} day${day === 1 ? '' : 's'} ago`;
+  return formatDate(iso);
+}
+
 export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPageProps): string {
   const activeTab = props.currentTab || 'enrolled';
   const rawRoster: any = props.roster || {};
@@ -133,8 +148,8 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
       <!-- Enrolled Panel -->
       <div id="panel-enrolled" role="tabpanel" aria-labelledby="tab-btn-enrolled" class="${activeTab === 'enrolled' ? '' : 'hidden'}">
         <!-- Plain Filter Toolbar -->
-        <div class="roster-toolbar flex flex-wrap gap-3 items-center justify-between mb-6">
-          <div class="flex-1 min-w-[240px]">
+        <div class="roster-toolbar">
+          <div class="roster-search-field">
             <label for="roster-search" class="sr-only">Search students</label>
             <input
               type="search"
@@ -144,7 +159,7 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
               value="${escapeHtml(props.filters?.search || '')}"
             />
           </div>
-          <div class="flex gap-3 items-center">
+          <div class="roster-filter-group">
             <div>
               <label for="roster-status-filter" class="sr-only">Filter by status</label>
               <select id="roster-status-filter" class="form-select text-sm">
@@ -175,8 +190,8 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
         </div>
 
         <!-- Roster Table -->
-        <div class="data-table-wrapper border border-subtle rounded-lg bg-surface overflow-x-auto">
-          <table class="data-table w-full text-left border-collapse text-sm" aria-label="Student enrollments roster">
+        <div class="data-table-wrapper roster-table-wrapper border border-subtle rounded-lg bg-surface overflow-x-auto">
+          <table class="data-table roster-table w-full text-left border-collapse text-sm" aria-label="Student enrollments roster">
             <thead>
               <tr class="border-b border-subtle bg-raised text-secondary font-semibold">
                 <th scope="col" class="py-3 px-4">Student</th>
@@ -210,16 +225,21 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
                 const lastAct = item.lastActivityAt || item.lastLearningActivityAt;
 
                 return `
-                  <tr class="border-b border-subtle hover:bg-hover transition-colors" data-enrollment-id="${escapeHtml(item.enrollmentId)}">
+                  <tr class="roster-row border-b border-subtle hover:bg-hover transition-colors" data-enrollment-id="${escapeHtml(item.enrollmentId)}">
                     <td class="py-3 px-4">
-                      <a href="/teach/${escapeHtml(props.courseId)}/students/${escapeHtml(item.enrollmentId)}" class="font-medium text-primary hover:underline block">
-                        ${escapeHtml(item.displayName)}
-                      </a>
-                      ${email ? `
-                        <span class="text-xs text-muted font-mono block mt-0.5" title="Masked student email for privacy">
-                          ${escapeHtml(email)}
-                        </span>
-                      ` : ''}
+                      <div class="student-cell">
+                        <span class="student-avatar" aria-hidden="true">${escapeHtml((String(item.displayName || '?').trim()[0] || '?').toUpperCase())}</span>
+                        <div class="student-identity">
+                          <a href="/teach/${escapeHtml(props.courseId)}/students/${escapeHtml(item.enrollmentId)}" class="font-medium text-primary hover:underline block">
+                            ${escapeHtml(item.displayName)}
+                          </a>
+                          ${email ? `
+                            <span class="text-xs text-muted font-mono block mt-0.5" title="Masked student email for privacy">
+                              ${escapeHtml(email)}
+                            </span>
+                          ` : ''}
+                        </div>
+                      </div>
                     </td>
                     <td class="py-3 px-4 text-secondary">
                       <span class="inline-flex items-center gap-1 font-mono text-xs px-2 py-0.5 rounded bg-raised border border-subtle">
@@ -232,19 +252,19 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
                           <span>${completedSteps} / ${totalRequired} steps</span>
                           <span class="font-medium">${progressPct}%</span>
                         </div>
-                        <div class="progress-track" aria-hidden="true" style="height: 6px; background-color: var(--border-subtle); border-radius: 3px; overflow: hidden; width: 100%;">
-                          <div class="progress-fill" style="width: ${Math.min(100, Math.max(0, progressPct))}%; height: 100%; background-color: var(--accent); border-radius: 3px;"></div>
+                        <div class="progress-track" aria-hidden="true">
+                          <div class="progress-fill" style="width: ${Math.min(100, Math.max(0, progressPct))}%;"></div>
                         </div>
                       </div>
                     </td>
                     <td class="py-3 px-4 text-secondary text-xs">
-                      ${formatDate(lastAct)}
+                      <time ${lastAct ? `datetime="${escapeHtml(lastAct)}"` : ''} title="${escapeHtml(formatDate(lastAct))}">${escapeHtml(formatRelativeTime(lastAct))}</time>
                     </td>
                     <td class="py-3 px-4">
                       ${statusBadge}
                     </td>
                     <td class="py-3 px-4 text-right">
-                      <div class="flex items-center justify-end gap-2">
+                      <div class="row-actions flex items-center justify-end gap-2">
                         <a href="/teach/${escapeHtml(props.courseId)}/students/${escapeHtml(item.enrollmentId)}" class="btn btn-secondary btn-compact" aria-label="View detail for ${escapeHtml(item.displayName)}">
                           View detail
                         </a>

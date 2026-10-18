@@ -581,24 +581,8 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         const { renderTheoryEditorPage } = await import('./pages/author/TheoryEditorPage.ts');
         appEl.innerHTML = renderTheoryEditorPage({ ...base, markdown: c.markdown || '' });
         void hydrateDeferredAssets(appEl);
-        appEl.querySelectorAll<HTMLElement>('.theory-tabs [data-tab]').forEach(button => button.addEventListener('click', () => {
-          const tab = button.dataset.tab;
-          const isPreview = tab === 'preview';
-          if (isPreview) {
-            const currentMarkdown = (appEl.querySelector('#theory-markdown-input') as HTMLTextAreaElement)?.value ?? (c.markdown || '');
-            const previewContainer = appEl.querySelector('.rendered-markdown-content');
-            if (previewContainer) {
-              previewContainer.innerHTML = renderMarkdownToHtml(currentMarkdown);
-            }
-            void hydrateDeferredAssets(appEl);
-          }
-          (appEl.querySelector('.theory-edit-pane') as HTMLElement)?.style.setProperty('display', isPreview ? 'none' : '');
-          (appEl.querySelector('.theory-preview-pane') as HTMLElement)?.style.setProperty('display', isPreview ? '' : 'none');
-          appEl.querySelectorAll<HTMLElement>('.theory-tabs [data-tab]').forEach(b => {
-            b.classList.toggle('active', b === button);
-            b.setAttribute('aria-selected', String(b === button));
-          });
-        }));
+        const { initTheoryEditor } = await import('./pages/author/TheoryEditorPage.ts');
+        initTheoryEditor(appEl, renderMarkdownToHtml, () => { void hydrateDeferredAssets(appEl); });
 
         appEl.querySelector('[data-action="open-asset-modal"]')?.addEventListener('click', () => {
           let assetModal = document.getElementById('theory-asset-modal');
@@ -718,40 +702,15 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         appEl.innerHTML = renderPythonExerciseEditorPage({ ...base, problemStatement: c.problemStatement || '', inputFormat: c.inputFormat || '', outputFormat: c.outputFormat || '', constraints: c.constraints || '', starterCode: c.starterCode || '', referenceSolution: c.referenceSolution || '', hints: c.hints || [], solutionExplanation: c.solutionExplanation || '', publicTests: c.publicTests || [], hiddenTests: c.hiddenTests || [], runtimeLimits: c.runtimeLimits || { cpuTimeoutSeconds: 2, wallTimeoutSeconds: 5, memoryLimitMib: 128 } });
       }
       if (step.type === 'quiz') {
-        appEl.querySelector('[data-action="add-option"]')?.addEventListener('click', () => {
-          const container = appEl.querySelector('.options-container');
-          if (!container || container.children.length >= 8) return;
-          const id = crypto.randomUUID();
-          const row = document.createElement('div'); row.className = 'quiz-option-row card p-3 mb-2'; row.dataset.optionId = id;
-          row.innerHTML = `<label class="correct-answer-label"><input type="${(appEl.querySelector('#quiz-type-select') as HTMLSelectElement)?.value === 'multiple_choice' ? 'checkbox' : 'radio'}" name="correctOption" value="${id}"> Correct answer</label><input type="text" class="text-input option-text-input" placeholder="Answer choice" required><button type="button" class="btn btn-secondary btn-compact remove-option-btn">Remove</button>`;
-          container.append(row);
-        });
-        appEl.querySelector('.options-container')?.addEventListener('click', event => {
-          const button = (event.target as Element).closest('.remove-option-btn');
-          if (button && appEl.querySelectorAll('.quiz-option-row').length > 2) button.closest('.quiz-option-row')?.remove();
-        });
-        appEl.querySelector('#quiz-type-select')?.addEventListener('change', () => {
-          const multi = (appEl.querySelector('#quiz-type-select') as HTMLSelectElement).value === 'multiple_choice';
-          appEl.querySelectorAll<HTMLInputElement>('.quiz-option-row input[type="radio"], .quiz-option-row input[type="checkbox"]').forEach(input => { input.type = multi ? 'checkbox' : 'radio'; input.name = multi ? `correctOption_${input.value}` : 'correctOption'; });
-        });
+        const { initQuizEditor } = await import('./pages/author/QuizEditorPage.ts');
+        initQuizEditor(appEl);
       }
       if (step.type === 'python') {
-        appEl.querySelectorAll<HTMLElement>('.sub-tab-btn[data-tab]').forEach(button => button.addEventListener('click', () => {
-          const tab = button.dataset.tab;
-          appEl.querySelectorAll<HTMLElement>('.sub-tab-pane').forEach(pane => { pane.style.display = pane.id === `tab-${tab}` ? '' : 'none'; });
-          appEl.querySelectorAll<HTMLElement>('.sub-tab-btn').forEach(item => { item.classList.toggle('active', item === button); item.setAttribute('aria-selected', String(item === button)); });
-        }));
-        for (const kind of ['public', 'hidden']) appEl.querySelector(`[data-action="add-${kind}-test"]`)?.addEventListener('click', event => {
-          const section = (event.currentTarget as Element).closest('.test-cases-section');
-          if (!section) return;
-          const row = document.createElement('div'); row.className = 'card p-3 mb-2 test-case-card';
-          row.innerHTML = `<div class="test-header"><strong>${kind === 'public' ? 'Public' : 'Hidden'} test</strong></div><label class="field-label">Standard input<textarea class="textarea-input code-editor font-mono test-stdin" rows="3"></textarea></label><label class="field-label">Expected output<textarea class="textarea-input code-editor font-mono test-stdout" rows="3"></textarea></label><button type="button" class="btn btn-secondary btn-compact remove-test">Remove</button>`;
-          section.insertBefore(row, event.currentTarget as Node);
-        });
-        appEl.querySelector('#tab-tests')?.addEventListener('click', event => { if ((event.target as Element).classList.contains('remove-test')) (event.target as Element).closest('.test-case-card')?.remove(); });
+        const { initPythonExerciseEditor } = await import('./pages/author/PythonExerciseEditorPage.ts');
+        initPythonExerciseEditor(appEl);
 
-        const checkRefBtn = appEl.querySelector('[data-action="check-reference-solution"]') as HTMLButtonElement | null;
-        checkRefBtn?.addEventListener('click', async () => {
+        appEl.querySelectorAll<HTMLButtonElement>('[data-action="check-reference-solution"]').forEach((checkRefBtn) => checkRefBtn.addEventListener('click', async () => {
+          const idleLabel = checkRefBtn.textContent || 'Check reference solution';
           const refCode = (appEl.querySelector('#ref-solution-input') as HTMLTextAreaElement | null)?.value || '';
           if (!refCode.trim()) {
             window.alert('Please enter a reference solution to validate.');
@@ -783,6 +742,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
                 ? '<span class="status-badge badge-success">Reference Solution Validated</span>'
                 : '<span class="status-badge badge-warning">Validation Failed</span>';
             }
+            appEl.querySelector('.sub-tab-btn[data-tab="validation"] .step-dot')?.setAttribute('data-state', result.allPassed ? 'complete' : 'error');
             let resultsTable = appEl.querySelector('#tab-validation .validation-results-table');
             if (!resultsTable) {
               resultsTable = document.createElement('div');
@@ -814,20 +774,22 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
                 </tbody>
               </table>
             `;
+            if (!checkRefBtn.closest('#tab-validation')) appEl.querySelector<HTMLElement>('.sub-tab-btn[data-tab="validation"]')?.click();
           } catch (err: any) {
             window.alert(err.message || 'Reference solution check failed.');
           } finally {
             checkRefBtn.disabled = false;
-            checkRefBtn.textContent = 'Check reference solution';
+            checkRefBtn.textContent = idleLabel;
           }
-        });
+        }));
       }
       const saveButton = document.createElement('button');
       saveButton.type = 'button'; saveButton.className = 'btn btn-primary btn-compact'; saveButton.textContent = 'Save changes';
       appEl.querySelector('.author-header-right')?.prepend(saveButton);
       const authorShell = appEl.querySelector('.shell-author') as HTMLElement;
       let authorEditRevision = 0;
-      authorShell.addEventListener('input', () => { authorEditRevision++; });
+      authorShell.addEventListener('input', () => { authorEditRevision++; authorShell.classList.add('is-dirty'); });
+      authorShell.addEventListener('change', () => { authorEditRevision++; authorShell.classList.add('is-dirty'); });
       const saveAuthorStep = async (): Promise<boolean> => {
         if (saveButton.disabled) return false;
         const savingEditRevision = authorEditRevision;
@@ -838,7 +800,7 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         if (step.type === 'theory') payload.markdown = value('theory-markdown-input');
         if (step.type === 'video') payload = { ...payload, videoUrl: value('video-url-input'), transcript: value('video-transcript-input'), captionVerified: checked('caption-verified'), provider: value('video-url-input').includes('vimeo.com') ? 'vimeo' : 'youtube' };
         if (step.type === 'quiz') {
-          payload = { ...payload, quizType: value('quiz-type-select'), prompt: value('quiz-prompt-input'), explanation: value('quiz-explanation-input'), options: Array.from(appEl.querySelectorAll('.quiz-option-row')).map(row => ({ id: (row as HTMLElement).dataset.optionId, text: (row.querySelector('input[type="text"]') as HTMLInputElement)?.value || '', isCorrect: Boolean((row.querySelector('input[type="radio"], input[type="checkbox"]') as HTMLInputElement)?.checked) })) };
+          payload = { ...payload, quizType: value('quiz-type-select'), prompt: value('quiz-prompt-input'), explanation: value('quiz-explanation-input'), options: Array.from(appEl.querySelectorAll('.quiz-option-row')).map(row => ({ id: (row as HTMLElement).dataset.optionId, text: (row.querySelector('.option-text-input') as HTMLInputElement)?.value || '', isCorrect: Boolean((row.querySelector('.correct-input') as HTMLInputElement)?.checked) })) };
         }
         if (step.type === 'python') {
           const sections = appEl.querySelectorAll('#tab-tests .test-cases-section');
@@ -5247,6 +5209,13 @@ function attachRosterListeners(courseId: string, currentFilters: { search?: stri
     url.searchParams.delete('status');
     url.searchParams.delete('version');
     navigateTo(url.pathname + url.search);
+  });
+
+  document.querySelectorAll<HTMLElement>('.roster-row[data-enrollment-id]').forEach((row) => {
+    row.addEventListener('click', (event) => {
+      if ((event.target as Element).closest('a, button, details, summary, input, select')) return;
+      navigateTo(`/teach/${encodeURIComponent(courseId)}/students/${encodeURIComponent(row.dataset.enrollmentId || '')}`);
+    });
   });
 
   // Modal dialog close
