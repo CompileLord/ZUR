@@ -5,53 +5,68 @@
   color-scheme: dark;
 
   /* Surfaces & Backgrounds */
-  --bg-canvas: #141613;
-  --bg-navigation: #11130f;
-  --bg-surface: #1b1e19;
-  --bg-raised: #242822;
-  --bg-hover: #2c3129;
-  --bg-selected: #303922;
+  --bg-canvas: #0d1117;
+  --bg-navigation: #0a0e14;
+  --bg-surface: #161b22;
+  --bg-raised: #1f2630;
+  --bg-hover: #262e3a;
+  --bg-selected: #27331f;
 
   /* Typography Colors */
-  --text-primary: #f1f3ea;
-  --text-secondary: #bdc3b5;
-  --text-muted: #a0a898;
+  --text-primary: #e8ecf2;
+  --text-secondary: #b4bcc8;
+  --text-muted: #98a2b0;
 
   /* Borders */
-  --border-subtle: #343a30;
-  --border-control: #78816f;
+  --border-subtle: #262d38;
+  --border-control: #6b7686;
 
   /* Accent (Citron) */
-  --accent: #d4e88b;
-  --accent-hover: #e0eda9;
-  --accent-pressed: #bdd36d;
-  --on-accent: #1a210d;
-  --focus-ring: #d4e88b;
-  --link: #d4e88b;
+  --accent: #c9df7e;
+  --accent-hover: #d6e898;
+  --accent-pressed: #b4cb62;
+  --on-accent: #18200a;
+  --focus-ring: #c9df7e;
+  --link: #c9df7e;
 
   /* Semantic Feedback */
   --success: #94d5ad;
-  --success-bg: #1a2d23;
+  --success-bg: #152a22;
   --warning: #e7c17e;
-  --warning-bg: #30291c;
+  --warning-bg: #2c2819;
   --danger: #f2a49a;
-  --danger-bg: #342320;
+  --danger-bg: #33201f;
   --info: #a9c8eb;
-  --info-bg: #202b35;
+  --info-bg: #1a2838;
 
   /* Editor & Code */
-  --code-bg: #171a15;
-  --code-active-line: #242a20;
-  --code-selection: #2d3b22;
+  --code-bg: #1e1e1e;
+  --code-active-line: #2a2d2e;
+  --code-selection: #264f78;
 
   /* Syntax Tokens (At most six colors, design §3.3) */
-  --syntax-default: #e2e7d9;
+  --syntax-default: #d4d4d4;
   --syntax-variable: #9cdcfe;
   --syntax-keyword: #569cd6;
   --syntax-string: #ce9178;
   --syntax-number: #b5cea8;
   --syntax-function: #dcdcaa;
   --syntax-comment: #6a9955;
+  --syntax-control: #c586c0;
+  --syntax-type: #4ec9b0;
+  --syntax-builtin: #4fc1ff;
+  --syntax-decorator: #dcdcaa;
+  --syntax-operator: #d4d4d4;
+
+  --editor-bg: #1e1e1e;
+  --editor-gutter-fg: #858585;
+  --editor-active-line: #2a2d2e;
+  --editor-selection: #264f78;
+  --editor-cursor: #aeafad;
+
+  /* Elevation (page / panel / raised) */
+  --elevation-inner: inset 0 1px 0 rgb(255 255 255 / 4%);
+  --shadow-raised: 0 1px 2px rgb(0 0 0 / 30%), 0 4px 12px rgb(0 0 0 / 20%);
 
   /* Overlay */
   --overlay: rgb(0 0 0 / 60%);
@@ -62,29 +77,29 @@
   color-scheme: light;
 
   /* Surfaces & Backgrounds */
-  --bg-canvas: #f5f6f0;
-  --bg-navigation: #ecefe5;
+  --bg-canvas: #f6f5f2;
+  --bg-navigation: #eeede8;
   --bg-surface: #ffffff;
-  --bg-raised: #ecefe5;
-  --bg-hover: #e2e7d9;
-  --bg-selected: #e0e9cc;
+  --bg-raised: #f0efea;
+  --bg-hover: #e7e6e0;
+  --bg-selected: #e6eccf;
 
   /* Typography Colors */
-  --text-primary: #20251c;
-  --text-secondary: #4e5847;
-  --text-muted: #5c6754;
+  --text-primary: #1a1d23;
+  --text-secondary: #454c58;
+  --text-muted: #596170;
 
   /* Borders */
-  --border-subtle: #d5dbcb;
-  --border-control: #78816f;
+  --border-subtle: #e0ded8;
+  --border-control: #7a8190;
 
   /* Accent (Citron) */
-  --accent: #485d18;
-  --accent-hover: #3d5013;
-  --accent-pressed: #32420f;
+  --accent: #4a5f17;
+  --accent-hover: #3e5012;
+  --accent-pressed: #33420f;
   --on-accent: #ffffff;
-  --focus-ring: #485d18;
-  --link: #485d18;
+  --focus-ring: #4a5f17;
+  --link: #4a5f17;
 
   /* Semantic Feedback */
   --success: #28633f;
@@ -97,18 +112,32 @@
   --info-bg: #e7eef6;
 
   /* Editor & Code */
-  --code-bg: #fbfcf7;
-  --code-active-line: #edf1e4;
-  --code-selection: #dde8c7;
+  --code-bg: #ffffff;
+  --code-active-line: #f3f3f3;
+  --code-selection: #add6ff;
 
   /* Syntax Tokens */
-  --syntax-default: #273021;
+  --syntax-default: #1f1f1f;
   --syntax-variable: #001080;
   --syntax-keyword: #0000ff;
   --syntax-string: #a31515;
   --syntax-number: #098658;
   --syntax-function: #795e26;
   --syntax-comment: #008000;
+  --syntax-control: #af00db;
+  --syntax-type: #267f99;
+  --syntax-builtin: #0070c1;
+  --syntax-decorator: #795e26;
+  --syntax-operator: #000000;
+
+  --editor-bg: #ffffff;
+  --editor-gutter-fg: #237893;
+  --editor-active-line: #f3f3f3;
+  --editor-selection: #add6ff;
+  --editor-cursor: #000000;
+
+  --elevation-inner: inset 0 1px 0 rgb(255 255 255 / 80%);
+  --shadow-raised: 0 1px 2px rgb(26 29 35 / 8%), 0 4px 12px rgb(26 29 35 / 6%);
 
   /* Overlay */
   --overlay: rgb(20 22 19 / 35%);

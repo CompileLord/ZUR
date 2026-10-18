@@ -15,7 +15,7 @@
   --space-20: 80px;
 
   /* Page Gutters */
-  --page-gutter: 40px;
+  --page-gutter: 24px;
 
   /* Container Widths */
   --max-width-content: 1120px;
@@ -23,11 +23,14 @@
   --max-width-settings: 640px;
   --max-width-auth: 400px;
   --max-width-reading: 720px;
+  --content-reading: 720px;
+  --content-form: 880px;
+  --content-wide: 1200px;
 
   /* Radii */
   --radius-sm: 6px;   /* Small controls, badges */
   --radius-md: 8px;   /* Inputs, buttons */
-  --radius-lg: 12px;  /* Panels, cards */
+  --radius-lg: 10px;  /* Panels, cards */
   --radius-xl: 16px;  /* Dialogs */
 
   /* Control Heights */
