@@ -3,6 +3,7 @@ import { renderAppShell } from '../../components/shells/AppShell.ts';
 import { renderDialog } from '../../components/common/Dialog.ts';
 import { renderIcon } from '../../components/common/icons.ts';
 import { humanizeEnum } from '../../utils/formatters.ts';
+import { courseThumbStyle } from '../../utils/course-thumb.ts';
 
 export interface EnrolledCourseItem {
   id: string; // enrollmentId
@@ -36,15 +37,6 @@ export interface MyCoursesPageOptions {
     courseId: string;
     courseTitle: string;
   } | null;
-}
-
-/** Muted hues from the citron / slate / teal / blue family of tokens.css; never magenta or red. */
-const THUMB_HUES = [78, 96, 150, 172, 196, 212, 228, 42];
-
-export function courseHue(seed: string): number {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  return THUMB_HUES[hash % THUMB_HUES.length];
 }
 
 export function courseInitial(title: string): string {
@@ -83,7 +75,7 @@ export function formatLastActivity(iso?: string, now: number = Date.now()): stri
 }
 
 export function renderCourseThumb(seed: string, title: string, extraClass = ''): string {
-  return `<span class="home-thumb ${extraClass}" style="--thumb-h: ${courseHue(seed)}" aria-hidden="true"><span class="home-thumb-initial">${courseInitial(title)}</span></span>`;
+  return `<span class="home-thumb ${extraClass}" style="${courseThumbStyle(seed)}" aria-hidden="true"><span class="home-thumb-initial">${courseInitial(title)}</span></span>`;
 }
 
 export function percentOf(c: { percentage?: number; completedRequired: number; totalRequired: number }): number {
