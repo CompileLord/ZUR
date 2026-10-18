@@ -28,7 +28,7 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
   const reportModalHtml = `
     <dialog
       id="report-issue-modal"
-      class="modal-backdrop report-modal ${isReportModalOpen ? 'open' : ''}"
+      class="report-modal ${isReportModalOpen ? 'open' : ''}"
       role="dialog"
       aria-modal="true"
       aria-labelledby="report-modal-title"
@@ -159,9 +159,9 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
             <p class="text-secondary text-sm leading-relaxed mb-3">
               Make sure you are using the email address you registered with. If you haven't confirmed your email yet, visit <a href="/verify-email" class="text-link underline">Verify Email</a> to request an activation link.
             </p>
-            <details class="help-disclosure text-xs text-secondary">
-              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Resetting your password</summary>
-              <p class="pt-2 leading-relaxed">
+            <details class="help-disclosure">
+              <summary class="help-disclosure-summary">Resetting your password</summary>
+              <p class="help-disclosure-body">
                 If you forgot your password, visit the <a href="/forgot-password" class="text-link underline">password recovery page</a> to receive a single-use reset link. Recovery links expire after one hour.
               </p>
             </details>
@@ -172,9 +172,9 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
             <p class="text-secondary text-sm leading-relaxed mb-3">
               Explore available courses in the <a href="/courses" class="text-link underline">course catalog</a>. Open courses allow direct enrollment once signed in. Invitation-only courses require an invitation link provided by your teacher.
             </p>
-            <details class="help-disclosure text-xs text-secondary">
-              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Course versions and progress</summary>
-              <p class="pt-2 leading-relaxed">
+            <details class="help-disclosure">
+              <summary class="help-disclosure-summary">Course versions and progress</summary>
+              <p class="help-disclosure-body">
                 When you enroll in a course, your progress is tied to that version. When authors publish updates, existing students continue learning uninterrupted on their current version.
               </p>
             </details>
@@ -185,9 +185,9 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
             <p class="text-secondary text-sm leading-relaxed mb-3">
               ZUR features quiet autosave, saving your work automatically in the background as you write without distracting routine status badges. The workspace alerts you only when attention is required.
             </p>
-            <details class="help-disclosure text-xs text-secondary">
-              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Save errors, conflict notices, and draft recovery</summary>
-              <p class="pt-2 leading-relaxed">
+            <details class="help-disclosure">
+              <summary class="help-disclosure-summary">Save errors, conflict notices, and draft recovery</summary>
+              <p class="help-disclosure-body">
                 If network connectivity drops or a save error occurs, your unsaved edits are preserved as a local draft in your browser and synchronized upon reconnection. If concurrent edits from another session or tab are detected, a conflict notice allows you to review changes and choose which version to retain.
               </p>
             </details>
@@ -203,9 +203,9 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
               <li><strong>Test samples</strong>: tests code against public sample cases and displays diffs.</li>
               <li><strong>Submit</strong>: assesses code against required test suites including hidden cases and records completion.</li>
             </ul>
-            <details class="help-disclosure text-xs text-secondary">
-              <summary class="font-medium text-muted cursor-pointer hover:text-primary py-1">Hidden test cases</summary>
-              <p class="pt-2 leading-relaxed">
+            <details class="help-disclosure">
+              <summary class="help-disclosure-summary">Hidden test cases</summary>
+              <p class="help-disclosure-body">
                 Hidden tests verify edge cases and prevent hardcoding. If a hidden test fails, feedback points out edge cases and types of errors without exposing secret test data.
               </p>
             </details>

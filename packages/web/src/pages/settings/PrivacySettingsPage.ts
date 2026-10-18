@@ -124,16 +124,16 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
             ${
               isSoleOwner
                 ? `
-              <div class="sole-owner-blocker p-4 bg-canvas border border-warning rounded" role="alert">
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="text-warning" aria-hidden="true">⚠</span>
-                  <span class="text-sm font-semibold">Course ownership transfer required</span>
-                </div>
-                <p class="text-xs text-secondary leading-relaxed">
-                  You are currently the sole owner of <strong>${ownedCount}</strong> course(s). Before your account can be deleted, you must transfer ownership to another author or archive the course so active student learning records remain intact.
-                </p>
-                <div class="mt-3">
-                  <a href="/teach" class="btn btn-secondary btn-compact">Manage your courses</a>
+              <div class="sole-owner-blocker" role="alert">
+                <span class="sole-owner-icon" aria-hidden="true">⚠</span>
+                <div class="sole-owner-body">
+                  <div class="sole-owner-title">Course ownership transfer required</div>
+                  <p class="sole-owner-text">
+                    You are currently the sole owner of <strong>${ownedCount}</strong> course(s). Before your account can be deleted, you must transfer ownership to another author or archive the course so active student learning records remain intact.
+                  </p>
+                  <div class="sole-owner-actions">
+                    <a href="/teach" class="btn btn-secondary btn-compact">Manage your courses</a>
+                  </div>
                 </div>
               </div>
             `

@@ -48,6 +48,23 @@ export function generateClientSnippet(client: CompatibleClient, endpointUrl: str
   }
 }
 
+function escapeSummary(value: string): string {
+  return value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+}
+
+function describeAccess(token: ConnectionTokenItem): string {
+  switch (formatScopeSummary(token.scopes)) {
+    case 'Full course control':
+      return 'create, edit and publish courses';
+    case 'Draft authoring':
+      return 'create and edit draft courses';
+    case 'Read only':
+      return 'read courses';
+    default:
+      return 'use the permissions you selected';
+  }
+}
+
 export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string {
   const endpoint = opts.endpointUrl || (typeof window !== 'undefined' ? `${window.location.origin}/api/mcp` : 'http://localhost:3000/api/mcp');
   const selectedClient = opts.selectedClient || 'official_sdk';
@@ -77,10 +94,11 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
                 : renderStatusBadge({ status: 'info', label: 'Waiting for requests' })
             }
           </div>
-          <p class="text-xs font-mono text-muted mt-1">Identifier: ${token.tokenIdentifier} · Scopes: ${formatScopeSummary(token.scopes)}</p>
-        </div>
-        <div class="text-xs text-secondary">
-          Courses: <strong>${formatCourseRestrictions(token.courseRestrictions)}</strong>
+          <p class="setup-summary">${escapeSummary(token.label)} can ${describeAccess(token)} in ${formatCourseRestrictions(token.courseRestrictions).toLowerCase()}.</p>
+          <details class="setup-details">
+            <summary>Details</summary>
+            <p class="text-xs font-mono text-muted">Identifier: ${token.tokenIdentifier} · Scopes: ${formatScopeSummary(token.scopes)}</p>
+          </details>
         </div>
       </div>
 
@@ -91,7 +109,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
           <div class="setup-step-main">
             <h3 id="step-1-title" class="text-base font-semibold text-primary">Choose a compatible client</h3>
             <p class="text-xs text-secondary">
-              Select verified client guide. Clients must support explicit HTTP bearer credentials.
+              Pick the app you want to connect. It must be able to send a secret key with each request.
             </p>
 
             <div class="setup-client-tabs mt-2" role="tablist" aria-label="Supported AI clients">
@@ -129,7 +147,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
           <div class="setup-step-main">
             <h3 id="step-2-title" class="text-base font-semibold text-primary">Add the MCP endpoint</h3>
             <p class="text-xs text-secondary">
-              Connect your client using this endpoint URL with HTTP bearer authentication:
+              Paste this address into your client as the server URL.
             </p>
 
             <div class="flex items-center gap-2 mt-1">
@@ -172,7 +190,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
               </button>
             </div>
             <p class="text-xs text-secondary">
-              Replace <code>YOUR_ZUR_MCP_TOKEN</code> with the secret generated during creation. Never share your secret or paste it into chat prompts.
+              Replace <code>YOUR_ZUR_MCP_TOKEN</code> with the secret shown once when you created this connection. Never share it or paste it into chat prompts.
             </p>
 
             <pre class="setup-code-block mt-2 font-mono text-xs"><code>${snippet}</code></pre>
@@ -190,7 +208,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
               </button>
             </div>
             <p class="text-xs text-secondary">
-              In your client, invoke the <code>get_author_context</code> tool to complete the verification handshake.
+              In your client, run the <code>get_author_context</code> tool once. This page will show when the first request arrives.
             </p>
 
             <div class="verification-status-box mt-2" role="region" aria-live="polite">

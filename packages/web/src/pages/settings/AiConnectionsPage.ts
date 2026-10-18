@@ -197,11 +197,8 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
             <thead>
               <tr>
                 <th scope="col">Connection</th>
-                <th scope="col">Access summary</th>
-                <th scope="col">Courses</th>
-                <th scope="col" class="whitespace-nowrap">Last used</th>
-                <th scope="col" class="whitespace-nowrap">Expires</th>
                 <th scope="col">Status</th>
+                <th scope="col" class="whitespace-nowrap">Last used</th>
                 <th scope="col" class="text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
@@ -236,43 +233,33 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                       })
                     : 'Never used';
 
+                  const setupAction =
+                    token.isRevoked || token.status === 'expired'
+                      ? '<button type="button" class="btn btn-secondary btn-compact" disabled aria-label="Setup unavailable for inactive connection">Setup</button>'
+                      : `<a href="/settings/ai-connections/${token.id}/setup" class="btn ${token.status === 'never_used' ? 'btn-primary' : 'btn-secondary'} btn-compact" aria-label="Setup ${token.label}">Setup</a>`;
+
                   return `
                   <tr id="token-row-${token.id}">
                     <td>
-                      <div class="font-medium text-primary">${token.label}</div>
-                      <div class="text-xs font-mono text-muted">${token.tokenIdentifier}</div>
-                    </td>
-                    <td>
-                      <span class="text-sm">${formatScopeSummary(token.scopes)}</span>
-                    </td>
-                    <td>
-                      <span class="text-xs text-secondary">${formatCourseRestrictions(token.courseRestrictions, coursesMap)}</span>
-                    </td>
-                    <td class="whitespace-nowrap">
-                      <span class="text-xs text-muted">${lastUsedText}</span>
-                    </td>
-                    <td class="whitespace-nowrap">
-                      <span class="text-xs text-secondary">${expiryDate}</span>
+                      <div class="connection-name">${token.label}</div>
+                      <div class="connection-access">${formatScopeSummary(token.scopes)} · ${formatCourseRestrictions(token.courseRestrictions, coursesMap)}</div>
+                      <div class="connection-meta">Expires ${expiryDate} · <span class="font-mono">${token.tokenIdentifier}</span></div>
                     </td>
                     <td class="whitespace-nowrap">
                       ${renderStatusBadge({ status: badgeStatus, label: statusLabel })}
                     </td>
+                    <td class="whitespace-nowrap">
+                      <span class="text-sm text-secondary">${lastUsedText}</span>
+                    </td>
                     <td class="text-right whitespace-nowrap">
-                      <div class="flex items-center justify-end gap-1.5 whitespace-nowrap">
-                        ${token.isRevoked || token.status === 'expired'
-                          ? '<button type="button" class="btn btn-secondary btn-compact" disabled aria-label="Setup unavailable for inactive connection">Setup</button>'
-                          : `<a href="/settings/ai-connections/${token.id}/setup" class="btn btn-primary btn-compact" aria-label="Setup ${token.label}">Setup</a>`}
-                        <details class="action-overflow relative inline-block text-left">
-                          <summary class="btn btn-ghost btn-compact px-2 cursor-pointer list-none select-none text-secondary hover:text-primary" aria-label="More actions for ${token.label}">⋮</summary>
-                          <div class="overflow-dropdown-menu">
-                            <button type="button" class="dropdown-item text-secondary hover:text-primary" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>
-                            ${
-                              !token.isRevoked
-                                ? `<button type="button" class="dropdown-item text-danger" data-action="revoke-token" data-token-id="${token.id}" aria-label="Revoke ${token.label}">Revoke</button>`
-                                : ''
-                            }
-                          </div>
-                        </details>
+                      <div class="connection-actions">
+                        ${setupAction}
+                        <button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>
+                        ${
+                          !token.isRevoked
+                            ? `<button type="button" class="btn btn-destructive btn-compact" data-action="revoke-token" data-token-id="${token.id}" aria-label="Revoke ${token.label}">Revoke</button>`
+                            : ''
+                        }
                       </div>
                     </td>
                   </tr>

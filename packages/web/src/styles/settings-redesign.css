@@ -1,1 +1,378 @@
 /* settings-redesign */
+
+/* ---- Account settings: centered column, card sections ---- */
+.settings-container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding-top: var(--space-10, 40px);
+}
+
+.settings-section {
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: var(--space-8);
+  padding: var(--space-6) var(--space-6);
+  margin-bottom: var(--space-4);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.settings-section:first-of-type {
+  padding-top: var(--space-6);
+}
+
+.settings-section:last-of-type {
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 0;
+}
+
+.settings-section-content {
+  max-width: none;
+}
+
+.settings-section-content .form-input,
+.settings-section-content .form-select,
+.settings-section-content .form-group {
+  max-width: 440px;
+}
+
+.settings-section-content .theme-options-grid,
+.settings-section-content .settings-action-row,
+.settings-section-content .settings-danger-row {
+  max-width: none;
+}
+
+.settings-action-row,
+.settings-danger-row {
+  background-color: var(--bg-canvas);
+}
+
+/* Danger: subtle filled instead of harsh outline */
+.settings-danger-row .btn-destructive {
+  background-color: color-mix(in srgb, var(--danger) 14%, transparent);
+  color: var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 32%, transparent);
+  font-weight: 600;
+}
+
+.settings-danger-row .btn-destructive:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--danger) 24%, transparent);
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+}
+
+.settings-danger-row.destructive {
+  border-color: color-mix(in srgb, var(--danger) 30%, var(--border-subtle));
+}
+
+/* Privacy: ownership warning */
+.sole-owner-blocker {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background-color: color-mix(in srgb, var(--warning, #e0b252) 10%, var(--bg-canvas));
+  border: 1px solid color-mix(in srgb, var(--warning, #e0b252) 45%, transparent);
+  border-radius: var(--radius-md);
+}
+
+.sole-owner-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: color-mix(in srgb, var(--warning, #e0b252) 22%, transparent);
+  color: var(--warning, #e0b252);
+  font-size: 0.875rem;
+}
+
+.sole-owner-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.sole-owner-title {
+  font-size: var(--type-ui-size, 0.9375rem);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sole-owner-text {
+  margin: 0;
+  font-size: var(--type-detail-size, 0.8125rem);
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.sole-owner-actions {
+  margin-top: var(--space-2);
+}
+
+/* ---- AI connections: card rows ---- */
+.settings-connections-container {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.settings-connections-container .connections-table-wrapper {
+  border: none;
+  background: transparent;
+  overflow: visible;
+}
+
+.settings-connections-container .connections-table {
+  border-collapse: separate;
+  border-spacing: 0 var(--space-3);
+}
+
+.settings-connections-container .connections-table thead th {
+  background: transparent;
+  border-bottom: none;
+  padding: 0 var(--space-4) var(--space-1);
+  font-size: var(--type-caption-size, 0.75rem);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.settings-connections-container .connections-table td {
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--space-4);
+}
+
+.settings-connections-container .connections-table td:first-child {
+  border-left: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  width: 100%;
+}
+
+.settings-connections-container .connections-table td:last-child {
+  border-right: 1px solid var(--border-subtle);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+
+.settings-connections-container .connections-table tr:hover td {
+  background-color: var(--bg-raised);
+}
+
+.connection-name {
+  font-size: var(--type-ui-size, 0.9375rem);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.connection-access {
+  margin-top: 2px;
+  font-size: var(--type-detail-size, 0.8125rem);
+  color: var(--text-secondary);
+}
+
+.connection-meta {
+  margin-top: var(--space-1);
+  font-size: var(--type-caption-size, 0.75rem);
+  color: var(--text-muted);
+}
+
+.connection-meta .font-mono {
+  font-size: 0.6875rem;
+}
+
+.connection-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.connection-actions .btn-destructive {
+  background-color: color-mix(in srgb, var(--danger) 12%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 28%, transparent);
+}
+
+.connection-actions .btn-destructive:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--danger) 24%, transparent);
+  color: var(--danger);
+}
+
+/* ---- MCP setup: single vertical stepper ---- */
+.settings-connections-container.setup-view,
+.settings-connections-container:has(.setup-content) {
+  max-width: 820px;
+}
+
+.setup-content .setup-header {
+  padding-bottom: var(--space-4);
+}
+
+.setup-summary {
+  margin: var(--space-2) 0 0;
+  font-size: var(--type-ui-size, 0.9375rem);
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.setup-details {
+  margin-top: var(--space-2);
+  font-size: var(--type-caption-size, 0.75rem);
+  color: var(--text-muted);
+}
+
+.setup-details summary {
+  cursor: pointer;
+  width: max-content;
+}
+
+.setup-details p {
+  margin: var(--space-1) 0 0;
+}
+
+.setup-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.setup-rail .setup-step-card {
+  position: relative;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 0 var(--space-8) 0;
+}
+
+.setup-rail .setup-step-card:last-child {
+  padding-bottom: 0;
+}
+
+.setup-rail .setup-step-card:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 36px;
+  bottom: 4px;
+  width: 2px;
+  background-color: var(--border-subtle);
+}
+
+.setup-rail .setup-step-main {
+  padding-bottom: var(--space-1);
+}
+
+.setup-rail .setup-code-block {
+  max-width: 100%;
+  margin: 0;
+  overflow: auto;
+  max-height: 340px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.setup-rail .setup-code-block code {
+  white-space: inherit;
+}
+
+.setup-rail .setup-client-tabs {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.setup-rail .verification-status-box {
+  justify-content: flex-start;
+}
+
+/* ---- Help ---- */
+.help-page .text-secondary,
+.help-page .help-disclosure-body {
+  color: color-mix(in srgb, var(--text-primary) 88%, var(--bg-canvas));
+}
+
+.help-page .help-section p,
+.help-page .help-section li {
+  line-height: 1.65;
+}
+
+.help-disclosure {
+  padding: 0;
+  overflow: hidden;
+}
+
+.help-disclosure-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--type-control-size, 0.875rem);
+  font-weight: 600;
+  color: var(--text-primary);
+  list-style: none;
+}
+
+.help-disclosure-summary::-webkit-details-marker {
+  display: none;
+}
+
+.help-disclosure-summary::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: rotate(45deg);
+  transition: transform var(--transition-fast, 120ms ease);
+}
+
+.help-disclosure[open] .help-disclosure-summary {
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.help-disclosure[open] .help-disclosure-summary::after {
+  transform: rotate(-135deg);
+}
+
+.help-disclosure-summary:hover {
+  background-color: var(--bg-hover);
+}
+
+.help-disclosure-summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.help-disclosure-body {
+  margin: 0;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  font-size: var(--type-control-size, 0.875rem);
+}
+
+.connections-table td .text-secondary {
+  white-space: nowrap;
+}
+
+.setup-content .setup-header {
+  margin-bottom: var(--space-6);
+}
+
+.help-page .help-header {
+  padding-bottom: var(--space-5);
+}
+
+.help-page .help-section > .btn {
+  align-self: flex-start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .help-disclosure-summary::after {
+    transition: none;
+  }
+}
