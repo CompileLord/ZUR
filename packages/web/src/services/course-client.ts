@@ -33,7 +33,7 @@ export class CourseClient {
     language?: string;
     limit?: number;
     offset?: number;
-  } = {}): Promise<{ courses: CatalogCourseItem[]; total: number; limit: number; offset: number; languages?: string[] }> {
+  } = {}): Promise<{ courses: Array<CatalogCourseItem & { lessonCount?: number; stepCount?: number }>; total: number; limit: number; offset: number; languages?: string[] }> {
     const query = new URLSearchParams();
     if (params.search) query.set('search', params.search);
     if (params.categoryId) query.set('categoryId', params.categoryId);
@@ -55,6 +55,10 @@ export class CourseClient {
     return res.json().catch(() => {
       throw new Error('Could not load the course catalog. Please try again.');
     });
+  }
+
+  async leaveCourse(courseId: string): Promise<{ enrollment: { id: string; courseId?: string; status: string } }> {
+    return this.authClient.fetchApi(`/api/courses/${encodeURIComponent(courseId)}/leave`, { method: 'POST' });
   }
 
   async listCategories(): Promise<CatalogCategoryItem[]> {

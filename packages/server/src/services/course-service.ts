@@ -803,7 +803,8 @@ export class CourseService {
           c.current_version_id, c.created_at, c.updated_at,
           cat.name as category_name,
           u.display_name as author_name,
-          cv.version_number as version_number
+          cv.version_number as version_number,
+          cv.snapshot_data as snapshot_data
         FROM courses c
         LEFT JOIN categories cat ON c.category_id = cat.id
         LEFT JOIN users u ON c.owner_id = u.id
@@ -814,7 +815,25 @@ export class CourseService {
       )
       .all(...selectParams) as any[];
 
-    const courses = rows.map((r) => ({
+    const courses = rows.map((r) => {
+      // Counts come from the published version snapshot only, never from drafts.
+      let lessonCount = 0;
+      let stepCount = 0;
+      try {
+        const snap = r.snapshot_data ? JSON.parse(r.snapshot_data) : null;
+        for (const mod of snap?.modules || []) {
+          for (const les of mod.lessons || []) {
+            lessonCount += 1;
+            stepCount += (les.steps || []).length;
+          }
+        }
+      } catch {
+        lessonCount = 0;
+        stepCount = 0;
+      }
+      return {
+      lessonCount,
+      stepCount,
       id: r.id,
       title: r.title,
       description: r.description || '',
@@ -829,7 +848,8 @@ export class CourseService {
       versionNumber: r.version_number || 1,
       authorName: r.author_name || 'Anonymous',
       updatedAt: r.updated_at,
-    }));
+      };
+    });
 
     const langRows = this.db
       .prepare(

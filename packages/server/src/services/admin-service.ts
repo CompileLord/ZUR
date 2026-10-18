@@ -95,8 +95,12 @@ export class AdminService {
       jobs: { errors: failedJobs, total: totalJobs },
     };
 
+    const suspendedCount = count("SELECT COUNT(*) count FROM courses WHERE is_suspended=1");
+    const suspendedItems = (this.db.prepare(`SELECT c.id,c.title,u.display_name ownerName FROM courses c LEFT JOIN users u ON u.id=c.owner_id WHERE c.is_suspended=1 ORDER BY c.updated_at DESC LIMIT 5`).all() as any[]).map((r) => ({ id: r.id, title: r.title, ownerName: r.ownerName ?? '' }));
+
     return {
       refreshedAt: new Date().toISOString(),
+      suspendedCourses: { count: suspendedCount, items: suspendedItems },
       execution: { paused: ((this.db.prepare(`SELECT value FROM system_settings WHERE key='execution_paused'`).get() as any)?.value === 'true'), updatedAt: settings?.updated_at || null },
       queue: { queued: count("SELECT COUNT(*) count FROM execution_jobs WHERE status='queued'"), running: count("SELECT COUNT(*) count FROM execution_jobs WHERE status='running'"), oldestQueuedAt: oldest?.created_at || null },
       workers: { lastObservedAt: null, health: 'Unavailable — no separate worker heartbeat configured' },

@@ -2064,6 +2064,11 @@ export function createServer(
             title: c.enrollment.courseTitle,
             description: c.enrollment.courseDescription,
             difficulty: c.enrollment.difficulty,
+            level: c.enrollment.difficulty,
+            pinnedVersionNumber: c.enrollment.pinnedVersionNumber,
+            lastActivityAt: c.enrollment.updatedAt,
+            completedRequired: c.progress.completedRequired,
+            totalRequired: c.progress.totalRequired,
             percentage: c.progress.percentage,
             isCompleted: c.progress.isCompleted,
             status: c.enrollment.status,
@@ -2088,6 +2093,8 @@ export function createServer(
           }
           return {
             ...enr,
+            level: enr.difficulty,
+            lastActivityAt: enr.updatedAt,
             progress: prog
               ? {
                   percentage: prog.percentage,
