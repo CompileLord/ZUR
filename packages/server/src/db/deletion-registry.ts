@@ -14,6 +14,15 @@ function registryPath(): string {
   return value;
 }
 
+/** Creates an empty registry on first boot. Never overwrites; a missing file on an existing install is logged loudly. */
+export function ensureDeletionRegistry(): boolean {
+  const filename = registryPath();
+  if (fs.existsSync(filename)) return false;
+  fs.mkdirSync(path.dirname(filename), { recursive: true, mode: 0o750 });
+  fs.closeSync(fs.openSync(filename, fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL, 0o600));
+  return true;
+}
+
 export function appendDeletionTombstone(entry: DeletionTombstone): void {
   const filename = registryPath();
   const descriptor = fs.openSync(filename, fs.constants.O_WRONLY | fs.constants.O_APPEND | fs.constants.O_CREAT, 0o600);

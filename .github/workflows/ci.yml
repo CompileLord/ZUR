@@ -91,7 +91,6 @@ jobs:
           ZUR_TRUST_PROXY: '1'
         run: |
           mkdir -p "${{ runner.temp }}/data" "${{ runner.temp }}/tombstones"
-          touch "$DELETION_REGISTRY_PATH"
           npm run start:server > "${{ runner.temp }}/server.log" 2>&1 &
           pid=$!
           for i in $(seq 1 30); do
