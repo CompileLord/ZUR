@@ -1,4 +1,5 @@
 import { renderIcon } from '../common/icons.ts';
+import { toActionFnName } from '../../services/delegated-actions.ts';
 
 export interface StatePresentationOptions {
   title?: string;
@@ -99,7 +100,7 @@ export function renderNotFoundState(): string {
       </p>
       <div class="state-actions flex items-center justify-center gap-3">
         <a href="/courses" class="btn btn-primary btn-compact">Browse courses</a>
-        <button type="button" class="btn btn-ghost btn-compact" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/courses'">Go back</button>
+        <button type="button" class="btn btn-ghost btn-compact" data-action="go-back">Go back</button>
       </div>
     </div>
   `;
@@ -119,7 +120,7 @@ export function renderSaveFailureAlert(retryActionName: string = 'retrySave()'):
     <div class="save-failure-banner" role="alert">
       <span class="failure-icon" aria-hidden="true">⚠</span>
       <span class="failure-text">Could not save changes to server. Your edits are held locally.</span>
-      <button type="button" class="btn btn-secondary btn-compact ml-auto" onclick="${retryActionName}">
+      <button type="button" class="btn btn-secondary btn-compact ml-auto" data-action-fn="${escapeHtml(toActionFnName(retryActionName))}">
         Retry
       </button>
     </div>
@@ -153,7 +154,7 @@ export function renderInfrastructureFailurePanel(attemptId: string, onRetryActio
       <h3 class="error-panel-title">We couldn't check this submission.</h3>
       <p class="error-panel-body">A temporary runner issue prevented completion. ${recoveryText}</p>
       <div class="error-panel-actions mt-3 flex items-center gap-3">
-        <button type="button" class="btn btn-secondary btn-compact" onclick="${onRetryAction}">
+        <button type="button" class="btn btn-secondary btn-compact" data-action-fn="${escapeHtml(toActionFnName(onRetryAction))}">
           Try again
         </button>
         <span class="text-muted text-xs">Ref: <code>${escapeHtml(attemptId)}</code></span>
@@ -189,10 +190,10 @@ export function renderConflictComparisonModal(opts: {
         </div>
 
         <footer class="dialog-footer flex justify-end gap-3 mt-4">
-          <button type="button" class="btn btn-secondary" onclick="${opts.onAcceptServer}">
+          <button type="button" class="btn btn-secondary" data-action-fn="${escapeHtml(toActionFnName(opts.onAcceptServer))}">
             Load server version
           </button>
-          <button type="button" class="btn btn-primary" onclick="${opts.onKeepLocal}">
+          <button type="button" class="btn btn-primary" data-action-fn="${escapeHtml(toActionFnName(opts.onKeepLocal))}">
             Overwrite with my changes
           </button>
         </footer>

@@ -2751,6 +2751,46 @@ dialog#new-course-dialog[open]::backdrop {
   margin-inline: auto;
 }
 
+.table-responsive {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: var(--space-4);
+}
+
+.rich-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-metadata-size, 0.875rem);
+}
+
+.rich-table th,
+.rich-table td {
+  border: 1px solid var(--border-control);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  vertical-align: top;
+}
+
+.rich-table th {
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.rich-image-blocked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border: 1px dashed var(--border-control);
+  border-radius: var(--radius-md);
+  background: var(--bg-raised);
+  color: var(--text-secondary);
+  font-size: var(--type-metadata-size, 0.875rem);
+  text-align: center;
+}
+
 .video-fallback-banner {
   padding: var(--space-4);
   border: 1px solid var(--border-subtle);
@@ -5204,3 +5244,10 @@ dialog#report-issue-modal .form-group {
 .code-editor-area .cm-content, .code-editor-input { caret-color: var(--text-primary); }
 
 #python-save-indicator.saved, #python-save-indicator.saving { display: none; }
+
+.form-notice {
+  border-color: var(--border-control);
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  font-size: var(--type-metadata-size, 0.875rem);
+}

@@ -55,7 +55,7 @@ export function renderAppShell(opts: AppShellOptions): string {
         <span class="nav-icon" aria-hidden="true">${renderIcon('book', { size: 16 })}</span>
         <span class="nav-label">Your courses</span>
       </a>
-      <a href="/settings/ai-connections" class="app-nav-item ${activePath === '/settings/ai-connections' ? 'active' : ''}">
+      <a href="/settings/ai-connections" class="app-nav-item ${activePath.startsWith('/settings/ai-connections') ? 'active' : ''}">
         <span class="nav-indicator" aria-hidden="true"></span>
         <span class="nav-icon" aria-hidden="true">${renderIcon('code', { size: 16 })}</span>
         <span class="nav-label">AI connections</span>

@@ -131,11 +131,11 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
       <div class="form-group mt-3">
         <label for="quiz-type-select" class="field-label">Question type</label>
         <div class="segmented-control inline-flex mb-1.5" role="radiogroup" aria-label="Question type">
-          <label class="segmented-control-btn ${isSingleChoice ? 'active' : ''} cursor-pointer px-3 py-1 text-xs font-medium rounded" onclick="const sel = document.getElementById('quiz-type-select'); if (sel) { sel.value='single_choice'; sel.dispatchEvent(new Event('change')); this.parentElement.querySelectorAll('.segmented-control-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); }">
+          <label class="segmented-control-btn ${isSingleChoice ? 'active' : ''} cursor-pointer px-3 py-1 text-xs font-medium rounded" data-quiz-type="single_choice">
             <input type="radio" name="quizType" value="single_choice" class="sr-only" ${isSingleChoice ? 'checked' : ''} />
             <span>Single choice</span>
           </label>
-          <label class="segmented-control-btn ${!isSingleChoice ? 'active' : ''} cursor-pointer px-3 py-1 text-xs font-medium rounded" onclick="const sel = document.getElementById('quiz-type-select'); if (sel) { sel.value='multiple_choice'; sel.dispatchEvent(new Event('change')); this.parentElement.querySelectorAll('.segmented-control-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); }">
+          <label class="segmented-control-btn ${!isSingleChoice ? 'active' : ''} cursor-pointer px-3 py-1 text-xs font-medium rounded" data-quiz-type="multiple_choice">
             <input type="radio" name="quizType" value="multiple_choice" class="sr-only" ${!isSingleChoice ? 'checked' : ''} />
             <span>Multiple choice</span>
           </label>

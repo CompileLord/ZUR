@@ -22,7 +22,7 @@ interface StatusStateOptions {
   actions: string;
 }
 
-const BACK_BUTTON = `<button type="button" class="btn btn-ghost btn-compact" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/courses'">Go back</button>`;
+const BACK_BUTTON = `<button type="button" class="btn btn-ghost btn-compact" data-action="go-back">Go back</button>`;
 
 function renderStatusState(o: StatusStateOptions): string {
   return `

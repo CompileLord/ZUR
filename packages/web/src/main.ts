@@ -16,7 +16,7 @@ import './pages/public/landing-hero.css';
 import { PYTHON_RUNTIME_LABEL, type UserPreferences } from 'zur-shared';
 
 import { matchRoute, getSafeReturnDestination, getPostSignInDestination } from './router/routes.ts';
-import { AuthClient } from './services/auth-client.ts';
+import { AuthClient, SESSION_EXPIRED_EVENT } from './services/auth-client.ts';
 import {
   renderPublicShell,
   renderAppShell,
@@ -38,6 +38,9 @@ import {
   renderIcon,
 } from './components/common/index.ts';
 import { renderSignInPage } from './pages/account/SignInPage.ts';
+import { initAuthorTree, fetchInvalidStepIds, applyInvalidStepDots } from './pages/author/AuthorTreeComponent.ts';
+import { installDelegatedActions } from './services/delegated-actions.ts';
+import { copyTextToClipboard } from './pages/settings/ai-connections-enhancer.ts';
 import { renderSignUpPage } from './pages/account/SignUpPage.ts';
 import { renderVerifyEmailPage } from './pages/account/VerifyEmailPage.ts';
 import { renderForgotPasswordPage, renderResetPasswordPage } from './pages/account/PasswordRecoveryPages.ts';
@@ -134,9 +137,7 @@ async function s2Request(url: string, method = 'GET', body?: unknown): Promise<a
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     if (response.status === 401) {
-      authClient.clearSession();
-      const returnTo = getSafeReturnDestination(window.location.pathname + window.location.search);
-      navigateTo(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+      handleSessionExpired();
     }
     const err: any = new Error(data.error?.message || 'The request failed. Please try again.');
     err.status = response.status;
@@ -546,10 +547,10 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
       } catch { /* activity optional */ }
       const { renderCourseBuilderPage } = await import('./pages/author/CourseBuilderPage.ts');
       appEl.innerHTML = renderCourseBuilderPage({ courseId, courseTitle: course.title, publicationState: course.publicationStatus, hasUnpublishedChanges: course.hasUnpublishedChanges, modules: tree.modules, selectedType: (query.get('type') as any) || 'course', selectedId: query.get('id') || courseId, remoteUpdate, lastEditTime: course.lastEditTime });
-      const { initAuthorTree } = await import('./pages/author/AuthorTreeComponent.ts');
+      
       initAuthorTree(appEl, { courseId, request: (route, method, body) => s2Request(route, method, body), refresh: () => renderApp(path), navigate: (url) => navigateTo(url) });
       { const { initRowOverflowMenus } = await import('./pages/author/CourseBuilderPage.ts'); initRowOverflowMenus(appEl); }
-      { const { fetchInvalidStepIds, applyInvalidStepDots } = await import('./pages/author/AuthorTreeComponent.ts'); void fetchInvalidStepIds(s2Request, courseId).then((ids) => { if (s2Current(path)) applyInvalidStepDots(appEl, ids); }); }
+      {  void fetchInvalidStepIds(s2Request, courseId).then((ids) => { if (s2Current(path)) applyInvalidStepDots(appEl, ids); }); }
 
       if (sessionStorage.getItem(`zur_builder_unsaved_${courseId}`)) {
         appEl.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input:not([data-no-persist]), textarea').forEach(input => {
@@ -787,9 +788,9 @@ async function loadS2Page(pageId: string, params: Record<string, string>, path: 
         appEl.innerHTML = renderPythonExerciseEditorPage({ ...base, problemStatement: c.problemStatement || '', inputFormat: c.inputFormat || '', outputFormat: c.outputFormat || '', constraints: c.constraints || '', starterCode: c.starterCode || '', referenceSolution: c.referenceSolution || '', hints: c.hints || [], solutionExplanation: c.solutionExplanation || '', publicTests: c.publicTests || [], hiddenTests: c.hiddenTests || [], runtimeLimits: c.runtimeLimits || { cpuTimeoutSeconds: 2, wallTimeoutSeconds: 5, memoryLimitMib: 128 } });
       }
       {
-        const { initAuthorTree } = await import('./pages/author/AuthorTreeComponent.ts');
+        
         initAuthorTree(appEl, { courseId, request: (route, method, body) => s2Request(route, method, body), refresh: () => renderApp(path), navigate: (url) => navigateTo(url) });
-        const { fetchInvalidStepIds, applyInvalidStepDots } = await import('./pages/author/AuthorTreeComponent.ts');
+        
         void fetchInvalidStepIds(s2Request, courseId).then((ids) => { if (s2Current(path)) applyInvalidStepDots(appEl, ids); });
       }
       if (step.type === 'quiz') {
@@ -1184,7 +1185,7 @@ function showRouteFailure(message: string, retryPath: string): void {
   if (isAuthError) {
     authClient.clearSession();
     const returnTo = getSafeReturnDestination(retryPath);
-    navigateTo(`/sign-in?returnTo=${encodeURIComponent(returnTo)}`);
+    navigateTo(`/sign-in?returnTo=${encodeURIComponent(returnTo)}&notice=session-expired`);
     return;
   }
   const user = authClient.getUser();
@@ -1196,10 +1197,10 @@ function showRouteFailure(message: string, retryPath: string): void {
       activePath: retryPath,
       content: `
         <div class="author-courses-container container py-12">
-          <div class="state-container state-failure max-w-md mx-auto" role="alert">
+          <div class="state-container state-failure max-w-md mx-auto text-center" role="alert">
             <h1 class="page-title text-xl font-semibold mb-2">Couldn't load this page</h1>
             <p class="text-secondary mb-4">${escapeHtml(message)}</p>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center gap-3">
               <button class="btn btn-primary btn-compact" id="route-retry">Try again</button>
               <a href="/teach" class="btn btn-secondary btn-compact">Return to Your courses</a>
             </div>
@@ -1419,13 +1420,7 @@ async function renderAiConnectionSetupPage(
       const endpointInput = document.getElementById('endpoint-url-input') as HTMLInputElement | null;
       const text = endpointInput?.value || `${window.location.origin}/mcp`;
       const originalText = copyEndpointBtn.textContent?.trim() || 'Copy endpoint';
-      try {
-        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
-        await navigator.clipboard.writeText(text);
-        copyEndpointBtn.textContent = 'Copied!';
-      } catch {
-        copyEndpointBtn.textContent = 'Copy failed';
-      }
+      copyEndpointBtn.textContent = (await copyTextToClipboard(text)) ? 'Copied!' : 'Copy failed';
       setTimeout(() => {
         if (copyEndpointBtn) copyEndpointBtn.textContent = originalText;
       }, 2000);
@@ -1436,13 +1431,7 @@ async function renderAiConnectionSetupPage(
       const codeBlock = document.querySelector('.setup-code-block code');
       const text = codeBlock?.textContent || '';
       const originalText = copySnippetBtn.textContent?.trim() || 'Copy configuration';
-      try {
-        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
-        await navigator.clipboard.writeText(text);
-        copySnippetBtn.textContent = 'Copied!';
-      } catch {
-        copySnippetBtn.textContent = 'Copy failed';
-      }
+      copySnippetBtn.textContent = (await copyTextToClipboard(text)) ? 'Copied!' : 'Copy failed';
       setTimeout(() => {
         if (copySnippetBtn) copySnippetBtn.textContent = originalText;
       }, 2000);
@@ -1478,13 +1467,7 @@ async function renderAiConnectionSetupPage(
     copyPromptBtn?.addEventListener('click', async () => {
       const prompt = copyPromptBtn.dataset.prompt || '';
       const originalText = copyPromptBtn.textContent?.trim() || 'Copy prompt';
-      try {
-        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
-        await navigator.clipboard.writeText(prompt);
-        copyPromptBtn.textContent = 'Copied!';
-      } catch {
-        copyPromptBtn.textContent = 'Copy failed';
-      }
+      copyPromptBtn.textContent = (await copyTextToClipboard(prompt)) ? 'Copied!' : 'Copy failed';
       setTimeout(() => {
         if (copyPromptBtn) copyPromptBtn.textContent = originalText;
       }, 2000);
@@ -3660,7 +3643,7 @@ export function renderApp(path: string = window.location.pathname + window.locat
       // Account Pages (P04, P05, P06, P07)
       if (route.pageId === 'P04') {
         const returnTo = searchParams.get('returnTo') || '';
-        appEl.innerHTML = renderSignInPage({ returnTo });
+        appEl.innerHTML = renderSignInPage({ returnTo, notice: searchParams.get('notice') === 'session-expired' ? 'Your session expired. Sign in again to continue.' : undefined });
         attachSignInListeners();
       } else if (route.pageId === 'P05') {
         const returnTo = searchParams.get('returnTo') || '';
@@ -4491,6 +4474,30 @@ function attachHelpListeners(courseId?: string, triggerElement?: HTMLElement | n
   const form = document.getElementById('report-issue-form') as HTMLFormElement | null;
 
   let helpTriggerElement: HTMLElement | null = triggerElement || (openBtns.length > 0 ? openBtns[0] : null);
+
+  // Course picker: swap the free-text Course ID for a select of the user's enrolled courses.
+  const courseInput = document.getElementById('report-course-id') as HTMLInputElement | null;
+  if (courseInput && authClient.getUser()) {
+    void authClient.fetchApi('/api/student/courses').then((res: any) => {
+      const seen = new Set<string>();
+      const options = (res?.enrollments || []).filter((e: any) => e.courseId && !seen.has(e.courseId) && seen.add(e.courseId));
+      if (!options.length || !courseInput.isConnected) return;
+      const select = document.createElement('select');
+      select.id = 'report-course-id';
+      select.className = courseInput.className;
+      select.required = true;
+      const current = courseInput.value;
+      const mk = (value: string, label: string) => { const o = document.createElement('option'); o.value = value; o.textContent = label; return o; };
+      if (!current) select.appendChild(mk('', 'Choose a course'));
+      if (current && !seen.has(current)) select.appendChild(mk(current, current));
+      for (const e of options) select.appendChild(mk(e.courseId, e.courseTitle || e.title || e.courseId));
+      select.value = current;
+      courseInput.replaceWith(select);
+      const lbl = document.querySelector('label[for="report-course-id"]'); if (lbl) lbl.innerHTML = 'Course <span class="text-danger">*</span>';
+      const hint = select.parentElement?.querySelector('.form-hint');
+      if (hint) hint.textContent = 'The course this report is about.';
+    }).catch(() => { /* keep the text field */ });
+  }
 
   const getFocusableElements = (): HTMLElement[] => {
     if (!modal) return [];
@@ -6302,6 +6309,19 @@ document.addEventListener('click', (event) => {
     renderApp();
   }
 });
+
+let sessionExpiredHandling = false;
+function handleSessionExpired(detail?: { path?: string }): void {
+  if (sessionExpiredHandling || window.location.pathname.startsWith('/sign-in')) return;
+  sessionExpiredHandling = true;
+  setTimeout(() => { sessionExpiredHandling = false; }, 3000);
+  authClient.clearSession();
+  const returnTo = getSafeReturnDestination(window.location.pathname + window.location.search);
+  void detail;
+  navigateTo(`/sign-in?returnTo=${encodeURIComponent(returnTo)}&notice=session-expired`);
+}
+window.addEventListener(SESSION_EXPIRED_EVENT, (event) => handleSessionExpired((event as CustomEvent).detail));
+installDelegatedActions();
 
 window.addEventListener('popstate', async (event: PopStateEvent) => {
   if (navigationHistory.checkAndClearReverting()) {

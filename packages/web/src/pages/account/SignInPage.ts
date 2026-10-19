@@ -7,6 +7,7 @@ export interface SignInPageOptions {
   error?: string;
   returnTo?: string;
   isLoading?: boolean;
+  notice?: string;
 }
 
 const BENEFITS = [
@@ -39,6 +40,7 @@ export function renderSignInPage(opts: SignInPageOptions = {}): string {
   const returnToParam = opts.returnTo ? `?returnTo=${encodeURIComponent(opts.returnTo)}` : '';
   const formContent = `
     <form id="sign-in-form" action="/api/auth/sign-in" method="POST" novalidate>
+      ${opts.notice ? `<div id="sign-in-notice" class="form-notice mb-4 p-3 border rounded" role="status">${escapeHtml(opts.notice)}</div>` : ''}
       ${
         opts.error
           ? `
