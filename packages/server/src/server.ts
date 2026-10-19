@@ -366,9 +366,9 @@ export function createServer(
       // 12. Change Password (T015)
       if (method === 'POST' && pathname === '/api/settings/security/change-password') {
         if (!token) throw new AuthenticationError();
-        const { user } = identityService.authenticateSession(token);
+        const { user, session } = identityService.authenticateSession(token);
         const body = await parseJsonBody(req);
-        const success = identityService.changePassword(user.id, body.currentPassword, body.newPassword);
+        const success = identityService.changePassword(user.id, body.currentPassword, body.newPassword, session.id);
         sendJson(res, 200, { success });
         return;
       }
@@ -389,7 +389,8 @@ export function createServer(
       if (method === 'POST' && pathname === '/api/settings/privacy/export') {
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
-        const result = identityService.requestDataExport(user.id);
+        const body = await parseJsonBody(req);
+        const result = identityService.requestDataExport(user.id, typeof body?.currentPassword === 'string' ? body.currentPassword : undefined);
         sendJson(res, 200, result);
         return;
       }
@@ -399,7 +400,7 @@ export function createServer(
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         const body = await parseJsonBody(req);
-        const result = identityService.requestAccountDeletion(user.id, Boolean(body.consequenceAcknowledged));
+        const result = identityService.requestAccountDeletion(user.id, Boolean(body.consequenceAcknowledged), typeof body.currentPassword === 'string' ? body.currentPassword : undefined);
         const clearCookie = clearSessionCookie(req);
         sendJson(res, 200, result, { 'Set-Cookie': clearCookie });
         return;
