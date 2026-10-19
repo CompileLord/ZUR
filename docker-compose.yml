@@ -1,0 +1,29 @@
+# Single-host stack: caddy (TLS + static web) + server. The worker is intentionally absent:
+# it launches sandbox containers with rootless podman and shares the SQLite file, so it runs on
+# the host under systemd (deploy/systemd/zur-worker.service) against the SAME ./data directory.
+# Usage: ZUR_DOMAIN=learn.example.com ZUR_ACME_EMAIL=you@example.com docker compose up -d --build
+services:
+  server:
+    build: { context: ., target: server }
+    restart: unless-stopped
+    env_file: [deploy/env.production]   # copy deploy/env.production.example, fix paths to /app/data
+    volumes:
+      - ./data:/app/data
+      - zur-deletions:/var/lib/zur-deletions
+    expose: ["3001"]
+  caddy:
+    build: { context: ., target: web }
+    restart: unless-stopped
+    depends_on: [server]
+    environment:
+      ZUR_DOMAIN: ${ZUR_DOMAIN:?set ZUR_DOMAIN}
+      ZUR_ACME_EMAIL: ${ZUR_ACME_EMAIL:?set ZUR_ACME_EMAIL}
+      ZUR_UPSTREAM: server:3001
+    ports: ["80:80", "443:443"]
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+volumes:
+  zur-deletions:
+  caddy-data:
+  caddy-config:

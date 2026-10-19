@@ -1,0 +1,14 @@
+[Unit]
+Description=ZUR backup (sqlite snapshot + uploads + tombstones)
+
+[Service]
+Type=oneshot
+User=zur
+Group=zur
+EnvironmentFile=/etc/zur/zur.env
+ExecStart=/srv/zur/deploy/backup.sh
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/backups/zur /srv/zur/data

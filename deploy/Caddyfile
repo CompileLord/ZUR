@@ -1,0 +1,108 @@
+# ZUR production reverse proxy / static host (Caddy 2.x).
+#
+#   ZUR_DOMAIN       public hostname, e.g. learn.example.com  (TLS is automatic via ACME;
+#                    ports 80 and 443 must be reachable from the internet)
+#   ZUR_WEB_ROOT     directory containing the built web app (packages/web/dist)
+#   ZUR_UPSTREAM     node server address (default 127.0.0.1:3001)
+#
+# Load env from /etc/zur/caddy.env (see docs/DEPLOYMENT.md) or `Environment=` in the caddy unit.
+# Validate:  caddy validate --config deploy/Caddyfile --adapter caddyfile
+#
+# IMPORTANT: the inline-script hash in the CSP below must match packages/web/dist/index.html.
+# After every `npm run build`, run `node deploy/csp-hash.mjs --check`.
+
+{
+	email {$ZUR_ACME_EMAIL}
+}
+
+{$ZUR_DOMAIN} {
+	encode zstd gzip
+
+	root * {$ZUR_WEB_ROOT:/srv/zur/packages/web/dist}
+
+	# ---- Security headers (all responses) ----
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+		Cross-Origin-Opener-Policy "same-origin"
+		-Server
+		# Content-Security-Policy, derived from the CURRENT code (see docs/DEPLOYMENT.md "CSP"):
+		#  - script-src: bundled modules are same-origin; index.html has ONE inline first-paint
+		#    theme script, allowed by hash (no 'unsafe-inline' for scripts).
+		#  - style-src 'unsafe-inline': required today. The app injects <style> elements
+		#    (AdminShell/AuthorWorkspaceShell/AuthorPreviewPage), CodeMirror injects <style>,
+		#    and ~250 inline style="" attributes / el.style writes exist. Tightening needs code changes.
+		#  - fonts: Google Fonts css (fonts.googleapis.com) + files (fonts.gstatic.com).
+		#  - img-src data: (select chevron data-URI in components.css) and blob: (admin media preview).
+		#  - frame-src: author-supplied video embeds (YouTube nocookie, Vimeo, Loom).
+		#  - connect-src 'self': all fetches are same-origin (/api, /mcp); no websockets/SSE.
+		#  - frame-ancestors 'none' replaces X-Frame-Options in modern browsers.
+		#
+		# Phase 1 (default): REPORT-ONLY. Watch the browser console / your report endpoint, then
+		# switch to the enforced header below.
+		Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'sha256-lk9yYgG74sJZGnK7nAVJ+E5qGQs5Q6wm0ZjeTg0d/pg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com https://www.loom.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		# Phase 2: comment out the Report-Only line above and uncomment this one.
+		# Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-lk9yYgG74sJZGnK7nAVJ+E5qGQs5Q6wm0ZjeTg0d/pg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com https://www.loom.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+	}
+
+	# ---- Backend: API, MCP, health ----
+	# Caddy's reverse_proxy sets X-Forwarded-For/-Proto/-Host and overwrites any client-supplied
+	# values. The node server must be told to trust this proxy (see docs/DEPLOYMENT.md).
+	@api path /api/* /mcp /mcp/* /healthz /readyz
+	handle @api {
+		request_body {
+			# Media uploads default to 10 MiB per file; leave headroom for multipart overhead.
+			max_size 12MB
+		}
+		reverse_proxy {$ZUR_UPSTREAM:127.0.0.1:3001} {
+			header_up X-Real-IP {remote_host}
+			health_uri /healthz
+			health_interval 15s
+			health_timeout 3s
+			transport http {
+				dial_timeout 3s
+				response_header_timeout 120s
+			}
+		}
+		# API responses must never be cached by shared caches.
+		header Cache-Control "no-store"
+	}
+
+	# ---- Static web app ----
+	# Hashed build assets: immutable for a year. A missing asset is a real 404 (NOT the SPA
+	# fallback), so a stale lazy-loaded chunk after a deploy fails loudly instead of parsing HTML.
+	handle /assets/* {
+		@exists file
+		header @exists Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+
+	# Unhashed static files (favicon, hero media): revalidate daily.
+	handle /favicon.svg {
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+	handle /media/* {
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+
+	# Everything else: SPA fallback to index.html (client-side router). index.html must
+	# always revalidate so a deploy takes effect immediately.
+	handle {
+		header Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+
+	log {
+		output file /var/log/caddy/zur-access.log {
+			roll_size 50MiB
+			roll_keep 10
+		}
+		format json
+	}
+}

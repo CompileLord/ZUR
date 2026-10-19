@@ -6,7 +6,18 @@
   "workspaces": [
     "packages/*"
   ],
+  "engines": {
+    "node": ">=22.18.0"
+  },
   "scripts": {
+    "typecheck": "npm run typecheck:shared && npm run typecheck:worker && npm run typecheck:server && npm run typecheck:web",
+    "typecheck:shared": "tsc --noEmit -p packages/shared",
+    "typecheck:worker": "tsc --noEmit -p packages/worker",
+    "typecheck:server": "tsc --noEmit -p packages/server",
+    "typecheck:web": "tsc --noEmit -p packages/web",
+    "start:server": "node --experimental-strip-types --no-warnings packages/server/src/index.ts",
+    "start:worker": "node --experimental-strip-types --no-warnings packages/worker/src/daemon.ts",
+    "ci": "npm run typecheck && npm test && npm run build",
     "build": "npm run build --workspaces --if-present",
     "test": "node --experimental-strip-types --test packages/shared/tests/*.test.ts packages/server/tests/*.test.ts packages/worker/tests/*.test.ts packages/web/tests/*.test.ts",
     "db:migrate": "node --experimental-strip-types packages/server/src/db/migrate.ts",

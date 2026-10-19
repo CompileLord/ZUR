@@ -1,0 +1,15 @@
+.git
+node_modules
+**/node_modules
+**/dist
+data
+screenshots
+scratch
+.agents
+.claude
+docs
+scripts
+*.log
+.env
+.env.*
+*.sqlite*

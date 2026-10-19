@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // DOM lib is only here because packages/server/tests/mcp-adversarial-and-e2e.test.ts
+    // imports a web module (McpClientSetupDialog) that touches `window`.
+    "lib": ["ES2022", "DOM"]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

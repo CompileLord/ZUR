@@ -1,0 +1,32 @@
+[Unit]
+Description=ZUR execution worker (rootless podman sandbox runner)
+After=zur-server.service
+Wants=zur-server.service
+
+[Service]
+Type=simple
+User=zur
+Group=zur
+WorkingDirectory=/srv/zur
+EnvironmentFile=/etc/zur/zur.env
+# Rootless podman needs the user's runtime dir; enable it once with: loginctl enable-linger zur
+Environment=XDG_RUNTIME_DIR=/run/user/%U
+ExecStart=/usr/bin/node --experimental-strip-types --no-warnings packages/worker/src/daemon.ts
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+KillSignal=SIGTERM
+
+# Hardening. NoNewPrivileges, RestrictNamespaces and RestrictSUIDSGID are deliberately NOT set:
+# rootless podman needs the setuid newuidmap/newgidmap helpers and user namespaces.
+ProtectSystem=strict
+ProtectHome=no
+PrivateTmp=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+LockPersonality=yes
+UMask=0077
+ReadWritePaths=/srv/zur/data /var/lib/zur-deletions /home/zur /run/user
+
+[Install]
+WantedBy=multi-user.target

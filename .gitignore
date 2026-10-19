@@ -3,9 +3,20 @@ dist/
 .vite/
 *.log
 .env
+.env.*
+!.env.example
 data/
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+*.sqlite-journal
 coverage/
 screenshots/
+# local agent / scratch tooling
+scratch/
+.agents/
+.claude/
+skills-lock.json
+# evidence output written by local capture scripts
+evidence/
+*.pre-restore-*
