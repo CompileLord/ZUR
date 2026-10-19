@@ -158,25 +158,40 @@ Status as of wave 1 (branch `redesign/2026-10-18`, commit 03a751c): ✅ = merged
 | P0.2 | Design tokens: neutral palette, radius, spacing, type scale (`tokens.css`) | §2 | Low | ✅ lime accent kept. Editor surface stays neutral gray `#1e1e1e` next to the blue-black page: acceptable, VS Code-like |
 | P0.3 | Shared components: Panel, Badge, Tabs, Table, EmptyState, Drawer, Skeleton, Toast polish | §2 | Low | 🟦 |
 | P1.1 | VS Code Dark+/Light+ highlight map + editor surface colors | C11 | Low | ✅ seen dark+light in integrated build. Not applied to author code fields / theory code blocks |
-| P1.2 | Editor chrome: font size control (persisted), reset code, shortcut hints, save indicator | C11, C12 | Low | 🟦 |
+| P1.2 | Editor chrome: font size control (persisted), reset code, shortcut hints, save indicator | C11, C12 | Low | ✅ wave 2 (Python workspace) |
 | P2.1 | Persistent shell, swap `<main>` only | C1, C7 | **Medium** (touches `renderApp`) | ⛔ skipped on purpose: ~130 whole-shell `innerHTML` writes; safe path is a `mountContent()` helper converted batch by batch (learner S3 pages first) |
 | P2.2 | In-shell skeleton loaders, 150 ms delay | C2 | Low | ✅ |
 | P2.3 | SPA step completion (no reload), success banner + Next step | C3, C6 | Medium | ◐ works; two Continue actions now show (toolbar + banner) |
 | P2.4 | Retry without reload; branded leave-confirm dialog | C4, C5 | Low | ◐ author/profile guards done; appearance guard, deletes, invitations and starter-code reset still use `window.confirm`; `CoursePublishPage.ts:198` still reloads |
-| P2.5 | Role-aware post-login landing + Learn/Teach/Admin switcher | C9 | Low | ◐ landing done (admin→/admin, author-only→/teach, student+author→/learn); switcher not built; 🟨 should student+author land on /teach? |
+| P2.5 | Role-aware post-login landing + Learn/Teach/Admin switcher | C9 | Low | ✅ landing + switcher merged (wave 3) |
 | P2.6 | Route polish: fade, scroll reset, focus to H1, document.title | C10 | Low | ✅ |
-| P3.1 | Learner Home (merge Continue + My courses) | §3 | Medium | 🟨 decision 2 |
+| P3.1 | Learner Home (merge Continue + My courses) | §3 | Medium | ✅ merged (wave 2); hero card duplicates a grid card (minor) |
 | P3.2 | Course page: collapsible modules, progress rings | §3 | Low | ✅ |
-| P3.3 | Step pages: centered reading, outline slide-over, footer actions | §3 | Medium | 🟨 decision 3 |
-| P3.4 | Python workspace: output drawer, reduced top bar, attempts tab, hint reveal | §3 | **Medium-High** | 🟦 |
+| P3.3 | Step pages: centered reading, outline slide-over, footer actions | §3 | Medium | ✅ merged |
+| P3.4 | Python workspace: output drawer, reduced top bar, attempts tab, hint reveal | §3 | **Medium-High** | ✅ merged; outline resize across 1600px not live |
 | P4.0 | Reproduce the /help modal-on-load report in a clean browser; fix only if real | §1c | Low | ✅ real bug, cause `.modal-backdrop:not(.hidden){display:flex!important}` in `components.css`; fixed in `HelpPage.ts` |
-| P4.1 | Settings: single account page, rail nav, dirty-only Save bar, shared Alert/danger styles | §1c | Low | ◐ card layout + danger/warning styles done; segmented font controls and rail nav not done; existing bug: Appearance page resets font/indent display after reload (`main.ts` ~3443 hardcodes values) |
+| P4.1 | Settings: single account page, rail nav, dirty-only Save bar, shared Alert/danger styles | §1c | Low | ◐ cards, option cards, persisted appearance prefs done; rail nav not done |
 | P4.2 | AI connections table + MCP setup stepper | §1c | Low | ✅ |
 | P4 | Public landing/catalog/overview, auth, help, error pages | §3 | Low | ◐ merged; open polish: catalog thumbnail gradient is magenta/maroon (off-palette), sign-in/up value panel misaligned with form, help dialog checkbox centered |
-| P5 | Author: single nav, tree DnD, live preview, Python stepper, publish checklist | §3 | High | ⬜ |
-| P6 | Admin: triage overview, tables, thumbnails | §3 | Low | ◐ merged; needs server support for suspended-course count, safe media thumbnails, report severity; minor: duplicate badge/switch and duplicate 'Unavailable' on Execution |
+| P5 | Author: single nav, tree DnD, live preview, Python stepper, publish checklist | §3 | High | ✅ merged (waves 2-3); open: tree validation dot, truncated titles/eye icons per row, preview double top bar (W7-F) |
+| P6 | Admin: triage overview, tables, thumbnails | §3 | Low | ◐ merged with suspended-course count; admin media thumbnails still need an audited admin thumbnail endpoint |
 | P7 | Features: Ctrl+K palette, notes, autosave history, shortcuts sheet | §5 | Medium | ⬜ |
 | P8 | Extract touched controllers out of `main.ts`; delete dead demo step | C8 | Medium | ◐ dead demo step deleted; no controller extraction yet |
+
+### Deploy-readiness work (after the redesign waves)
+
+| ID | Task | Status |
+|---|---|---|
+| W4-W1 | Markdown URL allowlist + HTML stripping (XSS), auth-client 401 event/timeout, CSP-friendly index.html | ✅ merged |
+| W4-D | Deploy files: Caddyfile, systemd units, backup/restore, Dockerfile/compose, runbooks, tsconfigs | ✅ merged; Docker image, systemd units, ACME and podman worker path untested (no network/host) |
+| W4-S1 | HTTP hardening: body limits, security headers, CORS allowlist, CSRF, client IP, /readyz, access log, graceful shutdown, prod config validation | ✅ merged |
+| W4-S2 | Auth limiter, scrypt upgrade, changePassword session revocation, catalog cache, worker reliability, MCP SDK security bump (audit: 0 vulns) | ✅ merged; sign-in/change-password still use sync hashing (async variants exist) |
+| W5-T | Typecheck clean in all packages | ✅ merged |
+| W5-C | GitHub Actions CI + deploy workflow + Dependabot + docs/CI-CD.md | ✅ committed; never run on GitHub; no lint job (no lint tooling) |
+| W6-M | MCP: argument validation, unknown-key rejection, rate limit, new tools, move_content fix | ✅ merged |
+| W6-U | AI connections UI fixes | ✅ merged |
+| — | Deletion registry created on first boot | ✅ |
+| W7-F | Frontend cleanup (session-expired handling, inline onclick, listener leaks, remaining redesign gaps) | 🟦 in progress |
 
 **Per-task rule:** change → `npm test` (existing suite, previously 659/661 with 2 known evidence-file failures) → `npm run build` → re-capture the same desktop screenshots → compare against the baselines in `screenshots/redesign-2026-10-18/` → update this table.
 
