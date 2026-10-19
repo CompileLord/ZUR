@@ -57,12 +57,20 @@ export interface McpToolInputProperty {
   properties?: Record<string, any>;
   required?: string[];
   default?: any;
+  minimum?: number;
+  maximum?: number;
+  minLength?: number;
+  maxLength?: number;
+  minItems?: number;
+  maxItems?: number;
+  additionalProperties?: boolean | Record<string, any>;
 }
 
 export interface McpToolInputSchema {
   type: 'object';
   properties: Record<string, McpToolInputProperty>;
   required?: string[];
+  additionalProperties?: boolean;
 }
 
 export interface McpToolAnnotations {

@@ -46,7 +46,6 @@ export function createBatchAuthoringTools(): McpTool[] {
     description: 'List of up to 100 authoring operations',
     items: {
       type: 'object',
-      required: ['op'],
       properties: {
         op: {
           type: 'string',
@@ -66,14 +65,27 @@ export function createBatchAuthoringTools(): McpTool[] {
         module_id: { type: 'string' },
         lesson_id: { type: 'string' },
         step_id: { type: 'string' },
-        title: { type: 'string' },
+        title: { type: 'string', maxLength: 200 },
         description: { type: 'string' },
-        position: { type: 'integer' },
-        type: { type: 'string', enum: ['theory', 'video', 'quiz', 'python'] },
+        position: { type: 'integer', minimum: 0 },
+        type: { type: 'string', description: 'Step type for create_step (theory, video, quiz, python). Legacy: may also carry the operation name when op is omitted.' },
+        step_type: { type: 'string', description: 'Legacy alias of type' },
+        parent_temp_id: { type: 'string', description: 'temp_id of the parent module/lesson created earlier in the same batch' },
         is_required: { type: 'boolean' },
-        estimated_duration_minutes: { type: 'integer' },
+        estimated_duration_minutes: { type: 'integer', minimum: 0 },
         content: { type: 'object' },
-        test_cases: { type: 'array' },
+        test_cases: {
+          type: 'array',
+          items: {
+            type: 'object',
+            required: ['stdin', 'expected_stdout'],
+            properties: {
+              stdin: { type: 'string' },
+              expected_stdout: { type: 'string' },
+              is_hidden: { type: 'boolean' },
+            },
+          },
+        },
       },
     },
   };
@@ -86,10 +98,11 @@ export function createBatchAuthoringTools(): McpTool[] {
         type: 'object',
         properties: {
           course_id: { type: 'string', description: 'Target course ID' },
-          expected_revision: { type: 'integer', description: 'Expected draft_revision before batch application' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Expected draft_revision before batch application' },
+          base_revision: { type: 'integer', minimum: 0, description: 'Deprecated alias of expected_revision' },
           operations: operationsProperty,
         },
-        required: ['course_id', 'expected_revision', 'operations'],
+        required: ['course_id', 'operations'],
       },
       annotations: {
         readOnly: true,
@@ -104,10 +117,11 @@ export function createBatchAuthoringTools(): McpTool[] {
         properties: {
           course_id: { type: 'string', description: 'Target course ID' },
           plan_id: { type: 'string', description: 'Short-lived plan ID returned by prepare_course_changes' },
-          expected_revision: { type: 'integer', description: 'Expected draft_revision before batch application' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Expected draft_revision before batch application' },
+          base_revision: { type: 'integer', minimum: 0, description: 'Deprecated alias of expected_revision' },
           idempotency_key: { type: 'string', description: 'Unique idempotency key for this batch application' },
         },
-        required: ['course_id', 'plan_id', 'expected_revision', 'idempotency_key'],
+        required: ['course_id', 'plan_id', 'idempotency_key'],
       },
       annotations: {
         readOnly: false,
@@ -121,11 +135,12 @@ export function createBatchAuthoringTools(): McpTool[] {
         type: 'object',
         properties: {
           course_id: { type: 'string', description: 'Target course ID' },
-          expected_revision: { type: 'integer', description: 'Expected draft_revision before batch application' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Expected draft_revision before batch application' },
+          base_revision: { type: 'integer', minimum: 0, description: 'Deprecated alias of expected_revision' },
           idempotency_key: { type: 'string', description: 'Unique idempotency key for this batch' },
           operations: operationsProperty,
         },
-        required: ['course_id', 'expected_revision', 'idempotency_key', 'operations'],
+        required: ['course_id', 'idempotency_key', 'operations'],
       },
       annotations: {
         readOnly: false,

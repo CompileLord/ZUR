@@ -21,6 +21,7 @@ import { CoursePublicationService } from '../services/course-publication-service
 import { CourseLifecycleService } from '../services/course-lifecycle-service.ts';
 import { McpRateLimiter } from './mcp-rate-limiter.ts';
 import { listMcpResources, readMcpResource } from './resources.ts';
+import { closeObjectSchemas, validateToolArguments } from './tool-validation.ts';
 import {
   createCourseReadTools,
   executeCourseReadTool,
@@ -45,6 +46,11 @@ import {
   createBatchAuthoringTools,
   executeBatchAuthorTool,
 } from './tools/batch-authoring-tool.ts';
+import {
+  createCatalogReadTools,
+  executeCatalogReadTool,
+  CATALOG_READ_TOOL_NAMES,
+} from './tools/catalog-read-tools.ts';
 import { AgentActivityService } from '../services/agent-activity-service.ts';
 import { DraftRecoveryService } from '../services/draft-recovery-service.ts';
 import {
@@ -60,6 +66,12 @@ import {
 } from './types.ts';
 
 import { SUPPORTED_PROTOCOL_VERSIONS, LATEST_PROTOCOL_VERSION } from '@modelcontextprotocol/sdk/types.js';
+
+const IDEMPOTENCY_KEY_TOOLS = new Set([
+  'create_course', 'update_course_metadata', 'create_module', 'update_module', 'delete_module',
+  'create_lesson', 'update_lesson', 'delete_lesson', 'create_step', 'update_step', 'delete_step',
+  'duplicate_step', 'move_content', 'duplicate_content',
+]);
 
 export class McpServer {
   private db: DatabaseSync;
@@ -137,9 +149,17 @@ export class McpServer {
       ...createLifecycleTools(),
       ...createBatchAuthoringTools(),
       ...createAgentActivityTools(),
+      ...createCatalogReadTools(),
     ];
 
     for (const tool of allTools) {
+      if (IDEMPOTENCY_KEY_TOOLS.has(tool.name) && !tool.inputSchema.properties.idempotency_key) {
+        tool.inputSchema.properties.idempotency_key = {
+          type: 'string',
+          description: 'Optional key recorded on the activity receipt to correlate retries',
+        };
+      }
+      closeObjectSchemas(tool.inputSchema);
       this.tools.set(tool.name, tool);
     }
   }
@@ -335,6 +355,11 @@ export class McpServer {
     token: ValidatedMcpToken
   ): Promise<McpToolResult> {
     try {
+      const registered = this.tools.get(name);
+      if (registered) {
+        validateToolArguments(registered, args);
+      }
+
       if (['get_author_context', 'list_courses', 'get_course'].includes(name)) {
         return await executeCourseReadTool(
           name,
@@ -377,6 +402,18 @@ export class McpServer {
           this.autosaveService,
           this.activityService,
           this.recoveryService
+        );
+      }
+
+      if (CATALOG_READ_TOOL_NAMES.includes(name)) {
+        return await executeCatalogReadTool(
+          name,
+          args,
+          token,
+          this.db,
+          this.authService,
+          this.autosaveService,
+          this.mediaService
         );
       }
 

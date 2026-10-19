@@ -23,10 +23,10 @@ export function createCourseMutationTools(): McpTool[] {
       inputSchema: {
         type: 'object',
         properties: {
-          title: { type: 'string', description: 'Course title (required, max 200 characters)' },
+          title: { type: 'string', maxLength: 200, description: 'Course title (required, max 200 characters)' },
           description: { type: 'string', description: 'Short course summary' },
           category_id: { type: 'string', description: 'Category identifier' },
-          tags: { type: 'array', items: { type: 'string' }, description: 'At most 5 tags' },
+          tags: { type: 'array', items: { type: 'string' }, maxItems: 5, description: 'At most 5 tags' },
           difficulty: { type: 'string', enum: ['beginner', 'intermediate', 'advanced'], description: 'Course level' },
         },
         required: ['title'],
@@ -43,14 +43,14 @@ export function createCourseMutationTools(): McpTool[] {
         type: 'object',
         properties: {
           course_id: { type: 'string', description: 'Course ID to update' },
-          expected_revision: { type: 'integer', description: 'Current draft_revision for conflict prevention' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Current draft_revision for conflict prevention' },
           metadata: {
             type: 'object',
             properties: {
-              title: { type: 'string' },
+              title: { type: 'string', maxLength: 200 },
               description: { type: 'string' },
               category_id: { type: 'string' },
-              tags: { type: 'array', items: { type: 'string' } },
+              tags: { type: 'array', items: { type: 'string' }, maxItems: 5 },
               difficulty: { type: 'string', enum: ['beginner', 'intermediate', 'advanced'] },
               language: { type: 'string' },
               prerequisites: { type: 'string' },
@@ -72,8 +72,8 @@ export function createCourseMutationTools(): McpTool[] {
         type: 'object',
         properties: {
           course_id: { type: 'string', description: 'Course ID' },
-          title: { type: 'string', description: 'Module title' },
-          position: { type: 'integer', description: 'Zero-based position index' },
+          title: { type: 'string', maxLength: 200, description: 'Module title' },
+          position: { type: 'integer', minimum: 0, description: 'Zero-based position index' },
         },
         required: ['course_id', 'title'],
       },
@@ -90,7 +90,7 @@ export function createCourseMutationTools(): McpTool[] {
         properties: {
           course_id: { type: 'string', description: 'Course ID' },
           module_id: { type: 'string', description: 'Module ID' },
-          title: { type: 'string', description: 'New module title' },
+          title: { type: 'string', maxLength: 200, description: 'New module title' },
         },
         required: ['course_id', 'module_id', 'title'],
       },
@@ -124,9 +124,9 @@ export function createCourseMutationTools(): McpTool[] {
         properties: {
           course_id: { type: 'string', description: 'Course ID' },
           module_id: { type: 'string', description: 'Parent module ID' },
-          title: { type: 'string', description: 'Lesson title' },
+          title: { type: 'string', maxLength: 200, description: 'Lesson title' },
           description: { type: 'string', description: 'Optional lesson description' },
-          position: { type: 'integer', description: 'Zero-based position index' },
+          position: { type: 'integer', minimum: 0, description: 'Zero-based position index' },
         },
         required: ['course_id', 'module_id', 'title'],
       },
@@ -143,7 +143,7 @@ export function createCourseMutationTools(): McpTool[] {
         properties: {
           course_id: { type: 'string', description: 'Course ID' },
           lesson_id: { type: 'string', description: 'Lesson ID' },
-          title: { type: 'string', description: 'Lesson title' },
+          title: { type: 'string', maxLength: 200, description: 'Lesson title' },
           description: { type: 'string', description: 'Lesson description' },
         },
         required: ['course_id', 'lesson_id', 'title'],
@@ -178,11 +178,11 @@ export function createCourseMutationTools(): McpTool[] {
         properties: {
           course_id: { type: 'string', description: 'Course ID' },
           lesson_id: { type: 'string', description: 'Lesson ID' },
-          title: { type: 'string', description: 'Step title' },
+          title: { type: 'string', maxLength: 200, description: 'Step title' },
           type: { type: 'string', enum: ['theory', 'video', 'quiz', 'python'], description: 'Step type' },
-          position: { type: 'integer', description: 'Zero-based position' },
+          position: { type: 'integer', minimum: 0, description: 'Zero-based position' },
           is_required: { type: 'boolean', description: 'Whether required for course completion (default true)' },
-          estimated_duration_minutes: { type: 'integer', description: 'Estimated time in minutes' },
+          estimated_duration_minutes: { type: 'integer', minimum: 0, description: 'Estimated time in minutes' },
           content: { type: 'object', description: 'Optional step content payload matching step type' },
           test_cases: {
             type: 'array',
@@ -213,10 +213,10 @@ export function createCourseMutationTools(): McpTool[] {
         properties: {
           course_id: { type: 'string', description: 'Course ID' },
           step_id: { type: 'string', description: 'Step ID' },
-          expected_revision: { type: 'integer', description: 'Expected revision of the step content' },
-          title: { type: 'string', description: 'New step title' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Expected revision of the step content' },
+          title: { type: 'string', maxLength: 200, description: 'New step title' },
           is_required: { type: 'boolean', description: 'Whether required' },
-          estimated_duration_minutes: { type: 'integer', description: 'Estimated duration in minutes' },
+          estimated_duration_minutes: { type: 'integer', minimum: 0, description: 'Estimated duration in minutes' },
           content: { type: 'object', description: 'New step content payload' },
           test_cases: {
             type: 'array',
@@ -281,8 +281,9 @@ export function createCourseMutationTools(): McpTool[] {
           content_type: { type: 'string', enum: ['module', 'lesson', 'step'], description: 'Type of content node' },
           id: { type: 'string', description: 'ID of the node to move' },
           target_parent_id: { type: 'string', description: 'Target parent ID (module_id for lesson, lesson_id for step)' },
-          position: { type: 'integer', description: 'Zero-based target position among siblings' },
-          expected_revision: { type: 'integer', description: 'Expected draft_revision for conflict prevention' },
+          position: { type: 'integer', minimum: 0, description: 'Zero-based target position among siblings' },
+          new_position: { type: 'integer', minimum: 0, description: 'Alias of position' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Expected draft_revision for conflict prevention' },
         },
         required: ['course_id', 'content_type', 'id'],
       },
@@ -301,7 +302,7 @@ export function createCourseMutationTools(): McpTool[] {
           content_type: { type: 'string', enum: ['module', 'lesson', 'step'], description: 'Type of content node to duplicate' },
           id: { type: 'string', description: 'ID of the node to duplicate' },
           target_parent_id: { type: 'string', description: 'Optional target parent ID' },
-          expected_revision: { type: 'integer', description: 'Expected draft_revision for conflict prevention' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Expected draft_revision for conflict prevention' },
         },
         required: ['course_id', 'content_type', 'id'],
       },
@@ -311,6 +312,43 @@ export function createCourseMutationTools(): McpTool[] {
       requiredScope: 'content:write',
     },
   ];
+}
+
+/**
+ * CourseStructureService.moveContent writes the requested position verbatim, which leaves
+ * ties with siblings (and therefore an unchanged order). After a move, renumber the
+ * destination siblings 0..n-1 so the moved node really lands at the requested index.
+ */
+function renumberSiblingsAfterMove(
+  db: DatabaseSync,
+  contentType: 'module' | 'lesson' | 'step',
+  id: string,
+  requestedPosition: number | undefined
+): void {
+  const spec = {
+    module: { table: 'modules', parent: 'course_id' },
+    lesson: { table: 'lessons', parent: 'module_id' },
+    step: { table: 'steps', parent: 'lesson_id' },
+  }[contentType];
+  if (!spec) return;
+  const row = db.prepare(`SELECT ${spec.parent} AS parent_id FROM ${spec.table} WHERE id = ?`).get(id) as { parent_id: string } | undefined;
+  if (!row) return;
+  const siblings = db
+    .prepare(`SELECT id FROM ${spec.table} WHERE ${spec.parent} = ? AND id != ? ORDER BY position ASC, created_at ASC`)
+    .all(row.parent_id, id) as Array<{ id: string }>;
+  const ordered = siblings.map((x) => x.id);
+  if (requestedPosition === undefined) {
+    // No explicit target index: keep the node's existing rank among its (possibly new) siblings.
+    const all = db
+      .prepare(`SELECT id FROM ${spec.table} WHERE ${spec.parent} = ? ORDER BY position ASC, created_at ASC`)
+      .all(row.parent_id) as Array<{ id: string }>;
+    ordered.length = 0;
+    ordered.push(...all.map((x) => x.id));
+  } else {
+    ordered.splice(Math.max(0, Math.min(requestedPosition, ordered.length)), 0, id);
+  }
+  const update = db.prepare(`UPDATE ${spec.table} SET position = ? WHERE id = ?`);
+  ordered.forEach((sid, i) => update.run(i, sid));
 }
 
 export async function executeCourseMutationTool(
@@ -844,7 +882,8 @@ function assertSafeMarkdown(text?: string): void {
       const contentType = args?.content_type?.trim();
       const id = args?.id?.trim();
       const targetParentId = args?.target_parent_id?.trim() || undefined;
-      const position = args?.position !== undefined ? Number(args.position) : undefined;
+      const rawPosition = args?.position ?? args?.new_position;
+      const position = rawPosition !== undefined ? Number(rawPosition) : undefined;
       const expectedRevision = args?.expected_revision !== undefined ? Number(args.expected_revision) : undefined;
 
       if (!courseId) throw new ValidationError('course_id is required');
@@ -864,6 +903,7 @@ function assertSafeMarkdown(text?: string): void {
 
       recService.createSnapshot(token.authorId, courseId, `Auto-backup before moving ${contentType} ${id}`);
       const result = structureService.moveContent(token.authorId, courseId, contentType as any, id, targetParentId, position);
+      renumberSiblingsAfterMove(db, contentType as any, id, position);
       authService.verifyMcpPermission(token, 'content:write', courseId);
 
       actService.recordMutation({

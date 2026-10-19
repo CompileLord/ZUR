@@ -31,7 +31,12 @@ test('MCP Streamable HTTP Server & Protocol (T057, T064)', async (t) => {
   const validRawToken = tokenResult.rawToken;
   const tokenId = tokenResult.token.id;
 
+  // T064 asserts the 60/minute budget explicitly; the production default is 300 (MCP_RATE_LIMIT_PER_MINUTE).
+  const priorRateLimitEnv = process.env.MCP_RATE_LIMIT_PER_MINUTE;
+  process.env.MCP_RATE_LIMIT_PER_MINUTE = '60';
   const server = createServer(db);
+  if (priorRateLimitEnv === undefined) delete process.env.MCP_RATE_LIMIT_PER_MINUTE;
+  else process.env.MCP_RATE_LIMIT_PER_MINUTE = priorRateLimitEnv;
   await new Promise<void>((resolve) => {
     server.listen(0, '127.0.0.1', () => resolve());
   });

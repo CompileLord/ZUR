@@ -27,7 +27,7 @@ export function createImageTools(): McpTool[] {
         properties: {
           course_id: { type: 'string', description: 'Course ID to bind image asset to' },
           filename: { type: 'string', description: 'Original file name' },
-          mime_type: { type: 'string', enum: ['image/png', 'image/jpeg', 'image/webp'], description: 'Image MIME type' },
+          mime_type: { type: 'string', description: 'Image MIME type: image/png, image/jpeg or image/webp' },
           file_size: { type: 'integer', description: 'File size in bytes (max 10485760)' },
           checksum: { type: 'string', description: 'Optional SHA-256 checksum of payload' },
         },
@@ -53,6 +53,7 @@ export function createImageTools(): McpTool[] {
           is_decorative: { type: 'boolean', description: 'Set true if image is purely decorative (alt text must then be empty)' },
           caption: { type: 'string', description: 'Optional image caption' },
           checksum: { type: 'string', description: 'Optional SHA-256 checksum for verification' },
+          expected_checksum: { type: 'string', description: 'Alias of checksum' },
         },
         required: ['course_id'],
       },
@@ -68,8 +69,8 @@ export function createImageTools(): McpTool[] {
         type: 'object',
         properties: {
           asset_id: { type: 'string', description: 'Unique asset identifier' },
+          image_id: { type: 'string', description: 'Alias of asset_id' },
         },
-        required: ['asset_id'],
       },
       annotations: {
         readOnly: true,
@@ -83,13 +84,15 @@ export function createImageTools(): McpTool[] {
         type: 'object',
         properties: {
           asset_id: { type: 'string', description: 'Asset ID' },
-          expected_revision: { type: 'integer', description: 'Expected course draft revision' },
+          image_id: { type: 'string', description: 'Alias of asset_id' },
+          course_id: { type: 'string', description: 'Optional; when supplied it must match the asset\'s course' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Expected course draft revision' },
           idempotency_key: { type: 'string', description: 'Unique key for safe retries' },
           alt_text: { type: 'string', description: 'Accessible alternative text' },
           is_decorative: { type: 'boolean', description: 'Decorative status' },
           caption: { type: 'string', description: 'Optional caption' },
         },
-        required: ['asset_id', 'expected_revision', 'idempotency_key'],
+        required: ['expected_revision', 'idempotency_key'],
       },
       annotations: {
         readOnly: false,
@@ -98,18 +101,20 @@ export function createImageTools(): McpTool[] {
     },
     {
       name: 'update_image_metadata',
-      description: 'Alias for update_image: updates alt text, decorative status, or caption of an existing image asset.',
+      description: 'Deprecated alias of update_image (identical behaviour); prefer update_image.',
       inputSchema: {
         type: 'object',
         properties: {
           asset_id: { type: 'string', description: 'Asset ID' },
-          expected_revision: { type: 'integer', description: 'Expected course draft revision' },
+          image_id: { type: 'string', description: 'Alias of asset_id' },
+          course_id: { type: 'string', description: 'Optional; when supplied it must match the asset\'s course' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Expected course draft revision' },
           idempotency_key: { type: 'string', description: 'Unique key for safe retries' },
           alt_text: { type: 'string', description: 'Accessible alternative text' },
           is_decorative: { type: 'boolean', description: 'Decorative status' },
           caption: { type: 'string', description: 'Optional caption' },
         },
-        required: ['asset_id', 'expected_revision', 'idempotency_key'],
+        required: ['expected_revision', 'idempotency_key'],
       },
       annotations: {
         readOnly: false,
@@ -125,12 +130,13 @@ export function createImageTools(): McpTool[] {
           course_id: { type: 'string', description: 'Course ID' },
           step_id: { type: 'string', description: 'Step ID to attach the image to' },
           asset_id: { type: 'string', description: 'Media asset ID' },
-          expected_revision: { type: 'integer', description: 'Expected draft_revision for conflict prevention' },
+          image_id: { type: 'string', description: 'Alias of asset_id' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Expected draft_revision for conflict prevention' },
           idempotency_key: { type: 'string', description: 'Unique key for safe retries' },
           alt_text: { type: 'string', description: 'Optional override alternative text' },
           caption: { type: 'string', description: 'Optional caption' },
         },
-        required: ['course_id', 'step_id', 'asset_id', 'expected_revision', 'idempotency_key'],
+        required: ['course_id', 'step_id', 'expected_revision', 'idempotency_key'],
       },
       annotations: {
         readOnly: false,
@@ -146,10 +152,11 @@ export function createImageTools(): McpTool[] {
           course_id: { type: 'string', description: 'Course ID' },
           step_id: { type: 'string', description: 'Step ID to detach the image from' },
           asset_id: { type: 'string', description: 'Media asset ID to remove' },
-          expected_revision: { type: 'integer', description: 'Expected draft_revision for conflict prevention' },
+          image_id: { type: 'string', description: 'Alias of asset_id' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Expected draft_revision for conflict prevention' },
           idempotency_key: { type: 'string', description: 'Unique key for safe retries' },
         },
-        required: ['course_id', 'step_id', 'asset_id', 'expected_revision', 'idempotency_key'],
+        required: ['course_id', 'step_id', 'expected_revision', 'idempotency_key'],
       },
       annotations: {
         readOnly: false,
@@ -233,6 +240,7 @@ export async function executeImageTool(
 
       authService.verifyMcpPermission(token, 'media:write', courseId);
 
+      if (args?.expected_checksum && !args.checksum) args = { ...args, checksum: args.expected_checksum };
       let buffer: Buffer;
       let mimeType = args?.mime_type || 'image/png';
       let filename = args?.filename || 'image.png';
@@ -334,7 +342,7 @@ export async function executeImageTool(
     }
 
     case 'get_image': {
-      const assetId = args?.asset_id?.trim();
+      const assetId = (args?.asset_id || args?.image_id)?.trim();
       if (!assetId) throw new ValidationError('asset_id is required');
 
       const asset = mediaService.getAssetMetadata(assetId);
@@ -359,6 +367,9 @@ export async function executeImageTool(
 
       const asset = mediaService.getAssetMetadata(assetId);
       authService.verifyMcpPermission(token, 'media:write', asset.courseId);
+      if (args?.course_id && String(args.course_id).trim() !== asset.courseId) {
+        throw new NotFoundError('Image asset not found in the supplied course.');
+      }
 
       const identity = imageMutationIdentity('update_image', args, token, db);
       if (identity.prior) return identity.prior;

@@ -1,4 +1,5 @@
 import type { McpResource, McpResourceContent } from './types.ts';
+import { configuredRateLimitPerMinute, configuredMaxConcurrency } from './mcp-rate-limiter.ts';
 
 export const MCP_RESOURCES: McpResource[] = [
   {
@@ -25,7 +26,47 @@ const SCHEMA_TEXT = JSON.stringify(
   {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     title: 'ZUR Content Architecture',
+    description:
+      'Two naming conventions apply. MCP tool arguments are snake_case (course_id, expected_revision, learning_outcomes, expected_stdout, runtime_limits.cpu_timeout_seconds). ' +
+      'Stored step content payloads (the "content" argument and the shapes below) are camelCase (problemStatement, runtimeLimits.cpuTimeoutSeconds). ' +
+      'Unknown or misnamed argument keys are rejected with a suggestion of the nearest valid key. Positions are zero-based.',
     definitions: {
+      ToolTestCaseArgument: {
+        type: 'object',
+        description: 'Element of the test_cases argument of create_step, update_step and validate_exercise',
+        required: ['stdin', 'expected_stdout'],
+        additionalProperties: false,
+        properties: {
+          stdin: { type: 'string' },
+          expected_stdout: { type: 'string' },
+          is_hidden: { type: 'boolean', default: false },
+        },
+      },
+      ValidateExerciseRuntimeLimitsArgument: {
+        type: 'object',
+        description: 'runtime_limits argument of validate_exercise (honoured; values outside the ranges are rejected). Tighter than the stored runtimeLimits of PythonExerciseContent.',
+        additionalProperties: false,
+        properties: {
+          cpu_timeout_seconds: { type: 'integer', minimum: 1, maximum: 5, default: 2 },
+          wall_timeout_seconds: { type: 'integer', minimum: 1, maximum: 5, default: 5 },
+          memory_limit_mib: { type: 'integer', minimum: 16, maximum: 256, default: 128 },
+        },
+      },
+      CourseMetadataArgument: {
+        type: 'object',
+        description: 'metadata argument of update_course_metadata',
+        additionalProperties: false,
+        properties: {
+          title: { type: 'string', maxLength: 200 },
+          description: { type: 'string' },
+          category_id: { type: 'string' },
+          tags: { type: 'array', items: { type: 'string' }, maxItems: 5 },
+          difficulty: { type: 'string', enum: ['beginner', 'intermediate', 'advanced'] },
+          language: { type: 'string' },
+          prerequisites: { type: 'string' },
+          learning_outcomes: { type: 'array', items: { type: 'string' } },
+        },
+      },
       Course: {
         type: 'object',
         required: ['id', 'title', 'ownerId', 'categoryId', 'draftRevision'],
@@ -179,7 +220,8 @@ For decorative images:
 - External untrusted remote media fetching is not permitted. Upload image bytes via \`create_image_upload\` / \`complete_image_upload\`.
 `;
 
-const CONNECTION_INFO_TEXT = JSON.stringify(
+function buildConnectionInfoText(): string {
+  return JSON.stringify(
   {
     server: 'ZUR MCP Server',
     version: '1.0.0',
@@ -187,9 +229,11 @@ const CONNECTION_INFO_TEXT = JSON.stringify(
     transport: 'Streamable HTTP (JSON-RPC 2.0)',
     endpoints: ['/mcp', '/api/mcp'],
     auth: 'Bearer zur_at_<identifier>_<secret>',
+    courseAccess: 'A token with courseRestrictions=null can access every course the author owns. A token limited to specific courses (including an empty list with courses:create) can only access those courses and courses created through that token. Courses owned by other authors are never accessible and are reported as not found.',
     quotas: {
-      rateLimitPerMinute: 60,
-      maxConcurrentPerAuthor: 10,
+      rateLimitPerMinute: configuredRateLimitPerMinute(),
+      maxConcurrentPerAuthor: configuredMaxConcurrency(),
+      rateLimitConfiguration: 'Defaults to 300 calls/minute per token and 10 concurrent tool executions per author; override with MCP_RATE_LIMIT_PER_MINUTE and MCP_MAX_CONCURRENCY.',
       maxPayloadBytes: 1048576,
       maxImageBytes: 5242880,
       maxBatchOperations: 100,
@@ -208,7 +252,8 @@ const CONNECTION_INFO_TEXT = JSON.stringify(
   },
   null,
   2
-);
+  );
+}
 
 export function listMcpResources(): McpResource[] {
   return MCP_RESOURCES;
@@ -232,7 +277,7 @@ export function readMcpResource(uri: string): McpResourceContent | null {
       return {
         uri,
         mimeType: 'application/json',
-        text: CONNECTION_INFO_TEXT,
+        text: buildConnectionInfoText(),
       };
     default:
       return null;

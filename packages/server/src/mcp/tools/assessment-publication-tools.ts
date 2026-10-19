@@ -78,7 +78,7 @@ export function createAssessmentPublicationTools(): McpTool[] {
         type: 'object',
         properties: {
           course_id: { type: 'string', description: 'Course ID to publish' },
-          expected_revision: { type: 'integer', description: 'Exact draft_revision expected' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Exact draft_revision expected' },
           idempotency_key: { type: 'string', description: 'Optional idempotency key for safe retries' },
           change_summary: { type: 'string', description: 'Description of changes in this release' },
         },

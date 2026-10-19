@@ -59,19 +59,24 @@ export class McpAuthService {
     }
 
     if (courseId) {
-      if (tokenRow.course_restrictions !== null) {
-        const restrictions: string[] = JSON.parse(tokenRow.course_restrictions || '[]');
-        if (!restrictions.includes(courseId)) {
-          throw new AuthorizationError('Course is not in allowed course restrictions for this token.');
-        }
-      }
-
       const course = this.db.prepare(`
         SELECT id, owner_id, is_suspended FROM courses WHERE id = ?
       `).get(courseId) as any;
 
+      // Courses that do not exist and courses owned by other authors are indistinguishable
+      // to the caller, so a token can never be used to probe for other authors' course IDs.
       if (!course || course.owner_id !== token.authorId) {
-        throw new NotFoundError("This page isn't available.");
+        throw new NotFoundError("This page isn't available. The course was not found or is not accessible to this token.");
+      }
+
+      if (tokenRow.course_restrictions !== null) {
+        const restrictions: string[] = JSON.parse(tokenRow.course_restrictions || '[]');
+        if (!restrictions.includes(courseId)) {
+          throw new AuthorizationError(
+            'Course is not in allowed course restrictions for this token. ' +
+              'A token limited to specific courses can only access those courses and courses it created itself.'
+          );
+        }
       }
 
       if (course.is_suspended) {

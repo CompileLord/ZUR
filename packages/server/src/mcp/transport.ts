@@ -29,6 +29,8 @@ import { JSON_RPC_ERRORS } from './types.ts';
 import type { ValidatedMcpToken } from '../services/mcp-token-service.ts';
 
 
+const RESOURCE_NOT_FOUND_CODE = -32002;
+
 interface StreamableSession {
   transport: StreamableHTTPServerTransport;
   server: Server;
@@ -159,7 +161,8 @@ export class McpHttpTransport {
       const uri = request.params.uri;
       const resource = readMcpResource(uri);
       if (!resource) {
-        throw new NotFoundError(`Resource not found: ${uri}`);
+        // MCP spec: unknown resource URI is -32002 (Resource not found), not an internal error.
+        throw new McpError(RESOURCE_NOT_FOUND_CODE, `Resource not found: ${uri}`, { uri });
       }
       return {
         contents: [resource],
@@ -342,21 +345,49 @@ export class McpHttpTransport {
       return;
     }
 
-    // 7. Rate Limiting Check (60 calls/minute per token)
-    const rateCheck = this.mcpServer.getRateLimiter().checkRateLimit(validatedToken.id);
-    if (!rateCheck.allowed) {
-      this.sendJsonRpcResponse(
-        res,
-        429,
-        {
+    // 7. Read the bounded body once (Content-Length <= 1 MiB was enforced above) so that
+    //    rate-limit errors can echo the JSON-RPC request id and the body is not consumed twice.
+    let parsedBody: any;
+    if (req.method === 'POST') {
+      let bodyText = '';
+      for await (const chunk of req) {
+        bodyText += chunk;
+      }
+      try {
+        parsedBody = bodyText ? JSON.parse(bodyText) : undefined;
+      } catch {
+        this.sendJsonRpcResponse(res, 400, {
           jsonrpc: '2.0',
           id: null,
           error: {
-            code: JSON_RPC_ERRORS.RATE_LIMITED,
-            message: 'Rate limit exceeded. Maximum 60 calls per minute per token.',
-            data: { retryAfterSeconds: rateCheck.retryAfterSeconds },
+            code: JSON_RPC_ERRORS.PARSE_ERROR,
+            message: 'Parse error: invalid JSON.',
           },
+        }, allowedOrigin);
+        return;
+      }
+    }
+
+    // 8. Rate limiting (configurable via MCP_RATE_LIMIT_PER_MINUTE, default 300/minute per token)
+    const limiter = this.mcpServer.getRateLimiter();
+    const rateCheck = limiter.checkRateLimit(validatedToken.id);
+    if (!rateCheck.allowed) {
+      const rateError = (id: unknown) => ({
+        jsonrpc: '2.0',
+        id: typeof id === 'string' || typeof id === 'number' ? id : null,
+        error: {
+          code: JSON_RPC_ERRORS.RATE_LIMITED,
+          message: `Rate limit exceeded. Maximum ${limiter.getMaxPerMinute()} calls per minute per token.`,
+          data: { retryAfterSeconds: rateCheck.retryAfterSeconds },
         },
+      });
+      const payload = Array.isArray(parsedBody)
+        ? parsedBody.filter((m) => m && typeof m === 'object' && m.id !== undefined && m.id !== null).map((m) => rateError(m.id))
+        : rateError(parsedBody?.id);
+      this.sendJsonRpcResponse(
+        res,
+        429,
+        Array.isArray(payload) && payload.length === 0 ? rateError(null) : payload,
         allowedOrigin,
         { 'Retry-After': String(rateCheck.retryAfterSeconds) }
       );
@@ -401,32 +432,11 @@ export class McpHttpTransport {
         }
 
         (req as any).auth = { token: rawToken, validatedToken };
-        await session.transport.handleRequest(req, res);
+        await session.transport.handleRequest(req, res, parsedBody);
         return;
       }
 
       // Route modern 2026-07-28 protocol requests to official v2 handler, legacy to Streamable HTTP
-      let parsedBody: any;
-      if (req.method === 'POST') {
-        let bodyText = '';
-        for await (const chunk of req) {
-          bodyText += chunk;
-        }
-        try {
-          parsedBody = bodyText ? JSON.parse(bodyText) : undefined;
-        } catch {
-          this.sendJsonRpcResponse(res, 400, {
-            jsonrpc: '2.0',
-            id: null,
-            error: {
-              code: JSON_RPC_ERRORS.PARSE_ERROR,
-              message: 'Parse error: invalid JSON.',
-            },
-          }, allowedOrigin);
-          return;
-        }
-      }
-
       const webRequest = await toWebRequest(req, parsedBody);
       const isLegacy = await isLegacyRequest(webRequest, parsedBody);
 

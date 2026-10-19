@@ -2,15 +2,49 @@ interface RateBucket {
   timestamps: number[];
 }
 
+export const DEFAULT_MCP_RATE_LIMIT_PER_MINUTE = 300;
+export const DEFAULT_MCP_MAX_CONCURRENCY = 10;
+
+export function configuredRateLimitPerMinute(): number {
+  return readPositiveIntEnv('MCP_RATE_LIMIT_PER_MINUTE', DEFAULT_MCP_RATE_LIMIT_PER_MINUTE);
+}
+
+export function configuredMaxConcurrency(): number {
+  return readPositiveIntEnv('MCP_MAX_CONCURRENCY', DEFAULT_MCP_MAX_CONCURRENCY);
+}
+
+function readPositiveIntEnv(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const n = Number(raw);
+  return Number.isInteger(n) && n > 0 ? n : fallback;
+}
+
 export class McpRateLimiter {
   private tokenBuckets: Map<string, RateBucket> = new Map();
   private authorConcurrency: Map<string, number> = new Map();
   private maxPerMinute: number;
   private maxConcurrency: number;
 
-  constructor(maxPerMinute: number = 60, maxConcurrency: number = 10) {
+  /**
+   * Defaults (authoring sessions routinely issue hundreds of small tool calls):
+   *   MCP_RATE_LIMIT_PER_MINUTE  default 300 calls / minute / token
+   *   MCP_MAX_CONCURRENCY        default 10 concurrent tool executions / author
+   */
+  constructor(
+    maxPerMinute: number = readPositiveIntEnv('MCP_RATE_LIMIT_PER_MINUTE', DEFAULT_MCP_RATE_LIMIT_PER_MINUTE),
+    maxConcurrency: number = readPositiveIntEnv('MCP_MAX_CONCURRENCY', DEFAULT_MCP_MAX_CONCURRENCY)
+  ) {
     this.maxPerMinute = maxPerMinute;
     this.maxConcurrency = maxConcurrency;
+  }
+
+  getMaxPerMinute(): number {
+    return this.maxPerMinute;
+  }
+
+  getMaxConcurrency(): number {
+    return this.maxConcurrency;
   }
 
   checkRateLimit(tokenId: string): { allowed: boolean; retryAfterSeconds: number } {

@@ -342,12 +342,12 @@ test('MCP Token Lifecycle and Authorization (T053–T054)', async (t) => {
       (err: any) => err instanceof ScopeRequiredError && err.code === 'SCOPE_REQUIRED'
     );
 
-    // 3. Course not in restrictions
+    // 3. Nonexistent course: not-found style denial (W6-M: no misleading "restrictions" message)
     assert.throws(
       () => {
         authService.verifyMcpPermission(validated, 'courses:read', 'some-other-course');
       },
-      (err: any) => err instanceof AuthorizationError && err.message.includes('not in allowed course restrictions')
+      (err: any) => err.code === 'NOT_FOUND' && !err.message.includes('restrictions')
     );
 
     // 4. Safe denial on non-existent or unowned course: discloses no details

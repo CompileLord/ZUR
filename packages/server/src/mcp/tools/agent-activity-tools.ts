@@ -34,7 +34,7 @@ export function createAgentActivityTools(): McpTool[] {
     },
     {
       name: 'get_agent_activity',
-      description: 'Alias for list_agent_activity: lists agent mutation receipts and activity history for a course.',
+      description: 'Deprecated alias of list_agent_activity (identical behaviour); prefer list_agent_activity.',
       inputSchema: activityListSchema,
       annotations: {
         readOnly: true,
@@ -64,7 +64,7 @@ export function createAgentActivityTools(): McpTool[] {
         properties: {
           course_id: { type: 'string', description: 'Course ID' },
           revision_id: { type: 'string', description: 'Recovery revision ID to restore' },
-          expected_revision: { type: 'integer', description: 'Current draft_revision for conflict prevention' },
+          expected_revision: { type: 'integer', minimum: 0, description: 'Current draft_revision for conflict prevention' },
         },
         required: ['course_id', 'revision_id', 'expected_revision'],
       },

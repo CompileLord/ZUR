@@ -10,6 +10,7 @@ import type { CourseService } from '../../services/course-service.ts';
 import type { CourseStructureService } from '../../services/course-structure-service.ts';
 import type { CourseAutosaveService } from '../../services/course-autosave-service.ts';
 import type { McpTool, McpToolResult } from '../types.ts';
+import { configuredRateLimitPerMinute } from '../mcp-rate-limiter.ts';
 
 export function createCourseReadTools(
   db: DatabaseSync,
@@ -21,7 +22,7 @@ export function createCourseReadTools(
   return [
     {
       name: 'get_author_context',
-      description: 'Returns the authenticated author profile, token permissions, course restrictions, and platform limits.',
+      description: 'Returns the authenticated author profile, token permissions, course restrictions, and platform limits. courseRestrictions null means all courses owned by the author; a list means only those courses (plus courses created through this token, which are added to the list automatically).',
       inputSchema: {
         type: 'object',
         properties: {},
@@ -103,7 +104,7 @@ export async function executeCourseReadTool(
           identifier: token.tokenIdentifier,
           label: token.label,
           scopes: token.scopes,
-          courseRestrictions: token.courseRestrictions,
+          courseRestrictions: currentRestrictions(db, token),
           expiresAt: token.expiresAt,
           lastUsedAt: token.lastUsedAt,
         },
@@ -111,7 +112,7 @@ export async function executeCourseReadTool(
           maxBatchOperations: 100,
           maxPayloadBytes: 1048576,
           maxImageBytes: 5242880,
-          rateLimitPerMinute: 60,
+          rateLimitPerMinute: configuredRateLimitPerMinute(),
           maxStepsPerLesson: 20,
         },
         supportedContent: ['theory', 'video', 'quiz', 'python'],
@@ -237,4 +238,11 @@ export async function executeCourseReadTool(
     default:
       throw new ValidationError(`Unknown course read tool: ${name}`);
   }
+}
+
+/** Fresh restrictions from the DB (a session token snapshot goes stale after create_course allowlists a course). */
+function currentRestrictions(db: DatabaseSync, token: ValidatedMcpToken): string[] | null {
+  const row = db.prepare('SELECT course_restrictions FROM author_access_tokens WHERE id = ?').get(token.id) as any;
+  if (!row) return token.courseRestrictions;
+  return row.course_restrictions === null ? null : JSON.parse(row.course_restrictions);
 }
