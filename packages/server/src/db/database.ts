@@ -6,7 +6,7 @@ const instances = new Map<string, DatabaseSync>();
 
 export function getDatabase(dbPath?: string): DatabaseSync {
   const targetPath = dbPath || process.env.DATABASE_URL || 'data/zur.sqlite';
-  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(targetPath) || process.env.NODE_ENV === 'production') {
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(targetPath)) {
     throw new Error('This build supports SQLite file paths only. Configure a database adapter before staging or production deployment.');
   }
 
@@ -29,6 +29,9 @@ export function getDatabase(dbPath?: string): DatabaseSync {
   db.exec('PRAGMA foreign_keys = ON;');
   if (targetPath !== ':memory:') {
     db.exec('PRAGMA journal_mode = WAL;');
+    // In WAL mode NORMAL cannot corrupt the database; a power loss may drop the last few
+    // committed transactions but never breaks consistency, and it avoids an fsync per commit.
+    db.exec('PRAGMA synchronous = NORMAL;');
   }
 
   instances.set(targetPath, db);

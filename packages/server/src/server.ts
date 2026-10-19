@@ -38,10 +38,14 @@ import { ProductAnalyticsService } from './services/product-analytics-service.ts
 import { EmailDeliveryService } from './services/email-delivery-service.ts';
 import { AdminService } from './services/admin-service.ts';
 import { OperationalMetricsService } from './services/operational-metrics-service.ts';
+import { parseJsonBody as parseJsonBodyLimited, requireStrings, ASSET_JSON_LIMIT, HttpRejection } from './http/body.ts';
+import { getClientIp } from './http/client-ip.ts';
+import { applySecurityHeaders, applyCorsHeaders, handlePreflight, assertCsrfSafe, sessionCookie, clearSessionCookie } from './http/security.ts';
+import { accessLogEnabled, writeAccessLog, requestContext, resolveRequestId, checkReadiness } from './http/observability.ts';
 
 export function createServer(
   db: DatabaseSync,
-  dependencies: { emailDeliveryService?: EmailDeliveryService; operationalMetrics?: OperationalMetricsService; uploadDir?: string; runner?: typeof runPythonIsolated } = {}
+  dependencies: { emailDeliveryService?: EmailDeliveryService; operationalMetrics?: OperationalMetricsService; uploadDir?: string; runner?: typeof runPythonIsolated; timeouts?: Partial<{ headersTimeout: number; requestTimeout: number; keepAliveTimeout: number; maxHeadersCount: number; connectionsCheckingInterval: number }> } = {}
 ): http.Server {
 
   const runPython = dependencies.runner || runPythonIsolated;
@@ -140,25 +144,9 @@ export function createServer(
     return cookies.zur_session || null;
   }
 
-  async function parseJsonBody(req: http.IncomingMessage): Promise<any> {
-    return new Promise((resolve, reject) => {
-      let data = '';
-      req.on('data', (chunk) => {
-        data += chunk;
-        if (data.length > 20 * 1024 * 1024) {
-          reject(new Error('Payload too large'));
-        }
-      });
-      req.on('end', () => {
-        if (!data) return resolve({});
-        try {
-          resolve(JSON.parse(data));
-        } catch {
-          reject(new Error('Invalid JSON payload'));
-        }
-      });
-      req.on('error', reject);
-    });
+  // Default 1 MiB cap; only the base64 asset upload route passes a larger one.
+  function parseJsonBody(req: http.IncomingMessage, limit?: number): Promise<any> {
+    return parseJsonBodyLimited(req, limit);
   }
 
   function sendJson(res: http.ServerResponse, status: number, body: any, headers: Record<string, string> = {}): void {
@@ -166,57 +154,80 @@ export function createServer(
     res.writeHead(status, {
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(payload),
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       ...headers,
     });
     res.end(payload);
   }
 
-  const server = http.createServer(async (req, res) => {
+  const timeouts = { headersTimeout: 10_000, requestTimeout: 30_000, keepAliveTimeout: 65_000, maxHeadersCount: 100, connectionsCheckingInterval: 2_000, ...dependencies.timeouts };
+
+  // Remember the authenticated user per request for the access log (no re-lookup, no extra DB work).
+  const originalAuthenticateSession = identityService.authenticateSession.bind(identityService);
+  (identityService as any).authenticateSession = (...args: Parameters<typeof originalAuthenticateSession>) => {
+    const result = originalAuthenticateSession(...args);
+    const store = requestContext.getStore();
+    if (store && result?.user?.id) store.userId = result.user.id;
+    return result;
+  };
+
+  const server = http.createServer({ connectionsCheckingInterval: timeouts.connectionsCheckingInterval }, (req, res) => {
+    void requestContext.run({}, () => handleRequest(req, res));
+  });
+  server.headersTimeout = timeouts.headersTimeout;
+  server.requestTimeout = timeouts.requestTimeout;
+  server.keepAliveTimeout = timeouts.keepAliveTimeout;
+  server.maxHeadersCount = timeouts.maxHeadersCount;
+
+  async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
     const requestStartedAt = performance.now();
-    const requestId = crypto.randomUUID();
+    const requestId = resolveRequestId(req.headers['x-request-id'], () => crypto.randomUUID());
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname;
     res.setHeader('X-Request-Id', requestId);
-    res.setHeader('Access-Control-Expose-Headers', 'X-Request-Id');
-    res.once('finish', () => operationalMetrics.recordRequest(req.method || 'GET', pathname, res.statusCode, performance.now() - requestStartedAt));
+    applySecurityHeaders(req, res);
+    const logEnabled = accessLogEnabled();
+    const ctx = requestContext.getStore();
+    res.once('finish', () => {
+      const ms = performance.now() - requestStartedAt;
+      operationalMetrics.recordRequest(req.method || 'GET', pathname, res.statusCode, ms);
+      if (logEnabled) writeAccessLog({ requestId, method: req.method || 'GET', path: pathname, status: res.statusCode, ms, userId: ctx?.userId, ip: getClientIp(req) });
+    });
 
-    // Handle CORS preflight
-    if (req.method === 'OPTIONS') {
-      if (mcpTransport.isMcpRequest(pathname)) {
-        await mcpTransport.handleHttpRequest(req, res);
-        return;
-      }
-      res.writeHead(204, {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      });
-      res.end();
-      return;
-    }
-
-    const method = req.method?.toUpperCase();
-
-    // Streamable HTTP MCP (T057)
+    // MCP clients are not browsers; the MCP transport owns its own Origin/CORS policy.
     if (mcpTransport.isMcpRequest(pathname)) {
       await mcpTransport.handleHttpRequest(req, res);
       return;
     }
 
+    // CORS preflight: allowlisted origins only (default: none in production).
+    if (req.method === 'OPTIONS') {
+      handlePreflight(req, res);
+      return;
+    }
+    applyCorsHeaders(req, res);
+
+    const method = req.method?.toUpperCase();
+
     try {
+      assertCsrfSafe(req);
+
       if (method === 'GET' && pathname === '/healthz') {
         db.prepare('SELECT 1').get();
         sendJson(res, 200, { status: 'ok' });
         return;
       }
 
+      if (method === 'GET' && pathname === '/readyz') {
+        const readiness = checkReadiness(db);
+        sendJson(res, readiness.ok ? 200 : 503, readiness.body);
+        return;
+      }
+
       // 1. Sign Up (T013)
       if (method === 'POST' && pathname === '/api/auth/sign-up') {
+        identityService.consumeRequestRateLimit('sign-up-ip', getClientIp(req), 10, 60 * 60 * 1000);
         const body = await parseJsonBody(req);
-        identityService.consumeRequestRateLimit('sign-up-ip', req.socket.remoteAddress || 'unknown', 10, 60 * 60 * 1000);
+        requireStrings(body, { displayName: { max: 200 }, email: { max: 320 }, password: { max: 1024 } });
         if (body.adultConfirmed !== true) throw new ValidationError('Adult eligibility confirmation is required.');
         const result = identityService.signUp(body);
         const delivery = await emailDeliveryService.sendAccountLink({ recipientEmail: result.user.email,
@@ -228,6 +239,7 @@ export function createServer(
       // 2. Email Verification (T013)
       if (method === 'POST' && pathname === '/api/auth/verify-email') {
         const body = await parseJsonBody(req);
+        requireStrings(body, { token: { max: 512 } });
         const result = identityService.verifyEmail(body.token);
         sendJson(res, 200, result);
         return;
@@ -235,8 +247,9 @@ export function createServer(
 
       // 3. Resend Verification (T013)
       if (method === 'POST' && pathname === '/api/auth/resend-verification') {
+        identityService.consumeRequestRateLimit('resend-ip', getClientIp(req), 30, 60 * 60 * 1000);
         const body = await parseJsonBody(req);
-        identityService.consumeRequestRateLimit('resend-ip', req.socket.remoteAddress || 'unknown', 30, 60 * 60 * 1000);
+        requireStrings(body, { email: { max: 320 } });
         identityService.consumeRequestRateLimit('resend-email', String(body.email || '').trim().toLowerCase(), 5, 60 * 60 * 1000);
         const result = identityService.resendVerificationEmail(body.email);
         if (result.verificationToken) await emailDeliveryService.sendAccountLink({
@@ -249,15 +262,16 @@ export function createServer(
       // 4. Sign In (T014)
       if (method === 'POST' && pathname === '/api/auth/sign-in') {
         const body = await parseJsonBody(req);
+        requireStrings(body, { email: { max: 320 }, password: { max: 1024 } });
         const session = identityService.signIn({
           email: body.email,
           password: body.password,
-          ipAddress: req.socket.remoteAddress,
+          ipAddress: getClientIp(req),
           userAgent: req.headers['user-agent'],
         });
 
         // Set HttpOnly session cookie
-        const cookieHeader = `zur_session=${session.token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 3600}`;
+        const cookieHeader = sessionCookie(req, session.token);
         sendJson(res, 200, session, { 'Set-Cookie': cookieHeader });
         return;
       }
@@ -268,7 +282,7 @@ export function createServer(
         if (token) {
           identityService.signOut(token);
         }
-        const clearCookie = 'zur_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0';
+        const clearCookie = clearSessionCookie(req);
         sendJson(res, 200, { success: true }, { 'Set-Cookie': clearCookie });
         return;
       }
@@ -279,15 +293,16 @@ export function createServer(
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         identityService.signOutAll(user.id);
-        const clearCookie = 'zur_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0';
+        const clearCookie = clearSessionCookie(req);
         sendJson(res, 200, { success: true }, { 'Set-Cookie': clearCookie });
         return;
       }
 
       // 7. Password Recovery Request (T015)
       if (method === 'POST' && pathname === '/api/auth/forgot-password') {
+        identityService.consumeRequestRateLimit('recovery-ip', getClientIp(req), 30, 60 * 60 * 1000);
         const body = await parseJsonBody(req);
-        identityService.consumeRequestRateLimit('recovery-ip', req.socket.remoteAddress || 'unknown', 30, 60 * 60 * 1000);
+        requireStrings(body, { email: { max: 320 } });
         identityService.consumeRequestRateLimit('recovery-email', String(body.email || '').trim().toLowerCase(), 5, 60 * 60 * 1000);
         const result = identityService.requestPasswordReset(body.email);
         if (result.resetToken) await emailDeliveryService.sendAccountLink({
@@ -299,10 +314,11 @@ export function createServer(
 
       // 8. Password Reset (T015)
       if (method === 'POST' && pathname === '/api/auth/reset-password') {
+        identityService.consumeRequestRateLimit('reset-ip', getClientIp(req), 20, 15 * 60 * 1000);
         const body = await parseJsonBody(req);
-        identityService.consumeRequestRateLimit('reset-ip', req.socket.remoteAddress || 'unknown', 20, 15 * 60 * 1000);
+        requireStrings(body, { token: { max: 512 }, password: { max: 1024 } });
         const success = identityService.resetPassword(body.token, body.password);
-        const clearCookie = 'zur_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0';
+        const clearCookie = clearSessionCookie(req);
         sendJson(res, 200, { success }, { 'Set-Cookie': clearCookie });
         return;
       }
@@ -384,7 +400,7 @@ export function createServer(
         const { user } = identityService.authenticateSession(token);
         const body = await parseJsonBody(req);
         const result = identityService.requestAccountDeletion(user.id, Boolean(body.consequenceAcknowledged));
-        const clearCookie = 'zur_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0';
+        const clearCookie = clearSessionCookie(req);
         sendJson(res, 200, result, { 'Set-Cookie': clearCookie });
         return;
       }
@@ -1361,7 +1377,7 @@ export function createServer(
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         const courseId = authorCourseAssetsMatch[1];
-        const body = await parseJsonBody(req);
+        const body = await parseJsonBody(req, ASSET_JSON_LIMIT);
         let buffer: Buffer;
         if (body.base64) {
           buffer = Buffer.from(body.base64, 'base64');
@@ -2172,7 +2188,11 @@ export function createServer(
       throw authService.safeNotFound();
 
     } catch (err) {
-      if (err instanceof ZURError) {
+      if (err instanceof HttpRejection) {
+        // The request body was not consumed: answer, then drop the connection.
+        res.once('finish', () => req.destroy());
+        sendJson(res, err.statusCode, err.toJSON(), { Connection: 'close' });
+      } else if (err instanceof ZURError) {
         sendJson(res, err.statusCode, err.toJSON());
       } else {
         console.error(JSON.stringify({ level: 'error', event: 'http.unhandled', requestId, err: err.stack }));
@@ -2185,7 +2205,7 @@ export function createServer(
         });
       }
     }
-  });
+  }
   (server as any).mcpServer = mcpServer;
   (server as any).mcpAuthService = mcpServer.getAuthService();
   (server as any).mcpTokenService = mcpTokenService;
