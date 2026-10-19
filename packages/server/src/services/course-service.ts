@@ -60,6 +60,32 @@ export interface CourseMetadataInput {
   estimatedDurationMinutes?: number;
 }
 
+/**
+ * Published course versions are immutable (a change is a NEW version id), so lesson/step counts derived
+ * from a version snapshot can be cached by version id with no invalidation. Bounded LRU.
+ */
+export const VERSION_COUNTS_CACHE_MAX = 500;
+const versionCountsCache = new Map<string, { lessonCount: number; stepCount: number }>();
+export function clearVersionCountsCache(): void { versionCountsCache.clear(); }
+export function versionCountsCacheSize(): number { return versionCountsCache.size; }
+
+export function computeSnapshotCounts(snapshotData: string | null | undefined): { lessonCount: number; stepCount: number } {
+  let lessonCount = 0;
+  let stepCount = 0;
+  try {
+    const snap = snapshotData ? JSON.parse(snapshotData) : null;
+    for (const mod of snap?.modules || []) {
+      for (const les of mod.lessons || []) {
+        lessonCount += 1;
+        stepCount += (les.steps || []).length;
+      }
+    }
+  } catch {
+    return { lessonCount: 0, stepCount: 0 };
+  }
+  return { lessonCount, stepCount };
+}
+
 export class CourseService {
   private db: DatabaseSync;
 
@@ -740,6 +766,28 @@ export class CourseService {
     }));
   }
 
+  /** Lesson/step counts of a published version; cached by (immutable) version id, LRU-bounded. */
+  private getVersionCounts(versionId: string | null | undefined): { lessonCount: number; stepCount: number } {
+    if (!versionId) return { lessonCount: 0, stepCount: 0 };
+    const hit = versionCountsCache.get(versionId);
+    if (hit) {
+      versionCountsCache.delete(versionId);
+      versionCountsCache.set(versionId, hit); // refresh recency
+      return hit;
+    }
+    const row = this.db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(versionId) as { snapshot_data: string | null } | undefined;
+    const counts = computeSnapshotCounts(row?.snapshot_data);
+    if (row) {
+      versionCountsCache.set(versionId, counts);
+      while (versionCountsCache.size > VERSION_COUNTS_CACHE_MAX) {
+        const oldest = versionCountsCache.keys().next().value;
+        if (oldest === undefined) break;
+        versionCountsCache.delete(oldest);
+      }
+    }
+    return counts;
+  }
+
   listPublicCatalog(options: {
     search?: string;
     categoryId?: string;
@@ -803,8 +851,7 @@ export class CourseService {
           c.current_version_id, c.created_at, c.updated_at,
           cat.name as category_name,
           u.display_name as author_name,
-          cv.version_number as version_number,
-          cv.snapshot_data as snapshot_data
+          cv.version_number as version_number
         FROM courses c
         LEFT JOIN categories cat ON c.category_id = cat.id
         LEFT JOIN users u ON c.owner_id = u.id
@@ -817,20 +864,7 @@ export class CourseService {
 
     const courses = rows.map((r) => {
       // Counts come from the published version snapshot only, never from drafts.
-      let lessonCount = 0;
-      let stepCount = 0;
-      try {
-        const snap = r.snapshot_data ? JSON.parse(r.snapshot_data) : null;
-        for (const mod of snap?.modules || []) {
-          for (const les of mod.lessons || []) {
-            lessonCount += 1;
-            stepCount += (les.steps || []).length;
-          }
-        }
-      } catch {
-        lessonCount = 0;
-        stepCount = 0;
-      }
+      const { lessonCount, stepCount } = this.getVersionCounts(r.current_version_id);
       return {
       lessonCount,
       stepCount,

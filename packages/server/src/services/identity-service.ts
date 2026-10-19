@@ -14,7 +14,14 @@ import type {
   PrivacyRequest,
   AuthSession,
 } from 'zur-shared';
-import { hashPassword, verifyPassword } from './password-service.ts';
+import { hashPassword, verifyPassword, needsRehash, verifyAgainstDummy } from './password-service.ts';
+
+const RATE_LIMIT_SWEEP_MS = 5 * 60 * 1000;
+/** Hard cap on distinct in-memory limiter keys; the oldest are evicted first. */
+export const MAX_RATE_LIMIT_KEYS = 10_000;
+/** Hard cap on durable limiter rows (oldest evicted). */
+export const MAX_DURABLE_RATE_LIMIT_ROWS = 100_000;
+const DURABLE_RETENTION_MS = 24 * 60 * 60 * 1000;
 
 interface RateLimitRecord {
   attempts: number;
@@ -25,9 +32,97 @@ export class IdentityService {
   private db: DatabaseSync;
   private rateLimitMap = new Map<string, RateLimitRecord>();
 
+  private sweeper: NodeJS.Timeout | null = null;
+
   constructor(db: DatabaseSync) {
     this.db = db;
     this.db.prepare('DELETE FROM privacy_exports WHERE expires_at<=?').run(new Date().toISOString());
+    this.sweeper = setInterval(() => this.pruneRateLimits(), RATE_LIMIT_SWEEP_MS);
+    this.sweeper.unref();
+  }
+
+  /** Stops the periodic limiter sweeper (tests / graceful shutdown). */
+  dispose(): void {
+    if (this.sweeper) { clearInterval(this.sweeper); this.sweeper = null; }
+  }
+
+  /** Number of distinct in-memory limiter keys (observability / tests). */
+  get inMemoryRateLimitKeyCount(): number { return this.rateLimitMap.size; }
+
+  /**
+   * Drops expired in-memory limiter records and old durable rows, then enforces the hard key caps.
+   * Never throws (a busy/closed DB must not kill the process from a timer).
+   */
+  pruneRateLimits(now: number = Date.now(), windowMs: number = 15 * 60 * 1000): void {
+    for (const [key, record] of this.rateLimitMap) {
+      if (now - record.lastAttemptAt > windowMs) this.rateLimitMap.delete(key);
+    }
+    this.enforceMemoryCap();
+    try {
+      this.db.prepare('DELETE FROM auth_request_limits WHERE last_attempt_at < ?').run(now - DURABLE_RETENTION_MS);
+      this.enforceDurableCap();
+    } catch (error) {
+      console.error('[identity] rate-limit prune failed:', error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  private enforceMemoryCap(): void {
+    while (this.rateLimitMap.size > MAX_RATE_LIMIT_KEYS) {
+      const oldest = this.rateLimitMap.keys().next().value;
+      if (oldest === undefined) break;
+      this.rateLimitMap.delete(oldest);
+    }
+  }
+
+  private enforceDurableCap(): void {
+    const { n } = this.db.prepare('SELECT COUNT(*) AS n FROM auth_request_limits').get() as { n: number };
+    if (n > MAX_DURABLE_RATE_LIMIT_ROWS) {
+      this.db.prepare(`DELETE FROM auth_request_limits WHERE key_hash IN
+        (SELECT key_hash FROM auth_request_limits ORDER BY last_attempt_at ASC LIMIT ?)`)
+        .run(n - MAX_DURABLE_RATE_LIMIT_ROWS + Math.ceil(MAX_DURABLE_RATE_LIMIT_ROWS / 10));
+    }
+  }
+
+  private limiterHash(scope: string, key: string): string {
+    return crypto.createHash('sha256').update(`${scope}:${key}`).digest('hex');
+  }
+
+  /** Throws RateLimitError when `maxFailures` failures were already recorded inside the window. Does not consume. */
+  checkFailureLimit(scope: string, key: string, maxFailures: number, windowMs: number): void {
+    const now = Date.now();
+    const record = this.db.prepare('SELECT attempts,window_started_at FROM auth_request_limits WHERE key_hash=?')
+      .get(this.limiterHash(scope, key)) as { attempts: number; window_started_at: number } | undefined;
+    if (record && now - record.window_started_at < windowMs && record.attempts >= maxFailures) {
+      throw new RateLimitError('Too many attempts. Please try again later.',
+        Math.ceil((windowMs - (now - record.window_started_at)) / 1000));
+    }
+  }
+
+  /** Records one failed attempt (opens a new window if the old one expired). */
+  recordFailure(scope: string, key: string, windowMs: number): void {
+    const now = Date.now();
+    const keyHash = this.limiterHash(scope, key);
+    const record = this.db.prepare('SELECT window_started_at FROM auth_request_limits WHERE key_hash=?')
+      .get(keyHash) as { window_started_at: number } | undefined;
+    if (!record || now - record.window_started_at >= windowMs) {
+      this.db.prepare(`INSERT INTO auth_request_limits (key_hash,attempts,window_started_at,last_attempt_at)
+        VALUES (?,1,?,?) ON CONFLICT(key_hash) DO UPDATE SET attempts=1,
+        window_started_at=excluded.window_started_at,last_attempt_at=excluded.last_attempt_at`).run(keyHash, now, now);
+      if (!record) this.enforceDurableCap();
+    } else {
+      this.db.prepare('UPDATE auth_request_limits SET attempts=attempts+1,last_attempt_at=? WHERE key_hash=?').run(now, keyHash);
+    }
+  }
+
+  /** Forgets recorded failures for a key (called after a successful authentication). */
+  clearFailures(scope: string, key: string): void {
+    this.db.prepare('DELETE FROM auth_request_limits WHERE key_hash=?').run(this.limiterHash(scope, key));
+  }
+
+  private audit(actorId: string | null, action: string, targetId: string, reason: string, metadata?: Record<string, unknown>): void {
+    this.db.prepare(`INSERT INTO audit_events (id, actor_id, action, target_type, target_id, reason, metadata, created_at)
+      VALUES (?, ?, ?, 'user', ?, ?, ?, ?)`).run(`aud-${crypto.randomUUID()}`, actorId, action, targetId, reason,
+      metadata ? JSON.stringify(metadata) : null, new Date().toISOString());
   }
 
   private checkRateLimit(key: string, maxAttempts: number = 5, windowMs: number = 15 * 60 * 1000): void {
@@ -52,6 +147,7 @@ export class IdentityService {
     const record = this.rateLimitMap.get(key);
     if (!record) {
       this.rateLimitMap.set(key, { attempts: 1, lastAttemptAt: now });
+      this.enforceMemoryCap();
     } else {
       record.attempts += 1;
       record.lastAttemptAt = now;
@@ -253,20 +349,35 @@ export class IdentityService {
       throw new ValidationError('Email and password are required.');
     }
 
-    this.consumeRequestRateLimit('sign-in-email', email, 10, 15 * 60 * 1000);
-    this.consumeRequestRateLimit('sign-in-ip', data.ipAddress || 'unknown', 60, 15 * 60 * 1000);
-
-    const rateLimitKey = `signin:${email}:${data.ipAddress || 'unknown'}`;
-    this.checkRateLimit(rateLimitKey, 5, 15 * 60 * 1000);
+    const ip = data.ipAddress || 'unknown';
+    const windowMs = 15 * 60 * 1000;
+    // Per-IP admission limit counts every attempt (bounds a single source).
+    this.consumeRequestRateLimit('sign-in-ip', ip, 60, windowMs);
+    // Per-email limits count FAILURES only, so a third party cannot lock a victim out by
+    // hammering with successful-looking traffic; a correct sign-in resets the counters.
+    // (email, ip) pair: strict. email alone: generous, protects against distributed guessing.
+    const pairKey = `${email}|${ip}`;
+    this.checkFailureLimit('sign-in-fail-pair', pairKey, 5, windowMs);
+    this.checkFailureLimit('sign-in-fail-email', email, 50, windowMs);
 
     const user = this.db.prepare(`
       SELECT id, email, password_hash, display_name, email_verified, capabilities, account_status, created_at, updated_at
       FROM users WHERE email = ?
     `).get(email) as any;
 
+    if (!user) {
+      verifyAgainstDummy(password); // equalise timing with the real-user path
+    }
     if (!user || !verifyPassword(password, user.password_hash)) {
-      this.recordRateLimitFailure(rateLimitKey);
+      this.recordFailure('sign-in-fail-pair', pairKey, windowMs);
+      this.recordFailure('sign-in-fail-email', email, windowMs);
       throw new AuthenticationError('Invalid email or password.');
+    }
+
+    // Upgrade-on-login: legacy SHA-256 and weaker scrypt hashes are rehashed to current parameters.
+    if (needsRehash(user.password_hash)) {
+      this.db.prepare('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?')
+        .run(hashPassword(password), new Date().toISOString(), user.id);
     }
 
     if (user.account_status === 'suspended') {
@@ -277,7 +388,8 @@ export class IdentityService {
       throw new AuthenticationError('Invalid email or password.');
     }
 
-    this.clearRateLimit(rateLimitKey);
+    this.clearFailures('sign-in-fail-pair', pairKey);
+    this.clearFailures('sign-in-fail-email', email);
 
     const token = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
@@ -413,11 +525,18 @@ export class IdentityService {
     // Revoke all sessions on password reset
     this.db.prepare('DELETE FROM sessions WHERE user_id = ?').run(record.user_id);
     this.db.prepare('DELETE FROM verification_tokens WHERE id = ?').run(record.id);
+    this.audit(record.user_id, 'password_reset_completed', record.user_id, 'Password reset via emailed link; all sessions revoked');
 
     return true;
   }
 
-  changePassword(userId: string, currentPassword: string, newPassword: string): boolean {
+  /**
+   * Changes the password. Requires the current password (rate-limited: 5 failures / 15 min per user),
+   * revokes every session except `keepSessionId` and writes an audit event.
+   * NOTE: when `keepSessionId` is omitted ALL sessions of the user are revoked (secure default);
+   * the HTTP layer should pass the caller's current session id so the user stays signed in.
+   */
+  changePassword(userId: string, currentPassword: string, newPassword: string, keepSessionId?: string): boolean {
     if (!currentPassword || !newPassword) {
       throw new ValidationError('Current password and new password are required.');
     }
@@ -426,20 +545,36 @@ export class IdentityService {
       throw new ValidationError('New password must be at least 8 characters.');
     }
 
+    const windowMs = 15 * 60 * 1000;
+    this.checkFailureLimit('change-password-fail', userId, 5, windowMs);
+
     const user = this.db.prepare(`
       SELECT id, password_hash FROM users WHERE id = ?
     `).get(userId) as { id: string; password_hash: string } | undefined;
 
     if (!user || !verifyPassword(currentPassword, user.password_hash)) {
+      this.recordFailure('change-password-fail', userId, windowMs);
+      if (user) this.audit(userId, 'password_change_failed', userId, 'Incorrect current password supplied');
       throw new ValidationError('Current password is incorrect.');
     }
+    this.clearFailures('change-password-fail', userId);
 
     const newHash = hashPassword(newPassword);
     const now = new Date().toISOString();
 
-    this.db.prepare(`
-      UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?
-    `).run(newHash, now, userId);
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      this.db.prepare(`
+        UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?
+      `).run(newHash, now, userId);
+      const revoked = keepSessionId
+        ? this.db.prepare('DELETE FROM sessions WHERE user_id = ? AND id != ?').run(userId, keepSessionId)
+        : this.db.prepare('DELETE FROM sessions WHERE user_id = ?').run(userId);
+      this.audit(userId, 'password_changed', userId, 'User changed their password', {
+        otherSessionsRevoked: Number(revoked.changes), currentSessionKept: Boolean(keepSessionId),
+      });
+      this.db.exec('COMMIT');
+    } catch (error) { this.db.exec('ROLLBACK'); throw error; }
 
     return true;
   }
@@ -541,7 +676,18 @@ export class IdentityService {
 
   // --- T017: Privacy Request Intake & Sole-Owner Course Check ---
 
-  requestDataExport(userId: string): { requestId: string; exportPayload: any } {
+  /**
+   * When ZUR_REQUIRE_REAUTH_FOR_PRIVACY=1, export/deletion need the caller's current password
+   * (rate limited via verifyCurrentPassword). Default off so the current web client keeps working.
+   */
+  private requirePrivacyReauth(userId: string, currentPassword?: string): void {
+    if (process.env.ZUR_REQUIRE_REAUTH_FOR_PRIVACY !== '1') return;
+    if (!currentPassword) throw new ValidationError('Current password is required for this action.');
+    this.verifyCurrentPassword(userId, currentPassword);
+  }
+
+  requestDataExport(userId: string, currentPassword?: string): { requestId: string; exportPayload: any } {
+    this.requirePrivacyReauth(userId, currentPassword);
     const userRow = this.db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
     if (!userRow) {
       throw new NotFoundError("This page isn't available.");
@@ -595,10 +741,11 @@ export class IdentityService {
     return { requestId, exportPayload, downloadUrl:`/api/settings/privacy/exports/${encodeURIComponent(requestId)}`, expiresAt };
   }
 
-  requestAccountDeletion(userId: string, consequenceAcknowledged: boolean): { success: boolean; requestId: string } {
+  requestAccountDeletion(userId: string, consequenceAcknowledged: boolean, currentPassword?: string): { success: boolean; requestId: string } {
     if (!consequenceAcknowledged) {
       throw new ValidationError('You must acknowledge the consequences of deletion.');
     }
+    this.requirePrivacyReauth(userId, currentPassword);
 
     // Sole-Owner Course Check (PRD §15, tasks.json T017, POLICY-001 §4)
     let committed = false;

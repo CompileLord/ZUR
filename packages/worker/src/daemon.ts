@@ -1,30 +1,25 @@
 import { getDatabase } from '../../server/src/db/database.ts';
 import { ExecutionService } from '../../server/src/services/execution-service.ts';
-import { processExecutionJob } from './worker.ts';
+import { runWorkerDaemon } from './daemon-loop.ts';
 
 const dbPath = process.env.DATABASE_URL || 'data/zur.sqlite';
 const service = new ExecutionService(getDatabase(dbPath));
-service.purgeExpiredRunJobs();
-const cleanup = setInterval(() => service.purgeExpiredRunJobs(), 60 * 60 * 1000);
 const workerId = `worker-${process.pid}`;
 let stopping = false;
-process.on('SIGTERM', () => { stopping = true; });
-process.on('SIGINT', () => { stopping = true; });
+const stop = () => { stopping = true; };
+process.on('SIGTERM', stop);
+process.on('SIGINT', stop);
+process.on('uncaughtException', (error) => {
+  console.error('[worker] uncaught exception:', error instanceof Error ? error.message : String(error));
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[worker] unhandled rejection:', reason instanceof Error ? reason.message : String(reason));
+});
 
-while (!stopping) {
-  const job = service.claimNextJob(workerId);
-  if (!job) {
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    continue;
-  }
-  const heartbeat = setInterval(() => service.renewLease(job.jobId, workerId), 10_000);
-  try {
-    const result = await processExecutionJob(job);
-    service.completeJob(job.jobId, workerId, result);
-  } catch {
-    service.failJob(job.jobId, workerId, { verdict: 'INTERNAL_ERROR', isInfrastructureFailure: true });
-  } finally {
-    clearInterval(heartbeat);
-  }
-}
-clearInterval(cleanup);
+await runWorkerDaemon({
+  service,
+  workerId,
+  shouldStop: () => stopping,
+  shutdownGraceMs: Number(process.env.ZUR_WORKER_SHUTDOWN_GRACE_MS) || 10_000,
+});
+console.log('[worker] stopped');

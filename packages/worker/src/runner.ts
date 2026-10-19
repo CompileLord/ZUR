@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -22,6 +22,34 @@ export interface RunOutcome {
   exitCode: number | null;
   executionTimeMs: number;
   errorMessage?: string;
+}
+
+interface ActiveRun { cidFile: string; sandboxDir: string; kill: () => void }
+const activeRuns = new Set<ActiveRun>();
+
+/** Number of sandbox runs currently in flight (tests / shutdown diagnostics). */
+export function activeRunCount(): number { return activeRuns.size; }
+
+/**
+ * Kills every in-flight container (via its cidfile) and removes its temp dir. Used on worker shutdown.
+ * Synchronous and best-effort: never throws.
+ */
+export function killAllActiveRuns(): number {
+  let killed = 0;
+  for (const run of [...activeRuns]) {
+    try { run.kill(); } catch (error) { logRunnerError('child kill failed', error); }
+    try {
+      spawnSync('podman', ['kill', `--cidfile=${run.cidFile}`], { env: { PATH: '/usr/bin:/bin' }, stdio: 'ignore', timeout: 10_000 });
+    } catch (error) { logRunnerError('podman kill failed', error); }
+    try { fs.rmSync(run.sandboxDir, { recursive: true, force: true }); }
+    catch (error) { logRunnerError('sandbox dir removal failed', error); }
+    killed += 1;
+  }
+  return killed;
+}
+
+function logRunnerError(what: string, error: unknown): void {
+  console.error(`[runner] ${what}: ${error instanceof Error ? error.message : String(error)}`);
 }
 
 export async function runPythonIsolated(
@@ -102,13 +130,16 @@ export async function runPythonIsolated(
         }
       );
 
+      const activeRun: ActiveRun = { cidFile, sandboxDir, kill: () => { child.kill('SIGKILL'); } };
+      activeRuns.add(activeRun);
+
       const terminateSandbox = () => {
         if (!cleanupPromise) cleanupPromise = new Promise<void>((done) => {
           const cleanup = spawn('podman', ['kill', `--cidfile=${cidFile}`], {
             env: cleanEnv, stdio: 'ignore', windowsHide: true,
           });
           cleanup.once('close', () => done());
-          cleanup.once('error', () => done());
+          cleanup.once('error', (error) => { logRunnerError('podman kill spawn failed', error); done(); });
         });
         child.kill('SIGKILL');
       };
@@ -138,8 +169,13 @@ export async function runPythonIsolated(
         }
       });
 
+      // The container may exit before consuming stdin (EPIPE / ECONNRESET). That must never become an
+      // uncaught exception: the exit status of the run decides the verdict.
+      child.stdin.on('error', () => { /* expected when the process exits early */ });
+
       child.on('error', (err) => {
         clearTimeout(timeoutTimer);
+        activeRuns.delete(activeRun);
         const executionTimeMs = Math.round(performance.now() - startTime);
         resolve({
           verdict: 'INTERNAL_ERROR',
@@ -153,6 +189,7 @@ export async function runPythonIsolated(
 
       child.on('close', async (code, signal) => {
         clearTimeout(timeoutTimer);
+        activeRuns.delete(activeRun);
         if (cleanupPromise) await cleanupPromise;
         const executionTimeMs = Math.round(performance.now() - startTime);
 
@@ -242,16 +279,19 @@ export async function runPythonIsolated(
         });
       });
 
-      if (stdin) {
-        child.stdin.write(stdin, 'utf-8');
+      try {
+        if (stdin) child.stdin.write(stdin, 'utf-8');
+        child.stdin.end();
+      } catch (error) {
+        logRunnerError('stdin write failed', error);
       }
-      child.stdin.end();
     });
   } finally {
     try {
       fs.rmSync(sandboxDir, { recursive: true, force: true });
-    } catch {
-      // Sandbox directory removal should be best-effort
+    } catch (error) {
+      // Sandbox directory removal is best-effort, but failures must be visible.
+      logRunnerError('sandbox dir removal failed', error);
     }
   }
 }

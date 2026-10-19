@@ -3,8 +3,16 @@ import { fileURLToPath } from 'node:url';
 import { getDatabase } from './database.ts';
 import { runMigrations } from './migrate.ts';
 
+import { hashPassword as scryptHashPassword } from '../services/password-service.ts';
+import { assertDemoSeedAllowed } from './demo-guard.ts';
+
+// Fixture hashes are real salted scrypt hashes (never the legacy SHA-256 form). Memoised per
+// plaintext so re-seeding in tests does not pay the scrypt cost for every user.
+const fixtureHashCache = new Map<string, string>();
 export function hashPassword(plain: string): string {
-  return crypto.createHash('sha256').update(plain).digest('hex');
+  let hash = fixtureHashCache.get(plain);
+  if (!hash) { hash = scryptHashPassword(plain); fixtureHashCache.set(plain, hash); }
+  return hash;
 }
 
 export function seedDatabase(dbPath?: string): void {
@@ -458,6 +466,7 @@ export function seedDatabase(dbPath?: string): void {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  assertDemoSeedAllowed('db:seed');
   try {
     seedDatabase();
     console.log('Deterministic fixture seed completed successfully.');

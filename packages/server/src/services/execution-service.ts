@@ -417,6 +417,26 @@ export class ExecutionService {
     } catch (error) { this.db.exec('ROLLBACK'); throw error; }
   }
 
+  /**
+   * Never-throwing wrapper around recoverStuckJobs() for timers and readiness probes that run
+   * without a worker. Returns the number of recovered jobs, or -1 (after logging) on error such as SQLITE_BUSY.
+   */
+  recoverStuckJobsSafe(): number {
+    try { return this.recoverStuckJobs(); }
+    catch (error) {
+      console.error('[execution] recoverStuckJobs failed:', error instanceof Error ? error.message : String(error));
+      return -1;
+    }
+  }
+
+  /** Returns a running job to the queue (graceful worker shutdown). No retry penalty. */
+  releaseJob(jobId: string, workerId: string): boolean {
+    const result = this.db.prepare(`UPDATE execution_jobs SET status='queued',worker_id=NULL,
+      lease_expires_at=NULL,updated_at=? WHERE id=? AND status='running' AND worker_id=?`)
+      .run(new Date().toISOString(), jobId, workerId);
+    return result.changes === 1;
+  }
+
   claimJobById(jobId: string, workerId: string, leaseDurationMs: number = 30000): ExecutionJobPayload | null {
     this.recoverStuckJobs();
     const now = new Date().toISOString();
@@ -452,4 +472,15 @@ export class ExecutionService {
     const { job: completedJob, result: finalResult } = this.getJob(job.id, params.userId);
     return { job: completedJob, result: finalResult || result };
   }
+}
+
+/**
+ * Runs recoverStuckJobsSafe() on an unref'd interval so queued/stuck jobs expire even with no worker.
+ * Usable from the API process: `const stop = startStuckJobRecovery(executionService, 15_000)`.
+ * Returns a stop function.
+ */
+export function startStuckJobRecovery(service: Pick<ExecutionService, 'recoverStuckJobsSafe'>, intervalMs: number = 15_000): () => void {
+  const timer = setInterval(() => { service.recoverStuckJobsSafe(); }, intervalMs);
+  timer.unref();
+  return () => clearInterval(timer);
 }

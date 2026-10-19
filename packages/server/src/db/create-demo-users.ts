@@ -1,7 +1,10 @@
 import crypto from 'node:crypto';
 import { getDatabase } from './database.ts';
 import { runMigrations } from './migrate.ts';
+import { assertDemoSeedAllowed } from './demo-guard.ts';
 import { hashPassword } from '../services/password-service.ts';
+
+assertDemoSeedAllowed('db:demo-users');
 
 const dbPath = process.env.DATABASE_URL || 'data/zur.sqlite';
 runMigrations(dbPath);
