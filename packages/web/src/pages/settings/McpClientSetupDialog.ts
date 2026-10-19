@@ -1,5 +1,5 @@
 import { renderButton, renderStatusBadge } from '../../components/common/index.ts';
-import { formatScopeSummary, formatCourseRestrictions, type ConnectionTokenItem } from './AiConnectionsPage.ts';
+import { formatScopeSummary, formatCourseRestrictions, escapeHtml, type ConnectionTokenItem } from './AiConnectionsPage.ts';
 
 export type CompatibleClient = 'official_sdk' | 'generic' | 'oauth_client';
 
@@ -65,6 +65,12 @@ function describeAccess(token: ConnectionTokenItem): string {
   }
 }
 
+function describeCourses(token: ConnectionTokenItem): string {
+  if (token.courseRestrictions === null) return 'in all your courses, including future ones';
+  if (token.courseRestrictions.length === 0) return 'only in courses it creates';
+  return token.courseRestrictions.length === 1 ? 'in 1 selected course' : `in ${token.courseRestrictions.length} selected courses`;
+}
+
 export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string {
   const endpoint = opts.endpointUrl || (typeof window !== 'undefined' ? `${window.location.origin}/api/mcp` : 'http://localhost:3000/api/mcp');
   const selectedClient = opts.selectedClient || 'official_sdk';
@@ -83,7 +89,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
       <div class="setup-header flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-subtle">
         <div>
           <div class="flex items-center gap-3">
-            <h2 class="text-xl font-semibold text-primary">${token.label}</h2>
+            <h2 class="text-xl font-semibold text-primary">${escapeHtml(token.label)}</h2>
             ${
               isOAuth
                 ? renderStatusBadge({ status: 'warning', label: 'OAuth unsupported' })
@@ -94,10 +100,10 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
                 : renderStatusBadge({ status: 'info', label: 'Waiting for requests' })
             }
           </div>
-          <p class="setup-summary">${escapeSummary(token.label)} can ${describeAccess(token)} in ${formatCourseRestrictions(token.courseRestrictions).toLowerCase()}.</p>
+          <p class="setup-summary">${escapeSummary(token.label)} can ${describeAccess(token)} ${escapeHtml(describeCourses(token))}.</p>
           <details class="setup-details">
             <summary>Details</summary>
-            <p class="text-xs font-mono text-muted">Identifier: ${token.tokenIdentifier} · Scopes: ${formatScopeSummary(token.scopes)}</p>
+            <p class="text-xs font-mono text-muted">Identifier: ${escapeHtml(token.tokenIdentifier)} · Scopes: ${escapeHtml(formatScopeSummary(token.scopes))}</p>
           </details>
         </div>
       </div>
@@ -113,13 +119,13 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
             </p>
 
             <div class="setup-client-tabs mt-2" role="tablist" aria-label="Supported AI clients">
-              <button type="button" class="btn btn-secondary btn-compact client-tab-btn ${selectedClient === 'official_sdk' ? 'btn-primary active' : ''}" data-client="official_sdk" role="tab" aria-selected="${selectedClient === 'official_sdk'}">
+              <button type="button" class="btn ${selectedClient === 'official_sdk' ? 'btn-primary active' : 'btn-secondary'} btn-compact client-tab-btn" data-client="official_sdk" role="tab" aria-selected="${selectedClient === 'official_sdk'}">
                 Official MCP SDK (v2)
               </button>
-              <button type="button" class="btn btn-secondary btn-compact client-tab-btn ${selectedClient === 'generic' ? 'btn-primary active' : ''}" data-client="generic" role="tab" aria-selected="${selectedClient === 'generic'}">
+              <button type="button" class="btn ${selectedClient === 'generic' ? 'btn-primary active' : 'btn-secondary'} btn-compact client-tab-btn" data-client="generic" role="tab" aria-selected="${selectedClient === 'generic'}">
                 Generic HTTP Bearer
               </button>
-              <button type="button" class="btn btn-secondary btn-compact client-tab-btn ${selectedClient === 'oauth_client' ? 'btn-primary active' : ''}" data-client="oauth_client" role="tab" aria-selected="${selectedClient === 'oauth_client'}">
+              <button type="button" class="btn ${selectedClient === 'oauth_client' ? 'btn-primary active' : 'btn-secondary'} btn-compact client-tab-btn" data-client="oauth_client" role="tab" aria-selected="${selectedClient === 'oauth_client'}">
                 OAuth-only client
               </button>
             </div>
@@ -150,12 +156,12 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
               Paste this address into your client as the server URL.
             </p>
 
-            <div class="flex items-center gap-2 mt-1">
+            <div class="setup-endpoint-row">
               <input
                 type="text"
                 id="endpoint-url-input"
-                class="form-input font-mono text-xs flex-1"
-                value="${endpoint}"
+                class="form-input font-mono text-xs setup-endpoint-input"
+                value="${escapeHtml(endpoint)}"
                 readonly
                 aria-label="MCP Server Endpoint URL"
               />
@@ -193,7 +199,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
               Replace <code>YOUR_ZUR_MCP_TOKEN</code> with the secret shown once when you created this connection. Never share it or paste it into chat prompts.
             </p>
 
-            <pre class="setup-code-block mt-2 font-mono text-xs"><code>${snippet}</code></pre>
+            <pre class="setup-code-block mt-2 font-mono text-xs" tabindex="0" role="region" aria-label="Client configuration snippet"><code>${escapeHtml(snippet)}</code></pre>
           </div>
         </section>
 
@@ -241,7 +247,7 @@ export function renderMcpClientSetupContent(opts: McpClientSetupOptions): string
             <div class="border border-subtle rounded-md p-4 bg-canvas mt-3">
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-semibold text-primary">Sample verification prompt:</span>
-                <button type="button" class="btn btn-secondary btn-compact text-xs" id="btn-copy-prompt" data-prompt="${examplePrompt}">
+                <button type="button" class="btn btn-secondary btn-compact text-xs" id="btn-copy-prompt" data-prompt="${escapeHtml(examplePrompt)}">
                   Copy prompt
                 </button>
               </div>

@@ -1,6 +1,7 @@
 import { renderSettingsNav } from './SettingsNav.ts';
 import { renderButton, renderTextInput, renderStatusBadge } from '../../components/common/index.ts';
 import type { User, TokenScope } from 'zur-shared';
+import './ai-connections-enhancer.ts';
 
 export interface ConnectionTokenItem {
   id: string;
@@ -134,10 +135,10 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
       ${renderSettingsNav('ai-connections', true)}
 
       ${
-        opts.error
+        opts.error && !opts.showCreateModal && !opts.replacingToken
           ? `
         <div id="connections-error" class="form-error mb-6 p-3 border border-danger rounded" role="alert" aria-live="polite">
-          <span aria-hidden="true">⚠</span> <span>${opts.error}</span>
+          <span aria-hidden="true">⚠</span> <span>${escapeHtml(opts.error)}</span>
         </div>
       `
           : '<div id="connections-error" class="sr-only" role="alert" aria-live="polite"></div>'
@@ -147,7 +148,7 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
         opts.successMessage
           ? `
         <div id="connections-success" class="mb-6 p-3 bg-surface border border-accent rounded text-sm text-success flex items-center gap-2" role="status" aria-live="polite">
-          <span aria-hidden="true">✓</span> <span>${opts.successMessage}</span>
+          <span aria-hidden="true">✓</span> <span>${escapeHtml(opts.successMessage)}</span>
         </div>
       `
           : ''
@@ -165,15 +166,31 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
         </div>
       </details>
 
-      <div class="filter-tab-bar" role="tablist" aria-label="Filter connections by status">
-        <a href="/settings/ai-connections?filter=all" class="filter-tab-btn ${activeFilter === 'all' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'all'}">All (${tokens.length})</a>
-        <a href="/settings/ai-connections?filter=active" class="filter-tab-btn ${activeFilter === 'active' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'active'}">Active</a>
-        <a href="/settings/ai-connections?filter=expired" class="filter-tab-btn ${activeFilter === 'expired' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'expired'}">Expired</a>
-        <a href="/settings/ai-connections?filter=revoked" class="filter-tab-btn ${activeFilter === 'revoked' ? 'active' : ''}" role="tab" aria-selected="${activeFilter === 'revoked'}">Revoked</a>
-      </div>
+      <nav class="filter-tab-bar" aria-label="Filter connections by status">
+        <a href="/settings/ai-connections?filter=all" class="filter-tab-btn ${activeFilter === 'all' ? 'active' : ''}" ${activeFilter === 'all' ? 'aria-current="page"' : ''}>All (${tokens.length})</a>
+        <a href="/settings/ai-connections?filter=active" class="filter-tab-btn ${activeFilter === 'active' ? 'active' : ''}" ${activeFilter === 'active' ? 'aria-current="page"' : ''}>Active</a>
+        <a href="/settings/ai-connections?filter=expired" class="filter-tab-btn ${activeFilter === 'expired' ? 'active' : ''}" ${activeFilter === 'expired' ? 'aria-current="page"' : ''}>Expired</a>
+        <a href="/settings/ai-connections?filter=revoked" class="filter-tab-btn ${activeFilter === 'revoked' ? 'active' : ''}" ${activeFilter === 'revoked' ? 'aria-current="page"' : ''}>Revoked</a>
+      </nav>
 
       ${
-        filteredTokens.length === 0
+        opts.isLoading
+          ? `
+        <div class="connections-loading" role="status" aria-busy="true" aria-live="polite">
+          <span class="sr-only">Loading AI connections</span>
+          <div class="connections-skeleton" aria-hidden="true"></div>
+          <div class="connections-skeleton" aria-hidden="true"></div>
+        </div>
+      `
+          : filteredTokens.length === 0 && tokens.length > 0
+          ? `
+        <div class="card p-8 bg-surface border border-subtle rounded-lg text-center" role="region" aria-label="No matching connections">
+          <h2 class="text-base font-semibold mb-2">No ${activeFilter} connections</h2>
+          <p class="text-sm text-secondary max-w-md mx-auto mb-6">None of your connections match this filter.</p>
+          <a href="/settings/ai-connections?filter=all" class="btn btn-secondary">Show all connections</a>
+        </div>
+      `
+          : filteredTokens.length === 0
           ? `
         <div class="card p-8 bg-surface border border-subtle rounded-lg text-center" role="region" aria-label="No connections">
           <h2 class="text-base font-semibold mb-2">No AI connections yet</h2>
@@ -236,14 +253,14 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                   const setupAction =
                     token.isRevoked || token.status === 'expired'
                       ? '<button type="button" class="btn btn-secondary btn-compact" disabled aria-label="Setup unavailable for inactive connection">Setup</button>'
-                      : `<a href="/settings/ai-connections/${token.id}/setup" class="btn ${token.status === 'never_used' ? 'btn-primary' : 'btn-secondary'} btn-compact" aria-label="Setup ${token.label}">Setup</a>`;
+                      : `<a href="/settings/ai-connections/${encodeURIComponent(token.id)}/setup" class="btn ${token.status === 'never_used' ? 'btn-primary' : 'btn-secondary'} btn-compact" aria-label="Setup ${escapeHtml(token.label)}">Setup</a>`;
 
                   return `
-                  <tr id="token-row-${token.id}">
+                  <tr id="token-row-${escapeHtml(token.id)}">
                     <td>
-                      <div class="connection-name">${token.label}</div>
-                      <div class="connection-access">${formatScopeSummary(token.scopes)} · ${formatCourseRestrictions(token.courseRestrictions, coursesMap)}</div>
-                      <div class="connection-meta">Expires ${expiryDate} · <span class="font-mono">${token.tokenIdentifier}</span></div>
+                      <div class="connection-name">${escapeHtml(token.label)}</div>
+                      <div class="connection-access">${formatScopeSummary(token.scopes)} · ${escapeHtml(formatCourseRestrictions(token.courseRestrictions, coursesMap))}</div>
+                      <div class="connection-meta">Expires ${expiryDate} · <span class="font-mono">${escapeHtml(token.tokenIdentifier)}</span></div>
                     </td>
                     <td class="whitespace-nowrap">
                       ${renderStatusBadge({ status: badgeStatus, label: statusLabel })}
@@ -254,10 +271,10 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                     <td class="text-right whitespace-nowrap">
                       <div class="connection-actions">
                         ${setupAction}
-                        <button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>
+                        <button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${escapeHtml(token.id)}" aria-label="Replace ${escapeHtml(token.label)}">Replace</button>
                         ${
                           !token.isRevoked
-                            ? `<button type="button" class="btn btn-destructive btn-compact" data-action="revoke-token" data-token-id="${token.id}" aria-label="Revoke ${token.label}">Revoke</button>`
+                            ? `<button type="button" class="btn btn-destructive btn-compact" data-action="revoke-token" data-token-id="${escapeHtml(token.id)}" aria-label="Revoke ${escapeHtml(token.label)}">Revoke</button>`
                             : ''
                         }
                       </div>
@@ -302,11 +319,11 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                 : 'Never used';
 
               return `
-              <article class="connection-mobile-card" id="mobile-token-card-${token.id}" role="listitem">
+              <article class="connection-mobile-card" id="mobile-token-card-${escapeHtml(token.id)}" role="listitem">
                 <div class="connection-mobile-header">
                   <div class="connection-mobile-identity">
-                    <div class="font-medium text-primary">${token.label}</div>
-                    <div class="text-xs font-mono text-muted">${token.tokenIdentifier}</div>
+                    <div class="font-medium text-primary">${escapeHtml(token.label)}</div>
+                    <div class="text-xs font-mono text-muted">${escapeHtml(token.tokenIdentifier)}</div>
                   </div>
                   <div class="connection-mobile-status">
                     ${renderStatusBadge({ status: badgeStatus, label: statusLabel })}
@@ -319,7 +336,7 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                   </div>
                   <div class="connection-mobile-row-field">
                     <span class="text-secondary font-medium">Courses: </span>
-                    <span class="text-secondary">${formatCourseRestrictions(token.courseRestrictions, coursesMap)}</span>
+                    <span class="text-secondary">${escapeHtml(formatCourseRestrictions(token.courseRestrictions, coursesMap))}</span>
                   </div>
                   <div class="connection-mobile-row-field connection-mobile-row-meta" style="display: flex; flex-direction: column; gap: 0.125rem; padding-top: 0.25rem;">
                     <div><span class="text-secondary font-medium">Last used: </span><span class="text-muted">${lastUsedText}</span></div>
@@ -328,10 +345,10 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
                 </div>
                 <div class="connection-mobile-actions">
                   ${token.isRevoked || token.status === 'expired'
-                    ? `<button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>`
-                    : `<a href="/settings/ai-connections/${token.id}/setup" class="btn btn-secondary btn-compact" aria-label="Setup ${token.label}">Setup</a>
-                       <button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${token.id}" aria-label="Replace ${token.label}">Replace</button>
-                       <button type="button" class="btn btn-destructive btn-compact" data-action="revoke-token" data-token-id="${token.id}" aria-label="Revoke ${token.label}">Revoke</button>`}
+                    ? `<button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${escapeHtml(token.id)}" aria-label="Replace ${escapeHtml(token.label)}">Replace</button>`
+                    : `<a href="/settings/ai-connections/${encodeURIComponent(token.id)}/setup" class="btn btn-secondary btn-compact" aria-label="Setup ${escapeHtml(token.label)}">Setup</a>
+                       <button type="button" class="btn btn-secondary btn-compact" data-action="replace-token" data-token-id="${escapeHtml(token.id)}" aria-label="Replace ${escapeHtml(token.label)}">Replace</button>
+                       <button type="button" class="btn btn-destructive btn-compact" data-action="revoke-token" data-token-id="${escapeHtml(token.id)}" aria-label="Revoke ${escapeHtml(token.label)}">Revoke</button>`}
                 </div>
               </article>
             `;
@@ -368,17 +385,20 @@ function renderReplaceTokenModal(token: ConnectionTokenItem, courses: AuthorCour
         <form id="replace-token-form" data-token-id="${escapeHtml(token.id)}" style="display: flex; flex-direction: column; gap: 0.625rem; overflow-y: auto; flex: 1; padding: 0.25rem 0;" novalidate>
           <div class="form-group">
             <label class="form-label text-xs font-semibold" for="replace-connection-name">Connection name *</label>
-            <input type="text" id="replace-connection-name" name="label" class="form-input text-sm" value="${escapeHtml(token.label)}" required />
+            <input type="text" id="replace-connection-name" name="label" class="form-input text-sm" value="${escapeHtml(token.label)}" required aria-required="true" maxlength="80" autocomplete="off" aria-describedby="replace-connection-name-error" />
+            <p class="field-error" id="replace-connection-name-error" data-field-error="label" hidden></p>
           </div>
 
           <div class="form-group">
             <label class="form-label text-xs font-semibold" for="replace-connection-password">Current password *</label>
-            <input type="password" id="replace-connection-password" name="password" class="form-input text-sm" placeholder="Re-enter password to authorize" required autocomplete="current-password" />
+            <input type="password" id="replace-connection-password" name="password" class="form-input text-sm" placeholder="Re-enter password to authorize" required aria-required="true" autocomplete="current-password" aria-describedby="replace-connection-password-error" />
+            <p class="field-error" id="replace-connection-password-error" data-field-error="password" hidden></p>
           </div>
 
           <details class="border border-subtle rounded-md p-2" open>
             <summary class="text-xs font-semibold cursor-pointer text-primary">Allowed scope permissions (narrowing only)</summary>
             <p class="text-xs text-muted mt-1 mb-2">Replacement tokens cannot widen scope grants. You may keep or narrow existing scopes.</p>
+            <p class="field-error" id="replace-scopes-error" data-field-error="scopes" role="alert" hidden></p>
             <div class="grid grid-cols-1 gap-1.5 text-xs" id="replace-scopes-checklist">
               ${allowedScopes.map((scope) => `
                 <label class="flex items-center gap-2">
@@ -390,7 +410,8 @@ function renderReplaceTokenModal(token: ConnectionTokenItem, courses: AuthorCour
           </details>
 
           <div class="form-group">
-            <label class="form-label text-xs font-semibold">Course access</label>
+            <span class="form-label text-xs font-semibold" id="course-access-label">Course access</span>
+            <p class="field-error" data-field-error="courses" role="alert" hidden></p>
             ${isAllCourses ? `
               <div class="space-y-1 mt-0.5">
                 <label class="flex items-center gap-2 text-xs">
@@ -462,12 +483,14 @@ function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): 
         <form id="create-token-form" style="display: flex; flex-direction: column; gap: 0.625rem; overflow-y: auto; flex: 1; padding: 0.25rem 0;" novalidate>
           <div class="form-group">
             <label class="form-label text-xs font-semibold" for="connection-name">Connection name *</label>
-            <input type="text" id="connection-name" name="label" class="form-input text-sm" placeholder="e.g. My course-writing agent" required />
+            <input type="text" id="connection-name" name="label" class="form-input text-sm" placeholder="e.g. My course-writing agent" required aria-required="true" maxlength="80" autocomplete="off" aria-describedby="connection-name-error" />
+            <p class="field-error" id="connection-name-error" data-field-error="label" hidden></p>
           </div>
 
           <div class="form-group">
             <label class="form-label text-xs font-semibold" for="connection-password">Current password *</label>
-            <input type="password" id="connection-password" name="password" class="form-input text-sm" placeholder="Re-enter password to authorize" required />
+            <input type="password" id="connection-password" name="password" class="form-input text-sm" placeholder="Re-enter password to authorize" required aria-required="true" autocomplete="current-password" aria-describedby="connection-password-error" />
+            <p class="field-error" id="connection-password-error" data-field-error="password" hidden></p>
           </div>
 
           <div class="form-group">
@@ -478,13 +501,14 @@ function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): 
               <option value="full_course_control">Full course control</option>
               <option value="custom">Custom</option>
             </select>
-            <p class="form-hint text-xs text-muted" style="margin-top: 0.125rem;">
+            <p class="form-hint text-xs text-muted" id="permission-preset-hint" style="margin-top: 0.125rem;">
               Draft edits, media uploads, and exercise validation. Publishing & deletion off by default.
             </p>
           </div>
 
           <details class="border border-subtle rounded-md p-2">
             <summary class="text-xs font-semibold cursor-pointer text-primary">Detailed scope permissions</summary>
+            <p class="field-error" id="scopes-error" data-field-error="scopes" role="alert" hidden></p>
             <div class="grid grid-cols-1 gap-1.5 mt-2 text-xs" id="scopes-checklist">
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="scopes" value="courses:read" checked />
@@ -522,7 +546,8 @@ function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): 
           </details>
 
           <div class="form-group">
-            <label class="form-label text-xs font-semibold">Course access</label>
+            <span class="form-label text-xs font-semibold" id="course-access-label">Course access</span>
+            <p class="field-error" data-field-error="courses" role="alert" hidden></p>
             <div class="space-y-1 mt-0.5">
               <label class="flex items-center gap-2 text-xs">
                 <input type="radio" name="courseScopeType" value="all" checked />
@@ -541,8 +566,8 @@ function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): 
                   .map(
                     (c) => `
                   <label class="flex items-center gap-2 text-xs">
-                    <input type="checkbox" name="selectedCourses" value="${c.id}" />
-                    <span>${c.title}</span>
+                    <input type="checkbox" name="selectedCourses" value="${escapeHtml(c.id)}" />
+                    <span>${escapeHtml(c.title)}</span>
                   </label>
                 `
                   )
@@ -573,8 +598,8 @@ function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): 
   `;
 }
 
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
+export function escapeHtml(value: string): string {
+  return String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
 }
 
 function renderTokenRevealModal(revealed: RevealedTokenData): string {
@@ -602,7 +627,7 @@ function renderTokenRevealModal(revealed: RevealedTokenData): string {
               type="password"
               id="revealed-token-value"
               class="token-secret-text bg-transparent border-none outline-none font-mono"
-              value="${revealed.rawToken}"
+              value="${escapeHtml(revealed.rawToken)}"
               readonly
               aria-label="Secret token value"
             />
@@ -618,7 +643,7 @@ function renderTokenRevealModal(revealed: RevealedTokenData): string {
           <div class="bg-surface border border-subtle rounded-md p-3 text-xs space-y-2">
             <div class="flex justify-between">
               <span class="text-muted">Connection:</span>
-              <span class="font-medium text-primary">${revealed.label}</span>
+              <span class="font-medium text-primary">${escapeHtml(revealed.label)}</span>
             </div>
             <div class="flex justify-between">
               <span class="text-muted">Access summary:</span>
@@ -626,7 +651,7 @@ function renderTokenRevealModal(revealed: RevealedTokenData): string {
             </div>
             <div class="flex justify-between">
               <span class="text-muted">Course access:</span>
-              <span class="font-medium text-primary">${formatCourseRestrictions(revealed.courseRestrictions)}</span>
+              <span class="font-medium text-primary">${escapeHtml(formatCourseRestrictions(revealed.courseRestrictions))}</span>
             </div>
             <div class="flex justify-between">
               <span class="text-muted">Expires:</span>
@@ -637,9 +662,12 @@ function renderTokenRevealModal(revealed: RevealedTokenData): string {
 
         <footer class="dialog-footer flex justify-between items-center pt-3 border-t border-subtle">
           <span class="text-xs text-muted">If lost, token must be replaced.</span>
-          <a href="/settings/ai-connections/${revealed.id}/setup" class="btn btn-primary" id="btn-view-setup">
-            I've saved it — view setup
-          </a>
+          <div class="flex items-center gap-2">
+            <button type="button" class="btn btn-secondary" data-dialog-action="cancel" id="btn-close-reveal">Close</button>
+            <a href="/settings/ai-connections/${encodeURIComponent(revealed.id)}/setup" class="btn btn-primary" id="btn-view-setup">
+              I've saved it — view setup
+            </a>
+          </div>
         </footer>
       </div>
     </div>
@@ -656,7 +684,7 @@ function renderRevokeConfirmationModal(token: ConnectionTokenItem): string {
 
         <div class="dialog-body space-y-3 py-3 text-sm">
           <p>
-            Are you sure you want to revoke <strong>${token.label}</strong> (<code>${token.tokenIdentifier}</code>)?
+            Are you sure you want to revoke <strong>${escapeHtml(token.label)}</strong> (<code>${escapeHtml(token.tokenIdentifier)}</code>)?
           </p>
           <div class="p-3 bg-raised border border-subtle rounded text-xs text-secondary">
             This connection will lose access. Existing course content will remain.
@@ -665,7 +693,7 @@ function renderRevokeConfirmationModal(token: ConnectionTokenItem): string {
 
         <footer class="dialog-footer flex justify-end gap-3 pt-4 border-t border-subtle">
           <button type="button" class="btn btn-secondary" data-dialog-action="cancel">Cancel</button>
-          <button type="button" class="btn btn-destructive" id="btn-confirm-revoke" data-token-id="${token.id}">
+          <button type="button" class="btn btn-destructive" id="btn-confirm-revoke" data-token-id="${escapeHtml(token.id)}">
             Revoke token
           </button>
         </footer>

@@ -240,6 +240,7 @@
 }
 
 .setup-rail .setup-step-card {
+  width: 100%;
   position: relative;
   background: transparent;
   border: none;
@@ -263,6 +264,8 @@
 
 .setup-rail .setup-step-main {
   padding-bottom: var(--space-1);
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .setup-rail .setup-code-block {
@@ -412,4 +415,93 @@ input[type="checkbox"]:disabled { opacity: 0.5; cursor: not-allowed; }
 @media (forced-colors: active) {
   input[type="checkbox"]:checked { background: Highlight; border-color: Highlight; }
   input[type="checkbox"]::before { background: HighlightText; }
+}
+
+/* ---- AI connections: dialogs, field errors, loading, setup polish (W6-U) ---- */
+.field-error {
+  margin: var(--space-1) 0 0;
+  font-size: var(--type-metadata-size, 0.75rem);
+  color: var(--danger);
+}
+
+.field-error[hidden] {
+  display: none;
+}
+
+#create-token-modal input[aria-invalid="true"],
+#replace-token-modal input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+#create-token-modal input[type="checkbox"],
+#create-token-modal input[type="radio"],
+#replace-token-modal input[type="checkbox"],
+#replace-token-modal input[type="radio"] {
+  appearance: auto;
+  -webkit-appearance: auto;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  background: revert;
+  border: revert;
+  accent-color: var(--accent);
+}
+
+#create-token-modal label.flex,
+#replace-token-modal label.flex {
+  cursor: pointer;
+  min-height: 24px;
+}
+
+#create-token-modal [tabindex="-1"]:focus,
+#replace-token-modal [tabindex="-1"]:focus {
+  outline: none;
+}
+
+.connections-loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.connections-skeleton {
+  height: 104px;
+  border-radius: var(--radius-lg, 12px);
+  border: 1px solid var(--border-subtle);
+  background: linear-gradient(90deg, var(--bg-surface) 0%, var(--bg-raised, var(--bg-surface)) 50%, var(--bg-surface) 100%);
+  background-size: 200% 100%;
+  animation: connections-skeleton 1.4s ease-in-out infinite;
+}
+
+@keyframes connections-skeleton {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connections-skeleton { animation: none; }
+}
+
+.setup-endpoint-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.setup-endpoint-row .setup-endpoint-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.setup-client-tabs .client-tab-btn.btn-primary {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.setup-rail .setup-code-block:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
