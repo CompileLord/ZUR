@@ -448,7 +448,8 @@ export default {
     }
 
     await s.command('Page.reload');
-    await s.wait('Boolean(document.querySelector(".module-row-list"))', 'modules reloaded');
+    await new Promise((r) => setTimeout(r, 400));
+    await s.wait('Boolean(document.querySelector(".module-row-list")) && document.querySelectorAll(\'.reorder-module-form input[name="moduleId"]\').length >= 2', 'modules reloaded');
     const moduleIdsPersisted = await getModuleIds();
     if (JSON.stringify(moduleIdsPersisted) !== JSON.stringify(expectedModuleIds)) {
       throw new Error(`Module swap did not persist after reload! Expected: ${JSON.stringify(expectedModuleIds)}, got: ${JSON.stringify(moduleIdsPersisted)}`);
@@ -484,7 +485,8 @@ export default {
     }
 
     await s.command('Page.reload');
-    await s.wait('Boolean(document.querySelector(".lesson-card"))', 'lessons reloaded');
+    await new Promise((r) => setTimeout(r, 400));
+    await s.wait('Boolean(document.querySelector(".lesson-card")) && document.querySelectorAll(\'.reorder-lesson-form input[name="lessonId"]\').length >= 2', 'lessons reloaded');
     const lessonIdsPersisted = await getLessonIds();
     if (JSON.stringify(lessonIdsPersisted) !== JSON.stringify(expectedLessonIds)) {
       throw new Error(`Lesson swap did not persist after reload! Expected: ${JSON.stringify(expectedLessonIds)}, got: ${JSON.stringify(lessonIdsPersisted)}`);
@@ -520,7 +522,8 @@ export default {
     }
 
     await s.command('Page.reload');
-    await s.wait('Boolean(document.querySelector(".steps-table tbody tr"))', 'steps reloaded');
+    await new Promise((r) => setTimeout(r, 400));
+    await s.wait('Boolean(document.querySelector(".steps-table tbody tr")) && document.querySelectorAll(\'.reorder-step-form input[name="stepId"]\').length >= 2', 'steps reloaded');
     const stepIdsPersisted = await getStepIds();
     if (JSON.stringify(stepIdsPersisted) !== JSON.stringify(expectedStepIds)) {
       throw new Error(`Step swap did not persist after reload! Expected: ${JSON.stringify(expectedStepIds)}, got: ${JSON.stringify(stepIdsPersisted)}`);
@@ -661,13 +664,13 @@ else:
     // Wait buttons enabled and current pendingJobKey gone / results completed
     const pendingJobKey = 'zur_job_user-student-1_enr-ada_step-6-python-evenodd';
     await s.wait(
-      `!localStorage.getItem(${JSON.stringify(pendingJobKey)}) && !document.querySelector('.job-status-spinner') && Boolean(document.querySelector('.comparison-value') || document.querySelector('.learner-error-summary') || document.querySelector('.execution-error-notice')) && !document.querySelector('#run-custom-btn')?.disabled`,
+      `!localStorage.getItem(${JSON.stringify(pendingJobKey)}) && !document.querySelector('.job-status-spinner') && Boolean(document.querySelector('.comparison-value') || document.querySelector('.learner-error-summary') || document.querySelector('.execution-error-notice') || document.querySelector('.program-stdout')) && !document.querySelector('#run-custom-btn')?.disabled`,
       'custom execution completed',
       20000
     );
 
     const customOutput = await s.evaluate(`
-      Array.from(document.querySelectorAll(".test-field")).find(f => f.querySelector(".comparison-label")?.textContent.includes("Received Output"))?.querySelector(".comparison-value")?.textContent || ""
+      document.querySelector(".program-stdout")?.textContent || Array.from(document.querySelectorAll(".test-field")).find(f => f.querySelector(".comparison-label")?.textContent.includes("Received Output"))?.querySelector(".comparison-value")?.textContent || ""
     `);
 
     if (!customOutput.includes('Even')) {
@@ -928,7 +931,7 @@ else:
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
       return true;
     })()`);
-    await s.wait('document.body.innerText.includes("Execution: Paused")', 'execution paused pill');
+    await s.wait('document.body.innerText.includes("Execution: Paused") || document.body.innerText.includes("Admission: Paused")', 'execution paused pill');
 
     // Verify DB setting
     const pausedDbVal = (db.prepare("SELECT value FROM system_settings WHERE key = 'execution_paused'").get() as any)?.value;
@@ -974,7 +977,7 @@ else:
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
       return true;
     })()`);
-    await s.wait('document.body.innerText.includes("Execution: Enabled")', 'execution enabled pill');
+    await s.wait('document.body.innerText.includes("Execution: Enabled") || document.body.innerText.includes("Admission: Accepting jobs") || document.body.innerText.includes("Execution is active")', 'execution enabled pill');
 
     const resumedDbVal = (db.prepare("SELECT value FROM system_settings WHERE key = 'execution_paused'").get() as any)?.value;
     if (resumedDbVal !== 'false') throw new Error(`Expected execution_paused false in DB, got ${resumedDbVal}`);

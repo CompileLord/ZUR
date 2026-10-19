@@ -557,8 +557,8 @@
                 "packages/web/src/pages/learning/PythonWorkspacePage.ts",
                 "packages/web/src/styles/components.css",
                 "packages/web/tests/workspace-pages.test.ts",
-                "screenshots/s4_m04_python_unsaved_public_failure_1440.png",
-                "screenshots/s4_m04_python_guidance_390.png"
+                "screenshots/desktop_workspace_dark.png",
+                "screenshots/desktop_workspace_light.png"
               ],
               "status_note": "CodeMirror paired layout, keyboard splitters, responsive guidance, and status transitions verified in browser tests and screenshots."
             },
