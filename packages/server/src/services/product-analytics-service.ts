@@ -69,8 +69,8 @@ export class ProductAnalyticsService {
     const inserted = this.db.prepare(`INSERT OR IGNORE INTO product_analytics_events
       (id, event_name, pseudonymous_user_id, course_id, course_version_id, step_id, metadata, created_at, idempotency_key)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
-      event.id, event.eventName, event.pseudonymousUserId, event.courseId,
-      event.courseVersionId, event.stepId, JSON.stringify(event.metadata), event.createdAt, idempotencyKey,
+      event.id, event.eventName, event.pseudonymousUserId, event.courseId ?? null,
+      event.courseVersionId ?? null, event.stepId ?? null, JSON.stringify(event.metadata), event.createdAt, idempotencyKey,
     );
     return inserted.changes === 1 ? event : null;
   }

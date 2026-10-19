@@ -146,7 +146,7 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
     });
 
     assert.ok(createRes.content);
-    const parsed = JSON.parse((createRes.content[0] as any).text);
+    const parsed = JSON.parse((createRes.content as Array<{ text: string }>)[0].text);
     assert.ok(parsed.id);
     testCourseId = parsed.id;
     testCourseRevision = parsed.draftRevision || 1;
@@ -155,12 +155,12 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
       course_id: testCourseId, base_revision: testCourseRevision,
       operations: [{ type: 'create_module', temp_id: 'sdk_retry_module', title: 'SDK Retry Module' }],
     }});
-    const sdkPlan = JSON.parse((prepared.content[0] as any).text);
+    const sdkPlan = JSON.parse((prepared.content as Array<{ text: string }>)[0].text);
     const applyArgs = { plan_id: sdkPlan.plan_id, course_id: testCourseId, idempotency_key: 'sdk-apply-retry-1' };
     const firstApply = await client.callTool({ name: 'apply_course_changes', arguments: applyArgs });
     const repeatApply = await client.callTool({ name: 'apply_course_changes', arguments: applyArgs });
-    assert.deepEqual(JSON.parse((repeatApply.content[0] as any).text), JSON.parse((firstApply.content[0] as any).text));
-    testCourseRevision = JSON.parse((firstApply.content[0] as any).text).new_revision;
+    assert.deepEqual(JSON.parse((repeatApply.content as Array<{ text: string }>)[0].text), JSON.parse((firstApply.content as Array<{ text: string }>)[0].text));
+    testCourseRevision = JSON.parse((firstApply.content as Array<{ text: string }>)[0].text).new_revision;
 
     // Verify prepare_course_changes rejects >20 steps in a lesson
     const twentyOneSteps = Array.from({ length: 21 }, (_, i) => ({
@@ -184,7 +184,7 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
       },
     });
     assert.equal((limitRes as any).isError, true);
-    assert.match((limitRes.content[0] as any).text, /exceed 20 steps/i);
+    assert.match((limitRes.content as Array<{ text: string }>)[0].text, /exceed 20 steps/i);
 
     // Verify prepare_course_changes validates quiz options schema (< 2 options or no correct option)
     const badQuizRes = await client.callTool({
@@ -207,7 +207,7 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
       },
     });
     assert.equal((badQuizRes as any).isError, true);
-    assert.match((badQuizRes.content[0] as any).text, /between 2 and 6 options/i);
+    assert.match((badQuizRes.content as Array<{ text: string }>)[0].text, /between 2 and 6 options/i);
 
     // Verify prepare_course_changes rejects operations under deleted nodes
     const delParentRes = await client.callTool({
@@ -223,7 +223,7 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
       },
     });
     assert.equal((delParentRes as any).isError, true);
-    assert.match((delParentRes.content[0] as any).text, /cannot add lesson to deleted module/i);
+    assert.match((delParentRes.content as Array<{ text: string }>)[0].text, /cannot add lesson to deleted module/i);
 
     // Verify image workflows over official SDK client: complete_image_upload, attach_image, update_image, detach_image
     const sdkUploadRes = await client.callTool({
@@ -236,7 +236,7 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
       },
     });
     assert.equal((sdkUploadRes as any).isError, undefined);
-    const sdkImage = JSON.parse((sdkUploadRes.content[0] as any).text);
+    const sdkImage = JSON.parse((sdkUploadRes.content as Array<{ text: string }>)[0].text);
     assert.ok(sdkImage.image_id);
 
     // Prepare and apply a step to attach to
@@ -252,7 +252,7 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
         ],
       },
     });
-    const sdkStepPlan = JSON.parse((sdkStepPrep.content[0] as any).text);
+    const sdkStepPlan = JSON.parse((sdkStepPrep.content as Array<{ text: string }>)[0].text);
     const sdkStepApply = await client.callTool({
       name: 'apply_course_changes',
       arguments: {
@@ -261,7 +261,7 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
         idempotency_key: 'sdk-img-step-apply',
       },
     });
-    const sdkStepApplyData = JSON.parse((sdkStepApply.content[0] as any).text);
+    const sdkStepApplyData = JSON.parse((sdkStepApply.content as Array<{ text: string }>)[0].text);
     testCourseRevision = sdkStepApplyData.draft_revision;
     const targetStepId = sdkStepApplyData.created_nodes.s_img;
     assert.ok(targetStepId);
@@ -278,7 +278,7 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
       },
     });
     assert.equal((sdkAttach as any).isError, undefined);
-    const sdkAttachData = JSON.parse((sdkAttach.content[0] as any).text);
+    const sdkAttachData = JSON.parse((sdkAttach.content as Array<{ text: string }>)[0].text);
     assert.equal(sdkAttachData.attached, true);
     testCourseRevision = sdkAttachData.draft_revision;
 
@@ -294,7 +294,7 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
       },
     });
     assert.equal((sdkUpdate as any).isError, undefined);
-    const sdkUpdateData = JSON.parse((sdkUpdate.content[0] as any).text);
+    const sdkUpdateData = JSON.parse((sdkUpdate.content as Array<{ text: string }>)[0].text);
     assert.equal(sdkUpdateData.alt_text, 'SDK Updated Banner');
     testCourseRevision = sdkUpdateData.draft_revision;
 
@@ -310,7 +310,7 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
       },
     });
     assert.equal((sdkDetach as any).isError, undefined);
-    const sdkDetachData = JSON.parse((sdkDetach.content[0] as any).text);
+    const sdkDetachData = JSON.parse((sdkDetach.content as Array<{ text: string }>)[0].text);
     assert.equal(sdkDetachData.detached, true);
     testCourseRevision = sdkDetachData.draft_revision;
 
@@ -622,7 +622,7 @@ test('S3 Audit Defects Verification Suite (S3-01 through S3-10)', async (t) => {
       tokenResult.token
     );
     assert.equal(directToolRes.isError, true);
-    assert.ok(directToolRes.content[0].text.includes('1 MiB'));
+    assert.ok((directToolRes.content[0] as { text: string }).text.includes('1 MiB'));
   });
 
   // --------------------------------------------------------------------------

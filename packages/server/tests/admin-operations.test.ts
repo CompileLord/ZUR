@@ -104,7 +104,7 @@ test('Support records require a scoped, expiring, reasoned grant and are audited
   assert.equal(records.support.reason,'Investigate learner report about a broken attempt');
   assert.equal(records.support.expiresAt,grant.expiresAt);
   assert.equal(records.student.displayName,'Ada Lovelace');
-  assert.equal(records.enrollments[0].versionNumber,db.prepare('SELECT version_number FROM course_versions WHERE id=?').get(enrollment.pinned_version_id).version_number);
+  assert.equal(records.enrollments[0].versionNumber,(db.prepare('SELECT version_number FROM course_versions WHERE id=?').get(enrollment.pinned_version_id) as any).version_number);
   assert.ok(admin.listAudit('user-admin-1',{action:'support:records_viewed'}).items.length);
   admin.revokeSupportAccess('user-admin-1',grant.id,'Support investigation completed');
   assert.equal(auth.getCourseAccess({userId:'user-admin-1',capabilities:['admin'],isSuspended:false},courseId).allowed,false);

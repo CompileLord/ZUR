@@ -93,7 +93,7 @@ export function renderQuizEditorPage(opts: QuizEditorPageOptions): string {
       const inputName = isSingleChoice ? 'correctOption' : `correctOption_${opt.id}`;
 
       const letter = String.fromCharCode(65 + idx);
-      return renderQuizOptionRow({ id: opt.id, text: opt.text, isCorrect: opt.isCorrect, letter, inputType, inputName, canRemove: canRemoveOption });
+      return renderQuizOptionRow({ id: opt.id, text: opt.text, isCorrect: Boolean(opt.isCorrect), letter, inputType, inputName, canRemove: canRemoveOption });
     })
     .join('');
 

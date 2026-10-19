@@ -229,6 +229,7 @@ test('Author Interface Redesign Acceptance Suite (2026-10-06)', async (t) => {
       activeEnrolledStudents: 0,
       validation: {
         isValid: false,
+        draftRevision: 1,
         errors: [
           { stepId: 's-4', message: 'Reference solution failed test case #1: INTERNAL_ERROR', blocking: true },
         ],
@@ -341,6 +342,7 @@ test('Author Interface Redesign Acceptance Suite (2026-10-06)', async (t) => {
       },
       validation: {
         isValid: false,
+        draftRevision: 1,
         errors: [
           { stepId: 'step-4-python-echo', message: 'Reference solution failed test case #1: INTERNAL_ERROR', blocking: true },
           { stepId: 'step-4-python-echo', message: 'Reference solution failed test case #2: INTERNAL_ERROR', blocking: true },

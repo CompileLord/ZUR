@@ -271,7 +271,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       arguments: { course_id: guidoCourseId, projection: 'metadata' },
     });
     assert.strictEqual(allowed.isError, undefined);
-    const content = JSON.parse(allowed.content[0].text);
+    const content = JSON.parse((allowed.content[0] as { text: string }).text);
     assert.strictEqual(content.id, guidoCourseId);
 
     // 3. Request outside token course restriction is denied via official SDK Client
@@ -302,7 +302,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(createCourseRes.isError, undefined);
-    const course = JSON.parse(createCourseRes.content[0].text);
+    const course = JSON.parse((createCourseRes.content[0] as { text: string }).text);
     const courseId = course.id;
 
     // Add module
@@ -314,7 +314,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
         position: 0,
       },
     });
-    const mod = JSON.parse(createModRes.content[0].text);
+    const mod = JSON.parse((createModRes.content[0] as { text: string }).text);
 
     // Add lesson
     const createLesRes = await unrestrictedClient.callTool({
@@ -326,7 +326,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
         position: 0,
       },
     });
-    const les = JSON.parse(createLesRes.content[0].text);
+    const les = JSON.parse((createLesRes.content[0] as { text: string }).text);
 
     // 1. Theory step
     const theoryRes = await unrestrictedClient.callTool({
@@ -411,7 +411,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
         projection: 'outline',
       },
     });
-    const outline = JSON.parse(outlineRes.content[0].text);
+    const outline = JSON.parse((outlineRes.content[0] as { text: string }).text);
     const targetModule = outline.structure.modules.find((m: any) => m.id === mod.id);
     assert.ok(targetModule);
     assert.strictEqual(targetModule.lessons[0].steps.length, 4);
@@ -432,7 +432,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(createUploadRes.isError, undefined);
-    const uploadMeta = JSON.parse(createUploadRes.content[0].text);
+    const uploadMeta = JSON.parse((createUploadRes.content[0] as { text: string }).text);
 
     const pngBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
     const completeRes = await fullClient.callTool({
@@ -445,7 +445,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(completeRes.isError, undefined);
-    const completed = JSON.parse(completeRes.content[0].text);
+    const completed = JSON.parse((completeRes.content[0] as { text: string }).text);
     assert.ok(completed.markdown_reference.includes('![Architecture diagram showing pipeline]'));
 
     // 2. Embed reference into a theory step
@@ -468,7 +468,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       arguments: { asset_id: completed.asset_id },
     });
     assert.strictEqual(getImageRes.isError, undefined);
-    const assetData = JSON.parse(getImageRes.content[0].text);
+    const assetData = JSON.parse((getImageRes.content[0] as { text: string }).text);
     assert.strictEqual(assetData.altText, 'Architecture diagram showing pipeline');
   });
 
@@ -571,7 +571,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
     });
     // MCP tool returns safe denial
     assert.strictEqual(crossRes.isError, true);
-    const errText = crossRes.content[0]?.text || '';
+    const errText = (crossRes.content[0] as { text?: string } | undefined)?.text || '';
     assert.ok(
       errText.includes("This page isn't available") ||
       errText.includes("Course not found")
@@ -592,7 +592,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(pubDenied.isError, true);
-    assert.ok(pubDenied.content[0]?.text?.includes('courses:publish'));
+    assert.ok((pubDenied.content[0] as { text?: string } | undefined)?.text?.includes('courses:publish'));
 
     // 2. Deleting denied via official SDK
     const delDenied = await draftOnlyClient.callTool({
@@ -603,7 +603,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(delDenied.isError, true);
-    assert.ok(delDenied.content[0]?.text?.includes('content:delete'));
+    assert.ok((delDenied.content[0] as { text?: string } | undefined)?.text?.includes('content:delete'));
 
     // 3. Access change denied via official SDK (requires courses:manage)
     const accessDenied = await draftOnlyClient.callTool({
@@ -615,7 +615,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(accessDenied.isError, true);
-    assert.ok(accessDenied.content[0]?.text?.includes('courses:manage'));
+    assert.ok((accessDenied.content[0] as { text?: string } | undefined)?.text?.includes('courses:manage'));
   });
 
   await t.test('MCP-07: Full control token publishes valid content without UI prompt', async () => {
@@ -627,7 +627,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(createCourseRes.isError, undefined);
-    const course = JSON.parse(createCourseRes.content[0].text);
+    const course = JSON.parse((createCourseRes.content[0] as { text: string }).text);
 
     // Update metadata with required publication fields
     const metaRes = await unrestrictedClient.callTool({
@@ -655,7 +655,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(modRes.isError, undefined);
-    const mod = JSON.parse(modRes.content[0].text);
+    const mod = JSON.parse((modRes.content[0] as { text: string }).text);
 
     const lesRes = await unrestrictedClient.callTool({
       name: 'create_lesson',
@@ -667,7 +667,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(lesRes.isError, undefined);
-    const les = JSON.parse(lesRes.content[0].text);
+    const les = JSON.parse((lesRes.content[0] as { text: string }).text);
 
     const stepRes = await unrestrictedClient.callTool({
       name: 'create_step',
@@ -687,7 +687,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       arguments: { course_id: course.id },
     });
     assert.strictEqual(valRes.isError, undefined);
-    const validation = JSON.parse(valRes.content[0].text);
+    const validation = JSON.parse((valRes.content[0] as { text: string }).text);
     assert.strictEqual(validation.isValid, true);
 
     const currentCourse = db.prepare('SELECT draft_revision FROM courses WHERE id = ?').get(course.id) as any;
@@ -701,7 +701,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(pubRes.isError, undefined);
-    const pubReceipt = JSON.parse(pubRes.content[0].text);
+    const pubReceipt = JSON.parse((pubRes.content[0] as { text: string }).text);
     assert.strictEqual(pubReceipt.versionNumber, 1);
     assert.ok(pubReceipt.versionId);
   });
@@ -723,7 +723,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(staleRes.isError, true);
-    assert.ok(staleRes.content[0]?.text?.includes('modified since the batch was prepared'));
+    assert.ok((staleRes.content[0] as { text?: string } | undefined)?.text?.includes('modified since the batch was prepared'));
 
     // 2. Prepare course changes plan and assert stale plan rejection
     const planPrepRes = await fullClient.callTool({
@@ -737,7 +737,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(planPrepRes.isError, undefined);
-    const planPrepData = JSON.parse(planPrepRes.content[0].text);
+    const planPrepData = JSON.parse((planPrepRes.content[0] as { text: string }).text);
     const planId = planPrepData.plan_id;
 
     // Stale plan application rejected
@@ -752,8 +752,8 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
     });
     assert.strictEqual(stalePlanRes.isError, true);
     assert.ok(
-      stalePlanRes.content[0]?.text?.includes('prepared plan base revision') ||
-      stalePlanRes.content[0]?.text?.includes('modified')
+      (stalePlanRes.content[0] as { text?: string } | undefined)?.text?.includes('prepared plan base revision') ||
+      (stalePlanRes.content[0] as { text?: string } | undefined)?.text?.includes('modified')
     );
 
     // 3. Batch with temp IDs ($m1, $l1, $s1)
@@ -781,7 +781,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(batchRes.isError, undefined);
-    const receipt = JSON.parse(batchRes.content[0].text);
+    const receipt = JSON.parse((batchRes.content[0] as { text: string }).text);
     assert.strictEqual(receipt.status, 'applied');
     assert.strictEqual(receipt.operations_applied, 3);
 
@@ -796,7 +796,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(repeatedRes.isError, undefined);
-    const repeatedReceipt = JSON.parse(repeatedRes.content[0].text);
+    const repeatedReceipt = JSON.parse((repeatedRes.content[0] as { text: string }).text);
     assert.strictEqual(repeatedReceipt.idempotency_key, validIdemKey);
     assert.strictEqual(repeatedReceipt.new_revision, receipt.new_revision);
 
@@ -813,7 +813,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(conflictRes.isError, true);
-    assert.ok(conflictRes.content[0]?.text?.includes('different request parameters'));
+    assert.ok((conflictRes.content[0] as { text?: string } | undefined)?.text?.includes('different request parameters'));
   });
 
   await t.test('MCP-09: Rejection of malicious images (SVG/exe), unsafe Markdown, external URLs, and oversized batch limits', async () => {
@@ -833,8 +833,8 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
     });
     assert.strictEqual(scriptStepRes.isError, true);
     assert.ok(
-      scriptStepRes.content[0]?.text?.includes('Unsafe Markdown') ||
-      scriptStepRes.content[0]?.text?.includes('dangerous script')
+      (scriptStepRes.content[0] as { text?: string } | undefined)?.text?.includes('Unsafe Markdown') ||
+      (scriptStepRes.content[0] as { text?: string } | undefined)?.text?.includes('dangerous script')
     );
 
     // 2. External image URL forbidden
@@ -849,7 +849,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(extUrlRes.isError, true);
-    assert.ok(extUrlRes.content[0]?.text?.includes('External image URLs'));
+    assert.ok((extUrlRes.content[0] as { text?: string } | undefined)?.text?.includes('External image URLs'));
 
     // 3. Reject SVG
     const svgRes = await fullClient.callTool({
@@ -862,7 +862,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(svgRes.isError, true);
-    assert.ok(svgRes.content[0]?.text?.includes('Unsupported image type'));
+    assert.ok((svgRes.content[0] as { text?: string } | undefined)?.text?.includes('Unsupported image type'));
 
     // 4. Reject executable / non-image
     const exeRes = await fullClient.callTool({
@@ -892,7 +892,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(oversizedBatchRes.isError, true);
-    assert.ok(oversizedBatchRes.content[0]?.text?.includes('100 operations'));
+    assert.ok((oversizedBatchRes.content[0] as { text?: string } | undefined)?.text?.includes('100 operations'));
   });
 
   await t.test('MCP-10: Draft recovery restores draft without altering published versions or enrollments', async () => {
@@ -902,7 +902,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       arguments: { title: 'Recovery Target Course' },
     });
     assert.strictEqual(crRes.isError, undefined);
-    const crCourse = JSON.parse(crRes.content[0].text);
+    const crCourse = JSON.parse((crRes.content[0] as { text: string }).text);
 
     await unrestrictedClient.callTool({
       name: 'update_course_metadata',
@@ -924,13 +924,13 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       name: 'create_module',
       arguments: { course_id: crCourse.id, title: 'Mod V1' },
     });
-    const mod = JSON.parse(mRes.content[0].text);
+    const mod = JSON.parse((mRes.content[0] as { text: string }).text);
 
     const lRes = await unrestrictedClient.callTool({
       name: 'create_lesson',
       arguments: { course_id: crCourse.id, module_id: mod.id, title: 'Les V1', description: 'Lesson 1' },
     });
-    const les = JSON.parse(lRes.content[0].text);
+    const les = JSON.parse((lRes.content[0] as { text: string }).text);
 
     await unrestrictedClient.callTool({
       name: 'create_step',
@@ -952,7 +952,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(pubRes.isError, undefined);
-    const publishedReceipt = JSON.parse(pubRes.content[0].text);
+    const publishedReceipt = JSON.parse((pubRes.content[0] as { text: string }).text);
 
     // Enroll student Ada Lovelace to published version
     const enrollmentId = `enr-recovery-test-${Date.now()}`;
@@ -994,7 +994,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(restoreMcpRes.isError, undefined);
-    const restoreResult = JSON.parse(restoreMcpRes.content[0].text);
+    const restoreResult = JSON.parse((restoreMcpRes.content[0] as { text: string }).text);
     assert.strictEqual(restoreResult.success, true);
     assert.strictEqual(restoreResult.newRevision, currentDraft.draft_revision + 1);
 
@@ -1012,7 +1012,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       name: 'create_course',
       arguments: { title: 'Buggy Course' },
     });
-    const course = JSON.parse(crRes.content[0].text);
+    const course = JSON.parse((crRes.content[0] as { text: string }).text);
 
     await unrestrictedClient.callTool({
       name: 'update_course_metadata',
@@ -1034,12 +1034,12 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       name: 'create_module',
       arguments: { course_id: course.id, title: 'Mod 1' },
     });
-    const mod = JSON.parse(mRes.content[0].text);
+    const mod = JSON.parse((mRes.content[0] as { text: string }).text);
     const lRes = await unrestrictedClient.callTool({
       name: 'create_lesson',
       arguments: { course_id: course.id, module_id: mod.id, title: 'Les 1', description: 'Les 1 desc' },
     });
-    const les = JSON.parse(lRes.content[0].text);
+    const les = JSON.parse((lRes.content[0] as { text: string }).text);
 
     // Exercise with failing reference solution
     await unrestrictedClient.callTool({
@@ -1071,7 +1071,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
       },
     });
     assert.strictEqual(pubFailRes.isError, true);
-    assert.ok(pubFailRes.content[0]?.text?.includes('Course validation failed'));
+    assert.ok((pubFailRes.content[0] as { text?: string } | undefined)?.text?.includes('Course validation failed'));
   });
 
   await t.test('MCP-12: OAuth-only client setup states limitation with no false compatibility, and author activity/recovery validation', async () => {
@@ -1127,6 +1127,7 @@ test('MCP End-to-End and Adversarial Verification (MCP-01 through MCP-12, T068)'
         createdAt: new Date().toISOString(),
         expiresAt: new Date(Date.now() + 86400000).toISOString(),
         lastUsedAt: null,
+        status: 'never_used',
       },
       selectedClient: 'oauth_client',
     });

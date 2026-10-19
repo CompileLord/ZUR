@@ -221,7 +221,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
         <ul class="issues-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
           ${warnings
             .map((w) => {
-              const jumpUrl = getStepEditorUrl(opts.courseId, w.stepId, opts.stepTypeMap);
+              const jumpUrl = w.stepId ? getStepEditorUrl(opts.courseId, w.stepId, opts.stepTypeMap) : '';
               const jumpLink = w.stepId
                 ? `<a href="${jumpUrl}" class="jump-link" style="margin-left: 0.5rem; text-decoration: underline;">Edit step →</a>`
                 : '';

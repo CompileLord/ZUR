@@ -216,8 +216,8 @@ test('Course Authoring, Structure & Autosave (T029-T031, T038)', async (t) => {
       },
       (err: any) => {
         assert.ok(err instanceof StaleRevisionError);
-        assert.equal(err.details.currentRevision, 2);
-        assert.ok(err.details.serverContent.markdown.includes('A function that calls itself.'));
+        assert.equal(err.details?.currentRevision, 2);
+        assert.ok((err.details?.serverContent as { markdown: string }).markdown.includes('A function that calls itself.'));
         return true;
       }
     );

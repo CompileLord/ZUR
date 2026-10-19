@@ -12,7 +12,7 @@ import type { McpTool, McpToolResult } from '../types.ts';
 
 export function createAgentActivityTools(): McpTool[] {
   const activityListSchema = {
-    type: 'object',
+    type: 'object' as const,
     properties: {
       course_id: { type: 'string', description: 'Course ID' },
       page: { type: 'integer', description: 'Page number (default: 1)' },

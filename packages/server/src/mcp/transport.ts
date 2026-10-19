@@ -132,7 +132,7 @@ export class McpHttpTransport {
           return {
             content: [{ type: 'text', text: scopeErr.message || `Scope ${tool.requiredScope} is required` }],
             isError: true,
-          };
+          } as never;
         }
       }
 
@@ -142,7 +142,8 @@ export class McpHttpTransport {
       }
 
       try {
-        return await this.mcpServer.dispatchTool(toolName, toolArgs, token);
+        // McpToolResult is structurally the SDK CallToolResult; the SDK's union typing is stricter than our local type.
+        return (await this.mcpServer.dispatchTool(toolName, toolArgs, token)) as never;
       } finally {
         this.mcpServer.getRateLimiter().releaseConcurrency(token.authorId);
       }
@@ -190,7 +191,7 @@ export class McpHttpTransport {
           inputSchema: t.inputSchema,
           annotations: t.annotations,
         })),
-      };
+      } as never;
     });
 
     server.setRequestHandler('tools/call', async (request: any) => {
@@ -209,7 +210,7 @@ export class McpHttpTransport {
           return {
             content: [{ type: 'text', text: scopeErr.message || `Scope ${tool.requiredScope} is required` }],
             isError: true,
-          };
+          } as never;
         }
       }
 
@@ -219,7 +220,8 @@ export class McpHttpTransport {
       }
 
       try {
-        return await this.mcpServer.dispatchTool(toolName, toolArgs, token);
+        // McpToolResult is structurally the SDK CallToolResult; the SDK's union typing is stricter than our local type.
+        return (await this.mcpServer.dispatchTool(toolName, toolArgs, token)) as never;
       } finally {
         this.mcpServer.getRateLimiter().releaseConcurrency(token.authorId);
       }

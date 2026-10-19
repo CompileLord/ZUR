@@ -16,7 +16,7 @@ test('F01: Publication receipt renders accurately without scope error', () => {
     draftRevision: 2,
     newVersionNumber: 1,
     activeEnrolledStudents: 0,
-    validation: { isValid: true, errors: [], warnings: [] },
+    validation: { isValid: true, draftRevision: 1, errors: [], warnings: [] },
     receipt: {
       versionId: 'ver-123',
       versionNumber: 1,
@@ -46,9 +46,11 @@ test('U01: Python workspace results banner includes active run mode badge', () =
     currentCode: 'print(1)',
     resultMode: 'samples',
     currentResult: {
+      jobId: 'job-1',
+      isInfrastructureFailure: false,
       verdict: 'PASSED',
       executionTimeMs: 42,
-      testResults: [{ position: 0, passed: true, input: '1', expectedOutput: '1', actualOutput: '1' }],
+      testResults: [{ position: 0, passed: true, verdict: 'PASSED', input: '1', expectedOutput: '1', actualOutput: '1' }],
     },
   });
   assert.ok(samplesHtml.includes('Test samples'));
@@ -69,9 +71,11 @@ test('U01: Python workspace results banner includes active run mode badge', () =
     currentCode: 'print(1)',
     resultMode: 'submit',
     currentResult: {
+      jobId: 'job-1',
+      isInfrastructureFailure: false,
       verdict: 'PASSED',
       executionTimeMs: 50,
-      testResults: [{ position: 0, passed: true, input: '1', expectedOutput: '1', actualOutput: '1' }],
+      testResults: [{ position: 0, passed: true, verdict: 'PASSED', input: '1', expectedOutput: '1', actualOutput: '1' }],
     },
   });
   assert.ok(submitHtml.includes('Submit (Graded)'));
@@ -127,6 +131,7 @@ test('U03: Course publish page connects blockers to actual step editor routes an
     stepTypeMap: { 'step-err-99': 'python' },
     validation: {
       isValid: false,
+      draftRevision: 1,
       errors: [
         {
           stepId: 'step-err-99',
@@ -154,6 +159,7 @@ test('U03: Course publish page connects blockers to actual step editor routes an
     activeEnrolledStudents: 0,
     validation: {
       isValid: false,
+      draftRevision: 1,
       errors: [
         {
           stepId: 'step-err-99',

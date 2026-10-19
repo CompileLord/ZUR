@@ -13,7 +13,7 @@ const noInjectedImage = (html: string) => {
 };
 
 test('S2 author and learning renderers escape untrusted course and step text', () => {
-  const user = { displayName: attack, email: 'author@example.test', capabilities: ['student', 'author'] };
+  const user = { displayName: attack, email: 'author@example.test', capabilities: ['student', 'author'] as Array<'student' | 'author' | 'admin'> };
   noInjectedImage(renderAuthorCoursesPage({ user, courses: [{ id: 'course-1', title: attack, publicationStatus: 'draft', hasUnpublishedChanges: true, studentCount: 0, lastEditTime: new Date().toISOString() }] }));
   noInjectedImage(renderCourseBuilderPage({ courseId: 'course-1', courseTitle: attack, publicationState: 'draft', hasUnpublishedChanges: true, modules: [{ id: 'm1', courseId: 'course-1', title: attack, position: 0, lessons: [{ id: 'l1', moduleId: 'm1', title: attack, position: 0, steps: [{ id: 's1', lessonId: 'l1', title: attack, type: 'theory', position: 0, isRequired: true, estimatedDurationMinutes: 5 }] }] }] }));
   noInjectedImage(renderTheoryEditorPage({ courseId: 'course-1', courseTitle: attack, publicationState: 'draft', hasUnpublishedChanges: true, stepId: 's1', stepTitle: attack, markdown: '</textarea><img src=x onerror=alert(1)>', revision: 1, isRequired: true, estimatedDurationMinutes: 5 }));

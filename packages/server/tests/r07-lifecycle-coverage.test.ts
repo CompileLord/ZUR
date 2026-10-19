@@ -203,7 +203,6 @@ test('R07: Local email verification and password reset token lifecycle', () => {
       displayName: 'New Learner',
       email: 'newlearner@zur.test',
       password: 'SecurePassword123!',
-      adultConfirmed: true,
     });
     assert.ok(signUpResult.user.id);
     assert.equal(signUpResult.user.emailVerified, false);

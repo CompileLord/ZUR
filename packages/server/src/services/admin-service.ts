@@ -13,7 +13,7 @@ export class AdminService {
     this.operationalMetrics = operationalMetrics;
   }
 
-  private requireAdmin(adminId: string): void {
+  requireAdmin(adminId: string): void {
     const row = this.db.prepare('SELECT capabilities, account_status FROM users WHERE id = ?').get(adminId) as any;
     if (!row || row.account_status !== 'active' || !(JSON.parse(row.capabilities || '[]') as string[]).includes('admin')) {
       throw new NotFoundError("This page isn't available.");
@@ -267,7 +267,7 @@ export class AdminService {
     const usage=(this.db.prepare('SELECT COUNT(*) count FROM courses WHERE category_id=?').get(id) as any).count;
     if(usage && !replacementId) throw new ConflictError('This category is in use. Choose a replacement category first.');
     if(replacementId){ if(replacementId===id||!this.db.prepare('SELECT id FROM categories WHERE id=?').get(replacementId)) throw new ValidationError('Choose another existing category.'); }
-    this.transaction(()=>{ if(usage) this.db.prepare('UPDATE courses SET category_id=?,updated_at=? WHERE category_id=?').run(replacementId,new Date().toISOString(),id); this.db.prepare('DELETE FROM categories WHERE id=?').run(id); this.audit(adminId,'category:remove','category',id,reason,{usage,replacementId:replacementId||null}); });
+    this.transaction(()=>{ if(usage) this.db.prepare('UPDATE courses SET category_id=?,updated_at=? WHERE category_id=?').run(replacementId ?? null,new Date().toISOString(),id); this.db.prepare('DELETE FROM categories WHERE id=?').run(id); this.audit(adminId,'category:remove','category',id,reason,{usage,replacementId:replacementId||null}); });
     return {success:true,reassigned:usage};
   }
 

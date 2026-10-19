@@ -223,12 +223,13 @@ export function renderYourCoursesSection(opts: MyCoursesPageOptions): string {
   let dialogHtml = '';
   if (opts.leaveCourseDialogFor) {
     dialogHtml = renderDialog({
-      isOpen: true,
+      id: 'home-leave-course-dialog',
       title: 'Leave course?',
-      description: `Are you sure you want to leave "${opts.leaveCourseDialogFor.courseTitle}"? Your progress and completed steps will be saved, but this course will no longer appear on your Home page.`,
-      confirmText: 'Leave course',
-      cancelText: 'Cancel',
+      bodyHtml: `<p>Are you sure you want to leave "${opts.leaveCourseDialogFor.courseTitle}"? Your progress and completed steps will be saved, but this course will no longer appear on your Home page.</p>`,
+      confirmLabel: 'Leave course',
+      cancelLabel: 'Cancel',
       isDestructive: true,
+      variant: 'confirm',
     });
   }
 

@@ -162,6 +162,7 @@ export class AuthorizationService {
       if (value.assetId === assetId || value.asset_id === assetId) return true;
       return Object.values(value).some(references);
     };
+    if (!user.userId) return false;
     const enrollment = this.db.prepare(`
       SELECT id FROM enrollments
       WHERE user_id = ? AND course_id = ? AND pinned_version_id = ? AND status = 'active'

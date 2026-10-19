@@ -686,7 +686,7 @@ export class IdentityService {
     this.verifyCurrentPassword(userId, currentPassword);
   }
 
-  requestDataExport(userId: string, currentPassword?: string): { requestId: string; exportPayload: any } {
+  requestDataExport(userId: string, currentPassword?: string): { requestId: string; exportPayload: any; downloadUrl: string; expiresAt: string } {
     this.requirePrivacyReauth(userId, currentPassword);
     const userRow = this.db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
     if (!userRow) {

@@ -23,7 +23,7 @@ export class DraftConflictError extends ConflictError {
   override toJSON() {
     return {
       error: {
-        code: 'STALE_REVISION',
+        code: 'STALE_REVISION' as const,
         message: this.message,
         currentRevision: this.currentRevision,
         serverCode: this.serverCode,
@@ -175,6 +175,7 @@ export class DraftService {
       WHERE user_id = ? AND enrollment_id = ? AND step_id = ?
     `).get(userId, enrollmentId, stepId) as {
       id: string;
+      code: string;
       revision: number;
     } | undefined;
 

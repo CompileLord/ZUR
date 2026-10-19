@@ -509,7 +509,7 @@ async function executeBatchOperationsCore(params: {
             const maxPos = (
               db.prepare('SELECT MAX(position) as mp FROM modules WHERE course_id = ?').get(courseId) as any
             )?.mp;
-            pos = maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0;
+            pos = (maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0) as number;
           }
 
           db.prepare(
@@ -560,7 +560,7 @@ async function executeBatchOperationsCore(params: {
             const maxPos = (
               db.prepare('SELECT MAX(position) as mp FROM lessons WHERE module_id = ?').get(moduleId) as any
             )?.mp;
-            pos = maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0;
+            pos = (maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0) as number;
           }
 
           db.prepare(
@@ -598,7 +598,7 @@ async function executeBatchOperationsCore(params: {
         case 'create_step': {
           const lessonId = resolveId(op.lesson_id || (op as any).parent_temp_id);
           const title = (op.title || '').trim();
-          const stepType = (op as any).step_type || (op.op ? op.type : undefined) || (op.type !== 'create_step' ? op.type : 'theory');
+          const stepType = (op as any).step_type || (op.op ? op.type : undefined) || ((op.type as string) !== 'create_step' ? op.type : 'theory');
 
           if (!lessonId) throw new ValidationError(`Operation #${i + 1} (create_step): lesson_id is required`);
           if (!title) throw new ValidationError(`Operation #${i + 1} (create_step): title is required`);
@@ -619,7 +619,7 @@ async function executeBatchOperationsCore(params: {
             const maxPos = (
               db.prepare('SELECT MAX(position) as mp FROM steps WHERE lesson_id = ?').get(lessonId) as any
             )?.mp;
-            pos = maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0;
+            pos = (maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0) as number;
           }
 
           const isRequired = op.is_required !== undefined ? (op.is_required ? 1 : 0) : 1;
@@ -940,7 +940,7 @@ export function validateBatchOperationsAndHierarchy(
         const title = (op.title || '').trim();
         if (!title) throw new ValidationError(`Operation #${i + 1} (create_step): title is required`);
 
-        const stepType = (op as any).step_type || (op.op ? op.type : undefined) || (op.type !== 'create_step' ? op.type : 'theory');
+        const stepType = (op as any).step_type || (op.op ? op.type : undefined) || ((op.type as string) !== 'create_step' ? op.type : 'theory');
         if (!['theory', 'quiz', 'python', 'video'].includes(stepType)) {
           throw new ValidationError(`Operation #${i + 1} (create_step): unsupported step type "${stepType}"`);
         }
@@ -949,7 +949,7 @@ export function validateBatchOperationsAndHierarchy(
         let currentCount = lessonStepCounts.get(lessonId);
         if (currentCount === undefined) {
           const row = db.prepare('SELECT COUNT(*) as cnt FROM steps WHERE lesson_id = ?').get(lessonId) as any;
-          currentCount = row ? row.cnt : 0;
+          currentCount = (row ? row.cnt : 0) as number;
         }
         currentCount++;
         if (currentCount > 20) {
@@ -1011,7 +1011,7 @@ export function validateBatchOperationsAndHierarchy(
             let currentCount = lessonStepCounts.get(lid);
             if (currentCount === undefined) {
               const row = db.prepare('SELECT COUNT(*) as cnt FROM steps WHERE lesson_id = ?').get(lid) as any;
-              currentCount = row ? row.cnt : 0;
+              currentCount = (row ? row.cnt : 0) as number;
             }
             lessonStepCounts.set(lid, Math.max(0, currentCount - 1));
           }

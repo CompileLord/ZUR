@@ -31,7 +31,7 @@ test('Accepted student jobs grade and record the immutable pinned assessment aft
   service.completeJob(job.id, 'snapshot-worker', result);
   const completed = service.getJob(job.id, 'user-student-1');
   assert.equal(completed.result?.verdict, 'PASSED');
-  const attempt = db.prepare('SELECT course_version_id FROM assessment_attempts WHERE id = ?').get(completed.result?.attemptId) as any;
+  const attempt = db.prepare('SELECT course_version_id FROM assessment_attempts WHERE id = ?').get(completed.result?.attemptId ?? null) as any;
   assert.equal(attempt.course_version_id, 'version-2-snapshot');
 });
 
@@ -172,7 +172,7 @@ else:
     assert.ok(result.attemptId, 'Attempt ID must be assigned on submit');
 
     // Authoritative attempt record
-    const attempt = db.prepare(`SELECT * FROM assessment_attempts WHERE id = ?`).get(result.attemptId) as any;
+    const attempt = db.prepare(`SELECT * FROM assessment_attempts WHERE id = ?`).get(result.attemptId ?? null) as any;
     assert.strictEqual(attempt.verdict, 'PASSED');
     assert.strictEqual(attempt.attempt_number, 1);
     assert.strictEqual(attempt.is_infrastructure_failure, 0);
@@ -197,7 +197,7 @@ else:
     assert.strictEqual(result.verdict, 'WRONG_ANSWER');
 
     // Attempt 2 recorded with WRONG_ANSWER
-    const attempt2 = db.prepare(`SELECT * FROM assessment_attempts WHERE id = ?`).get(result.attemptId) as any;
+    const attempt2 = db.prepare(`SELECT * FROM assessment_attempts WHERE id = ?`).get(result.attemptId ?? null) as any;
     assert.strictEqual(attempt2.attempt_number, 2);
     assert.strictEqual(attempt2.verdict, 'WRONG_ANSWER');
 

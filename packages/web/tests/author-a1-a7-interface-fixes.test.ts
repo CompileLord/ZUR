@@ -388,7 +388,7 @@ test('A6: Quiet clean save headers and uncluttered publication review', () => {
     currentVersionNumber: 1,
     newVersionNumber: 2,
     activeEnrolledStudents: 10,
-    validation: { isValid: true, errors: [], warnings: [] },
+    validation: { isValid: true, draftRevision: 1, errors: [], warnings: [] },
     saveStatus: 'saved',
   });
 
@@ -420,11 +420,13 @@ test('A6: Quiet clean save headers and uncluttered publication review', () => {
     activeEnrolledStudents: 10,
     validation: {
       isValid: false,
+      draftRevision: 1,
       errors: [
         {
           stepId: 'step-py-1',
           field: 'starterCode',
           message: 'Starter code is required',
+          blocking: true,
         },
       ],
       warnings: [],
@@ -450,7 +452,6 @@ test('A7: McpClientSetupDialog removes internal PRD references, provides keyboar
   const setupHtml = renderMcpClientSetupPage({
     token: {
       id: 'tok-1',
-      authorId: 'user-author-1',
       tokenIdentifier: 'zur_tok_test_ident',
       label: 'Cursor Agent Connection',
       scopes: ['courses:read', 'content:write'],
@@ -458,6 +459,8 @@ test('A7: McpClientSetupDialog removes internal PRD references, provides keyboar
       isRevoked: false,
       lastUsedAt: null,
       createdAt: '2026-10-01T10:00:00Z',
+      expiresAt: '2027-10-01T10:00:00Z',
+      status: 'never_used',
     },
     endpointUrl: 'http://localhost:3000/api/mcp',
     selectedClient: 'official_sdk',

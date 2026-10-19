@@ -268,7 +268,7 @@ export class ExecutionService {
       try {
         const rawResult = JSON.parse(row.result_payload);
         if (job.jobType === 'submit') {
-          result = redactFullExecutionResultForStudent(rawResult);
+          result = redactFullExecutionResultForStudent(rawResult) as ExecutionResult;
         } else {
           result = rawResult;
         }

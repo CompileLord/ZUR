@@ -646,7 +646,7 @@ export interface CourseAnalyticsResponse {
     ratePercent: number | null;
     count?: number;
     total?: number;
-    percentage?: number;
+    percentage?: number | null;
   };
   averageProgressPercent: number | null;
   exercises: ExerciseInsightItem[];

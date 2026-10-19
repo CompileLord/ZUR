@@ -186,7 +186,7 @@ export class CourseStructureService {
       const maxPos = (
         this.db.prepare('SELECT MAX(position) as mp FROM modules WHERE course_id = ?').get(courseId) as any
       )?.mp;
-      pos = maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0;
+      pos = (maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0) as number;
     }
 
     const moduleId = crypto.randomUUID();
@@ -304,7 +304,7 @@ export class CourseStructureService {
       const maxPos = (
         this.db.prepare('SELECT MAX(position) as mp FROM lessons WHERE module_id = ?').get(moduleId) as any
       )?.mp;
-      pos = maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0;
+      pos = (maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0) as number;
     }
 
     const lessonId = crypto.randomUUID();
@@ -448,7 +448,7 @@ export class CourseStructureService {
       const maxPos = (
         this.db.prepare('SELECT MAX(position) as mp FROM steps WHERE lesson_id = ?').get(lessonId) as any
       )?.mp;
-      pos = maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0;
+      pos = (maxPos !== null && maxPos !== undefined ? maxPos + 1 : 0) as number;
     }
 
     const stepId = crypto.randomUUID();

@@ -320,7 +320,7 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
 
   // 4. Update Sidebar active item, links, and progress by stable lesson ID
   if (opts.modules && opts.modules.length > 0) {
-    const lessonDataMap = new Map<string, { href: string; isCurrent: boolean; completedCount: number; totalCount: number }>();
+    const lessonDataMap = new Map<string, { href: string; isCurrent?: boolean; completedCount: number; totalCount: number }>();
     for (const mod of opts.modules) {
       for (const les of mod.lessons || []) {
         lessonDataMap.set(les.id, les);

@@ -590,7 +590,7 @@ export function createServer(
       const adminMediaPreview=pathname.match(/^\/api\/admin\/media\/([a-zA-Z0-9_-]+)\/preview$/);
       if(method==='POST'&&adminMediaPreview){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);adminService.authorizeMediaPreview(user.id,adminMediaPreview[1],body.reason);const file=mediaService.getAdminPreviewFile(user.id,adminMediaPreview[1]);res.writeHead(200,{'Content-Type':file.mimeType,'Content-Length':file.buffer.length,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(file.buffer);return;}
       const adminMediaReview=pathname.match(/^\/api\/admin\/media\/([a-zA-Z0-9_-]+)\/(quarantine|restore)$/);
-      if(method==='POST'&&adminMediaReview){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.reviewMedia(user.id,adminMediaReview[1],adminMediaReview[2],body.reason));return;}
+      if(method==='POST'&&adminMediaReview){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const reviewAction=adminMediaReview[2];if(reviewAction!=='restore'&&reviewAction!=='quarantine')throw new ValidationError('Action must be restore or quarantine.');const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.reviewMedia(user.id,adminMediaReview[1],reviewAction,body.reason));return;}
       const adminMediaDelete=pathname.match(/^\/api\/admin\/media\/([a-zA-Z0-9_-]+)$/);
       if(method==='DELETE'&&adminMediaDelete){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);sendJson(res,200,adminService.deleteMedia(user.id,adminMediaDelete[1],body.reason));return;}
       if(method==='GET'&&pathname==='/api/admin/audit'){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const page=adminPage('limit','offset');sendJson(res,200,adminService.listAudit(user.id,{actorId:url.searchParams.get('actorId')||undefined,action:url.searchParams.get('action')||undefined,targetType:url.searchParams.get('targetType')||undefined,targetId:url.searchParams.get('targetId')||undefined,reason:url.searchParams.get('reason')||undefined,correlationId:url.searchParams.get('correlationId')||undefined,from:url.searchParams.get('from')||undefined,to:url.searchParams.get('to')||undefined,...page}));return;}
@@ -2196,7 +2196,7 @@ export function createServer(
       } else if (err instanceof ZURError) {
         sendJson(res, err.statusCode, err.toJSON());
       } else {
-        console.error(JSON.stringify({ level: 'error', event: 'http.unhandled', requestId, err: err.stack }));
+        console.error(JSON.stringify({ level: 'error', event: 'http.unhandled', requestId, err: err instanceof Error ? err.stack : String(err) }));
         sendJson(res, 500, {
           error: {
             code: 'INFRASTRUCTURE_ERROR',

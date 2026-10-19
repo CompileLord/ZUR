@@ -318,6 +318,7 @@ test('ProductAnalyticsService: privacy-safe telemetry (T076)', async (t) => {
       },
     });
 
+    assert.ok(evt);
     assert.ok(evt.id);
     assert.notEqual(evt.pseudonymousUserId, rawUserId, 'User ID must be pseudonymously hashed');
     assert.match(evt.pseudonymousUserId, /^[a-f0-9]{32}$/, 'Pseudonymous ID must be keyed digest');
