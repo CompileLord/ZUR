@@ -1,0 +1,51 @@
+name: Deploy
+
+# Manual, gated deploy to a single host over SSH (see docs/DEPLOYMENT.md).
+# Requires repository secrets DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY and an
+# environment named "production" with required reviewers.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref (tag or sha) to deploy'
+        required: true
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ inputs.ref }}' }
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - name: Install SSH key
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+      - name: Upload release and switch
+        run: |
+          rel="/srv/zur/releases/${{ github.sha }}"
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "mkdir -p $rel"
+          rsync -az --delete --exclude node_modules --exclude .git ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:$rel/
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "cd $rel && npm ci --omit=dev && /srv/zur/deploy/backup.sh && ln -sfn $rel /srv/zur/current && sudo systemctl restart zur-server zur-worker"
+      - name: Health check, roll back on failure
+        run: |
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '/srv/zur/current/deploy/healthcheck.sh' || {
+            echo "Health check failed; rolling back"
+            ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} 'prev=$(ls -1dt /srv/zur/releases/* | sed -n 2p) && ln -sfn $prev /srv/zur/current && sudo systemctl restart zur-server zur-worker'
+            exit 1
+          }

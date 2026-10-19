@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, feature/stage-s1-phase-a]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION_FILE: .nvmrc
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      # Two suites read locally captured screenshots/tasks.json that are not
+      # tracked in git, so they are excluded here and kept for local runs.
+      - name: Unit and integration tests
+        run: |
+          files=$(ls packages/*/tests/*.test.ts | grep -v -e audit-rules-s0 -e desktop-visual-evidence)
+          node --experimental-strip-types --test $files
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - name: CSP inline-script hash matches built page
+        run: node deploy/csp-hash.mjs --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: packages/web/dist
+          retention-days: 7
+
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
+
+  boot-smoke:
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - name: Boot server in production mode and probe health
+        env:
+          NODE_ENV: production
+          PORT: '3901'
+          DATABASE_URL: ${{ runner.temp }}/data/zur.sqlite
+          DELETION_REGISTRY_PATH: ${{ runner.temp }}/tombstones/deletions.jsonl
+          APP_BASE_URL: https://zur.example.test
+          POSTMARK_SERVER_TOKEN: ci-placeholder
+          EMAIL_FROM: noreply@zur.example.test
+          MCP_ALLOWED_HOSTS: zur.example.test
+          ZUR_TRUST_PROXY: '1'
+        run: |
+          mkdir -p "${{ runner.temp }}/data" "${{ runner.temp }}/tombstones"
+          touch "$DELETION_REGISTRY_PATH"
+          npm run start:server > "${{ runner.temp }}/server.log" 2>&1 &
+          pid=$!
+          for i in $(seq 1 30); do
+            curl -fsS localhost:3901/readyz && ok=1 && break
+            sleep 1
+          done
+          curl -fsS localhost:3901/healthz
+          kill -TERM $pid; wait $pid
+          cat "${{ runner.temp }}/server.log"
+          test "${ok:-0}" = 1
