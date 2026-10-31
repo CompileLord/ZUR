@@ -146,9 +146,9 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
           <h3 class="exercise-group-title text-sm font-semibold m-0">${escapeHtml(grp.title)}</h3>
         </div>
         <div class="exercise-actions flex items-center gap-2">
-          <a href="${grp.testEditorUrl}" class="btn btn-secondary btn-compact text-xs font-medium" id="edit-tests-${grp.stepId}">
+          ${grp.stepType === 'python' ? `<a href="${grp.testEditorUrl}" class="btn btn-secondary btn-compact text-xs font-medium" id="edit-tests-${grp.stepId}">
             Edit tests →
-          </a>
+          </a>` : ''}
           <a href="${grp.baseEditorUrl}" class="jump-link text-xs text-secondary" style="text-decoration: underline;">
             Edit step →
           </a>
@@ -193,7 +193,7 @@ export function renderCoursePublishPage(opts: CoursePublishPageOptions): string 
             <h2 class="section-title text-danger m-0" style="font-size: 1.125rem;">
               Blocking issues (${errors.length})
             </h2>
-            <span class="text-secondary text-xs mt-0.5 block">${exerciseGroups.length} ${exerciseGroups.length === 1 ? 'exercise needs' : 'exercises need'} review</span>
+            <span class="text-secondary text-xs mt-0.5 block">${exerciseGroups.length} ${exerciseGroups.length === 1 ? 'item needs' : 'items need'} review</span>
           </div>
           <a href="/teach/${encodeURIComponent(opts.courseId)}/publish" class="btn btn-secondary btn-compact text-xs" id="retry-validation-btn" data-action="retry-validation" data-route-retry>Retry validation</a>
         </div>

@@ -220,7 +220,7 @@ export async function pageAcceptanceTests(t: TestContext, f: AuthorRedesignFixtu
     assert.ok(publishHtml.includes("Validation couldn't run"), 'Classified infrastructure failure');
     assert.ok(publishHtml.includes('Retry validation'), 'Offers retry action for service failure');
     assert.ok(publishHtml.includes('Diagnostic details'), 'Diagnostic details disclosure present');
-    assert.ok(publishHtml.includes('1 exercise needs review'), 'Exercise review summary count');
+    assert.ok(publishHtml.includes('1 item needs review'), 'Review summary count');
   });
 
   await t.test('AuthorCoursesPage: compact rows, Draft changes badge, Open button', () => {

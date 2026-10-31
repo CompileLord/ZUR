@@ -20,8 +20,8 @@ export function renderCourseBuilderInspector(opts: CourseBuilderPageOptions, sel
           <div class="inspector-section mb-4">
             <span class="field-label text-xs text-secondary">Module Scope</span>
             <ul class="text-sm text-secondary mt-1" style="list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 0.25rem;">
-              <li><strong>${currentMod.lessons.length}</strong> lessons</li>
-              <li><strong>${modStepCount}</strong> steps</li>
+              <li><strong>${currentMod.lessons.length}</strong> ${currentMod.lessons.length === 1 ? 'lesson' : 'lessons'}</li>
+              <li><strong>${modStepCount}</strong> ${modStepCount === 1 ? 'step' : 'steps'}</li>
               <li><strong>~${modDuration}</strong> minutes</li>
             </ul>
           </div>

@@ -110,7 +110,7 @@ export async function auditRequirementTests(t: TestContext, _f: AuthorRedesignFi
     assert.ok(publishHtml.includes('Echoing Numbers'), 'Renders Echoing Numbers group card');
     assert.ok(publishHtml.includes('Check Even or Odd'), 'Renders Check Even or Odd group card');
     assert.ok(publishHtml.includes('Sum of Numbers'), 'Renders Sum of Numbers group card');
-    assert.ok(publishHtml.includes('3 exercises need review'), 'Summary correctly states 3 exercises');
+    assert.ok(publishHtml.includes('3 items need review'), 'Summary correctly states 3 items');
     assert.ok(publishHtml.includes('?tab=tests'), 'Exact Edit tests link targeting ?tab=tests');
     assert.ok(publishHtml.includes('id="retry-validation-btn"'), 'Retry validation button wired');
   });
