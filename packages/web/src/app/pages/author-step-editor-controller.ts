@@ -6,6 +6,7 @@ import { hydrateDeferredAssets } from '../lesson-media.ts';
 import { renderApp, navigateTo } from '../navigation.ts';
 import { attachTheoryAssetModal, attachCheckReferenceSolution } from './author-step-editor-extras.ts';
 import { appEl } from '../state.ts';
+import { renderSaveConflict } from '../../pages/author/SaveConflict.ts';
 
 export async function loadStepEditorPage(path: string, params: Record<string, string>, courseId: string, course: any, tree: any): Promise<void> {
   const step = tree.modules.flatMap((m: any) => m.lessons.flatMap((l: any) => l.steps)).find((s: any) => s.id === params.stepId);
@@ -111,9 +112,20 @@ export function attachAuthorStepSave(step: any, detail: any, c: any): void {
         }
       }
       const isConflict = err?.status === 409 || err?.statusCode === 409 || err?.code === 'CONFLICT' || err?.message?.toLowerCase().includes('conflict');
-      banner.textContent = isConflict
-        ? `Version conflict: another update was saved. ${err.message || 'Please reload the latest draft to compare changes.'}`
-        : `Save failed: ${err.message || 'Service temporarily unavailable. Click Retry save to try again.'}`;
+      if (isConflict) {
+        banner.innerHTML = renderSaveConflict();
+        banner.querySelector('[data-conflict-action="reload"]')?.addEventListener('click', () => {
+          authorShell.classList.remove('is-dirty');
+          renderApp();
+        });
+        banner.querySelector('[data-conflict-action="overwrite"]')?.addEventListener('click', async () => {
+          const latest = await s2Request(`/api/author/steps/${step.id}/content`);
+          detail.revision = latest.revision;
+          await saveAuthorStep();
+        });
+      } else {
+        banner.textContent = `Save failed: ${err.message || 'Service temporarily unavailable. Click Retry save to try again.'}`;
+      }
       return false;
     }
     finally { saveButton.disabled = false; }
