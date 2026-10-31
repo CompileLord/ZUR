@@ -118,18 +118,18 @@ export function renderSecuritySettingsPage(opts: SecuritySettingsPageOptions): s
             : ''
         }
 
-        <!-- Section 3: Active Sessions and Revocation -->
+        <!-- Section 3: Sign out everywhere -->
         <section class="settings-section" aria-labelledby="section-sessions-title">
           <div class="settings-section-header">
-            <h3 id="section-sessions-title" class="settings-section-title">Session management</h3>
-            <p class="settings-section-desc">Manage devices where your account is currently signed in.</p>
+            <h3 id="section-sessions-title" class="settings-section-title">Signed-in devices</h3>
+            <p class="settings-section-desc">Lost a device or used a shared computer? Sign out everywhere.</p>
           </div>
 
           <div class="settings-section-content">
             <div class="settings-danger-row">
               <div class="settings-row-text">
-                <div class="settings-row-title">All active sessions</div>
-                <div class="settings-row-desc">Terminates browser sessions on all devices including this one.</div>
+                <div class="settings-row-title">Every device, including this one</div>
+                <div class="settings-row-desc">You will need to sign in again on each device.</div>
               </div>
               ${renderButton({
                 id: 'btn-sign-out-all',

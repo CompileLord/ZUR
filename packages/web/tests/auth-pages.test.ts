@@ -155,6 +155,7 @@ test('Identity and Account Client Pages (S1-M01, P04-P08, P17-P20, P42)', async 
     assert.ok(html.includes('name="newPassword"'), 'Collects new password');
     assert.ok(html.includes('Sign out of all devices'), 'Provides global session revocation');
     assert.ok(html.includes('id="sign-out-all-modal"'), 'Contains accessible confirmation dialog');
+    assert.ok(!/manage devices|active sessions/i.test(html), 'Promises no device list it does not show');
   });
 
   await t.test('P20: Privacy settings renders data export, sole-owner blocker, and consequence modal', () => {
