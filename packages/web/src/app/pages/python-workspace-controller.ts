@@ -15,7 +15,7 @@ import { showRouteLoading, showRouteFailure } from '../route-loading.ts';
 import { appEl, app, authClient } from '../state.ts';
 import { initTheme } from '../theme.ts';
 
-export async function loadPythonWorkspace(enrollmentId: string, stepId: string, requestedPath: string): Promise<void> {
+export async function loadPythonWorkspace(enrollmentId: string, stepId: string, requestedPath: string, prefetched?: any): Promise<void> {
   const isCurrent = () => window.location.pathname + window.location.search === requestedPath;
   const isShellMounted = Boolean(appEl.querySelector('.shell-learning') && document.getElementById('course-sidebar') && appEl.querySelector('.learning-workspace-main'));
   if (!isShellMounted) {
@@ -37,7 +37,7 @@ export async function loadPythonWorkspace(enrollmentId: string, stepId: string, 
   }
   try {
     const [stepData, contentData, accountData] = await Promise.all([
-      authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`),
+      prefetched ?? authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`),
       authClient.fetchApi(`/api/learn/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}/content`),
       authClient.fetchApi('/api/auth/me'),
     ]);

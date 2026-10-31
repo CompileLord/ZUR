@@ -51,9 +51,9 @@ export async function loadEnrolledStep(enrollmentId: string, stepId: string, req
     const data = await authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`);
     if (window.location.pathname + window.location.search !== requestedPath) return;
     if (data.step?.type === 'theory' || data.step?.type === 'video') {
-      void loadLessonStep(enrollmentId, stepId, data.step.type, requestedPath);
+      void loadLessonStep(enrollmentId, stepId, data.step.type, requestedPath, data);
     } else if (data.step?.type === 'python') {
-      void loadPythonWorkspace(enrollmentId, stepId, requestedPath);
+      void loadPythonWorkspace(enrollmentId, stepId, requestedPath, data);
     } else if (data.step?.type === 'quiz') {
       renderEnrolledQuiz(data, enrollmentId, stepId, requestedPath);
     } else {

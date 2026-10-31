@@ -16,7 +16,7 @@ import { showRouteLoading, showRouteFailure } from '../route-loading.ts';
 import { appEl, app, authClient } from '../state.ts';
 import { initTheme } from '../theme.ts';
 
-export async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theory' | 'video', requestedPath: string): Promise<void> {
+export async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theory' | 'video', requestedPath: string, prefetched?: any): Promise<void> {
   const isCurrent = () => window.location.pathname + window.location.search === requestedPath;
   const isShellMounted = Boolean(appEl.querySelector('.shell-learning') && document.getElementById('course-sidebar') && appEl.querySelector('.learning-workspace-main'));
   if (!isShellMounted) {
@@ -37,7 +37,7 @@ export async function loadLessonStep(enrollmentId: string, stepId: string, kind:
     }
   }
   try {
-    const data = await authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`);
+    const data = prefetched ?? await authClient.fetchApi(`/api/enrollments/${encodeURIComponent(enrollmentId)}/steps/${encodeURIComponent(stepId)}`);
     if (!isCurrent()) return;
     if (data.step?.type !== kind) {
       appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
