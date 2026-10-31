@@ -202,12 +202,15 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
           <section id="saving" class="help-section" aria-labelledby="heading-saving">
             <h2 id="heading-saving" class="section-title text-base font-semibold mb-2">My code didn't save</h2>
             <p class="text-secondary text-sm leading-relaxed mb-3">
-              ZUR features quiet autosave, saving your work automatically in the background as you write without distracting routine status badges. The workspace alerts you only when attention is required.
+              Code in a Python exercise saves automatically a moment after you stop typing. The status beside the editor shows Saved, Saving… or Unsaved edits.
             </p>
             <details class="help-disclosure">
               <summary class="help-disclosure-summary">Save errors, conflict notices, and draft recovery</summary>
               <p class="help-disclosure-body">
-                If network connectivity drops or a save error occurs, your unsaved edits are preserved as a local draft in your browser and synchronized upon reconnection. If concurrent edits from another session or tab are detected, a conflict notice allows you to review changes and choose which version to retain.
+                If a save fails, for example because your connection dropped, your latest code is kept in this browser and restored the next time you open the exercise. If you changed the same exercise in another tab, the editor shows a draft conflict and lets you choose which version to keep.
+              </p>
+              <p class="help-disclosure-body">
+                Course authors save step edits with Save changes. If the step was saved elsewhere first, you can load that version or keep your own.
               </p>
             </details>
           </section>
