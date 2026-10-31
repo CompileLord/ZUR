@@ -2,40 +2,15 @@
 
 /* ---- Landing: rhythm ---- */
 .landing-page .zur-hero { padding: 40px 0 24px; }
-.landing-page .zur-hero .hero-headline { min-height: 0; margin-bottom: 14px; white-space: normal; }
+.landing-page .zur-hero .hero-headline { min-height: 2.2em; margin-bottom: 14px; white-space: normal; }
 .landing-page .zur-hero .hero-description { margin-bottom: 20px; }
 .landing-page .zur-hero .hero-actions { margin-bottom: 20px; }
 .landing-page .zur-hero .hero-grid { gap: 40px; }
 @media (min-width: 1024px) {
   .landing-page .zur-hero .hero-grid { grid-template-columns: 0.9fr 1.3fr; }
 }
-.landing-page .zur-hero .hero-workspace-split { min-height: 340px; }
-.landing-page .zur-hero .hero-code-editor { font-size: 13.5px; }
-.landing-page .zur-hero .hero-workspace-problem { padding: 20px; }
-.landing-page .zur-hero .hero-workspace-code { padding: 20px; }
-.landing-page .zur-hero .hero-workspace-card { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18); }
-.landing-page .zur-hero .hero-output-panel { font-size: 12.5px; }
 
 /* topic shortcuts */
-.landing-page .zur-hero .hero-topics { margin-top: 4px; }
-.landing-page .zur-hero .hero-shortcuts { margin-top: 0; }
-.landing-page .zur-hero .hero-shortcuts-label {
-  flex-basis: 100%;
-  margin: 0 0 2px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-.landing-page .zur-hero .hero-pill {
-  border-style: dashed;
-  border-color: var(--border-control);
-  background: transparent;
-}
-.landing-page .zur-hero .hero-pill-arrow { display: inline-flex; color: var(--text-muted); }
-.landing-page .zur-hero .hero-pill:hover .hero-pill-arrow { color: var(--accent); }
-.landing-page .zur-hero .hero-pill[aria-pressed='true'] .hero-pill-arrow { display: none; }
-.landing-page .zur-hero .hero-feedback { min-height: 0; margin-top: 8px; }
-.landing-page .zur-hero .hero-feedback-empty { display: none; }
 
 /* ---- Landing: Read / Try / Check ---- */
 .landing-steps { padding: 40px 0 48px; border-top: 1px solid var(--border-subtle); }

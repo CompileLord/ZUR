@@ -96,211 +96,12 @@
 }
 .zur-hero .hero-secondary:hover { color: var(--text-primary); }
 
-/* Optional small catalog topic shortcuts */
-.zur-hero .hero-shortcuts {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-.zur-hero .hero-shortcuts-label {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-right: 4px;
-}
-.zur-hero .hero-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  min-height: 32px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  background: var(--bg-surface);
-  color: var(--text-secondary);
-  font-size: 13px;
-  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
-}
-.zur-hero .hero-pill:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-  border-color: var(--border-control);
-}
-.zur-hero .hero-pill[aria-pressed='true'] {
-  color: var(--on-accent);
-  background: var(--accent);
-  border-color: var(--accent);
-}
-.zur-hero .hero-pill-check { display: inline-flex; }
-
-.zur-hero .hero-feedback {
-  min-height: 48px;
-  margin-top: 12px;
-  max-width: 500px;
-}
-.zur-hero .hero-feedback-empty {
-  color: var(--text-muted);
-  font-size: 12px;
-  font-style: italic;
-  margin: 0;
-}
-.zur-hero .hero-feedback-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 10px 14px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  font-size: 12px;
-}
-.zur-hero .hero-feedback-banner a {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  color: var(--link);
-  font-weight: 500;
-}
-
-.zur-hero .hero-workspace-column {
-  min-width: 0;
-  max-width: 100%;
-}
-.zur-hero .hero-workspace-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+.zur-hero .hero-stage {
   position: relative;
-  max-width: 100%;
+  min-height: 300px;
+  display: flex; align-items: flex-end; justify-content: flex-end;
 }
-.zur-hero .hero-workspace-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 10px 16px;
-  background: var(--bg-raised);
-  border-bottom: 1px solid var(--border-subtle);
-  font-size: 12px;
-}
-.zur-hero .hero-workspace-tabs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-.zur-hero .hero-tab-pill {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-primary);
-  font-weight: 500;
-  white-space: nowrap;
-}
-.zur-hero .hero-save-badge {
-  font-size: 11px;
-  color: var(--success);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.zur-hero .hero-workspace-tools {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.zur-hero .hero-exec-badge {
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.zur-hero .hero-exec-run {
-  background: var(--bg-hover);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-control);
-}
-.zur-hero .hero-exec-test {
-  background: var(--bg-surface);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-subtle);
-}
-.zur-hero .hero-exec-submit {
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
-.zur-hero .hero-workspace-split {
-  display: grid;
-  grid-template-columns: 1fr;
-  min-height: 280px;
-}
-@media (min-width: 640px) {
-  .zur-hero .hero-workspace-split {
-    grid-template-columns: 1fr 1.3fr;
-  }
-}
-.zur-hero .hero-workspace-problem {
-  padding: 16px;
-  border-bottom: 1px solid var(--border-subtle);
-  background: var(--bg-canvas);
-}
-@media (min-width: 640px) {
-  .zur-hero .hero-workspace-problem {
-    border-bottom: none;
-    border-right: 1px solid var(--border-subtle);
-  }
-}
-.zur-hero .hero-workspace-code {
-  padding: 16px;
-  background: var(--bg-surface);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.zur-hero .hero-code-editor {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--text-primary);
-  overflow-x: auto;
-}
-.zur-hero .hero-output-panel {
-  margin-top: 12px;
-  padding: 10px 12px;
-  background: var(--bg-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  font-size: 11px;
-}
-
-/* Subtle motion figure container with pause control */
-.zur-hero .hero-figure-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px;
-  background: var(--bg-canvas);
-  border-top: 1px solid var(--border-subtle);
-  font-size: 11px;
-  color: var(--text-muted);
-}
-.zur-hero .hero-video-frame {
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  position: absolute;
-  visibility: hidden;
-}
+@media (min-width: 1024px) { .zur-hero .hero-stage { min-height: 520px; } }
 .zur-hero .hero-motion-control {
   display: inline-flex;
   align-items: center;
@@ -334,3 +135,98 @@
   .zur-hero .animate-blink { animation: none; }
   .zur-hero *, .zur-hero *::before, .zur-hero *::after { transition-duration: 0s !important; scroll-behavior: auto !important; }
 }
+
+/* WebGL backdrop */
+.zur-hero { position: relative; }
+.zur-hero .hero-scene { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.zur-hero .hero-scene-canvas {
+  width: 100%; height: 100%; display: block;
+  opacity: 0; transition: opacity 1.2s ease;
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+.zur-hero .hero-scene-canvas.is-ready { opacity: 1; }
+.zur-hero .hero-scene-glow {
+  position: absolute; inset: -20%;
+  background: radial-gradient(40% 50% at 72% 45%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%);
+  filter: blur(40px);
+  animation: hero-glow 9s ease-in-out infinite alternate;
+}
+@keyframes hero-glow { to { transform: translate3d(-6%, 4%, 0) scale(1.1); } }
+.zur-hero .hero-container { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .zur-hero .hero-scene-glow { animation: none; }
+}
+.zur-hero .hero-stage .hero-motion-control {
+  backdrop-filter: blur(10px);
+  background: color-mix(in oklab, var(--bg-canvas) 60%, transparent);
+}
+
+/* Page-wide 3D layer behind the sections below the hero */
+.landing-page { position: relative; }
+.landing-page > .landing-ambient {
+  position: fixed; inset: 0; width: 100vw; height: 100vh;
+  z-index: 0; pointer-events: none; opacity: 0;
+}
+.landing-page > section, .landing-page > .zur-hero { position: relative; z-index: 1; }
+
+/* Glass cards with pointer tilt and a following sheen */
+.landing-page [data-tilt] {
+  --tilt-x: 0deg; --tilt-y: 0deg; --sheen-x: 50%; --sheen-y: 50%;
+  position: relative;
+  transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform .5s cubic-bezier(.2, 0, 0, 1), box-shadow .4s ease, border-color .4s ease;
+  background: color-mix(in oklab, var(--bg-surface) 72%, transparent);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  will-change: transform;
+}
+.landing-page [data-tilt][data-tilt-active] {
+  transition: transform .08s linear, box-shadow .4s ease, border-color .4s ease;
+  border-color: color-mix(in oklab, var(--accent) 45%, var(--border-subtle));
+  box-shadow: 0 24px 60px -28px color-mix(in oklab, var(--accent) 55%, transparent);
+}
+.landing-page [data-tilt]::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(420px circle at var(--sheen-x) var(--sheen-y), color-mix(in oklab, var(--accent) 16%, transparent), transparent 45%);
+  opacity: 0; transition: opacity .4s ease;
+}
+.landing-page [data-tilt][data-tilt-active]::after { opacity: 1; }
+
+/* Step visuals: gentle float, staggered per card */
+.landing-page .landing-step-visual svg { animation: landing-float 5s ease-in-out infinite; }
+.landing-page .landing-step-card:nth-child(2) .landing-step-visual svg { animation-delay: -1.6s; }
+.landing-page .landing-step-card:nth-child(3) .landing-step-visual svg { animation-delay: -3.2s; }
+@keyframes landing-float { 50% { transform: translateY(-5px) rotate(-.6deg); } }
+
+/* Teaching step numbers pulse in sequence */
+.landing-page .teaching-step-num { position: relative; }
+.landing-page .teaching-step-num::before {
+  content: ''; position: absolute; inset: -6px; border-radius: 999px;
+  border: 1px solid var(--accent); opacity: 0;
+  animation: landing-ping 4.8s ease-out infinite;
+}
+.landing-page .teaching-step:nth-child(2) .teaching-step-num::before { animation-delay: 1.2s; }
+.landing-page .teaching-step:nth-child(3) .teaching-step-num::before { animation-delay: 2.4s; }
+.landing-page .teaching-step:nth-child(4) .teaching-step-num::before { animation-delay: 3.6s; }
+@keyframes landing-ping { 0% { opacity: .8; transform: scale(.6); } 30%, 100% { opacity: 0; transform: scale(1.5); } }
+
+/* Final CTA: slow sweeping glow */
+.landing-page .landing-final-cta { position: relative; overflow: hidden; border-radius: var(--radius-lg); padding: 24px; }
+.landing-page .landing-final-cta::before {
+  content: ''; position: absolute; inset: -50%; z-index: -1;
+  background: conic-gradient(from 0deg, transparent, color-mix(in oklab, var(--accent) 18%, transparent), transparent 40%);
+  animation: landing-spin 10s linear infinite;
+}
+@keyframes landing-spin { to { transform: rotate(1turn); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-page > .landing-ambient { display: none; }
+  .landing-page [data-tilt] { transform: none; }
+  .landing-page .landing-step-visual svg, .landing-page .teaching-step-num::before, .landing-page .landing-final-cta::before { animation: none; }
+}
+
+/* Headline typing overlay: the sizer reserves the finished layout, the typed copy sits on top of it */
+.zur-hero .hero-headline { position: relative; }
+.landing-page .zur-hero .hero-headline { min-height: 0; }
+.zur-hero .hero-headline-sizer { visibility: hidden; display: block; }
+.zur-hero .hero-headline-typed { position: absolute; inset: 0; white-space: pre-line; }

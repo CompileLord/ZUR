@@ -41,7 +41,7 @@ test('Public Landing Page P01 (T069)', async (t) => {
 
   await t.test('adapts primary CTA dynamically based on authentication state', () => {
     const signedOutHtml = renderLandingPage({ isSignedIn: false });
-    assert.ok(signedOutHtml.includes('Explore courses'));
+    assert.ok(signedOutHtml.includes('Browse Python courses'));
     assert.ok(signedOutHtml.includes('href="/courses"'));
 
     const signedInHtml = renderLandingPage({ isSignedIn: true });
@@ -327,6 +327,16 @@ test('Course Overview Page P03 (T071)', async (t) => {
     assert.ok(!html.includes('sys.stdin'));
     assert.ok(!html.includes('test_cases'));
     assert.ok(!html.includes('answer_key'));
+  });
+
+  await t.test('escapes author-controlled module and lesson titles (stored XSS regression)', () => {
+    const payload = '<img src=x onerror="alert(1)">';
+    const data = structuredClone(sampleOverviewData) as any;
+    data.syllabus[0].title = `Module 1: ${payload}`;
+    data.syllabus[0].lessons[0].title = payload;
+    const html = renderCourseOverviewPage({ data, currentUser: null });
+    assert.ok(!html.includes('<img src=x'), 'raw markup must not reach the DOM');
+    assert.ok(html.includes('&lt;img src=x'));
   });
 
   await t.test('shows Sign in to enroll CTA when user is not signed in', () => {

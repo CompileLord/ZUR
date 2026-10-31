@@ -187,7 +187,7 @@ export function renderCourseOverviewPage(props: CourseOverviewPageProps): string
   // Metadata items: show compact author/language metadata once
   const metaParts = [
     course.authorName ? `<span>Teacher: ${escapeHtml(course.authorName)}</span>` : null,
-    course.language ? `<span>Language: ${escapeHtml(course.language.toUpperCase())}</span>` : null,
+    course.language ? `<span>Language: ${escapeHtml(languageName(course.language))}</span>` : null,
   ].filter(Boolean).join(' · ');
 
   // Learning Outcomes
@@ -398,8 +398,13 @@ function getStepIcon(type: string): IconName {
   }
 }
 
+/** Returns HTML-escaped text: titles are author-controlled. */
 function withoutOrdinal(title: string, kind: 'Module' | 'Lesson'): string {
-  return title.replace(new RegExp(`^${kind}\\s+\\d+\\s*:\\s*`, 'i'), '');
+  return escapeHtml(title.replace(new RegExp(`^${kind}\\s+\\d+\\s*:\\s*`, 'i'), ''));
+}
+
+function languageName(code: string): string {
+  try { return new Intl.DisplayNames(['en'], { type: 'language' }).of(code) || code; } catch { return code; }
 }
 
 function escapeHtml(str: string): string {
