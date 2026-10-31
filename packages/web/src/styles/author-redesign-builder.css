@@ -8,9 +8,9 @@
   top: 0;
   z-index: 20;
 }
-.shell-author .author-header { border-bottom: 0; height: 52px; min-height: 52px; }
+.shell-author .author-header { border-bottom: 0; }
+@media (min-width: 901px) { .shell-author .author-header { height: 52px; min-height: 52px; } .shell-author .author-tabs-bar { height: 40px; } }
 .shell-author .author-tabs-bar {
-  height: 40px;
   min-height: 40px;
   border-bottom: 0;
   padding: 0 1.5rem;

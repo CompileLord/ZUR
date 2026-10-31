@@ -116,33 +116,6 @@
     overflow-x: hidden;
   }
 
-  .author-header {
-    height: auto;
-    min-height: var(--header-height);
-    padding: var(--space-3) var(--page-gutter);
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    align-items: flex-start;
-  }
-
-  .author-header-left {
-    flex-wrap: wrap;
-    min-width: 0;
-    width: 100%;
-  }
-
-  .author-course-title {
-    min-width: 0;
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-
-  .author-header-right {
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
   .author-header-right .btn {
     min-height: 44px;
   }
@@ -151,6 +124,15 @@
     overflow-x: auto;
     scrollbar-width: thin;
   }
+
+  .shell-author .author-tabs-bar {
+    height: auto;
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+    padding: var(--space-2) var(--page-gutter);
+  }
+
+  .shell-author .author-tabs-bar .tabs-aside-link { flex-basis: 100%; }
 
   .author-tabs-bar .tab-link {
     flex-shrink: 0;
@@ -182,3 +164,22 @@
   }
 }
 
+
+.author-desktop-guidance { display: none; }
+
+/* design.md: below 1024px full authoring shows desktop guidance; Students and Analytics stay usable. */
+@media (max-width: 1023px) {
+  .author-workspace-main.has-tree > :not(.author-desktop-guidance) { display: none; }
+  .author-desktop-guidance {
+    display: block;
+    max-width: 560px;
+    margin: var(--space-6) var(--page-gutter);
+    padding: var(--space-4);
+    background-color: var(--info-bg);
+    color: var(--info);
+    border-radius: var(--radius-md);
+    align-self: flex-start;
+  }
+  .author-desktop-guidance p + p { margin-top: var(--space-2); }
+  .author-desktop-guidance a { color: inherit; text-decoration: underline; }
+}

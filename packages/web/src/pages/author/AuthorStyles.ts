@@ -13,8 +13,6 @@ export const authorStyles = `
 }
 
 .author-header {
-  height: 56px;
-  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -66,8 +64,6 @@ export const authorStyles = `
 }
 
 .author-tabs-bar {
-  height: 44px;
-  min-height: 44px;
   background-color: var(--bg-surface, #161b22);
   border-bottom: 1px solid var(--border-subtle, #30363d);
   display: flex;

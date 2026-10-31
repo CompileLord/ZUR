@@ -78,6 +78,12 @@ export function renderAuthorWorkspaceShell(opts: AuthorWorkspaceShellOptions): s
 
       <main id="main-content" class="author-workspace-main ${isContentTab ? 'has-tree' : 'full-pane'}" role="main">
         ${isContentTab ? `
+          <div class="author-desktop-guidance" role="note">
+            <p>Editing course content needs a screen at least 1024 pixels wide. Open this course on a desktop or laptop to write and arrange steps.</p>
+            <p><a href="/teach/${opts.courseId}/students">Students</a> and <a href="/teach/${opts.courseId}/analytics">Analytics</a> work on this screen.</p>
+          </div>
+        ` : ''}
+        ${isContentTab ? `
           <aside class="author-tree-pane" id="author-tree-pane" role="region" aria-label="Course Structure" data-course-id="${opts.courseId}" data-step-id="${opts.selectedId || ''}">
             ${treeHtml || '<div class="p-3 text-xs text-secondary">Course structure not loaded</div>'}
           </aside>
