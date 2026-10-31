@@ -5,8 +5,8 @@ export function escapeAdmin(value: unknown): string {
   return String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]!));
 }
 
-export const formField = (name: string, label: string, type = 'text', required = true) =>
-  `<label class="form-group"><span class="form-label">${escapeAdmin(label)}</span><input class="form-input" name="${escapeAdmin(name)}" type="${type}" ${required ? 'required' : ''}></label>`;
+export const formField = (name: string, label: string, type = 'text', required = true, value = '') =>
+  `<label class="form-group"><span class="form-label">${escapeAdmin(label)}</span><input class="form-input" name="${escapeAdmin(name)}" type="${type}"${value ? ` value="${escapeAdmin(value)}"` : ''} ${required ? 'required' : ''}></label>`;
 
 export interface ActionDialogOptions {
   id: string;

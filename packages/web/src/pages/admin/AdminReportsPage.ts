@@ -68,6 +68,11 @@ export function renderAdminReportDetailContent(data: any): string {
         <div class="admin-detail-layout">
           <div class="admin-detail-main">
             <div class="admin-section-card mb-4">
+              <dl class="admin-context-list mb-4">
+                <div><dt>Reporter</dt><dd>${escapeAdmin(data.reporterName)}</dd></div>
+                <div><dt>Submitted</dt><dd><time datetime="${escapeAdmin(data.createdAt)}" title="${escapeAdmin(data.createdAt)}">${escapeAdmin(formatDate(data.createdAt))}</time></dd></div>
+                <div><dt>Outcome</dt><dd>${data.resolutionOutcome ? escapeAdmin(data.resolutionOutcome) : '<span class="text-muted">Not recorded</span>'}</dd></div>
+              </dl>
               <h2 class="section-title">Report description</h2>
               <p class="text-sm leading-relaxed">${escapeAdmin(data.description)}</p>
             </div>
@@ -96,7 +101,7 @@ export function renderAdminReportDetailContent(data: any): string {
                   <option value="resolved" ${data.status === 'resolved' ? 'selected' : ''}>Resolved</option>
                 </select>
               </label>
-              ${formField('outcome', 'Resolution outcome', 'text', false)}
+              ${formField('outcome', 'Resolution outcome', 'text', false, data.resolutionOutcome || '')}
               <label class="form-group">
                 <span class="form-label">Internal notes</span>
                 <textarea class="form-input form-textarea" name="internalNotes">${escapeAdmin(data.internalNotes || '')}</textarea>
