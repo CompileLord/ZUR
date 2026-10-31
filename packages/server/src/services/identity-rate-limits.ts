@@ -2,51 +2,28 @@ import crypto from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 import { RateLimitError } from 'zur-shared';
 
-/** Hard cap on distinct in-memory limiter keys; the oldest are evicted first. */
-export const MAX_RATE_LIMIT_KEYS = 10_000;
 /** Hard cap on durable limiter rows (oldest evicted). */
 export const MAX_DURABLE_RATE_LIMIT_ROWS = 100_000;
 const DURABLE_RETENTION_MS = 24 * 60 * 60 * 1000;
 
-interface RateLimitRecord {
-  attempts: number;
-  lastAttemptAt: number;
-}
-
-/** Lowest layer of IdentityService: the database handle plus in-memory and durable rate limiting. */
+/** Lowest layer of IdentityService: the database handle plus durable rate limiting. */
 export class IdentityRateLimits {
   protected db: DatabaseSync;
-  private rateLimitMap = new Map<string, RateLimitRecord>();
 
   constructor(db: DatabaseSync) {
     this.db = db;
   }
 
-  /** Number of distinct in-memory limiter keys (observability / tests). */
-  get inMemoryRateLimitKeyCount(): number { return this.rateLimitMap.size; }
-
   /**
-   * Drops expired in-memory limiter records and old durable rows, then enforces the hard key caps.
+   * Drops old durable limiter rows, then enforces the hard row cap.
    * Never throws (a busy/closed DB must not kill the process from a timer).
    */
-  pruneRateLimits(now: number = Date.now(), windowMs: number = 15 * 60 * 1000): void {
-    for (const [key, record] of this.rateLimitMap) {
-      if (now - record.lastAttemptAt > windowMs) this.rateLimitMap.delete(key);
-    }
-    this.enforceMemoryCap();
+  pruneRateLimits(now: number = Date.now()): void {
     try {
       this.db.prepare('DELETE FROM auth_request_limits WHERE last_attempt_at < ?').run(now - DURABLE_RETENTION_MS);
       this.enforceDurableCap();
     } catch (error) {
       console.error('[identity] rate-limit prune failed:', error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  private enforceMemoryCap(): void {
-    while (this.rateLimitMap.size > MAX_RATE_LIMIT_KEYS) {
-      const oldest = this.rateLimitMap.keys().next().value;
-      if (oldest === undefined) break;
-      this.rateLimitMap.delete(oldest);
     }
   }
 
@@ -93,39 +70,6 @@ export class IdentityRateLimits {
   /** Forgets recorded failures for a key (called after a successful authentication). */
   clearFailures(scope: string, key: string): void {
     this.db.prepare('DELETE FROM auth_request_limits WHERE key_hash=?').run(this.limiterHash(scope, key));
-  }
-
-  protected checkRateLimit(key: string, maxAttempts: number = 5, windowMs: number = 15 * 60 * 1000): void {
-    const now = Date.now();
-    const record = this.rateLimitMap.get(key);
-
-    if (!record) return;
-
-    if (now - record.lastAttemptAt > windowMs) {
-      this.rateLimitMap.delete(key);
-      return;
-    }
-
-    if (record.attempts >= maxAttempts) {
-      const retryAfterSeconds = Math.ceil((windowMs - (now - record.lastAttemptAt)) / 1000);
-      throw new RateLimitError('Too many attempts. Please try again later.', retryAfterSeconds);
-    }
-  }
-
-  protected recordRateLimitFailure(key: string): void {
-    const now = Date.now();
-    const record = this.rateLimitMap.get(key);
-    if (!record) {
-      this.rateLimitMap.set(key, { attempts: 1, lastAttemptAt: now });
-      this.enforceMemoryCap();
-    } else {
-      record.attempts += 1;
-      record.lastAttemptAt = now;
-    }
-  }
-
-  protected clearRateLimit(key: string): void {
-    this.rateLimitMap.delete(key);
   }
 
   /** Durable admission limit shared by API processes using the same database. */

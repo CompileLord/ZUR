@@ -5,7 +5,7 @@ import { getDatabase } from '../src/db/database.ts';
 import { runMigrations } from '../src/db/migrate.ts';
 import { seedDatabase } from '../src/db/seed.ts';
 import { demoSeedBlockedReason } from '../src/db/demo-guard.ts';
-import { IdentityService, MAX_RATE_LIMIT_KEYS } from '../src/services/identity-service.ts';
+import { IdentityService } from '../src/services/identity-service.ts';
 import { AdminService } from '../src/services/admin-service.ts';
 import { CourseService, clearVersionCountsCache, versionCountsCacheSize, VERSION_COUNTS_CACHE_MAX, computeSnapshotCounts } from '../src/services/course-service.ts';
 import { ExecutionService, startStuckJobRecovery } from '../src/services/execution-service.ts';
@@ -89,15 +89,11 @@ test('sign-in limiter counts failures only (item 1)', async (t) => {
     for (let i = 0; i < 5; i++) assert.throws(() => signIn('nobody@zur.internal', 'x', '192.0.2.2'), AuthenticationError);
     assert.throws(() => signIn('nobody@zur.internal', 'x', '192.0.2.2'), RateLimitError);
   });
-  await t.test('pruning: expired durable rows removed, in-memory map capped, timer unref\'d', () => {
+  await t.test('pruning: expired durable rows removed, timer unref\'d', () => {
     const old = Date.now() - 48 * 3600 * 1000;
     db.prepare(`INSERT INTO auth_request_limits (key_hash,attempts,window_started_at,last_attempt_at) VALUES ('stale',3,?,?)`).run(old, old);
     identity.pruneRateLimits();
     assert.equal(db.prepare("SELECT COUNT(*) c FROM auth_request_limits WHERE key_hash='stale'").get()!.c, 0);
-    // drive the in-memory limiter past the cap through the admin re-auth path
-    const admin = userId('margaret@zur.internal');
-    for (let i = 0; i < 3; i++) assert.throws(() => identity.verifyCurrentPassword(admin, 'bad'), ValidationError);
-    assert.ok(identity.inMemoryRateLimitKeyCount <= MAX_RATE_LIMIT_KEYS);
     identity.dispose();
   });
 });

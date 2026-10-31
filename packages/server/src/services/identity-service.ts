@@ -7,7 +7,7 @@ import { IdentityAccountData } from './identity-account-data.ts';
 
 const RATE_LIMIT_SWEEP_MS = 5 * 60 * 1000;
 
-export { MAX_RATE_LIMIT_KEYS, MAX_DURABLE_RATE_LIMIT_ROWS } from './identity-rate-limits.ts';
+export { MAX_DURABLE_RATE_LIMIT_ROWS } from './identity-rate-limits.ts';
 
 export class IdentityService extends IdentityAccountData {
   private sweeper: NodeJS.Timeout | null = null;
@@ -175,12 +175,11 @@ export class IdentityService extends IdentityAccountData {
 
     const ip = data.ipAddress || 'unknown';
     const windowMs = 15 * 60 * 1000;
-    // Per-IP admission limit counts every attempt (bounds a single source).
-    this.consumeRequestRateLimit('sign-in-ip', ip, 60, windowMs);
-    // Per-email limits count FAILURES only, so a third party cannot lock a victim out by
-    // hammering with successful-looking traffic; a correct sign-in resets the counters.
-    // (email, ip) pair: strict. email alone: generous, protects against distributed guessing.
+    // All limits count FAILURES only: a classroom behind one IP signs in freely, and a third
+    // party cannot lock a victim out. A correct sign-in resets the per-email counters, never the IP's.
+    // (email, ip) pair: strict. email alone: distributed guessing. ip alone: spraying many emails.
     const pairKey = `${email}|${ip}`;
+    this.checkFailureLimit('sign-in-fail-ip', ip, 100, windowMs);
     this.checkFailureLimit('sign-in-fail-pair', pairKey, 5, windowMs);
     this.checkFailureLimit('sign-in-fail-email', email, 50, windowMs);
 
@@ -193,6 +192,7 @@ export class IdentityService extends IdentityAccountData {
       verifyAgainstDummy(password); // equalise timing with the real-user path
     }
     if (!user || !verifyPassword(password, user.password_hash)) {
+      this.recordFailure('sign-in-fail-ip', ip, windowMs);
       this.recordFailure('sign-in-fail-pair', pairKey, windowMs);
       this.recordFailure('sign-in-fail-email', email, windowMs);
       throw new AuthenticationError('Invalid email or password.');
@@ -405,12 +405,14 @@ export class IdentityService extends IdentityAccountData {
 
   verifyCurrentPassword(userId: string, password: string): boolean {
     if (!password) throw new ValidationError('Current password is required for this administrator action.');
-    this.consumeRequestRateLimit('admin-reauth', userId, 10, 15 * 60 * 1000);
-    const rateKey=`admin-reauth:${userId}`;
-    this.checkRateLimit(rateKey,5,15*60*1000);
+    const windowMs = 15 * 60 * 1000;
+    this.checkFailureLimit('admin-reauth-fail', userId, 5, windowMs);
     const user = this.db.prepare('SELECT password_hash FROM users WHERE id=?').get(userId) as { password_hash: string } | undefined;
-    if (!user || !verifyPassword(password, user.password_hash)) { this.recordRateLimitFailure(rateKey); throw new ValidationError('Password is incorrect.'); }
-    this.clearRateLimit(rateKey);
+    if (!user || !verifyPassword(password, user.password_hash)) {
+      this.recordFailure('admin-reauth-fail', userId, windowMs);
+      throw new ValidationError('Password is incorrect.');
+    }
+    this.clearFailures('admin-reauth-fail', userId);
     return true;
   }
 
