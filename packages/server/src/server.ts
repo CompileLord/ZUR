@@ -135,6 +135,11 @@ export function createServer(
     );
   }
 
+  // Token create/replace re-verify the account password; bound guessing from a stolen session.
+  function limitTokenPasswordChecks(userId: string): void {
+    identityService.consumeRequestRateLimit('token-reauth', userId, 10, 15 * 60 * 1000);
+  }
+
   function getSessionToken(req: http.IncomingMessage): string | null {
     const bearer = /^Bearer\s+(\S+)/i.exec(req.headers.authorization || '')?.[1];
     if (bearer) return bearer;
@@ -980,6 +985,7 @@ export function createServer(
         if (!token) throw new AuthenticationError();
         const { user } = identityService.authenticateSession(token);
         const body = await parseJsonBody(req);
+        limitTokenPasswordChecks(user.id);
         const result = mcpTokenService.createToken(user.id, body);
         sendJson(res, 201, result);
         return;
@@ -1000,6 +1006,7 @@ export function createServer(
         const { user } = identityService.authenticateSession(token);
         const tokenId = authorTokenReplaceMatch[1];
         const body = await parseJsonBody(req);
+        limitTokenPasswordChecks(user.id);
         const result = mcpTokenService.replaceToken(user.id, tokenId, body);
         sendJson(res, 201, result);
         return;
@@ -1851,50 +1858,6 @@ export function createServer(
         return;
       }
 
-      // 55. Create Invitation (T046)
-      const createInviteMatch = pathname.match(/^\/api\/author\/courses\/([a-zA-Z0-9_-]+)\/invitations$/);
-      if (method === 'POST' && createInviteMatch) {
-        if (!token) throw new AuthenticationError();
-        const { user } = identityService.authenticateSession(token);
-        const courseId = createInviteMatch[1];
-        const body = await parseJsonBody(req);
-        const result = invitationService.createInvitation(user.id, courseId, body);
-        sendJson(res, 201, result);
-        return;
-      }
-
-      // 56. List Invitations (T046)
-      if (method === 'GET' && createInviteMatch) {
-        if (!token) throw new AuthenticationError();
-        const { user } = identityService.authenticateSession(token);
-        const courseId = createInviteMatch[1];
-        const invitations = invitationService.listInvitations(user.id, courseId);
-        sendJson(res, 200, { invitations });
-        return;
-      }
-
-      // 57. Revoke Invitation (T046)
-      const revokeInviteMatch = pathname.match(/^\/api\/author\/invitations\/([a-zA-Z0-9_-]+)\/revoke$/);
-      if (method === 'POST' && revokeInviteMatch) {
-        if (!token) throw new AuthenticationError();
-        const { user } = identityService.authenticateSession(token);
-        const invitationId = revokeInviteMatch[1];
-        const result = invitationService.revokeInvitation(user.id, invitationId);
-        sendJson(res, 200, result);
-        return;
-      }
-
-      // 58. Resend / Regenerate Invitation (T046)
-      const resendInviteMatch = pathname.match(/^\/api\/author\/invitations\/([a-zA-Z0-9_-]+)\/resend$/);
-      if (method === 'POST' && resendInviteMatch) {
-        if (!token) throw new AuthenticationError();
-        const { user } = identityService.authenticateSession(token);
-        const invitationId = resendInviteMatch[1];
-        const result = invitationService.resendOrRegenerateInvitation(user.id, invitationId);
-        sendJson(res, 200, result);
-        return;
-      }
-
       // 59. Preview Invitation (T046)
       const previewInviteMatch = pathname.match(/^\/api\/invitations\/([a-zA-Z0-9_-]+)$/);
       if (method === 'GET' && previewInviteMatch) {
@@ -2140,10 +2103,10 @@ export function createServer(
 
         // Reuse the strict enrollment-state and pinned-snapshot authorization path
         // before exposing even step metadata/content to a learner.
-        const enrolledSnapshot = courseService.getEnrolledStepContent(user.id, enrollmentId, stepId);
         const progress = learningProgressService.getCourseProgress(user.id, enrollmentId);
         const stepMeta = progress.steps.find((s) => s.id === stepId);
         if (!stepMeta) throw authService.safeNotFound();
+        const enrolledSnapshot = courseService.getEnrolledStepContent(user.id, enrollmentId, stepId, { includeQuizAnswers: stepMeta.isCompleted });
 
         const stepIdx = progress.steps.findIndex((s) => s.id === stepId);
         const previousStepId = stepIdx > 0 ? progress.steps[stepIdx - 1].id : null;

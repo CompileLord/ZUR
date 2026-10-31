@@ -107,7 +107,7 @@ export class McpTokenService {
     }
 
     if (!options.password || !verifyPassword(options.password, user.password_hash)) {
-      throw new AuthenticationError('Invalid password.');
+      throw new ValidationError('Password is incorrect.');
     }
 
     if (user.account_status !== 'active') {
@@ -282,7 +282,7 @@ export class McpTokenService {
     }
 
     if (!options.password || !verifyPassword(options.password, user.password_hash)) {
-      throw new AuthenticationError('Invalid password.');
+      throw new ValidationError('Password is incorrect.');
     }
 
     if (user.account_status !== 'active') {

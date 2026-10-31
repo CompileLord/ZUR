@@ -74,7 +74,7 @@ test('MCP Token Lifecycle and Authorization (T053–T054)', async (t) => {
           scopes: ['courses:read'],
         });
       },
-      (err: any) => err instanceof AuthenticationError && err.message.includes('Invalid password')
+      (err: any) => err instanceof ValidationError && err.message === 'Password is incorrect.'
     );
   });
 
@@ -260,7 +260,7 @@ test('MCP Token Lifecycle and Authorization (T053–T054)', async (t) => {
           password: 'WrongPassword!',
         });
       },
-      (err: any) => err instanceof AuthenticationError && err.message.includes('Invalid password')
+      (err: any) => err instanceof ValidationError && err.message === 'Password is incorrect.'
     );
 
     // Cannot widen course restrictions on replacement

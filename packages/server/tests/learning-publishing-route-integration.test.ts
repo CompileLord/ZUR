@@ -38,6 +38,14 @@ test('Live P15 content and P27 review APIs accept seeded opaque IDs and preserve
   });
   assert.equal(pinnedQuiz.status, 200, 'enrolled student can read pinned quiz');
   assert.equal((await pinnedQuiz.json() as any).options[0].isCorrect, undefined);
+  const genericQuizContent = await fetch(`${origin}/api/learn/enr-ada/steps/step-3-quiz-single/content`, {
+    headers: { Authorization: `Bearer ${studentToken}` },
+  });
+  assert.equal(genericQuizContent.status, 200);
+  const genericQuizBody = await genericQuizContent.json() as any;
+  assert.ok(genericQuizBody.content.options.length > 0);
+  assert.ok(genericQuizBody.content.options.every((o: any) => o.isCorrect === undefined), 'generic content path must not leak the answer key');
+  assert.equal(genericQuizBody.content.explanation, undefined);
   const finishAcceptedJob = async (response: Response) => {
     assert.equal(response.status, 202);
     const accepted = await response.json() as any;

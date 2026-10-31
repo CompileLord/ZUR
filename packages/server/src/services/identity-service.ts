@@ -588,7 +588,7 @@ export class IdentityService {
     const rateKey=`admin-reauth:${userId}`;
     this.checkRateLimit(rateKey,5,15*60*1000);
     const user = this.db.prepare('SELECT password_hash FROM users WHERE id=?').get(userId) as { password_hash: string } | undefined;
-    if (!user || !verifyPassword(password, user.password_hash)) { this.recordRateLimitFailure(rateKey); throw new AuthenticationError('Reauthentication failed.'); }
+    if (!user || !verifyPassword(password, user.password_hash)) { this.recordRateLimitFailure(rateKey); throw new ValidationError('Password is incorrect.'); }
     this.clearRateLimit(rateKey);
     return true;
   }

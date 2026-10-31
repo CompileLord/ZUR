@@ -73,13 +73,13 @@ test('HTTP Admin Execution Pause/Resume Endpoint Regression (requireAdmin verifi
   });
   assert.strictEqual(authorResume.status, 404);
 
-  // 3. Admin request with incorrect password fails with 401
+  // 3. Admin request with incorrect password fails with 400 (form error; the session stays valid)
   const badPassPause = await fetch(`${baseUrl}/api/admin/execution/pause`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` },
     body: JSON.stringify({ reason: 'Emergency maintenance', currentPassword: 'WrongPassword!' }),
   });
-  assert.strictEqual(badPassPause.status, 401);
+  assert.strictEqual(badPassPause.status, 400);
 
   // 4. Admin request with missing reason fails with 400
   const noReasonPause = await fetch(`${baseUrl}/api/admin/execution/pause`, {

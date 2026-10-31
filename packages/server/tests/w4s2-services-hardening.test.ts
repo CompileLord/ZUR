@@ -96,7 +96,7 @@ test('sign-in limiter counts failures only (item 1)', async (t) => {
     assert.equal(db.prepare("SELECT COUNT(*) c FROM auth_request_limits WHERE key_hash='stale'").get()!.c, 0);
     // drive the in-memory limiter past the cap through the admin re-auth path
     const admin = userId('margaret@zur.internal');
-    for (let i = 0; i < 3; i++) assert.throws(() => identity.verifyCurrentPassword(admin, 'bad'), AuthenticationError);
+    for (let i = 0; i < 3; i++) assert.throws(() => identity.verifyCurrentPassword(admin, 'bad'), ValidationError);
     assert.ok(identity.inMemoryRateLimitKeyCount <= MAX_RATE_LIMIT_KEYS);
     identity.dispose();
   });
@@ -145,10 +145,10 @@ test('privacy re-auth is optional and env-gated (item 7)', async (t) => {
     process.env.ZUR_REQUIRE_REAUTH_FOR_PRIVACY = '1';
     try {
       assert.throws(() => identity.requestDataExport(id), ValidationError);
-      assert.throws(() => identity.requestDataExport(id, 'wrong'), AuthenticationError);
+      assert.throws(() => identity.requestDataExport(id, 'wrong'), ValidationError);
       assert.ok(identity.requestDataExport(id, 'StudentPass123!').requestId);
       assert.throws(() => identity.requestAccountDeletion(id, true), ValidationError);
-      assert.throws(() => identity.requestAccountDeletion(id, true, 'wrong'), AuthenticationError);
+      assert.throws(() => identity.requestAccountDeletion(id, true, 'wrong'), ValidationError);
       assert.equal(db.prepare('SELECT account_status s FROM users WHERE id=?').get(id)!.s, 'active');
       assert.equal(identity.requestAccountDeletion(id, true, 'StudentPass123!').success, true);
     } finally { delete process.env.ZUR_REQUIRE_REAUTH_FOR_PRIVACY; }

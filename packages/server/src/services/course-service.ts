@@ -544,21 +544,6 @@ export class CourseService {
     return this.getCourse(userId, courseId);
   }
 
-  deleteDraft(userId: string, courseId: string): { success: boolean } {
-    const course = this.getCourse(userId, courseId);
-
-    const versionsCount = (
-      this.db.prepare('SELECT COUNT(*) as cnt FROM course_versions WHERE course_id = ?').get(courseId) as any
-    )?.cnt;
-
-    if (versionsCount > 0 || course.currentVersionId || course.publicationStatus !== 'draft') {
-      throw new ConflictError('Cannot delete a published course. Use archive instead.');
-    }
-
-    this.db.prepare('DELETE FROM courses WHERE id = ?').run(courseId);
-    return { success: true };
-  }
-
   getCourseVersionSnapshot(versionId: string): CourseVersionSnapshot {
     const row = this.db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(versionId) as any;
     if (!row || !row.snapshot_data) {
@@ -655,7 +640,7 @@ export class CourseService {
     };
   }
 
-  getEnrolledStepContent(userId: string, enrollmentId: string, stepId: string): any {
+  getEnrolledStepContent(userId: string, enrollmentId: string, stepId: string, options: { includeQuizAnswers?: boolean } = {}): any {
     const enrollment = this.db
       .prepare('SELECT * FROM enrollments WHERE id = ?')
       .get(enrollmentId) as any;
@@ -710,6 +695,11 @@ export class CourseService {
             position: tc.position,
           }));
       }
+    }
+    // Answer keys never leave through this generic content path (PRD 11.2).
+    if (foundStep.type === 'quiz' && content && !options.includeQuizAnswers) {
+      content.options = (content.options || []).map((o: any) => ({ id: o.id, text: o.text }));
+      delete content.explanation;
     }
 
     return {
