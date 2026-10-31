@@ -4,6 +4,7 @@ import { DraftSaveQueue } from '../../services/draft-save-queue.ts';
 import { type PythonWorkspaceContext } from './python-workspace-context.ts';
 import { attachWorkspaceControls } from './python-workspace-controls.ts';
 import { attachWorkspaceSplitters, attachExecution } from './python-workspace-execution.ts';
+import { selectWorkspaceTab } from './python-workspace-tabs.ts';
 import { authClient, app } from '../state.ts';
 
 export async function savePythonDraft(code: string, baseRevision: number, enrollmentId: string, stepId: string): Promise<any> {
@@ -118,33 +119,7 @@ export function attachPythonWorkspaceListeners(
         : ctx.currentResult ? ctx.currentResult.verdict.toLowerCase().replace(/_/g, ' ') : '';
     }
   };
-  const selectTab = (tabName: 'results' | 'custom_input') => {
-    const existingInput = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
-    if (existingInput) ctx.customStdin = existingInput.value;
-    ctx.activeTab = tabName;
-    const modeSelect = document.getElementById('run-mode-select') as HTMLSelectElement | null;
-    if (modeSelect) modeSelect.value = tabName === 'custom_input' ? 'custom' : 'samples';
-    const runBtn = document.getElementById('run-code-btn');
-    if (runBtn) {
-      runBtn.title = tabName === 'custom_input'
-        ? `Run with custom input (${runShortcutText})`
-        : `Run samples (${runShortcutText})`;
-    }
-    document.querySelectorAll<HTMLButtonElement>('.results-tab-button[role="tab"]').forEach((tab) => {
-      const selected = tab.dataset.tab === tabName;
-      tab.classList.toggle('active', Boolean(selected));
-      tab.setAttribute('aria-selected', String(Boolean(selected)));
-    });
-    const body = document.querySelector('.results-body');
-    if (!body) return;
-    if (tabName === 'custom_input') {
-      body.innerHTML = '<div class="custom-input-box"><label for="custom-stdin-input" class="comparison-label">Input</label><textarea id="custom-stdin-input" placeholder="Input for your program (optional)" class="code-editor-input custom-stdin"></textarea></div>';
-      const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
-      if (input) { input.value = ctx.customStdin; input.focus(); }
-    } else {
-      setResults();
-    }
-  };
+  const selectTab = (tabName: 'results' | 'custom_input') => selectWorkspaceTab(ctx, tabName);
 
   const textarea = document.getElementById('code-editor-input') as HTMLTextAreaElement | null;
   if (textarea) {
