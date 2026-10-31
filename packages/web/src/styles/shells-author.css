@@ -1,0 +1,184 @@
+/* S5: Author Workspace Shell */
+.shell-author {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.author-header {
+  height: var(--header-height);
+  padding: 0 var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+  flex-shrink: 0;
+}
+
+.author-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.author-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.author-header-left .author-course-title {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.author-tabs-bar {
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+  flex-shrink: 0;
+}
+
+.author-workspace-main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.author-tree-pane {
+  width: var(--tree-width);
+  border-right: 1px solid var(--border-subtle);
+  background-color: var(--bg-navigation);
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.author-editor-pane {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+  min-width: 0;
+}
+
+.author-inspector-pane {
+  width: var(--inspector-width);
+  border-left: 1px solid var(--border-subtle);
+  background-color: var(--bg-navigation);
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* Responsive collapse order for Author Shell (design §5) */
+@media (max-width: 1199px) {
+  .author-inspector-pane {
+    display: none; /* Inspector becomes on-demand drawer */
+  }
+}
+
+@media (max-width: 900px) {
+  .author-header {
+    height: auto;
+    min-height: var(--header-height);
+    padding: var(--space-3) var(--page-gutter);
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+
+  .author-header-left {
+    flex-wrap: wrap;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .author-course-title {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .author-header-right {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 767px) {
+  .shell-author {
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .author-header {
+    height: auto;
+    min-height: var(--header-height);
+    padding: var(--space-3) var(--page-gutter);
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+
+  .author-header-left {
+    flex-wrap: wrap;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .author-course-title {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .author-header-right {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .author-header-right .btn {
+    min-height: 44px;
+  }
+
+  .author-tabs-bar .tabs-nav {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .author-tabs-bar .tab-link {
+    flex-shrink: 0;
+  }
+
+  .author-workspace-main {
+    display: block;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .author-editor-pane {
+    overflow: visible;
+    padding: var(--space-4) var(--page-gutter);
+  }
+}
+@media (max-width: 480px) {
+  .author-tabs-bar .tabs-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+  .author-tabs-bar .tab-link {
+    justify-content: center;
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+}
+

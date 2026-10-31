@@ -1,0 +1,212 @@
+/* ZUR Shells S1–S6 Layout Styles (design.md §5) */
+
+/* Wordmark Asset (design §4.3) */
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+}
+
+.wordmark-citron {
+  width: 4px;
+  height: 18px;
+  background-color: var(--accent);
+  border-radius: 2px;
+}
+
+/* S1: Public Shell */
+.shell-public {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.public-header {
+  height: var(--header-height);
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg-canvas);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.public-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--type-control-size);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--text-primary);
+}
+
+.public-main {
+  flex: 1;
+}
+
+.public-footer {
+  border-top: 1px solid var(--border-subtle);
+  padding: var(--space-8) 0;
+  background-color: var(--bg-navigation);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.footer-links {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.footer-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--type-control-size);
+}
+
+.footer-links a:hover {
+  color: var(--text-primary);
+}
+
+.footer-theme-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.footer-theme-label {
+  font-size: var(--type-metadata-size);
+  color: var(--text-muted);
+}
+
+.theme-segmented-control {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  gap: 2px;
+}
+
+.theme-segment-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px var(--space-2);
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--type-metadata-size);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.theme-segment-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.theme-segment-btn.active,
+.theme-segment-btn[aria-checked="true"] {
+  background-color: var(--bg-raised);
+  color: var(--text-primary);
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.theme-segment-btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+}
+
+/* S2: Account Shell */
+.shell-account {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--page-gutter);
+}
+
+.account-container {
+  width: 100%;
+  max-width: var(--max-width-auth);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.account-card {
+  width: 100%;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.account-title {
+  font-size: var(--type-section-title-size);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.account-subtitle {
+  font-size: var(--type-body-size);
+  color: var(--text-secondary);
+}
+
+.account-footer {
+  font-size: var(--type-metadata-size);
+  color: var(--text-muted);
+}
+
+.account-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.account-link:hover {
+  color: var(--link);
+  text-decoration: underline;
+}
+
