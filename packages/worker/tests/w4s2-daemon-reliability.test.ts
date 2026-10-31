@@ -14,13 +14,9 @@ import { ExecutionService } from '../../server/src/services/execution-service.ts
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const BIG_STDIN = 'x'.repeat(64 * 1024);
 
-// Only sandbox dirs holding this test's marker program (other suites share os.tmpdir()).
-function sandboxDirs(): string[] {
-  return fs.readdirSync(os.tmpdir()).filter((n) => {
-    if (!n.startsWith('zur-sandbox-')) return false;
-    try { return fs.readFileSync(path.join(os.tmpdir(), n, 'main.py'), 'utf-8').includes('w4s2-marker'); }
-    catch { return false; }
-  });
+// The spawned daemon gets its own TMPDIR, so only its sandboxes are counted.
+function sandboxDirs(root: string): string[] {
+  return fs.readdirSync(root).filter((n) => n.startsWith('zur-sandbox-'));
 }
 
 test('stdin EPIPE does not crash the process (item 5)', async () => {
@@ -79,18 +75,18 @@ test('SIGTERM to the real daemon kills the container, removes temp dirs and re-q
   seedDatabase(dbPath);
   const db = getDatabase(dbPath);
   const service = new ExecutionService(db);
-  const before = new Set(sandboxDirs());
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'zur-w4s2-tmp-'));
   const { job } = service.enqueueJob({ userId: 'user-student-1', enrollmentId: 'enr-ada', stepId: 'step-6-python-evenodd',
     jobType: 'run_custom', code: '# w4s2-marker\nwhile True:\n    pass\n', stdin: '' });
   const child = spawn(process.execPath, ['--experimental-strip-types', path.resolve(import.meta.dirname, '../src/daemon.ts')], {
-    env: { ...process.env, DATABASE_URL: dbPath, ZUR_WORKER_SHUTDOWN_GRACE_MS: '300' }, stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env, TMPDIR: tmp, DATABASE_URL: dbPath, ZUR_WORKER_SHUTDOWN_GRACE_MS: '300' }, stdio: ['ignore', 'pipe', 'pipe'],
   });
   let out = ''; child.stdout.on('data', (d) => { out += d; }); child.stderr.on('data', (d) => { out += d; });
   try {
     const deadline = Date.now() + 20_000;
     while (Date.now() < deadline) {
       const row = db.prepare('SELECT status FROM execution_jobs WHERE id=?').get(job.id) as any;
-      if (row.status === 'running' && sandboxDirs().some((d) => !before.has(d))) break;
+      if (row.status === 'running' && sandboxDirs(tmp).length > 0) break;
       await sleep(100);
     }
     assert.equal((db.prepare('SELECT status s FROM execution_jobs WHERE id=?').get(job.id) as any).s, 'running');
@@ -101,7 +97,7 @@ test('SIGTERM to the real daemon kills the container, removes temp dirs and re-q
     assert.equal(row.status, 'queued', 'job released back to the queue');
     assert.equal(row.worker_id, null);
     assert.equal(row.lease_expires_at, null);
-    assert.deepEqual(sandboxDirs().filter((d) => !before.has(d)), [], 'no leaked sandbox dirs');
+    assert.deepEqual(sandboxDirs(tmp), [], 'no leaked sandbox dirs');
     const ps = spawnSync('podman', ['ps', '-q'], { encoding: 'utf-8' });
     await sleep(500);
     const ps2 = spawnSync('podman', ['ps', '--filter', 'ancestor=docker.io/library/python@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d', '-q'], { encoding: 'utf-8' });
@@ -109,5 +105,6 @@ test('SIGTERM to the real daemon kills the container, removes temp dirs and re-q
   } finally {
     child.kill('SIGKILL'); killAllActiveRuns();
     fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(tmp, { recursive: true, force: true });
   }
 });
