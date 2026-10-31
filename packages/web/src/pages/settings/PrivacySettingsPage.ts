@@ -79,7 +79,7 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
             <div class="settings-action-row">
               <div class="settings-row-text">
                 <div class="settings-row-title">Learning records export</div>
-                <div class="settings-row-desc">JSON archive containing completed exercises, code attempts, and progress.</div>
+                <div class="settings-row-desc">A ZIP file with your profile, progress, code attempts, saved code and reports as JSON.</div>
               </div>
               <form id="export-data-form" class="space-y-3">
                 ${renderTextInput({ id: 'export-current-password', name: 'currentPassword', label: 'Current password', type: 'password', required: true, autocomplete: 'current-password' })}
@@ -98,7 +98,7 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
                 ? `
               <div id="export-download-panel" class="p-4 bg-canvas border border-subtle rounded">
                 <span class="text-xs font-semibold uppercase text-muted block mb-2">Export ready</span>
-                <p class="text-sm text-secondary mb-3">Your export has been compiled. You can download the JSON payload below.</p>
+                <p class="text-sm text-secondary mb-3">Your export is ready. The download link works for 24 hours.</p>
                 <a
                   id="download-export-link"
                   href="${escapePrivacy(opts.exportDownloadUrl||`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(opts.exportData, null, 2))}`)}"

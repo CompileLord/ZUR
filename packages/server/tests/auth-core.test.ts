@@ -208,7 +208,7 @@ test('Authentication Core & Identity Lifecycle (S1-M01, T013-T018)', async (t) =
     // 2. Data export intake packages learning evidence
     const exportResult = identityService.requestDataExport(guido.id, 'AuthorPass123!');
     assert.ok(exportResult.requestId);
-    assert.equal(exportResult.exportPayload.user.email, 'guido@zur.internal');
+    assert.equal(exportResult.exportPayload.profile.email, 'guido@zur.internal');
 
     // 3. Non-owner student deletion succeeds and transitions account to pending_deletion
     const alan = db.prepare("SELECT id FROM users WHERE email = 'alan@zur.internal'").get() as any;

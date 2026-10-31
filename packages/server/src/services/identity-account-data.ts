@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import { ValidationError, NotFoundError, ConflictError } from 'zur-shared';
 import type { User, UserPreferences, PrivacyRequest } from 'zur-shared';
 import { IdentityRateLimits } from './identity-rate-limits.ts';
+import { buildAccountExportPackage } from './account-export.ts';
 
 /**
  * Middle layer of IdentityService: account data (profile, appearance preferences, privacy export and deletion).
@@ -131,52 +132,17 @@ export abstract class IdentityAccountData extends IdentityRateLimits {
 
   requestDataExport(userId: string, currentPassword?: string): { requestId: string; exportPayload: any; downloadUrl: string; expiresAt: string } {
     this.requirePrivacyReauth(userId, currentPassword);
-    const userRow = this.db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
-    if (!userRow) {
+    if (!this.db.prepare('SELECT 1 FROM users WHERE id = ?').get(userId)) {
       throw new NotFoundError("This page isn't available.");
     }
-
-    const user = this.sanitizeUser(userRow);
-
-    const enrollments = this.db.prepare(`
-      SELECT e.id, e.course_id, e.pinned_version_id, e.status, c.title as course_title
-      FROM enrollments e
-      JOIN courses c ON e.course_id = c.id
-      WHERE e.user_id = ?
-    `).all(userId);
-
-    const stepProgress = this.db.prepare(`
-      SELECT p.enrollment_id, p.step_id, p.is_completed, p.is_waived, p.completed_at
-      FROM step_progress p
-      JOIN enrollments e ON p.enrollment_id = e.id
-      WHERE e.user_id = ?
-    `).all(userId);
-
-    const attempts = this.db.prepare(`
-      SELECT id, enrollment_id, step_id, type, verdict, execution_time_ms, code_snapshot, created_at
-      FROM assessment_attempts
-      WHERE user_id = ?
-    `).all(userId);
-
-    const exportPayload = {
-      user: {
-        id: user.id,
-        email: user.email,
-        displayName: user.displayName,
-        createdAt: user.createdAt,
-      },
-      enrollments,
-      stepProgress,
-      assessmentAttempts: attempts,
-      exportedAt: new Date().toISOString(),
-    };
-
     const requestId = `priv-${crypto.randomUUID()}`;
     const now = new Date().toISOString();
     const expiresAt=new Date(Date.now()+24*60*60*1000).toISOString();
+    let exportPayload: ReturnType<typeof buildAccountExportPackage>;
     this.db.exec('BEGIN IMMEDIATE');
     try {
       this.db.prepare(`INSERT INTO privacy_requests (id,user_id,request_type,status,consequence_acknowledged,blocker_reason,created_at,updated_at) VALUES (?,?,'export','completed',1,NULL,?,?)`).run(requestId,userId,now,now);
+      exportPayload = buildAccountExportPackage(this.db, userId, requestId);
       this.db.prepare(`INSERT INTO privacy_exports(request_id,user_id,package_json,expires_at,created_at) VALUES(?,?,?,?,?)`).run(requestId,userId,JSON.stringify(exportPayload),expiresAt,now);
       this.db.prepare(`INSERT INTO audit_events(id,actor_id,action,target_type,target_id,reason,metadata,correlation_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)`).run(crypto.randomUUID(),userId,'privacy_request:export_requested','user',userId,'User requested their own account export',JSON.stringify({requestId,expiresAt}),crypto.randomUUID(),now);
       this.db.exec('COMMIT');
