@@ -33,10 +33,13 @@ test('Learner Redesign: Long Task Strip & Waived States', async (t) => {
     assert.ok(stripHtml.includes('aria-current="step"'), 'Step 4 has aria-current="step"');
     assert.ok(stripHtml.includes('task-square waived'), 'Step 5 has waived class');
     assert.ok(stripHtml.includes('waived-letter'), 'Step 5 renders W waived letter');
-    assert.ok(stripHtml.includes('Task 5: Names (theory, Waived)'), 'Step 5 has accurate waived aria-label');
+    assert.ok(stripHtml.includes('Step 5 in this lesson: Names (theory, Waived)'), 'Step 5 has accurate waived aria-label');
     assert.ok(stripHtml.includes('ordinal-number" aria-hidden="true">12</span>'), 'Step 12 renders ordinal 12');
     assert.ok(stripHtml.includes('prev-task'), 'Previous task arrow present');
     assert.ok(stripHtml.includes('next-task'), 'Next task arrow present');
+    assert.ok(stripHtml.includes('aria-label="Previous step"') && stripHtml.includes('aria-label="Next step"'), 'Arrows say step, like the step position');
+    assert.ok(stripHtml.includes('aria-label="Steps in this lesson"'), 'Strip is named for the lesson steps');
+    assert.ok(!/\bTask \d/.test(stripHtml), 'No square is called a task');
   });
 });
 

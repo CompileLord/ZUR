@@ -190,12 +190,12 @@ export function renderTaskStripHtml(opts: {
         <span class="task-strip-lesson-title font-semibold text-sm" title="${escapeHtml(opts.lessonTitle)}">${escapeHtml(opts.lessonTitle)}</span>
 
       </div>
-      <div class="task-strip-center" role="tablist" aria-label="Tasks in this lesson">
+      <div class="task-strip-center" role="tablist" aria-label="Steps in this lesson">
         ${(opts.taskSquares || []).map((sq) => {
           const isCompleted = sq.isCompleted;
           const isSelected = sq.isCurrent;
           const isWaived = sq.isWaived;
-          const stateLabel = isCompleted ? (isSelected ? 'Completed, Current' : 'Completed') : isWaived ? (isSelected ? 'Waived, Current' : 'Waived') : isSelected ? 'Current' : 'Incomplete';
+          const labels = taskSquareLabels(sq);
           const squareClasses = [
             'task-square',
             isCompleted ? 'completed' : '',
@@ -211,8 +211,8 @@ export function renderTaskStripHtml(opts: {
               ${isSelected ? 'aria-current="step"' : ''}
               role="tab"
               aria-selected="${isSelected}"
-              aria-label="Task ${sq.ordinal}: ${escapeHtml(sq.title)} (${escapeHtml(sq.type)}, ${stateLabel})"
-              title="Task ${sq.ordinal}: ${escapeHtml(sq.title)} (${stateLabel})"
+              aria-label="${escapeHtml(labels.ariaLabel)}"
+              title="${escapeHtml(labels.title)}"
             >
               ${renderTaskSquareInnerHtml(sq)}
             </a>
@@ -222,14 +222,21 @@ export function renderTaskStripHtml(opts: {
       <div class="task-strip-right">
         ${opts.taskControls || ''}
         ${opts.previousStepUrl
-          ? `<a href="${escapeHtml(opts.previousStepUrl)}" class="task-nav-arrow prev-task" aria-label="Previous task" title="Previous task">‹</a>`
+          ? `<a href="${escapeHtml(opts.previousStepUrl)}" class="task-nav-arrow prev-task" aria-label="Previous step" title="Previous step">‹</a>`
           : `<span class="task-nav-arrow disabled" aria-disabled="true">‹</span>`}
         ${opts.nextStepUrl
-          ? `<a href="${escapeHtml(opts.nextStepUrl)}" class="task-nav-arrow next-task" aria-label="Next task" title="Next task">›</a>`
+          ? `<a href="${escapeHtml(opts.nextStepUrl)}" class="task-nav-arrow next-task" aria-label="Next step" title="Next step">›</a>`
           : `<span class="task-nav-arrow disabled" aria-disabled="true">›</span>`}
       </div>
     </nav>
   `;
+}
+
+export function taskSquareLabels(sq: { ordinal: number; title: string; type: string; isCurrent?: boolean; isCompleted?: boolean; isWaived?: boolean }): { ariaLabel: string; title: string } {
+  const done = sq.isCompleted ? 'Completed' : sq.isWaived ? 'Waived' : '';
+  const state = done ? (sq.isCurrent ? `${done}, Current` : done) : sq.isCurrent ? 'Current' : 'Incomplete';
+  const name = `Step ${sq.ordinal} in this lesson: ${sq.title}`;
+  return { ariaLabel: `${name} (${sq.type}, ${state})`, title: `${name} (${state})` };
 }
 
 export function renderTaskSquareInnerHtml(item: { ordinal: number; type?: TaskSquareItem['type']; isCompleted?: boolean; isWaived?: boolean }): string {
@@ -238,7 +245,7 @@ export function renderTaskSquareInnerHtml(item: { ordinal: number; type?: TaskSq
   return `<span class="task-type-icon" aria-hidden="true">${renderIcon(icon, { size: 18 })}</span>
     <span class="ordinal-number" aria-hidden="true">${item.ordinal}</span>
     ${item.isCompleted ? `<span class="check-icon task-state-badge" aria-hidden="true">${renderIcon('check', { size: 10, strokeWidth: 3 })}</span>` : item.isWaived ? '<span class="waived-letter task-state-badge" aria-hidden="true">W</span>' : ''}
-    <span class="sr-only">Task ${item.ordinal}</span>`;
+    <span class="sr-only">Step ${item.ordinal} in this lesson</span>`;
 }
 
 export function renderSidebarContentHtml(opts: {

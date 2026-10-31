@@ -2,6 +2,7 @@ import { escapeHtml } from '../../components/escape-html.ts';
 import {
   renderTaskStripHtml,
   renderTaskSquareInnerHtml,
+  taskSquareLabels,
   resolveOutlineCollapsed,
   setLearningOutlineState,
   getOutlineToggleLabels,
@@ -267,7 +268,6 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
           const isSelected = item.isCurrent;
           const isCompleted = item.isCompleted;
           const isWaived = item.isWaived;
-          const stateLabel = isCompleted ? (isSelected ? 'Completed, Current' : 'Completed') : isWaived ? (isSelected ? 'Waived, Current' : 'Waived') : isSelected ? 'Current' : 'Incomplete';
           sq.className = [
             'task-square',
             isCompleted ? 'completed' : '',
@@ -275,8 +275,9 @@ export function updateMountedLearningWorkspace(opts: LearningWorkspaceShellOptio
             isWaived ? 'waived' : '',
           ].filter(Boolean).join(' ');
           sq.setAttribute('aria-selected', String(isSelected));
-          sq.setAttribute('aria-label', `Task ${item.ordinal}: ${item.title} (${item.type}, ${stateLabel})`);
-          sq.setAttribute('title', `Task ${item.ordinal}: ${item.title} (${stateLabel})`);
+          const labels = taskSquareLabels(item);
+          sq.setAttribute('aria-label', labels.ariaLabel);
+          sq.setAttribute('title', labels.title);
           if (isSelected) {
             sq.setAttribute('aria-current', 'step');
             sq.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });

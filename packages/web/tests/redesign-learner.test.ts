@@ -78,7 +78,7 @@ test('Learner Redesign: Shell and Navigation', async (t) => {
     });
 
     assert.ok(html.includes('task-square completed selected current'), 'Task square has completed, selected, and current classes');
-    assert.ok(html.includes('aria-label="Task 1: Echo (python, Completed, Current)"'), 'Task square aria-label describes both states');
+    assert.ok(html.includes('aria-label="Step 1 in this lesson: Echo (python, Completed, Current)"'), 'Task square aria-label describes both states');
   });
 
   await t.test('LearningWorkspaceShell report modal defaults code checkbox to unchecked (opt-in)', () => {
