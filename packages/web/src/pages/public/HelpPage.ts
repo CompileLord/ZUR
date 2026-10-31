@@ -5,7 +5,6 @@ export interface HelpPageProps {
   stepId?: string;
   type?: string;
   description?: string;
-  includeCode?: boolean;
   isReportModalOpen?: boolean;
   isSubmittingReport?: boolean;
   reportSuccessReference?: string | null;
@@ -19,7 +18,6 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
     stepId = '',
     type = 'broken_exercise',
     description = '',
-    includeCode = false,
     isReportModalOpen = false,
     isSubmittingReport = false,
     reportSuccessReference = null,
@@ -94,13 +92,6 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
                     placeholder="Describe what happened, what was expected, and how to reproduce it…"
                     required
                   >${escapeHtml(description)}</textarea>
-                </div>
-
-                <div class="form-group report-include-code">
-                  <input id="report-include-code" type="checkbox" class="form-checkbox" ${includeCode ? 'checked' : ''} />
-                  <label for="report-include-code" class="text-xs text-secondary cursor-pointer">
-                    Include submitted code draft with report (optional)
-                  </label>
                 </div>
 
                 <input type="hidden" id="report-version-id" value="${escapeHtml(courseVersionId)}" />

@@ -297,5 +297,3 @@
 .status-state-message { font-size: 15px; line-height: 1.55; color: var(--text-secondary); margin: 0 0 24px; }
 .status-state-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; }
 
-.report-modal .report-include-code,
-dialog#report-issue-modal .report-include-code { flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; }

@@ -393,7 +393,6 @@ export function attachHelpListeners(courseId?: string, triggerElement?: HTMLElem
       const description = (document.getElementById('report-description') as HTMLTextAreaElement)?.value || '';
       const courseVersionId = (document.getElementById('report-version-id') as HTMLInputElement)?.value || undefined;
       const stepId = (document.getElementById('report-step-id') as HTMLInputElement)?.value || undefined;
-      const includeCodeConsent = (document.getElementById('report-include-code') as HTMLInputElement)?.checked || false;
 
       try {
         const res = await courseClient.submitReport({
@@ -402,7 +401,6 @@ export function attachHelpListeners(courseId?: string, triggerElement?: HTMLElem
           stepId,
           type,
           description,
-          includeCodeConsent,
         });
 
         const currentUser = authClient.getUser();
@@ -425,7 +423,6 @@ export function attachHelpListeners(courseId?: string, triggerElement?: HTMLElem
           stepId,
           type,
           description,
-          includeCode: includeCodeConsent,
           isReportModalOpen: true,
           reportError: err.message || 'Failed to submit report. Please try again.',
         });

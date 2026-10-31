@@ -65,19 +65,17 @@ test('Help Page P40 (T072)', async (t) => {
     assert.ok(htmlSuccess.includes('&lt;script&gt;alert(&quot;ref-xss&quot;)&lt;/script&gt;'));
   });
 
-  await t.test('preserves user input description, type, and code consent on failed report submit', () => {
+  await t.test('preserves user input description and type on failed report submit', () => {
     const html = renderHelpPage({
       courseId: 'course-py-101',
       type: 'inappropriate_content',
       description: 'The course contains abusive text in lesson 2.',
-      includeCode: true,
       reportError: 'Submission failed due to a server error.',
       isReportModalOpen: true,
     });
 
     assert.ok(html.includes('The course contains abusive text in lesson 2.'));
     assert.ok(html.includes('value="inappropriate_content" selected'));
-    assert.ok(html.includes('id="report-include-code" type="checkbox" class="form-checkbox" checked'));
     assert.ok(html.includes('Submission failed due to a server error.'));
   });
 });
