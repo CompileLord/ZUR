@@ -1,7 +1,7 @@
 const FIELD_ERROR_ATTR = 'data-field-error';
 
 export function adminErrorField(message: string): 'currentPassword' | 'reason' | null {
-  if (/password/i.test(message)) return 'currentPassword';
+  if (/password|reauthenticat/i.test(message)) return 'currentPassword';
   if (/\breason\b/i.test(message)) return 'reason';
   return null;
 }

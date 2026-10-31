@@ -52,6 +52,7 @@ test('wrong-password and reason errors are routed to their own field', () => {
   assert.equal(adminErrorField('Password is incorrect.'), 'currentPassword');
   assert.equal(adminErrorField('Current password is required for this administrator action.'), 'currentPassword');
   assert.equal(adminErrorField('Provide a reason between 8 and 1000 characters.'), 'reason');
+  assert.equal(adminErrorField('Reauthentication failed.'), 'currentPassword');
   assert.equal(adminErrorField('Invalid report status.'), null);
 });
 

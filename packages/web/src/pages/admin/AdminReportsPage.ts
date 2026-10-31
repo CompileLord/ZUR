@@ -68,12 +68,16 @@ export function renderAdminReportDetailContent(data: any): string {
 
         <div class="admin-detail-layout">
           <div class="admin-detail-main">
-            <div class="admin-section-card mb-4">
-              <dl class="admin-context-list mb-4">
+            <div class="report-context-panel mb-4">
+              <h3 class="text-sm font-semibold mb-3">Report</h3>
+              <dl class="admin-context-list">
                 <div><dt>Reporter</dt><dd>${escapeAdmin(data.reporterName)}</dd></div>
                 <div><dt>Submitted</dt><dd><time datetime="${escapeAdmin(data.createdAt)}" title="${escapeAdmin(data.createdAt)}">${escapeAdmin(formatDate(data.createdAt))}</time></dd></div>
                 <div><dt>Outcome</dt><dd>${data.resolutionOutcome ? escapeAdmin(data.resolutionOutcome) : '<span class="text-muted">Not recorded</span>'}</dd></div>
               </dl>
+            </div>
+
+            <div class="admin-section-card mb-4">
               <h2 class="section-title">Report description</h2>
               <p class="text-sm leading-relaxed">${escapeAdmin(data.description)}</p>
             </div>
