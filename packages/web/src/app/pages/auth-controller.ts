@@ -4,6 +4,7 @@ import { renderSignInPage } from '../../pages/account/SignInPage.ts';
 import { renderSignUpPage } from '../../pages/account/SignUpPage.ts';
 import { renderVerifyEmailPage } from '../../pages/account/VerifyEmailPage.ts';
 import { renderResetPasswordPage, renderForgotPasswordPage } from '../../pages/account/PasswordRecoveryPages.ts';
+import { isInvalidResetLinkError, validateNewPassword } from '../../pages/account/reset-link.ts';
 import { type RouteContext } from '../context.ts';
 import { escapeHtml } from '../helpers.ts';
 import { confirmUnsyncedSignOut } from '../leave-guards.ts';
@@ -32,7 +33,7 @@ export function renderAccountRoute(ctx: RouteContext): void {
     const isReset = path.split('?')[0] === '/reset-password';
     if (isReset) {
       const token = searchParams.get('token') || '';
-      appEl.innerHTML = renderResetPasswordPage({ token });
+      appEl.innerHTML = renderResetPasswordPage({ token, isInvalidToken: !token });
       attachResetPasswordListeners();
     } else {
       appEl.innerHTML = renderForgotPasswordPage();
@@ -283,6 +284,15 @@ function attachResetPasswordListeners(): void {
         return;
       }
 
+      const weakPassword = validateNewPassword(password);
+      if (weakPassword) {
+        if (errorEl) {
+          errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
+          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(weakPassword)}</span>`;
+        }
+        return;
+      }
+
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Updating password…';
@@ -292,6 +302,10 @@ function attachResetPasswordListeners(): void {
         await authClient.resetPassword(token, password);
         appEl.innerHTML = renderResetPasswordPage({ isSuccess: true });
       } catch (err: any) {
+        if (isInvalidResetLinkError(err)) {
+          appEl.innerHTML = renderResetPasswordPage({ isInvalidToken: true });
+          return;
+        }
         if (errorEl) {
           errorEl.className = 'form-error mb-4 p-3 border border-danger rounded';
           errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Reset link expired or invalid.')}</span>`;

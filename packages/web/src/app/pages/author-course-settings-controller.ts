@@ -2,6 +2,7 @@ import { s2Request } from '../api.ts';
 import { s2Current } from '../helpers.ts';
 import { navigateTo, renderApp } from '../navigation.ts';
 import { appEl } from '../state.ts';
+import { alertDialog, confirmActionDialog } from '../../components/common/Dialog.ts';
 
 export async function loadCourseSettingsPage(path: string, courseId: string, course: any): Promise<void> {
   const categories = await s2Request('/api/categories');
@@ -12,7 +13,7 @@ export async function loadCourseSettingsPage(path: string, courseId: string, cou
     event.preventDefault();
     const action = form.dataset.courseLifecycle;
     if (!['archive', 'restore', 'delete'].includes(action || '')) return;
-    if (action === 'delete' && !window.confirm('Permanently delete this course draft and all its lessons?')) return;
+    if (action === 'delete' && !await confirmActionDialog({ title: 'Delete this course draft?', message: 'Permanently delete this course draft and all its lessons?', confirmLabel: 'Delete course', isDestructive: true })) return;
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     if (button) button.disabled = true;
     try {
@@ -39,7 +40,7 @@ export async function loadCourseSettingsPage(path: string, courseId: string, cou
     try {
       await s2Request(`/api/author/courses/${courseId}/${metadata ? 'metadata' : 'settings'}`, 'PUT', metadata ? { expectedRevision: Number(fields.expectedRevision), metadata: { ...fields, tags: fields.tags.split(',').map(v => v.trim()).filter(Boolean), learningOutcomes: fields.learningOutcomes.split('\n').map(v => v.trim()).filter(Boolean), estimatedDurationMinutes: Number(fields.estimatedDurationMinutes) || 0 } } : fields);
       renderApp(path);
-    } catch (err: any) { window.alert(err.message); }
+    } catch (err: any) { void alertDialog(err.message); }
   }));
   return;
 }

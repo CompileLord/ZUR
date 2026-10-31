@@ -5,6 +5,7 @@ import { hydrateDeferredAssets } from '../lesson-media.ts';
 import { renderApp, navigateTo } from '../navigation.ts';
 import { showRouteFailure } from '../route-loading.ts';
 import { appEl } from '../state.ts';
+import { confirmActionDialog } from '../../components/common/Dialog.ts';
 
 export async function loadCourseBuilderPage(path: string, courseId: string, course: any, tree: any): Promise<void> {
   const query = new URLSearchParams(window.location.search);
@@ -62,7 +63,7 @@ export async function loadCourseBuilderPage(path: string, courseId: string, cour
     const fields = Object.fromEntries(new FormData(target).entries());
     const action = target.getAttribute('action') || '';
     const deleting = action.endsWith('/delete');
-    if (deleting && !window.confirm(target.dataset.confirmDelete || 'Delete this item?')) return;
+    if (deleting && !await confirmActionDialog({ title: 'Delete this item?', message: target.dataset.confirmDelete || 'Delete this item?', confirmLabel: 'Delete', isDestructive: true })) return;
     let route = action.replace(/^\/teach/, '/api/author/courses');
     if (deleting) route = route.slice(0, -7);
     if (route.endsWith('/rename')) route = route.slice(0, -7);

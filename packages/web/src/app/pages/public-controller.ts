@@ -4,15 +4,16 @@ import { renderSafeDenialPage } from '../../pages/status/SafeDenialPage.ts';
 import { renderLandingPage } from '../../pages/public/LandingPage.ts';
 import { type CatalogPageProps, renderCatalogPage } from '../../pages/public/CatalogPage.ts';
 import { renderCourseOverviewPage } from '../../pages/public/CourseOverviewPage.ts';
-import { renderHelpPage } from '../../pages/public/HelpPage.ts';
+import { type ReportCourse, renderHelpPage } from '../../pages/public/HelpPage.ts';
 import { renderPolicyPage } from '../../pages/public/PolicyPage.ts';
 import { type RouteContext } from '../context.ts';
 import {
   attachCatalogListeners,
   attachCourseOverviewListeners,
-  attachHelpListeners,
 } from './public-listeners.ts';
-import { appEl, app, courseClient } from '../state.ts';
+import { attachHelpListeners } from './help-listeners.ts';
+import { showRouteLoading } from '../route-loading.ts';
+import { appEl, app, authClient, courseClient } from '../state.ts';
 
 let activeCatalogRequestId = 0;
 
@@ -186,19 +187,38 @@ export function renderPublicRoute(ctx: RouteContext): void {
     const report = searchParams.get('report') || '';
     const isReportModalOpen = Boolean(report || courseId || stepId);
     const type = report === 'broken_exercise' ? 'broken_exercise' : report === 'inappropriate_content' ? 'inappropriate_content' : 'other';
-    const content = renderHelpPage({
-      courseId,
-      courseVersionId,
-      stepId,
-      type,
-      isReportModalOpen,
-    });
-    appEl.innerHTML = renderPublicShell({
-      activePath: path,
-      user: currentUser,
-      content,
-    });
-    attachHelpListeners(courseId);
+    const lifecycle = app.activeRouteLifecycle;
+    const renderHelp = (courses: ReportCourse[] | null) => {
+      if (app.activeRouteLifecycle !== lifecycle) return;
+      appEl.innerHTML = renderPublicShell({
+        activePath: path,
+        user: currentUser,
+        content: renderHelpPage({
+          isSignedIn: Boolean(currentUser),
+          courses,
+          returnTo: path,
+          courseId,
+          courseVersionId,
+          stepId,
+          type,
+          isReportModalOpen,
+        }),
+      });
+      attachHelpListeners(courseId, null, courses);
+    };
+    if (!currentUser) {
+      renderHelp([]);
+      return;
+    }
+    showRouteLoading('Help');
+    void authClient.fetchApi('/api/student/courses').then((res: any) => {
+      const seen = new Set<string>();
+      renderHelp(
+        (res?.enrollments || [])
+          .filter((e: any) => e.courseId && !seen.has(e.courseId) && seen.add(e.courseId))
+          .map((e: any) => ({ id: e.courseId, title: e.courseTitle || e.title || 'Untitled course' })),
+      );
+    }).catch(() => renderHelp(null));
     return;
   }
 

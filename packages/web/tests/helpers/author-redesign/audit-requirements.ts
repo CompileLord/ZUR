@@ -170,7 +170,7 @@ export async function auditRequirementTests(t: TestContext, _f: AuthorRedesignFi
     }
   });
 
-  await t.test('Audit Requirement 6: AuthorWorkspaceShell oninput dirty tracking and Saved reset', () => {
+  await t.test('Audit Requirement 6: AuthorWorkspaceShell dirty tracking hook without inline handlers', () => {
     const shellHtml = renderAuthorWorkspaceShell({
       courseId: 'c-test',
       courseTitle: 'Python Foundations',
@@ -180,8 +180,8 @@ export async function auditRequirementTests(t: TestContext, _f: AuthorRedesignFi
       editorContent: '<div>Editor</div>',
     });
 
-    assert.ok(shellHtml.includes('oninput="this.classList.add(\'is-dirty\')'), 'Shell has oninput dirty tracking');
-    assert.ok(shellHtml.includes('btn.textContent = \'Save changes\''), 'Shell resets Saved to Save changes on edit');
+    assert.ok(shellHtml.includes('class="shell-author"'), 'Shell exposes the hook for delegated dirty tracking');
+    assert.ok(!/\son[a-z]+=/i.test(shellHtml), 'Shell has no inline event handlers');
   });
 
   await t.test('Audit Requirement 7: AuthorPreviewPage refined learner Python preview & copy handler', () => {

@@ -1,5 +1,6 @@
 import { escapeHtml } from '../helpers.ts';
 import { appEl, authClient } from '../state.ts';
+import { alertDialog } from '../../components/common/Dialog.ts';
 
 export function attachTheoryAssetModal(courseId: string): void {
   appEl.querySelector('[data-action="open-asset-modal"]')?.addEventListener('click', () => {
@@ -113,7 +114,7 @@ export function attachCheckReferenceSolution(step: any): void {
     const idleLabel = checkRefBtn.textContent || 'Check reference solution';
     const refCode = (appEl.querySelector('#ref-solution-input') as HTMLTextAreaElement | null)?.value || '';
     if (!refCode.trim()) {
-      window.alert('Please enter a reference solution to validate.');
+      void alertDialog('Please enter a reference solution to validate.', 'Reference solution needed');
       return;
     }
     const sections = appEl.querySelectorAll('#tab-tests .test-cases-section');
@@ -176,7 +177,7 @@ export function attachCheckReferenceSolution(step: any): void {
             `;
       if (!checkRefBtn.closest('#tab-validation')) appEl.querySelector<HTMLElement>('.sub-tab-btn[data-tab="validation"]')?.click();
     } catch (err: any) {
-      window.alert(err.message || 'Reference solution check failed.');
+      void alertDialog(err.message || 'Reference solution check failed.');
     } finally {
       checkRefBtn.disabled = false;
       checkRefBtn.textContent = idleLabel;

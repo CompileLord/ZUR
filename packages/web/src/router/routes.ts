@@ -182,3 +182,11 @@ export function getPostSignInDestination(
   if (capabilities.includes('author')) return '/teach';
   return '/learn';
 }
+
+const SIGNED_OUT_ONLY_PATHS = new Set(['/sign-in', '/sign-up', '/forgot-password']);
+
+export function getSignedInAccountRedirect(path: string, user?: object | null): string | null {
+  if (!user) return null;
+  const cleanPath = path.split('?')[0].replace(/\/+$/, '') || '/';
+  return SIGNED_OUT_ONLY_PATHS.has(cleanPath) ? '/learn' : null;
+}

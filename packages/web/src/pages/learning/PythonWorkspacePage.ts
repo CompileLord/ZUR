@@ -158,7 +158,7 @@ export function renderPythonWorkspaceContent(opts: PythonWorkspacePageOptions): 
   const hasResult = Boolean(opts.currentResult || opts.executionError || opts.inFlightStatus);
 
   const rightPanelHtml = `
-    <div class="editor-pane" role="region" aria-label="Python Code Editor" data-drawer="${hasResult ? 'open' : 'closed'}">
+    <div class="editor-pane" role="region" aria-label="Python Code Editor" data-drawer="${hasResult || activeTab === 'custom_input' ? 'open' : 'closed'}">
       ${saveNoticeHtml}
       <div class="code-editor-area">
         <textarea
@@ -208,7 +208,7 @@ export function renderPythonWorkspaceContent(opts: PythonWorkspacePageOptions): 
             Custom input
           </button>
           <span id="drawer-summary" class="drawer-summary" aria-hidden="true"></span>
-          <button type="button" id="drawer-toggle-btn" class="editor-footer-btn drawer-toggle" aria-label="Toggle output panel" aria-expanded="${hasResult}" aria-controls="results-body">${renderIcon('chevron-down', { size: 14 })}</button>
+          <button type="button" id="drawer-toggle-btn" class="editor-footer-btn drawer-toggle" aria-label="Toggle output panel" aria-expanded="${hasResult || activeTab === 'custom_input'}" aria-controls="results-body">${renderIcon('chevron-down', { size: 14 })}</button>
         </div>
 
         <div class="results-body" id="results-body">

@@ -1,5 +1,6 @@
 import { navigateTo, renderApp } from '../navigation.ts';
 import { courseClient } from '../state.ts';
+import { alertDialog, confirmActionDialog } from '../../components/common/Dialog.ts';
 
 export function attachRosterListeners(courseId: string, currentFilters: { search?: string; status?: string; version?: string }): void {
   // Tab switching
@@ -258,12 +259,12 @@ export function attachRosterListeners(courseId: string, currentFilters: { search
     btn.addEventListener('click', async () => {
       const invId = btn.dataset.invitationId;
       if (!invId) return;
-      if (!confirm('Revoke this invitation? Anyone holding this link will no longer be able to enroll.')) return;
+      if (!await confirmActionDialog({ title: 'Revoke invitation?', message: 'Revoke this invitation? Anyone holding this link will no longer be able to enroll.', confirmLabel: 'Revoke invitation', isDestructive: true })) return;
       try {
         await courseClient.revokeInvitation(invId);
         renderApp();
       } catch (err: any) {
-        alert(err.message || 'Failed to revoke invitation.');
+        void alertDialog(err.message || 'Failed to revoke invitation.');
       }
     });
   });
@@ -271,7 +272,7 @@ export function attachRosterListeners(courseId: string, currentFilters: { search
   document.querySelectorAll<HTMLButtonElement>('[data-action="resend-invitation"]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const invId = btn.dataset.invitationId;
-      if (!invId || !confirm('Regenerate this invitation link? The old link will stop working. Existing enrollments remain.')) return;
+      if (!invId || !await confirmActionDialog({ title: 'Regenerate invitation link?', message: 'Regenerate this invitation link? The old link will stop working. Existing enrollments remain.', confirmLabel: 'Regenerate link' })) return;
       btn.disabled = true;
       try {
         const result = await courseClient.resendInvitation(invId);
@@ -288,7 +289,7 @@ export function attachRosterListeners(courseId: string, currentFilters: { search
         }
         btnSubmitEmail?.classList.add('hidden');
       } catch (err: any) {
-        alert(err.message || 'Failed to regenerate invitation.');
+        void alertDialog(err.message || 'Failed to regenerate invitation.');
       } finally {
         btn.disabled = false;
       }
@@ -321,7 +322,7 @@ export function attachRosterListeners(courseId: string, currentFilters: { search
       closeAllModals();
       renderApp();
     } catch (err: any) {
-      alert(err.message || 'Failed to revoke access.');
+      void alertDialog(err.message || 'Failed to revoke access.');
       btnConfirmRevoke.disabled = false;
       btnConfirmRevoke.textContent = 'Revoke access';
     }
@@ -351,7 +352,7 @@ export function attachRosterListeners(courseId: string, currentFilters: { search
       closeAllModals();
       renderApp();
     } catch (err: any) {
-      alert(err.message || 'Failed to reinstate access.');
+      void alertDialog(err.message || 'Failed to reinstate access.');
       btnConfirmReinstate.disabled = false;
       btnConfirmReinstate.textContent = 'Reinstate access';
     }

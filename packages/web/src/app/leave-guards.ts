@@ -1,5 +1,6 @@
 import { DraftManager } from '../services/draft-manager.ts';
 import { app } from './state.ts';
+import { confirmLeaveDialog } from '../components/common/Dialog.ts';
 
 export async function confirmUnsyncedSignOut(userId: string): Promise<boolean> {
   if (!DraftManager.hasUnsyncedWork(userId)) return true;
@@ -61,9 +62,11 @@ export async function confirmAppearanceDeparture(timeoutMs = 2000): Promise<bool
   }
 
   if (app.activeAppearanceQueue.hasUnsavedChanges || app.activeAppearanceQueue.isPending) {
-    const discard = window.confirm(
-      'Appearance settings could not be saved. Leave this page and discard unsaved preferences?'
-    );
+    const discard = await confirmLeaveDialog({
+      title: 'Discard unsaved preferences?',
+      message: 'Appearance settings could not be saved. Leave this page and discard unsaved preferences?',
+      leaveLabel: 'Discard and leave',
+    });
     if (!discard) {
       return false; // User wants to stay on appearance page to retry
     }

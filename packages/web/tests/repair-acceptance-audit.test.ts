@@ -106,6 +106,8 @@ test('F06: Exercise report link includes courseId, courseVersionId, and stepId',
 
 test('F06: HelpPage initializes report modal with course, version, and step context', () => {
   const html = renderHelpPage({
+    isSignedIn: true,
+    courses: [{ id: 'course-python-101', title: 'Python 101' }],
     courseId: 'course-python-101',
     courseVersionId: 'ver-abc-456',
     stepId: 'step-py-1',
