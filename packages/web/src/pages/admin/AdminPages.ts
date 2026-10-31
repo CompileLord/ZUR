@@ -25,8 +25,10 @@ const NOT_FOUND_SUBJECTS: [string, string, string][] = [
   ['/admin/audit/', 'Audit event', '/admin/audit'],
 ];
 
+const notFoundSubject = (route: string) => NOT_FOUND_SUBJECTS.find(([prefix]) => route.startsWith(prefix)) || ['', 'Page', '/admin'];
+
 function renderNotFound(route: string): string {
-  const [, subject, listPath] = NOT_FOUND_SUBJECTS.find(([prefix]) => route.startsWith(prefix)) || ['', 'Page', '/admin'];
+  const [, subject, listPath] = notFoundSubject(route);
   const listName = subject === 'Page' ? 'platform status' : `${subject.toLowerCase()}s`;
   return `<section class="admin-page-content">
     <div class="admin-page-header"><h1 class="page-title">${subject} not found</h1></div>
@@ -62,7 +64,7 @@ export function renderAdminPageContent(
 
   const failure = typeof error === 'string' ? { message: error } : error;
   if (failure?.status === 404) {
-    return { title, content: `<div class="admin-page-content">${renderNotFound(route)}</div>` };
+    return { title: `${notFoundSubject(route)[1]} not found`, content: `<div class="admin-page-content">${renderNotFound(route)}</div>` };
   }
   const err = failure
     ? `<div class="admin-page-header"><h1 class="page-title">${title}</h1></div><div class="alert alert-danger" role="alert">${escapeAdmin(failure.message)} <button class="btn btn-secondary btn-compact" type="button" data-admin-retry>Retry</button></div>`

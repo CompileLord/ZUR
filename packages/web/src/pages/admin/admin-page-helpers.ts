@@ -69,11 +69,9 @@ export const adminForm = (
   buttonVariant: 'primary' | 'danger' = 'primary',
   targetMeta?: { target: string; currentState?: string; resultingState?: string; effect?: string }
 ) => {
-  const parts = action.split('/');
-  const inferredTarget = targetMeta?.target || parts[parts.length - 2] || parts[parts.length - 1] || 'Operation target';
   const targetHeader = `
     <div class="admin-mutation-summary mb-3 p-3 bg-surface border border-subtle rounded text-xs space-y-1">
-      <div class="flex justify-between"><span class="text-muted">Target:</span> <span class="font-mono text-primary font-medium">${escapeAdmin(targetMeta?.target || inferredTarget)}</span></div>
+      ${targetMeta?.target ? `<div class="flex justify-between"><span class="text-muted">Target:</span> <span class="font-mono text-primary font-medium">${escapeAdmin(targetMeta.target)}</span></div>` : ''}
       ${targetMeta?.currentState ? `<div class="flex justify-between"><span class="text-muted">Current state:</span> <span class="status-badge info">${escapeAdmin(targetMeta.currentState)}</span></div>` : ''}
       ${targetMeta?.resultingState ? `<div class="flex justify-between"><span class="text-muted">Resulting state:</span> <span class="status-badge success">${escapeAdmin(targetMeta.resultingState)}</span></div>` : ''}
       ${targetMeta?.effect ? `<div class="mt-2 pt-2 border-t border-subtle text-secondary leading-relaxed">${escapeAdmin(targetMeta.effect)}</div>` : ''}
