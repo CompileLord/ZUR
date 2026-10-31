@@ -61,7 +61,7 @@ export function seedCourseContent(db: DatabaseSync, now: string) {
       step2Id,
       JSON.stringify({
         kind: 'video',
-        videoUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ',
+        videoUrl: 'https://www.youtube-nocookie.com/embed/cQT33yu9pY8',
         provider: 'youtube',
         transcript: 'Welcome to this lesson on variables. A variable is an identifier that references an object in memory.',
         captionVerified: true,
