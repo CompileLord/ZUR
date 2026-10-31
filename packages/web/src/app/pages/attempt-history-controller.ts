@@ -48,7 +48,6 @@ export async function loadAttemptHistory(enrollmentId: string, stepId: string, a
       currentPage: Math.floor((page.offset || 0) / Math.max(1, page.limit || 10)) + 1,
       pageSize: page.limit || 10,
       offset: page.offset || 0,
-      isCompact: window.innerWidth < 1024,
       modules: nav.modules,
       taskSquares: nav.taskSquares,
       courseProgressText: nav.courseProgressText,

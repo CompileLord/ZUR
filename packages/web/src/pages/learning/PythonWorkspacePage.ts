@@ -38,7 +38,6 @@ export interface PythonWorkspacePageOptions {
   nextStepUrl?: string | null;
   isLastStep?: boolean;
   activeTab?: 'results' | 'custom_input' | 'attempts';
-  isCompact?: boolean;
   customStdin?: string;
   editorFontSize?: number;
   indentationSpaces?: number;

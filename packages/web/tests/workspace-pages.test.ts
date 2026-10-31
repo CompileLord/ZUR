@@ -62,8 +62,8 @@ test('Python Workspace Page P15 (design.md §11 P15, T026)', async (t) => {
     assert.ok(html.includes('href="/learn/enr-1/steps/step-6/attempts"'));
   });
 
-  await t.test('Compact Python view keeps the editor writable', () => {
-    const html = renderPythonWorkspacePage({ ...baseOpts, isCompact: true });
+  await t.test('Python editor is writable at every width', () => {
+    const html = renderPythonWorkspacePage(baseOpts);
     assert.doesNotMatch(html, /readonly/);
   });
 
@@ -213,10 +213,9 @@ test('Attempt History and Restore P16 (design.md §11 P16, T027)', async (t) => 
     assert.ok(!html.includes('Restore to editor'));
   });
 
-  await t.test('Compact student attempt detail offers Restore action', () => {
+  await t.test('Student attempt detail offers Restore action', () => {
     const html = renderAttemptHistoryPage({
       ...baseHistoryOpts,
-      isCompact: true,
       selectedAttempt: {
         id: 'att-2', attemptNumber: 2, verdict: 'PASSED', codeSnapshot: 'print(2)',
         isInfrastructureFailure: false, createdAt: '2026-09-24T02:00:00.000Z',

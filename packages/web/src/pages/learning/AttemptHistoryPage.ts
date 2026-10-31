@@ -41,7 +41,6 @@ export interface AttemptHistoryPageOptions {
   currentPage: number;
   pageSize: number;
   offset?: number;
-  isCompact?: boolean;
   modules?: CourseModuleItem[];
   taskSquares?: TaskSquareItem[];
   courseProgressText?: string;
