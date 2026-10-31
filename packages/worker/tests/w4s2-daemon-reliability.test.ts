@@ -14,9 +14,16 @@ import { ExecutionService } from '../../server/src/services/execution-service.ts
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const BIG_STDIN = 'x'.repeat(64 * 1024);
 
-// The spawned daemon gets its own TMPDIR, so only its sandboxes are counted.
+// The spawned daemon gets its own TMPDIR, so only its sandboxes (and its container) are counted.
 function sandboxDirs(root: string): string[] {
   return fs.readdirSync(root).filter((n) => n.startsWith('zur-sandbox-'));
+}
+
+function containerIdIn(root: string): string {
+  for (const dir of sandboxDirs(root)) {
+    try { const id = fs.readFileSync(path.join(root, dir, 'container.id'), 'utf-8').trim(); if (id) return id; } catch { /* not written yet */ }
+  }
+  return '';
 }
 
 test('stdin EPIPE does not crash the process (item 5)', async () => {
@@ -83,25 +90,41 @@ test('SIGTERM to the real daemon kills the container, removes temp dirs and re-q
   });
   let out = ''; child.stdout.on('data', (d) => { out += d; }); child.stderr.on('data', (d) => { out += d; });
   try {
+    let containerId = '';
     const deadline = Date.now() + 20_000;
     while (Date.now() < deadline) {
       const row = db.prepare('SELECT status FROM execution_jobs WHERE id=?').get(job.id) as any;
-      if (row.status === 'running' && sandboxDirs(tmp).length > 0) break;
+      containerId = containerIdIn(tmp);
+      if (row.status === 'running' && containerId) break;
       await sleep(100);
     }
     assert.equal((db.prepare('SELECT status s FROM execution_jobs WHERE id=?').get(job.id) as any).s, 'running');
+    assert.ok(containerId, `the job's container started: ${out}`);
+    const exited = new Promise<number | null>((resolve) => { child.once('exit', (c) => resolve(c)); setTimeout(() => resolve(-999), 15_000); });
     child.kill('SIGTERM');
-    const code = await new Promise<number | null>((resolve) => { child.once('exit', (c) => resolve(c)); setTimeout(() => resolve(-999), 15_000); });
+    // The daemon kills the container and removes its sandbox before releasing the job, so the
+    // sandbox must already be gone when the job first shows as queued. Without the kill it
+    // would linger until the runner's own wall timeout, and a check after exit cannot tell.
+    let sandboxesAtRelease: string[] | null = null;
+    const releaseDeadline = Date.now() + 10_000;
+    while (Date.now() < releaseDeadline) {
+      if ((db.prepare('SELECT status FROM execution_jobs WHERE id=?').get(job.id) as any).status === 'queued') {
+        sandboxesAtRelease = sandboxDirs(tmp);
+        break;
+      }
+      await sleep(20);
+    }
+    assert.deepEqual(sandboxesAtRelease, [], 'sandbox removed before the job was released');
+    const code = await exited;
     assert.equal(code, 0, out);
     const row = db.prepare('SELECT status,worker_id,lease_expires_at FROM execution_jobs WHERE id=?').get(job.id) as any;
     assert.equal(row.status, 'queued', 'job released back to the queue');
     assert.equal(row.worker_id, null);
     assert.equal(row.lease_expires_at, null);
     assert.deepEqual(sandboxDirs(tmp), [], 'no leaked sandbox dirs');
-    const ps = spawnSync('podman', ['ps', '-q'], { encoding: 'utf-8' });
-    await sleep(500);
-    const ps2 = spawnSync('podman', ['ps', '--filter', 'ancestor=docker.io/library/python@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d', '-q'], { encoding: 'utf-8' });
-    assert.equal(ps2.stdout.trim(), '', `containers left: ${ps.stdout}`);
+    // Only this job's container: other test files run Python containers in parallel.
+    const left = spawnSync('podman', ['ps', '-q', '--no-trunc', '--filter', `id=${containerId}`], { encoding: 'utf-8' });
+    assert.equal(left.stdout.trim(), '', 'the job container was killed');
   } finally {
     child.kill('SIGKILL'); killAllActiveRuns();
     fs.rmSync(dir, { recursive: true, force: true });
