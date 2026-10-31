@@ -136,7 +136,12 @@ test('F02: Author Asset Upload, Injection, Save, Reload, and Preview Contract', 
     assert.ok(res.body.id, 'Asset ID must be returned');
     assert.strictEqual(res.body.altText, 'Platform architecture diagram');
     assert.strictEqual(res.body.mimeType, 'image/png');
+    assert.strictEqual('filePath' in res.body, false, 'Server storage paths never leave the server');
     uploadedAssetId = res.body.id;
+    const list = await request(server, '/api/author/courses/course-python-foundations/assets', 'GET', undefined, authorToken);
+    assert.strictEqual(list.status, 200);
+    assert.ok(list.body.assets.length > 0);
+    assert.strictEqual(list.body.assets.some((asset: any) => 'filePath' in asset), false);
 
     // Verify written to injectable temp upload directory
     const courseUploadDir = path.join(uploadDir, 'course-python-foundations');

@@ -31,7 +31,7 @@ export async function handleAssetRoutes(rc: RouteContext): Promise<boolean> {
       isDecorative: body.isDecorative,
       caption: body.caption,
     });
-    sendJson(res, 201, asset);
+    sendJson(res, 201, withoutStoragePath(asset));
     return true;
   }
   if (method === 'GET' && authorCourseAssetsMatch) {
@@ -39,7 +39,7 @@ export async function handleAssetRoutes(rc: RouteContext): Promise<boolean> {
     const { user } = identityService.authenticateSession(token);
     const courseId = authorCourseAssetsMatch[1];
     const assets = mediaService.listCourseAssets(user.id, courseId);
-    sendJson(res, 200, { assets });
+    sendJson(res, 200, { assets: assets.map(withoutStoragePath) });
     return true;
   }
 
@@ -168,4 +168,9 @@ export async function handleAssetRoutes(rc: RouteContext): Promise<boolean> {
   }
 
   return false;
+}
+
+// Where the bytes live on disk is a server detail; clients address assets by id.
+function withoutStoragePath<T extends { filePath?: string }>({ filePath: _filePath, ...asset }: T): Omit<T, 'filePath'> {
+  return asset;
 }

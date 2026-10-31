@@ -41,19 +41,5 @@ export async function handleAdminModerationRoutes(rc: RouteContext): Promise<boo
   const privacyExport=pathname.match(/^\/api\/admin\/privacy-requests\/([a-zA-Z0-9_-]+)\/export$/);
   if(method==='POST'&&privacyExport){if(!token)throw new AuthenticationError();const {user}=identityService.authenticateSession(token);const body=await parseJsonBody(req);identityService.verifyCurrentPassword(user.id,body.currentPassword);const bundle=adminService.exportAccount(user.id,privacyExport[1],body.reason);const bytes=Buffer.from(JSON.stringify(bundle,null,2));res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Content-Length':bytes.length,'Content-Disposition':`attachment; filename="zur-account-export-${privacyExport[1]}.json"`,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(bytes);return true;}
 
-  // 37. Admin: Suspend or Unsuspend Course (T043)
-  const adminCourseSuspendMatch = pathname.match(/^\/api\/admin\/courses\/([a-zA-Z0-9_-]+)\/suspend$/);
-  if (method === 'POST' && adminCourseSuspendMatch) {
-    if (!token) throw new AuthenticationError();
-    const { user } = identityService.authenticateSession(token);
-    const courseId = adminCourseSuspendMatch[1];
-    const body = await parseJsonBody(req);
-    identityService.verifyCurrentPassword(user.id, body.currentPassword);
-    if (typeof body.isSuspended !== 'boolean') throw new ValidationError('Choose whether to suspend or restore the course.');
-    const updated = adminService.setCourseSuspended(user.id, courseId, body.isSuspended, body.reason);
-    sendJson(res, 200, updated);
-    return true;
-  }
-
   return false;
 }
