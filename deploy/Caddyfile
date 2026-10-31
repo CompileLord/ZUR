@@ -53,9 +53,16 @@
 	# values. The node server must be told to trust this proxy (see docs/DEPLOYMENT.md).
 	@api path /api/* /mcp /mcp/* /healthz /readyz
 	handle @api {
-		request_body {
-			# Media uploads default to 10 MiB per file; leave headroom for multipart overhead.
-			max_size 12MB
+		# Reject oversized bodies at the edge with a clean 413, using the server's own limits
+		# (packages/server/src/http/body.ts): 1 MiB JSON everywhere, except image uploads
+		# (10 MiB image, about 13.4 MiB as base64 JSON; raw bytes on the upload session).
+		@assetUpload path_regexp ^/api/author/courses/[A-Za-z0-9_-]+/assets(/upload-session/[A-Za-z0-9_-]+)?$
+		@jsonBody not path_regexp ^/api/author/courses/[A-Za-z0-9_-]+/assets(/upload-session/[A-Za-z0-9_-]+)?$
+		request_body @assetUpload {
+			max_size 15MiB
+		}
+		request_body @jsonBody {
+			max_size 1MiB
 		}
 		reverse_proxy {$ZUR_UPSTREAM:127.0.0.1:3001} {
 			header_up X-Real-IP {remote_host}
