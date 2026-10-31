@@ -159,8 +159,11 @@ function stripRawHtml(input: string): string {
 
 const MD_LINK = /\[([^\[\]]+)\]\(((?:[^()\s]|\([^()\s]*\))+)\)/g;
 
+const INLINE_CODE = /(`[^`\n]+`)/;
+
 export function sanitizeHtml(rawHtml: string): string {
-  const clean = stripRawHtml(rawHtml);
+  // Inline code is literal text (always escaped on render), so `<class 'int'>` must survive.
+  const clean = rawHtml.split(INLINE_CODE).map((part, i) => (i % 2 ? part.replace(/\u0000/g, '') : stripRawHtml(part))).join('');
   return clean.replace(MD_LINK, (match, label, url) => (isSafeLinkUrl(url) ? match : `[${label}](#)`));
 }
 
