@@ -1,5 +1,6 @@
 import { authorStyles } from '../../pages/author/AuthorStyles.ts';
 import { renderAuthorTree, type ModuleSummary } from '../../pages/author/AuthorTreeComponent.ts';
+import { escapeHtmlOnce } from '../../utils/escape-html.ts';
 
 export interface AuthorWorkspaceShellOptions {
   courseId: string;
@@ -53,7 +54,7 @@ export function renderAuthorWorkspaceShell(opts: AuthorWorkspaceShellOptions): s
           <div class="author-header-left">
             <a href="/teach" class="back-link" aria-label="Back to Your courses">&larr; Courses</a>
             <span class="header-divider">/</span>
-            <span class="author-course-title" title="${opts.courseTitle}">${opts.courseTitle}</span>
+            <span class="author-course-title" title="${escapeHtmlOnce(opts.courseTitle)}">${escapeHtmlOnce(opts.courseTitle)}</span>
             ${statusBadgeText}
           </div>
 

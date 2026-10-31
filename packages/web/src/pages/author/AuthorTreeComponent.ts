@@ -1,5 +1,6 @@
 import { renderIcon, type IconName } from '../../components/common/icons.ts';
 import { stepEditHref } from './AuthorTreeModel.ts';
+import { escapeHtmlOnce } from '../../utils/escape-html.ts';
 import type { StepSummary, RenderAuthorTreeOptions } from './AuthorTreeModel.ts';
 
 export { stepEditHref } from './AuthorTreeModel.ts';
@@ -21,13 +22,18 @@ export function renderAuthorTree(opts: RenderAuthorTreeOptions): string {
   const selectedId = opts.selectedId || opts.courseId;
   const invalid = new Set(opts.invalidStepIds || []);
   const cid = encodeURIComponent(opts.courseId);
+  // Titles are author-controlled; escape them once here whatever the caller did.
+  const courseTitle = escapeHtmlOnce(opts.courseTitle);
+  const modules = opts.modules.map((m) => ({ ...m, title: escapeHtmlOnce(m.title), lessons: m.lessons.map((l) => ({
+    ...l, title: escapeHtmlOnce(l.title), steps: l.steps.map((st) => ({ ...st, title: escapeHtmlOnce(st.title) })),
+  })) }));
 
-  const totalStepsCount = opts.modules.reduce(
+  const totalStepsCount = modules.reduce(
     (acc, m) => acc + m.lessons.reduce((lAcc, l) => lAcc + l.steps.length, 0),
     0
   );
 
-  const treeItemsHtml = opts.modules
+  const treeItemsHtml = modules
     .map((mod, mIdx) => {
       const isModSelected = selectedType === 'module' && selectedId === mod.id;
       const cleanModTitle = mod.title.replace(/^Module\s+\d+\s*:\s*/i, '');
@@ -123,8 +129,8 @@ export function renderAuthorTree(opts: RenderAuthorTreeOptions): string {
 
       <ul class="tree-root" role="tree" aria-label="Course Content Tree" data-reorder-scope="tree-modules">
         <li class="tree-item tree-course ${selectedType === 'course' ? 'selected' : ''}" role="treeitem" aria-selected="${selectedType === 'course'}">
-          <a href="/teach/${cid}/content" class="tree-label" title="${opts.courseTitle}">
-            <strong>${opts.courseTitle}</strong>
+          <a href="/teach/${cid}/content" class="tree-label" title="${courseTitle}">
+            <strong>${courseTitle}</strong>
           </a>
         </li>
         ${treeItemsHtml}
