@@ -3,18 +3,18 @@ import type { DatabaseSync } from 'node:sqlite';
 import {
   ValidationError,
   NotFoundError,
-  AuthorizationError,
   ConflictError,
   RateLimitError,
   validatePythonSource,
   validateTestCaseInputOutput,
   type ExecutionResult,
   type TerminalVerdict,
-  type TestCase,
   type ExecutionJob,
 } from 'zur-shared';
 import { QuotaService } from './quota-service.ts';
 import { AuthorValidationQuota } from './author-validation-quota.ts';
+import { getPinnedAssessment, getTestCasesForJob } from './execution-test-cases.ts';
+import { completeJobInTransaction } from './execution-completion.ts';
 import { redactFullExecutionResultForStudent } from './redaction-service.ts';
 import { processExecutionJob, type ExecutionJobPayload } from 'zur-worker';
 
@@ -46,7 +46,7 @@ export class ExecutionService {
     const { userId, enrollmentId, stepId, jobType, code, stdin, idempotencyKey } = params;
     const pinnedAssessment = jobType === 'author_validation'
       ? null
-      : this.getPinnedAssessment(userId, enrollmentId, stepId);
+      : getPinnedAssessment(this.db, userId, enrollmentId, stepId);
 
     if (jobType === 'run_custom') {
       const inputCheck = validateTestCaseInputOutput(stdin ?? '', '');
@@ -149,74 +149,6 @@ export class ExecutionService {
     } catch (error) { this.db.exec('ROLLBACK'); throw error; }
   }
 
-  private getPinnedAssessment(userId: string, enrollmentId: string | null | undefined, stepId: string): { versionId: string; testCases: TestCase[] } {
-    if (!enrollmentId) throw new NotFoundError("This page isn't available.");
-    const enrollment = this.db.prepare(`
-      SELECT e.user_id, e.status, e.pinned_version_id, c.is_suspended
-      FROM enrollments e JOIN courses c ON c.id = e.course_id WHERE e.id = ?
-    `).get(enrollmentId) as any;
-    if (!enrollment || enrollment.user_id !== userId || enrollment.status !== 'active') {
-      throw new NotFoundError("This page isn't available.");
-    }
-    if (enrollment.is_suspended) throw new AuthorizationError('Course access is suspended.');
-    const version = this.db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(enrollment.pinned_version_id) as any;
-    if (!version) throw new NotFoundError("This page isn't available.");
-    let snapshot: any;
-    try { snapshot = JSON.parse(version.snapshot_data); }
-    catch { throw new NotFoundError("This page isn't available."); }
-    const step = (snapshot.modules || []).flatMap((module: any) => module.lessons || [])
-      .flatMap((lesson: any) => lesson.steps || []).find((item: any) => item.id === stepId);
-    if (!step || step.type !== 'python' || !Array.isArray(step.content?.testCases)) throw new NotFoundError("This page isn't available.");
-    const testCases = step.content.testCases.map((test: any) => ({
-      id: String(test.id),
-      stepId,
-      stdin: String(test.stdin ?? ''),
-      expectedStdout: String(test.expectedStdout ?? ''),
-      isHidden: Boolean(test.isHidden),
-      position: Number(test.position),
-      createdAt: String(test.createdAt ?? ''),
-    })) as TestCase[];
-    if (testCases.length === 0) throw new NotFoundError("This page isn't available.");
-    return { versionId: enrollment.pinned_version_id, testCases };
-  }
-
-  private readSnapshotTestCases(versionId: string, stepId: string): TestCase[] | null {
-    const version = this.db.prepare('SELECT snapshot_data FROM course_versions WHERE id = ?').get(versionId) as any;
-    if (!version?.snapshot_data) return null;
-    try {
-      const snapshot = JSON.parse(version.snapshot_data);
-      const step = (snapshot.modules || []).flatMap((module: any) => module.lessons || [])
-        .flatMap((lesson: any) => lesson.steps || []).find((item: any) => item.id === stepId);
-      if (!step || step.type !== 'python' || !Array.isArray(step.content?.testCases)) return null;
-      return step.content.testCases.map((test: any) => ({
-        id: String(test.id), stepId, stdin: String(test.stdin ?? ''), expectedStdout: String(test.expectedStdout ?? ''),
-        isHidden: Boolean(test.isHidden), position: Number(test.position), createdAt: String(test.createdAt ?? ''),
-      }));
-    } catch { return null; }
-  }
-
-  private getTestCasesForJob(candidate: any): TestCase[] {
-    let testCases: TestCase[] | null = null;
-    if (candidate.assessment_snapshot) {
-      try { testCases = JSON.parse(candidate.assessment_snapshot) as TestCase[]; }
-      catch { throw new NotFoundError('Execution assessment snapshot is unavailable.'); }
-    }
-    let versionId = candidate.course_version_id as string | null;
-    if (!versionId && candidate.enrollment_id) {
-      versionId = (this.db.prepare('SELECT pinned_version_id FROM enrollments WHERE id = ?').get(candidate.enrollment_id) as any)?.pinned_version_id || null;
-    }
-    if (!testCases && versionId) testCases = this.readSnapshotTestCases(versionId, candidate.step_id);
-    if (testCases) return testCases;
-    const rows = this.db.prepare(`
-      SELECT id, step_id, stdin, expected_stdout, is_hidden, position, created_at
-      FROM test_cases WHERE step_id = ? ORDER BY position ASC
-    `).all(candidate.step_id) as any[];
-    return rows.map((tc) => ({
-      id: tc.id, stepId: tc.step_id, stdin: tc.stdin, expectedStdout: tc.expected_stdout,
-      isHidden: Boolean(tc.is_hidden), position: tc.position, createdAt: tc.created_at,
-    }));
-  }
-
   getJob(jobId: string, requestingUserId: string): { job: ExecutionJob; result?: ExecutionResult | null } {
     const row = this.db.prepare(`
       SELECT j.id, j.user_id, j.enrollment_id, j.step_id, j.job_type, j.code, j.stdin, j.idempotency_key,
@@ -297,7 +229,7 @@ export class ExecutionService {
       const deadlineAt = candidate.deadline_at || new Date(Date.now() + 60_000).toISOString();
       this.db.prepare(`UPDATE execution_jobs SET status='running', worker_id=?, lease_expires_at=?,
         deadline_at=?, updated_at=? WHERE id=? AND status='queued'`).run(workerId, leaseExpires, deadlineAt, now, candidate.id);
-      const testCases = this.getTestCasesForJob(candidate);
+      const testCases = getTestCasesForJob(this.db, candidate);
       this.db.exec('COMMIT');
       return { jobId: candidate.id, userId: candidate.user_id, enrollmentId: candidate.enrollment_id,
         stepId: candidate.step_id, jobType: candidate.job_type, code: candidate.code,
@@ -332,55 +264,7 @@ export class ExecutionService {
   }
 
   private completeJobInTransaction(jobId: string, workerId: string, result: ExecutionResult, now: string): void {
-      const jobRow = this.db.prepare(`SELECT id, user_id, enrollment_id, step_id, job_type, code,
-        course_version_id, deadline_at FROM execution_jobs
-        WHERE id=? AND status='running' AND worker_id=?
-          AND lease_expires_at>=?`).get(jobId, workerId, now) as any;
-      if (!jobRow) return;
-      const studentTestTimedOut = result.verdict === 'TIME_LIMIT' && !result.isInfrastructureFailure &&
-        result.testResults.some((test) => test.verdict === 'TIME_LIMIT');
-      if (jobRow.deadline_at && jobRow.deadline_at < now && !studentTestTimedOut) {
-        result = { jobId, verdict: 'INTERNAL_ERROR', isInfrastructureFailure: true,
-          executionTimeMs: 0, testResults: [],
-          guidance: 'Execution could not complete before its job deadline. Please retry.', completedAt: now };
-      }
-      let attemptId: string | null = null;
-      const access = jobRow.enrollment_id ? this.db.prepare(`SELECT e.status, e.pinned_version_id,
-        c.is_suspended, u.account_status FROM enrollments e
-        JOIN courses c ON c.id=e.course_id JOIN users u ON u.id=e.user_id WHERE e.id=? AND e.user_id=?`)
-        .get(jobRow.enrollment_id, jobRow.user_id) as any : null;
-      const accessLost = Boolean(jobRow.enrollment_id && (!access || access.status !== 'active' || access.is_suspended ||
-          access.account_status !== 'active'));
-      if (accessLost) {
-        result = { jobId, verdict: 'INTERNAL_ERROR', isInfrastructureFailure: true,
-          executionTimeMs: 0, testResults: [], guidance: 'Access changed before this result was recorded.', completedAt: now };
-      }
-      if (jobRow.job_type === 'submit' && jobRow.enrollment_id && access && !accessLost) {
-        const count = this.db.prepare(`SELECT COUNT(*) count FROM assessment_attempts
-          WHERE enrollment_id=? AND step_id=?`).get(jobRow.enrollment_id, jobRow.step_id) as { count: number };
-        attemptId = `attempt-${crypto.randomUUID()}`;
-        this.db.prepare(`INSERT INTO assessment_attempts (id,user_id,enrollment_id,step_id,
-          course_version_id,attempt_number,type,verdict,code_snapshot,execution_time_ms,
-          is_infrastructure_failure,created_at)
-          VALUES (?,?,?,?,?,?,'python',?,?,?,?,?)`).run(attemptId, jobRow.user_id, jobRow.enrollment_id,
-          jobRow.step_id, jobRow.course_version_id || access.pinned_version_id, count.count+1,
-          result.verdict, jobRow.code, result.executionTimeMs, result.isInfrastructureFailure ? 1 : 0, now);
-        result.attemptId = attemptId;
-        if (result.verdict === 'PASSED') {
-          this.db.prepare(`INSERT INTO step_progress (id,user_id,enrollment_id,step_id,is_completed,
-            completed_at,created_at,updated_at) VALUES (?,?,?,?,1,?,?,?)
-            ON CONFLICT(enrollment_id,step_id) DO UPDATE SET is_completed=1,
-            completed_at=COALESCE(step_progress.completed_at,excluded.completed_at),updated_at=excluded.updated_at`)
-            .run(`progress-${crypto.randomUUID()}`, jobRow.user_id, jobRow.enrollment_id,
-              jobRow.step_id, now, now, now);
-        }
-      }
-      if (jobRow.job_type === 'author_validation') {
-        new AuthorValidationQuota(this.db).complete(jobRow.id, now);
-      }
-      this.db.prepare(`UPDATE execution_jobs SET status='completed', result_payload=?, attempt_id=?,
-        lease_expires_at=NULL, updated_at=? WHERE id=? AND status='running' AND worker_id=?`)
-        .run(JSON.stringify(result), attemptId, now, jobId, workerId);
+    completeJobInTransaction(this.db, jobId, workerId, result, now);
   }
 
   failJob(jobId: string, workerId: string, errorPayload: { verdict: TerminalVerdict; isInfrastructureFailure: boolean; message?: string }): void {
@@ -449,7 +333,7 @@ export class ExecutionService {
       const deadlineAt = row.deadline_at || new Date(Date.now()+60_000).toISOString();
       this.db.prepare(`UPDATE execution_jobs SET status='running',worker_id=?,lease_expires_at=?,
         deadline_at=?,updated_at=? WHERE id=? AND status='queued'`).run(workerId,expires,deadlineAt,now,jobId);
-      const testCases = this.getTestCasesForJob(row);
+      const testCases = getTestCasesForJob(this.db, row);
       this.db.exec('COMMIT');
       return { jobId, userId: row.user_id, enrollmentId: row.enrollment_id,
         stepId: row.step_id, jobType: row.job_type, code: row.code,
