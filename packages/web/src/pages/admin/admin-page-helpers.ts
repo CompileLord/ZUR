@@ -5,8 +5,8 @@ export function escapeAdmin(value: unknown): string {
   return String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]!));
 }
 
-export const formField = (name: string, label: string, type = 'text', required = true) =>
-  `<label class="form-group"><span class="form-label">${escapeAdmin(label)}</span><input class="form-input" name="${escapeAdmin(name)}" type="${type}" ${required ? 'required' : ''}></label>`;
+export const formField = (name: string, label: string, type = 'text', required = true, value = '') =>
+  `<label class="form-group"><span class="form-label">${escapeAdmin(label)}</span><input class="form-input" name="${escapeAdmin(name)}" type="${type}"${value ? ` value="${escapeAdmin(value)}"` : ''} ${required ? 'required' : ''}></label>`;
 
 export interface ActionDialogOptions {
   id: string;
@@ -94,7 +94,8 @@ export const table = (headers: (string | TableCol)[], rows: string[], empty: str
     const alignClass = typeof h === 'object' && h.align === 'right' ? ' class="text-right"' : '';
     return `<th scope="col"${alignClass}>${escapeAdmin(label)}</th>`;
   }).join('');
-  return `<div class="data-table-wrapper"><table class="data-table admin-table"><thead><tr>${headerCells}</tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td colspan="${headers.length}" class="empty-state"><span class="admin-empty"><span class="admin-empty-icon" aria-hidden="true">${renderIcon('list', { size: 20 })}</span><span class="admin-empty-title">${escapeAdmin(empty)}</span>${nextStep ? `<span class="admin-empty-next">${nextStep}</span>` : ''}</span></td></tr>`}</tbody></table></div>`;
+  const regionLabel = `Table with columns ${headers.slice(0, 3).map((h) => (typeof h === 'string' ? h : h.label)).join(', ')}`;
+  return `<div class="data-table-wrapper" role="region" tabindex="0" aria-label="${escapeAdmin(regionLabel)}"><table class="data-table admin-table"><thead><tr>${headerCells}</tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td colspan="${headers.length}" class="empty-state"><span class="admin-empty"><span class="admin-empty-icon" aria-hidden="true">${renderIcon('list', { size: 20 })}</span><span class="admin-empty-title">${escapeAdmin(empty)}</span>${nextStep ? `<span class="admin-empty-next">${nextStep}</span>` : ''}</span></td></tr>`}</tbody></table></div>`;
 };
 
 export const pill = (text: string, kind = 'info') =>
@@ -122,14 +123,3 @@ export const pageNav = (data: any, path: string) => {
   };
   return `<nav class="admin-pagination" aria-label="Result pages"><span>Showing ${offset + 1}–${Math.min(offset + data.items.length, data.total)} of ${data.total}</span>${offset > 0 ? link(Math.max(0, offset - limit), 'Previous') : ''}${offset + limit < data.total ? link(offset + limit, 'Next') : ''}</nav>`;
 };
-
-export function formatAuditAction(action: string): string {
-  if (!action) return '';
-  const parts = action.split(':');
-  if (parts.length === 2) {
-    const scope = humanizeEnum(parts[0]);
-    const act = humanizeEnum(parts[1]);
-    return `${act} ${scope.toLowerCase()}`;
-  }
-  return humanizeEnum(action);
-}

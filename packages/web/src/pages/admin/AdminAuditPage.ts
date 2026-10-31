@@ -1,6 +1,7 @@
 import { renderIcon } from '../../components/common/icons.ts';
 import { formatDate, humanizeEnum } from '../../utils/formatters.ts';
-import { table, pageNav, formatAuditAction, escapeAdmin } from './admin-page-helpers.ts';
+import { table, pageNav, escapeAdmin } from './admin-page-helpers.ts';
+import { actionLabel } from './admin-labels.ts';
 
 export function renderAdminAuditContent(path: string, data: any): string {
       const query = new URLSearchParams(path.split('?')[1] || '');
@@ -58,8 +59,8 @@ export function renderAdminAuditContent(path: string, data: any): string {
           <td class="admin-nowrap"><time datetime="${escapeAdmin(e.createdAt)}" title="${escapeAdmin(e.createdAt)}" class="text-secondary">${escapeAdmin(clock(e.createdAt) || formatDate(e.createdAt))}</time></td>
           <td class="admin-nowrap"><span class="font-medium">${escapeAdmin(e.actorName)}</span></td>
           <td>
-            <a href="/admin/audit/${encodeURIComponent(e.id)}" class="table-link font-medium" title="Action code: ${escapeAdmin(e.action)}" aria-label="${escapeAdmin(formatAuditAction(e.action))} (${escapeAdmin(e.action)})">
-              ${escapeAdmin(formatAuditAction(e.action))}
+            <a href="/admin/audit/${encodeURIComponent(e.id)}" class="table-link font-medium" title="Action code: ${escapeAdmin(e.action)}" aria-label="${escapeAdmin(actionLabel(e.action))} (${escapeAdmin(e.action)})">
+              ${escapeAdmin(actionLabel(e.action))}
             </a>
             <span class="audit-target-type text-secondary">${escapeAdmin(humanizeEnum(e.targetType))}</span>
           </td>
@@ -114,7 +115,7 @@ export function renderAdminAuditDetailContent(data: any): string {
       return `
         <p class="mb-4"><a href="/admin/audit" class="back-link">${renderIcon('arrow-left', { size: 14 })} Back to audit</a></p>
         <div class="admin-page-header">
-          <h1 class="page-title">${escapeAdmin(formatAuditAction(data.action))}</h1>
+          <h1 class="page-title">${escapeAdmin(actionLabel(data.action))}</h1>
           <p class="admin-page-subtitle text-secondary">Raw action: <code class="font-mono text-xs">${escapeAdmin(data.action)}</code></p>
         </div>
 

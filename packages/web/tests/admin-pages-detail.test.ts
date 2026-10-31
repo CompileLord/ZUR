@@ -198,8 +198,7 @@ test('overview distinguishes execution admission from worker telemetry and avoid
   assert.match(overview, /No telemetry/);
   assert.doesNotMatch(overview, /<span class="status-badge success">Normal<\/span>/);
   // Runner telemetry shortened metric value to Unknown/Unavailable with short supporting reason
-  assert.match(overview, /Runner heartbeat: <span class="admin-chip-quiet">Not configured<\/span>/);
-  assert.match(overview, /No separate worker heartbeat configured/);
+  assert.doesNotMatch(overview, /Runner heartbeat/);
   // Attention section for open report
   assert.match(overview, /1 open report/);
 });

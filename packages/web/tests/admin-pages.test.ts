@@ -5,7 +5,7 @@ import { renderPrivacySettingsPage } from '../src/pages/settings/PrivacySettings
 
 test('admin operations screens render real empty and unavailable states safely',()=>{
   const overview=renderAdminPage('/admin',{refreshedAt:'now',execution:{paused:false},queue:{queued:0,running:0,oldestQueuedAt:null},workers:{health:'Unavailable',lastObservedAt:null},internalErrors:0,openReports:0,emailDeliveryIssues:0,telemetry:{queue:'available',workerHeartbeat:'unavailable',email:'available'}});
-  assert.match(overview,/Not configured/);assert.match(overview,/Unavailable/);assert.match(overview,/No queued jobs/);
+  assert.doesNotMatch(overview,/Not configured/);assert.match(overview,/Unavailable/);assert.match(overview,/No queued jobs/);
   const media=renderAdminPage('/admin/media',{items:[{id:'asset-1',courseTitle:'Course',mimeType:'image/png',fileSize:1024,processingStatus:'quarantined',referenceCount:2}]});
   assert.match(media,/2/);assert.match(media,/restore/);assert.doesNotMatch(media,/Delete unreferenced asset/);
   const free=renderAdminPage('/admin/media',{items:[{id:'asset-2',courseTitle:'Course',mimeType:'image/png',fileSize:1024,processingStatus:'quarantined',referenceCount:0}]});
@@ -14,7 +14,7 @@ test('admin operations screens render real empty and unavailable states safely',
 
 test('operations overview displays escaped real alert and marks request metrics volatile',()=>{
   const page=renderAdminPage('/admin',{refreshedAt:'today',execution:{paused:true},queue:{queued:0,running:0,oldestQueuedAt:null},workers:{health:'Unavailable',lastObservedAt:null},internalErrors:0,openReports:0,emailDeliveryIssues:0,telemetry:{queue:'available',workerHeartbeat:'not configured',email:'available'},operational:{alerts:[{severity:'critical',code:'execution.stale_running',message:'1 expired lease'}],requestMetrics:{retention:'In-memory; resets on restart',recentByFamily:{auth:{requests:4,failures:2,p95LatencyMs:40}}},execution:{},email:{}}});
-  assert.match(page,/Operational alerts/);assert.match(page,/execution\.stale_running/);assert.match(page,/role="alert"/);
+  assert.match(page,/Operational alerts/);assert.match(page,/Expired worker leases/);assert.match(page,/role="alert"/);
   assert.match(page,/reset on process restart/);assert.match(page,/p95 latency/);
 });
 
@@ -147,7 +147,7 @@ test('internal-error rate card links to recent request metrics anchor and avoids
     },
   });
   assert.match(pageWithOps, /id="recent-request-metrics"/);
-  assert.match(pageWithOps, /<a href="#recent-request-metrics">Recent request metrics<\/a>/);
+  assert.doesNotMatch(pageWithOps, /<a href="#recent-request-metrics">/);
   assert.doesNotMatch(pageWithOps, /<h2>Internal-error rate<\/h2>[\s\S]*?href="\/admin\/execution">Execution records<\/a>/);
 
   // When operational telemetry is not present, card renders no broken anchor

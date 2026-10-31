@@ -1,5 +1,6 @@
 import { renderIcon } from '../../components/common/icons.ts';
-import { formatDate, sentenceCase, humanizeEnum } from '../../utils/formatters.ts';
+import { formatDate, humanizeEnum } from '../../utils/formatters.ts';
+import { stateLabel } from './admin-labels.ts';
 import { formField, table, pill, idChip, reportTone, detailHeader, pageNav, escapeAdmin } from './admin-page-helpers.ts';
 
 export function renderAdminReportsContent(path: string, data: any): string {
@@ -12,7 +13,7 @@ export function renderAdminReportsContent(path: string, data: any): string {
           <td><a href="/admin/reports/${encodeURIComponent(r.id)}" class="table-link font-medium">${escapeAdmin(humanizeEnum(r.type))}</a></td>
           <td><span class="text-secondary">${escapeAdmin(r.courseTitle)}</span></td>
           <td><span class="text-secondary">${escapeAdmin(r.reporterName)}</span></td>
-          <td>${pill(sentenceCase(r.status), reportTone(r.status))}</td>
+          <td>${pill(stateLabel(r.status), reportTone(r.status))}</td>
           <td><time datetime="${escapeAdmin(r.createdAt)}" title="${escapeAdmin(r.createdAt)}" class="text-secondary">${formatDate(r.createdAt)}</time></td>
         </tr>
       `
@@ -63,10 +64,19 @@ export function renderAdminReportDetailContent(data: any): string {
 
       return `
         <p class="mb-4"><a href="/admin/reports" class="back-link">${renderIcon('arrow-left', { size: 14 })} Back to reports</a></p>
-        ${detailHeader(`${escapeAdmin(humanizeEnum(data.type))} · ${escapeAdmin(data.courseTitle)}`, pill(sentenceCase(data.status), reportTone(data.status)), idChip(data.id, 'Report ID'))}
+        ${detailHeader(`${escapeAdmin(humanizeEnum(data.type))} · ${escapeAdmin(data.courseTitle)}`, pill(stateLabel(data.status), reportTone(data.status)), idChip(data.id, 'Report ID'))}
 
         <div class="admin-detail-layout">
           <div class="admin-detail-main">
+            <div class="report-context-panel mb-4">
+              <h3 class="text-sm font-semibold mb-3">Report</h3>
+              <dl class="admin-context-list">
+                <div><dt>Reporter</dt><dd>${escapeAdmin(data.reporterName)}</dd></div>
+                <div><dt>Submitted</dt><dd><time datetime="${escapeAdmin(data.createdAt)}" title="${escapeAdmin(data.createdAt)}">${escapeAdmin(formatDate(data.createdAt))}</time></dd></div>
+                <div><dt>Outcome</dt><dd>${data.resolutionOutcome ? escapeAdmin(data.resolutionOutcome) : '<span class="text-muted">Not recorded</span>'}</dd></div>
+              </dl>
+            </div>
+
             <div class="admin-section-card mb-4">
               <h2 class="section-title">Report description</h2>
               <p class="text-sm leading-relaxed">${escapeAdmin(data.description)}</p>
@@ -96,7 +106,7 @@ export function renderAdminReportDetailContent(data: any): string {
                   <option value="resolved" ${data.status === 'resolved' ? 'selected' : ''}>Resolved</option>
                 </select>
               </label>
-              ${formField('outcome', 'Resolution outcome', 'text', false)}
+              ${formField('outcome', 'Resolution outcome', 'text', false, data.resolutionOutcome || '')}
               <label class="form-group">
                 <span class="form-label">Internal notes</span>
                 <textarea class="form-input form-textarea" name="internalNotes">${escapeAdmin(data.internalNotes || '')}</textarea>

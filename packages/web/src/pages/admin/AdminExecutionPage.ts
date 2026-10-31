@@ -1,5 +1,6 @@
 import { renderIcon } from '../../components/common/icons.ts';
-import { formatDate, sentenceCase, humanizeEnum } from '../../utils/formatters.ts';
+import { formatDate, humanizeEnum } from '../../utils/formatters.ts';
+import { stateLabel } from './admin-labels.ts';
 import { table, pill, pageNav, escapeAdmin, renderActionDialog } from './admin-page-helpers.ts';
 
 export function renderAdminExecutionContent(path: string, data: any): string {
@@ -12,7 +13,7 @@ export function renderAdminExecutionContent(path: string, data: any): string {
         <tr>
           <td><code class="font-mono text-xs" title="${escapeAdmin(j.id)}">${escapeAdmin(j.id.slice(0, 12))}…</code> <button type="button" class="btn-icon btn-compact" data-copy-text="${escapeAdmin(j.id)}" title="Copy job ID" aria-label="Copy job ID">${renderIcon('copy', { size: 12 })}</button></td>
           <td><span class="text-secondary">${escapeAdmin(humanizeEnum(j.jobType))}</span></td>
-          <td>${pill(sentenceCase(j.status), j.status === 'completed' ? 'success' : j.status === 'failed' ? 'danger' : j.status === 'running' ? 'info' : 'neutral')}</td>
+          <td>${pill(stateLabel(j.status), j.status === 'completed' ? 'success' : j.status === 'failed' ? 'danger' : j.status === 'running' ? 'info' : 'neutral')}</td>
           <td><time datetime="${escapeAdmin(j.createdAt)}" title="${escapeAdmin(j.createdAt)}" class="text-secondary">${formatDate(j.createdAt)}</time></td>
           <td><time datetime="${escapeAdmin(j.updatedAt)}" title="${escapeAdmin(j.updatedAt)}" class="text-secondary">${formatDate(j.updatedAt)}</time></td>
         </tr>
@@ -38,7 +39,7 @@ export function renderAdminExecutionContent(path: string, data: any): string {
           </div>
         </div>
 
-        <h2 class="section-title">Queue and worker health</h2>
+        <h2 class="section-title">Queue</h2>
         <div class="admin-stats-grid mb-6">
           <div class="stat-tile">
             <span class="stat-label">Queued jobs</span>
@@ -54,11 +55,6 @@ export function renderAdminExecutionContent(path: string, data: any): string {
             <span class="stat-label">Oldest queued</span>
             <span class="stat-value stat-value-text">${escapeAdmin(data.overview.queue.oldestQueuedAt ? formatDate(data.overview.queue.oldestQueuedAt) : 'None')}</span>
             <span class="stat-hint text-xs text-muted">${escapeAdmin(data.overview.queue.oldestQueuedAt || 'No queued jobs')}</span>
-          </div>
-          <div class="stat-tile">
-            <span class="stat-label">Worker health</span>
-            <div class="mt-1">${pill(data.overview.workers.lastObservedAt ? 'Heartbeat active' : 'Unavailable', data.overview.workers.lastObservedAt ? 'success' : 'neutral')}</div>
-            <span class="stat-hint text-xs text-muted" title="${escapeAdmin(data.overview.workers.health)}">${escapeAdmin(data.overview.workers.lastObservedAt ? data.overview.workers.health || 'Heartbeat telemetry' : 'Heartbeat telemetry')}</span>
           </div>
         </div>
 
