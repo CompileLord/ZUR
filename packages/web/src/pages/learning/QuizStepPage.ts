@@ -4,7 +4,7 @@ import {
   type TaskSquareItem,
 } from '../../components/shells/LearningWorkspaceShell.ts';
 import { escapeHtml } from '../../components/escape-html.ts';
-import { renderInlinesToHtml } from 'zur-shared';
+import { renderInlinesToHtml, renderMarkdownToHtml } from 'zur-shared';
 import { formatDuration } from '../../utils/formatters.ts';
 
 export interface QuizOptionItem {
@@ -104,7 +104,7 @@ export function renderQuizWorkspaceContent(opts: QuizStepPageOptions): { workspa
       ${practiceBannerHtml}
 
       <div class="quiz-prompt-block">
-        <p class="quiz-prompt-text">${renderInlinesToHtml(opts.prompt)}</p>
+        <div class="quiz-prompt-text">${renderMarkdownToHtml(opts.prompt)}</div>
         ${
           isMultiple
             ? '<span class="multi-select-hint">Select all correct answers</span>'
