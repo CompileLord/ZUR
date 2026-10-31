@@ -1,6 +1,6 @@
 import {
-  AdditiveBlending, BufferAttribute, BufferGeometry, Clock, Color, Group, IcosahedronGeometry, LineBasicMaterial,
-  LineSegments, Mesh, MeshPhysicalMaterial, PerspectiveCamera, PMREMGenerator, Points, Scene, ShaderMaterial, TorusGeometry, WebGLRenderer, WireframeGeometry,
+  AdditiveBlending, BufferAttribute, BufferGeometry, Color, Group, IcosahedronGeometry, LineBasicMaterial,
+  LineSegments, Mesh, MeshPhysicalMaterial, NormalBlending, PerspectiveCamera, PMREMGenerator, Points, Scene, ShaderMaterial, Timer, TorusGeometry, WebGLRenderer, WireframeGeometry,
 } from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
@@ -124,7 +124,7 @@ export function initLandingScene(canvas: HTMLCanvasElement, host: HTMLElement): 
   particleGeometry.setAttribute('aSeed', new BufferAttribute(seeds, 1));
   const particles = new Points(particleGeometry, new ShaderMaterial({
     uniforms: { ...uniforms, uPixelRatio: { value: renderer.getPixelRatio() } },
-    transparent: true, depthWrite: false, blending: isDark ? AdditiveBlending : undefined,
+    transparent: true, depthWrite: false, blending: isDark ? AdditiveBlending : NormalBlending,
     vertexShader: `uniform float uTime; uniform float uPixelRatio; attribute float aSeed; varying float vSeed;
       void main(){ vSeed = aSeed; vec3 p = position;
         p.y += sin(uTime*.4 + aSeed*20.)*.25; p.x += cos(uTime*.3 + aSeed*12.)*.2;
@@ -161,11 +161,12 @@ export function initLandingScene(canvas: HTMLCanvasElement, host: HTMLElement): 
   resizeObserver.observe(host);
   resize();
 
-  const clock = new Clock();
+  const timer = new Timer();
   let elapsed = 0, frame = 0, paused = false, visible = true;
   const render = () => {
     frame = 0;
-    elapsed += Math.min(clock.getDelta(), .05);
+    timer.update();
+    elapsed += Math.min(timer.getDelta(), .05);
     uniforms.uTime.value = elapsed;
     pointer.x += (pointer.tx - pointer.x) * .05; pointer.y += (pointer.ty - pointer.y) * .05;
     const scroll = Math.min(window.scrollY / Math.max(host.offsetHeight, 1), 1);
@@ -180,7 +181,7 @@ export function initLandingScene(canvas: HTMLCanvasElement, host: HTMLElement): 
     renderer.render(scene, camera);
     if (!paused && visible) frame = requestAnimationFrame(render);
   };
-  const start = () => { if (!frame && !paused && visible) { clock.getDelta(); frame = requestAnimationFrame(render); } };
+  const start = () => { if (!frame && !paused && visible) { timer.update(); frame = requestAnimationFrame(render); } };
   const stop = () => { cancelAnimationFrame(frame); frame = 0; };
 
   const intersection = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; visible ? start() : stop(); });
