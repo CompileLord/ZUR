@@ -211,8 +211,8 @@ export function attachCourseOverviewListeners(courseId: string): void {
       });
 
       try {
-        await courseClient.enrollInCourse(courseId);
-        navigateTo('/learn');
+        const enrollment = await courseClient.enrollInCourse(courseId);
+        navigateTo(`/learn/${encodeURIComponent(enrollment.id)}`);
       } catch (err: any) {
         enrollBtns.forEach((b) => {
           b.disabled = false;
