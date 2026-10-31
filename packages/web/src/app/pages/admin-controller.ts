@@ -82,6 +82,7 @@ async function showAdminPage(path: string, data: any, error: { message: string; 
     appEl.innerHTML = renderAdminPage(path, data, error, adminActor, notice);
     initTheme();
   }
-  document.title = `${title} · ZUR`;
+  const heading = appEl.querySelector('.admin-page-content h1')?.textContent?.trim();
+  document.title = `${heading || title} · ZUR`;
   if (notice) setTimeout(() => appEl.querySelector('.admin-flash')?.remove(), 8000);
 }
