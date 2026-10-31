@@ -69,7 +69,7 @@ test('Health check and admin metrics expose request IDs without exposing metrics
   const body = await response.json() as any;
   assert.ok(body.requestMetrics.recentByFamily.health.requests >= 1);
   assert.ok(body.requestMetrics.recentByFamily.auth.requests >= 1);
-  assert.equal(body.execution.separateWorkerHeartbeat, 'Unavailable — this deployment has no separate worker heartbeat.');
+  assert.equal(body.execution.separateWorkerHeartbeat, 'Unavailable: this deployment has no separate worker heartbeat.');
   assert.equal(JSON.stringify(body).includes(token), false);
   const overviewResponse = await fetch(`${base}/api/admin/operations`, { headers: { authorization: `Bearer ${token}` } });
   const overview = await overviewResponse.json() as any;

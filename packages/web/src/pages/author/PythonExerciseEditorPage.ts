@@ -159,7 +159,7 @@ export function renderPythonExerciseEditorPage(opts: PythonExerciseEditorPageOpt
       <div class="form-group mt-4">
         <div class="section-header-row">
           <label for="ref-solution-input" class="field-label">Reference solution</label>
-          <span class="status-badge badge-warning">Private — Never sent to students</span>
+          <span class="status-badge badge-warning">Private: never sent to students</span>
         </div>
         <div class="code-field"><textarea id="ref-solution-input" class="textarea-input code-editor font-mono" rows="12" spellcheck="false">${opts.referenceSolution}</textarea></div>
         <p class="field-hint">Must pass all public and hidden test cases under configured runtime limits.</p>

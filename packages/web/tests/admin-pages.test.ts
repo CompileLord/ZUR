@@ -206,7 +206,7 @@ test('report detail links to exact immutable course version and step, never assu
     courseVersionId: null,
     stepId: null,
   });
-  assert.match(pageWithoutVersion, /Unavailable — no version snapshot recorded/);
+  assert.match(pageWithoutVersion, /Unavailable: no version snapshot recorded/);
   assert.match(pageWithoutVersion, /Course-level report/);
 
   // Case 2b: Report with courseVersionId but missing snapshot (versionDetails is null)
@@ -224,7 +224,7 @@ test('report detail links to exact immutable course version and step, never assu
     stepTitle: null,
     versionDetails: null,
   });
-  assert.match(pageWithMissingSnapshot, /Unavailable — no version snapshot recorded/);
+  assert.match(pageWithMissingSnapshot, /Unavailable: no version snapshot recorded/);
   assert.doesNotMatch(pageWithMissingSnapshot, /data-report-version-link/);
   assert.doesNotMatch(pageWithMissingSnapshot, /data-report-step-link/);
   assert.doesNotMatch(pageWithMissingSnapshot, /href="\/admin\/courses\/course-py\?versionId=/);

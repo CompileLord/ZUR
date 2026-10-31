@@ -38,7 +38,7 @@ export function renderActionDialog(opts: ActionDialogOptions): string {
             <div class="flex justify-between"><span class="text-muted">Target:</span> <span class="font-mono text-primary font-medium">${escapeAdmin(opts.target)}</span></div>
             ${
               opts.currentState || opts.resultingState
-                ? `<div class="flex justify-between"><span class="text-muted">Current state:</span> <span class="status-badge info">${escapeAdmin(opts.currentState || '—')}</span></div>
+                ? `<div class="flex justify-between"><span class="text-muted">Current state:</span> <span class="status-badge info">${escapeAdmin(opts.currentState || 'Unknown')}</span></div>
                    ${opts.resultingState ? `<div class="flex justify-between"><span class="text-muted">Resulting state:</span> <span class="status-badge ${isDanger ? 'danger' : 'success'}">${escapeAdmin(opts.resultingState)}</span></div>` : ''}`
                 : ''
             }
@@ -206,7 +206,7 @@ export function renderAdminPageContent(
         attention.push({
           tone: 'warning',
           icon: 'alert-triangle',
-          html: '<strong>Execution admission paused</strong> — new student code jobs are blocked',
+          html: '<strong>Execution admission paused.</strong> New student code jobs are blocked.',
           href: '/admin/execution',
           cta: 'Open execution',
         });
@@ -445,7 +445,7 @@ export function renderAdminPageContent(
                 ${supported.enrollments.map((e: any) => `
                   <section class="admin-overview-card">
                     <h3 class="font-semibold text-sm mb-2">Version ${e.versionNumber} · ${escapeAdmin(e.status)}</h3>
-                    ${table(['Step', 'State', 'Evidence'], e.progress.map((p: any) => `<tr><td>${escapeAdmin(p.title || p.stepId)}</td><td>${p.isWaived ? 'Waived' : p.isCompleted ? 'Completed' : 'Not complete'}</td><td>${escapeAdmin(p.waiverReason || p.completedAt || '—')}</td></tr>`), 'No progress records.')}
+                    ${table(['Step', 'State', 'Evidence'], e.progress.map((p: any) => `<tr><td>${escapeAdmin(p.title || p.stepId)}</td><td>${p.isWaived ? 'Waived' : p.isCompleted ? 'Completed' : 'Not complete'}</td><td>${escapeAdmin(p.waiverReason || p.completedAt || 'None')}</td></tr>`), 'No progress records.')}
                     ${table(['Attempt', 'Step', 'Verdict', 'Date'], e.attempts.map((a: any) => `<tr><td>${a.attemptNumber}</td><td>${escapeAdmin(a.stepId)}</td><td>${escapeAdmin(a.verdict)}</td><td>${escapeAdmin(a.createdAt)}</td></tr>`), 'No assessment attempts.')}
                   </section>
                 `).join('')}
@@ -460,7 +460,7 @@ export function renderAdminPageContent(
             <tr>
               <td>${escapeAdmin(r.request_type)}</td>
               <td>${pill(sentenceCase(r.status), r.status === 'completed' ? 'success' : 'neutral')}</td>
-              <td>${escapeAdmin(r.blocker_reason || '—')}</td>
+              <td>${escapeAdmin(r.blocker_reason || 'None')}</td>
               <td><time datetime="${escapeAdmin(r.created_at)}" title="${escapeAdmin(r.created_at)}">${formatDate(r.created_at)}</time></td>
               <td>
                 ${
@@ -592,7 +592,7 @@ export function renderAdminPageContent(
           <td class="course-owner-cell"><span class="text-secondary">${escapeAdmin(c.owner_name)}</span></td>
           <td class="admin-nowrap">${pill(sentenceCase(c.publication_status), c.publication_status === 'published' ? 'success' : 'neutral')}</td>
           <td class="admin-nowrap">${pill(sentenceCase(c.visibility), 'neutral')}</td>
-          <td class="text-right admin-nowrap"><span class="font-mono text-secondary">${escapeAdmin(c.latest_version ?? '—')}</span></td>
+          <td class="text-right admin-nowrap"><span class="font-mono text-secondary">${escapeAdmin(c.latest_version ?? 'None')}</span></td>
           <td class="admin-nowrap">${c.is_suspended ? pill('Suspended', 'danger') : pill('Available', 'success')}</td>
           <td class="text-right admin-nowrap">${c.open_reports > 0 ? `<a href="/admin/reports" class="status-badge warning" title="${c.open_reports} open reports">${c.open_reports}</a>` : `<span class="text-muted">0</span>`}</td>
         </tr>
@@ -704,7 +704,7 @@ export function renderAdminPageContent(
             </div>
             <div class="admin-def-item">
               <span class="admin-def-label">Published release</span>
-              <span class="admin-def-value">Version ${escapeAdmin(data.latestVersion || '—')}</span>
+              <span class="admin-def-value">Version ${escapeAdmin(data.latestVersion || 'none')}</span>
             </div>
             <div class="admin-def-item">
               <span class="admin-def-label">Active enrollments</span>
@@ -893,7 +893,7 @@ export function renderAdminPageContent(
             </div>
             <div class="dialog-body">
               <div class="admin-mutation-summary admin-action-effect-card danger mb-3 p-3 bg-surface border border-subtle rounded text-xs space-y-1">
-                <div class="flex justify-between"><span class="text-muted">Target category:</span> <span id="remove-category-target-name" class="font-mono text-primary font-medium">—</span></div>
+                <div class="flex justify-between"><span class="text-muted">Target category:</span> <span id="remove-category-target-name" class="font-mono text-primary font-medium">None selected</span></div>
                 <div class="flex justify-between"><span class="text-muted">Course usage:</span> <span id="remove-category-target-usage" class="status-badge info">0</span></div>
                 <div id="remove-category-consequence-warning" class="mt-2 pt-2 border-t border-subtle text-secondary leading-relaxed">Select an eligible replacement category before removal.</div>
               </div>
@@ -968,7 +968,7 @@ export function renderAdminPageContent(
 
       const versionLinkHtml = targetCourseUrl
         ? `<a href="${escapeAdmin(targetCourseUrl)}" class="admin-exact-version-link font-medium underline" data-report-version-link>${escapeAdmin(versionLabel)}${data.versionDetails ? (data.versionDetails.isLatest ? ' (latest published)' : ' (historical version, not newest)') : ''}</a>`
-        : `<span class="text-muted" data-report-version-unavailable>Unavailable — no version snapshot recorded</span>`;
+        : `<span class="text-muted" data-report-version-unavailable>Unavailable: no version snapshot recorded</span>`;
 
       const stepLabel = data.stepTitle ? `${data.stepTitle} (${data.stepId})` : data.stepId || 'Course-level';
       const stepLinkHtml = data.stepId
@@ -1268,14 +1268,14 @@ export function renderAdminPageContent(
             </a>
             <span class="audit-target-type text-secondary">${escapeAdmin(humanizeEnum(e.targetType))}</span>
           </td>
-          <td class="audit-reason-cell"><span class="text-secondary">${escapeAdmin(e.reason || '—')}</span></td>
+          <td class="audit-reason-cell"><span class="text-secondary">${escapeAdmin(e.reason || 'None given')}</span></td>
           <td class="audit-details-cell">
             <details class="audit-details">
               <summary>Details</summary>
               <dl>
                 <div><dt>Action</dt><dd><code>${escapeAdmin(e.action)}</code></dd></div>
                 <div><dt>Target</dt><dd><code>${escapeAdmin(e.targetType)} · ${escapeAdmin(e.targetId)}</code></dd></div>
-                <div><dt>Correlation</dt><dd><code>${escapeAdmin(e.correlationId || '—')}</code></dd></div>
+                <div><dt>Correlation</dt><dd><code>${escapeAdmin(e.correlationId || 'None')}</code></dd></div>
               </dl>
             </details>
           </td>

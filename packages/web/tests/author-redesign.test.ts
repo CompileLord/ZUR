@@ -500,6 +500,6 @@ test('Author Interface Redesign Acceptance Suite (2026-10-06)', async (t) => {
 
     assert.ok(quizPreview.includes('Preview selection'), 'Renders truthful Preview selection button');
     assert.ok(!quizPreview.includes('Answer submitted in preview mode'), 'Must not claim answer submitted or validated');
-    assert.ok(quizPreview.includes('grading disabled'), 'Truthfully states grading is disabled in interaction preview');
+    assert.ok(quizPreview.includes('Grading is disabled'), 'Truthfully states grading is disabled in interaction preview');
   });
 });

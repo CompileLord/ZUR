@@ -66,7 +66,7 @@ test('Accessible Shared Components (design.md §6, T010)', async (t) => {
     assert.strictEqual(saved.includes('aria-live="polite"'), true);
 
     const unsaved = renderSaveIndicator({ status: 'unsaved' });
-    assert.strictEqual(unsaved.includes('Not saved — retrying'), true);
+    assert.strictEqual(unsaved.includes('Not saved, retrying'), true);
   });
 
   await t.test('LessonRail marks current, completed, and waived steps with accessible text', () => {

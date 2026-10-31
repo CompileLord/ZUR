@@ -236,7 +236,7 @@ test('AI Connections & Client Setup Pages (P43–P44, T055–T056)', async (t) =
     assert.ok(html.includes(sampleRaw), 'Raw token value present in reveal modal');
     assert.ok(html.includes('id="btn-toggle-secret-visibility"'), 'Reveal/Hide button present');
     assert.ok(html.includes('id="btn-copy-token"'), 'Copy token button present');
-    assert.ok(html.includes("I've saved it — view setup"), 'View setup navigation button present');
+    assert.ok(html.includes("I've saved it, view setup"), 'View setup navigation button present');
     assert.ok(html.includes('/settings/ai-connections/tok-new-1/setup'), 'Links to setup for the new token');
   });
 

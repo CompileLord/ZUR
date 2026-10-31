@@ -29,7 +29,7 @@ export function renderAuthorPreviewPage(opts: AuthorPreviewPageOptions): string 
       <div class="banner-inner container">
         <div class="banner-left">
           <span class="preview-tag">STUDENT PREVIEW</span>
-          <span class="preview-text">Preview — your actions won't affect student progress or analytics.</span>
+          <span class="preview-text">Preview: your actions won't affect student progress or analytics.</span>
         </div>
         <div class="banner-right">
           <a href="${opts.returnEditorUrl}" class="btn btn-secondary btn-compact">← Back to editor</a>
@@ -160,7 +160,7 @@ export function renderAuthorPreviewPage(opts: AuthorPreviewPageOptions): string 
 
           <div class="quiz-action-bar mt-4 flex items-center gap-3">
             <button type="button" class="btn btn-secondary btn-compact" data-action="submit-preview-quiz" id="preview-quiz-submit-btn">Preview selection</button>
-            <span class="text-xs text-muted">Interaction preview only — grading disabled</span>
+            <span class="text-xs text-muted">Interaction preview only. Grading is disabled.</span>
           </div>
           <div id="preview-quiz-feedback" class="quiz-feedback-box mt-3 text-xs" aria-live="polite"></div>
         </div>

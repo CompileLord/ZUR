@@ -174,7 +174,7 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
       <section class="exercise-insights-section analytics-insights space-y-4" aria-labelledby="insights-heading">
         <div class="flex justify-between items-end pb-2">
           <div>
-            <h2 id="insights-heading" class="text-lg font-bold text-primary">Exercise insights — Version ${escapeHtml(String(an.versionNumber ?? 'latest'))}${!filters?.versionId ? ' (latest release)' : ''}</h2>
+            <h2 id="insights-heading" class="text-lg font-bold text-primary">Exercise insights: version ${escapeHtml(String(an.versionNumber ?? 'latest'))}${!filters?.versionId ? ' (latest release)' : ''}</h2>
             <p class="text-xs text-secondary mt-0.5">Assessed exercises with activity in the last ${currentWindowDays} days.</p>
           </div>
           ${emptyInsightCount > 0 ? `
@@ -265,7 +265,7 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
                           ${medianAttempts}
                         </span>
                       ` : `
-                        <span class="text-xs text-muted">—</span>
+                        <span class="text-xs text-muted">No data</span>
                       `}
                     </td>
 
@@ -286,7 +286,7 @@ export function renderCourseAnalyticsPage(props: CourseAnalyticsPageProps): stri
                           </span>
                         ` : ''}
                         ${waivers === 0 && infraFailures === 0 ? `
-                          <span class="text-muted">—</span>
+                          <span class="text-muted">No data</span>
                         ` : ''}
                       </div>
                     </td>

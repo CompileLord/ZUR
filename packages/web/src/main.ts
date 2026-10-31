@@ -133,7 +133,7 @@ function cleanupActiveModals(): void {
 let activeAppearanceQueue: AppearanceSaveQueue | null = null;
 let activeAppearanceCleanup: (() => void) | null = null;
 async function s2Request(url: string, method = 'GET', body?: unknown): Promise<any> {
-  const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authClient.getToken() || ''}` }, body: body === undefined ? undefined : JSON.stringify(body) });
+  const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body) });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     if (response.status === 401) {
@@ -1056,13 +1056,7 @@ async function hydrateDeferredAssets(container: HTMLElement = appEl): Promise<vo
     const assetId = image.dataset.authorizedAsset || '';
     if (!/^[0-9a-f-]{36}$/i.test(assetId)) continue;
     try {
-      const token = authClient.getToken();
-      const headers: Record<string, string> = {};
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-      const response = await fetch(`/api/assets/${encodeURIComponent(assetId)}`, {
-        cache: 'no-store',
-        headers,
-      });
+      const response = await fetch(`/api/assets/${encodeURIComponent(assetId)}`, { cache: 'no-store' });
       if (!response.ok) throw new Error('media unavailable');
       const blob = await response.blob();
       if (!/^image\/(png|jpeg|webp|gif)$/.test(blob.type)) throw new Error('unsupported media');
@@ -2250,7 +2244,7 @@ async function loadLessonStep(enrollmentId: string, stepId: string, kind: 'theor
         const assetId = image.dataset.authorizedAsset || '';
         if (!/^[0-9a-f-]{36}$/i.test(assetId)) { if (isCurrent()) image.remove(); continue; }
         try {
-          const response = await fetch(`/api/assets/${encodeURIComponent(assetId)}`, { cache: 'no-store', headers: { Authorization: `Bearer ${authClient.getToken() || ''}` } });
+          const response = await fetch(`/api/assets/${encodeURIComponent(assetId)}`, { cache: 'no-store' });
           if (!response.ok) throw new Error('media unavailable');
           if (!isCurrent()) continue;
           const blob = await response.blob();
@@ -2542,6 +2536,10 @@ function attachPythonWorkspaceListeners(
   let resultMode = initial.resultMode;
   let activeTab = initial.activeTab || 'results';
   let customStdin = initial.customStdin || '';
+  const isMac = typeof navigator !== 'undefined' && (/Mac|iPhone|iPad|iPod/.test(navigator.platform) || /Mac/.test(navigator.userAgent));
+  const runShortcutText = isMac ? '⌘+Enter' : 'Ctrl+Enter';
+  const runAriaShortcut = isMac ? 'Meta+Enter' : 'Control+Enter';
+  const getSelectedRunMode = (): 'samples' | 'custom' => (activeTab === 'custom_input' ? 'custom' : 'samples');
   const pendingJobKey = `zur_job_${userId}_${initial.enrollmentId}_${initial.stepId}`;
   const saveQueue = new DraftSaveQueue({
     revision: startingRevision,
@@ -2629,6 +2627,12 @@ function attachPythonWorkspaceListeners(
     activeTab = tabName;
     const modeSelect = document.getElementById('run-mode-select') as HTMLSelectElement | null;
     if (modeSelect) modeSelect.value = tabName === 'custom_input' ? 'custom' : 'samples';
+    const runBtn = document.getElementById('run-code-btn');
+    if (runBtn) {
+      runBtn.title = tabName === 'custom_input'
+        ? `Run with custom input (${runShortcutText})`
+        : `Run samples (${runShortcutText})`;
+    }
     document.querySelectorAll<HTMLButtonElement>('.results-tab-button[role="tab"]').forEach((tab) => {
       const selected = tab.dataset.tab === tabName;
       tab.classList.toggle('active', Boolean(selected));
@@ -2657,9 +2661,9 @@ function attachPythonWorkspaceListeners(
         indentationSpaces: initial.indentationSpaces || 4,
         editorFontSize: initial.editorFontSize || 14,
         onModEnter: () => {
-          const mode = 'custom';
+          const mode = getSelectedRunMode();
           const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
-          void execute(mode, input?.value ?? customStdin);
+          void execute(mode, mode === 'custom' ? (input?.value ?? customStdin) : undefined);
         },
         onEscape: () => {
           document.getElementById('run-code-btn')?.focus();
@@ -2935,22 +2939,19 @@ function attachPythonWorkspaceListeners(
     }
   } catch { localStorage.removeItem(pendingJobKey); }
 
-  const isMac = typeof navigator !== 'undefined' && (/Mac|iPhone|iPad|iPod/.test(navigator.platform) || /Mac/.test(navigator.userAgent));
-  const runShortcutText = isMac ? '⌘+Enter' : 'Ctrl+Enter';
-  const runAriaShortcut = isMac ? 'Meta+Enter' : 'Control+Enter';
   const runCodeBtn = document.getElementById('run-code-btn');
   if (runCodeBtn) {
-    runCodeBtn.title = `Run code (${runShortcutText})`;
+    runCodeBtn.title = activeTab === 'custom_input'
+      ? `Run with custom input (${runShortcutText})`
+      : `Run samples (${runShortcutText})`;
     runCodeBtn.setAttribute('aria-keyshortcuts', runAriaShortcut);
   }
-
-  const getSelectedRunMode = (): 'samples' | 'custom' => 'custom';
 
   runCodeBtn?.addEventListener('click', () => {
     const mode = getSelectedRunMode();
     const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
     if (input) customStdin = input.value;
-    void execute(mode, customStdin);
+    void execute(mode, mode === 'custom' ? customStdin : undefined);
   });
   document.getElementById('run-mode-select')?.addEventListener('change', (e) => {
     const mode = (e.target as HTMLSelectElement).value;
@@ -3060,7 +3061,8 @@ function attachPythonWorkspaceListeners(
       event.preventDefault();
       const mode = getSelectedRunMode();
       const input = document.getElementById('custom-stdin-input') as HTMLTextAreaElement | null;
-      void execute(mode, input?.value || '');
+      if (input) customStdin = input.value;
+      void execute(mode, mode === 'custom' ? customStdin : undefined);
     }
   });
   document.getElementById('reset-code-btn')?.addEventListener('click', async () => {
@@ -3221,7 +3223,7 @@ async function loadAdminPage(path: string, displayName: string, email: string): 
     });
   }
 
-  const headers = { Authorization: `Bearer ${authClient.getToken() || ''}` };
+  const headers: Record<string, string> = {};
   const api = async (url: string) => {
     const res = await fetch(url, { headers });
     if (!res.ok) {
@@ -5837,7 +5839,7 @@ document.addEventListener('submit', async (event) => {
     event.preventDefault();const values=Object.fromEntries(new FormData(previewForm).entries());const button=previewForm.querySelector('button') as HTMLButtonElement|null;if(button){button.disabled=true;button.textContent='Checking and loading…';}
     previewForm.querySelectorAll('.text-danger').forEach((f) => f.remove());
     try{
-      const response=await fetch(previewForm.getAttribute('action')||'',{method:'POST',headers:{Authorization:`Bearer ${authClient.getToken()||''}`,'Content-Type':'application/json'},body:JSON.stringify(values)});
+      const response=await fetch(previewForm.getAttribute('action')||'',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(values)});
       if(!response.ok){const err=await response.json().catch(()=>({}));throw new Error(err.error?.message||'Preview is unavailable.');}
       const blob=await response.blob();
       if(!blob.type.startsWith('image/'))throw new Error('The preview did not contain a safe image.');
@@ -5858,7 +5860,7 @@ document.addEventListener('submit', async (event) => {
   const exportForm=(event.target as HTMLElement).closest('form[data-admin-export]') as HTMLFormElement|null;
   if(exportForm){
     event.preventDefault();const feedback=exportForm.querySelector('.form-error') as HTMLElement|null;const button=exportForm.querySelector('button[type="submit"]') as HTMLButtonElement|null;if(button){button.disabled=true;button.textContent='Preparing export…';}
-    try{const response=await fetch(exportForm.getAttribute('action')||'',{method:'POST',headers:{Authorization:`Bearer ${authClient.getToken()||''}`,'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(exportForm).entries()))});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error?.message||'The export could not be prepared.');if(feedback){feedback.classList.remove('hidden');feedback.classList.add('text-success');feedback.setAttribute('role','status');feedback.textContent=`Export is ready for the account owner in Privacy settings until ${new Date(result.expiresAt).toLocaleString()}.`;}if(button)button.textContent='Export prepared';}
+    try{const response=await fetch(exportForm.getAttribute('action')||'',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(exportForm).entries()))});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error?.message||'The export could not be prepared.');if(feedback){feedback.classList.remove('hidden');feedback.classList.add('text-success');feedback.setAttribute('role','status');feedback.textContent=`Export is ready for the account owner in Privacy settings until ${new Date(result.expiresAt).toLocaleString()}.`;}if(button)button.textContent='Export prepared';}
     catch(error:any){if(feedback){feedback.textContent=error.message;feedback.classList.remove('hidden');}if(button){button.disabled=false;button.textContent='Prepare export for user';}}
     return;
   }
@@ -5875,7 +5877,7 @@ document.addEventListener('submit', async (event) => {
   if(button){button.disabled=true;button.dataset.label=button.textContent||'';button.textContent='Confirming…';}
   if(feedback){feedback.textContent='';feedback.classList.add('hidden');}
   try{
-    const res=await fetch(action,{method,headers:{Authorization:`Bearer ${authClient.getToken()||''}`,'Content-Type':'application/json'},body:JSON.stringify(values)});
+    const res=await fetch(action,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(values)});
     const body=await res.json().catch(()=>({}));
     if(!res.ok)throw new Error(body.error?.message||'The administrator action could not be completed.');
     if(action==='/api/admin/support-access') { navigateTo(`/admin/users/${encodeURIComponent(body.userId)}?supportAccess=${encodeURIComponent(body.id)}`);return; }
@@ -5901,7 +5903,7 @@ document.addEventListener('change', async (event) => {
   const [versionId,stepId]=(select.value||'').split('|');const action=form.getAttribute('action')||'';
   const output=form.querySelector('.waiver-review-count') as HTMLElement|null;const countField=form.querySelector('[name="reviewedAffectedCount"]') as HTMLInputElement|null;const button=form.querySelector('button[type="submit"]') as HTMLButtonElement|null;
   if(output)output.textContent='Checking affected enrollments…';if(button)button.disabled=true;
-  try{const query=new URLSearchParams({versionId,stepId});const res=await fetch(`${action}?${query}`,{headers:{Authorization:`Bearer ${authClient.getToken()||''}`}});const result=await res.json().catch(()=>({}));if(!res.ok)throw new Error(result.error?.message||'Could not review waiver scope.');if(countField)countField.value=String(result.affectedCount);if(output)output.textContent=`${result.affectedCount} active enrollment(s) will be affected · ${result.scope}.`;if(button)button.disabled=result.affectedCount===0;}
+  try{const query=new URLSearchParams({versionId,stepId});const res=await fetch(`${action}?${query}`,{});const result=await res.json().catch(()=>({}));if(!res.ok)throw new Error(result.error?.message||'Could not review waiver scope.');if(countField)countField.value=String(result.affectedCount);if(output)output.textContent=`${result.affectedCount} active enrollment(s) will be affected · ${result.scope}.`;if(button)button.disabled=result.affectedCount===0;}
   catch(error:any){if(countField)countField.value='0';if(output)output.textContent=error.message;if(button)button.disabled=true;}
 });
 

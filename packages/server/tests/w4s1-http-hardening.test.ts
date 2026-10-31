@@ -127,6 +127,24 @@ test('CSRF enforced over HTTP for cookie sessions', async () => {
   } finally { await s.close(); }
 });
 
+test('cookie session authenticates even when an empty Bearer header is sent; malformed cookies do not crash', async () => {
+  const s = await start();
+  try {
+    const { hashPassword } = await import('../src/services/password-service.ts');
+    s.db.prepare(`INSERT INTO users (id, email, password_hash, display_name, email_verified, capabilities, account_status, created_at, updated_at)
+      VALUES ('u-cookie', 'cookie@zur.test', ?, 'Cookie User', 1, '["student"]', 'active', datetime('now'), datetime('now'))`).run(hashPassword('CookiePass123!'));
+    const signIn = await req(s.port, { method: 'POST', path: '/api/auth/sign-in', headers: JSON_H, body: JSON.stringify({ email: 'cookie@zur.test', password: 'CookiePass123!' }) });
+    assert.equal(signIn.status, 200);
+    const cookie = String(signIn.headers['set-cookie']).split(';')[0];
+    assert.match(cookie, /^zur_session=\S+/);
+    const me = await req(s.port, { path: '/api/auth/me', headers: { Cookie: cookie, Authorization: 'Bearer ' } });
+    assert.equal(me.status, 200);
+    assert.equal(JSON.parse(me.text).user.email, 'cookie@zur.test');
+    const malformed = await req(s.port, { path: '/api/auth/me', headers: { Cookie: 'zur_session=%E0%A4%A' } });
+    assert.equal(malformed.status, 401);
+  } finally { await s.close(); }
+});
+
 test('readyz reports ready with queue info and 503 when the database is gone', async () => {
   const s = await start();
   try {

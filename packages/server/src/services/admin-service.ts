@@ -103,7 +103,7 @@ export class AdminService {
       suspendedCourses: { count: suspendedCount, items: suspendedItems },
       execution: { paused: ((this.db.prepare(`SELECT value FROM system_settings WHERE key='execution_paused'`).get() as any)?.value === 'true'), updatedAt: settings?.updated_at || null },
       queue: { queued: count("SELECT COUNT(*) count FROM execution_jobs WHERE status='queued'"), running: count("SELECT COUNT(*) count FROM execution_jobs WHERE status='running'"), oldestQueuedAt: oldest?.created_at || null },
-      workers: { lastObservedAt: null, health: 'Unavailable — no separate worker heartbeat configured' },
+      workers: { lastObservedAt: null, health: 'Unavailable: no separate worker heartbeat configured' },
       internalErrors: internalErrorRate.numerator,
       internalErrorRate,
       executionInfrastructureErrors,

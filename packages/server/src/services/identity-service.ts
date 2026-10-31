@@ -205,25 +205,28 @@ export class IdentityService {
 
   // --- T013: Sign-Up & Email Verification ---
 
+  /** Pure input checks, run before the sign-up rate limiter so typos never consume the IP quota. */
+  static validateSignUpInput(data: { email: string; password: string; displayName: string }): { email: string; displayName: string; password: string } {
+    const email = data.email?.trim().toLowerCase();
+    const displayName = data.displayName?.trim();
+    const password = data.password;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new ValidationError('A valid email address is required.');
+    }
+    if (!displayName || displayName.length < 2 || displayName.length > 50) {
+      throw new ValidationError('Display name must be between 2 and 50 characters.');
+    }
+    if (!password || password.length < 8) {
+      throw new ValidationError('Password must be at least 8 characters.');
+    }
+    return { email, displayName, password };
+  }
+
   signUp(data: { email: string; password: string; displayName: string }): {
     user: User;
     verificationToken: string;
   } {
-    const email = data.email?.trim().toLowerCase();
-    const displayName = data.displayName?.trim();
-    const password = data.password;
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      throw new ValidationError('A valid email address is required.');
-    }
-
-    if (!displayName || displayName.length < 2 || displayName.length > 50) {
-      throw new ValidationError('Display name must be between 2 and 50 characters.');
-    }
-
-    if (!password || password.length < 8) {
-      throw new ValidationError('Password must be at least 8 characters.');
-    }
+    const { email, displayName, password } = IdentityService.validateSignUpInput(data);
 
     const existing = this.db.prepare('SELECT id FROM users WHERE email = ?').get(email);
     if (existing) {

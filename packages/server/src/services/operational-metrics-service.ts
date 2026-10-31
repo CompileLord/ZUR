@@ -95,7 +95,7 @@ export class OperationalMetricsService {
       windowSeconds: WINDOW_MS / 1000,
       process: { uptimeSeconds: Math.floor(process.uptime()), residentBytes: process.memoryUsage().rss },
       requestMetrics: { retention: 'In-memory, last 10,000 requests; resets on process restart.', totalSinceStart: this.totalObserved, recentByFamily: counts },
-      execution: { queueAgeSeconds, staleRunning, infrastructureFailures24h, separateWorkerHeartbeat: 'Unavailable — this deployment has no separate worker heartbeat.' },
+      execution: { queueAgeSeconds, staleRunning, infrastructureFailures24h, separateWorkerHeartbeat: 'Unavailable: this deployment has no separate worker heartbeat.' },
       email: { deliveryIssues },
       serverErrorRate: this.getServerErrorRate(now),
       accessDenialLikeResponses,

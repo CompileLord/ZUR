@@ -130,16 +130,14 @@ export function createServer(
     return Object.fromEntries(
       header.split(';').map((c) => {
         const [k, ...v] = c.trim().split('=');
-        return [k, decodeURIComponent(v.join('='))];
+        try { return [k, decodeURIComponent(v.join('='))]; } catch { return [k, '']; }
       })
     );
   }
 
   function getSessionToken(req: http.IncomingMessage): string | null {
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      return authHeader.substring(7).trim();
-    }
+    const bearer = /^Bearer\s+(\S+)/i.exec(req.headers.authorization || '')?.[1];
+    if (bearer) return bearer;
     const cookies = parseCookies(req);
     return cookies.zur_session || null;
   }
@@ -225,10 +223,12 @@ export function createServer(
 
       // 1. Sign Up (T013)
       if (method === 'POST' && pathname === '/api/auth/sign-up') {
-        identityService.consumeRequestRateLimit('sign-up-ip', getClientIp(req), 10, 60 * 60 * 1000);
         const body = await parseJsonBody(req);
         requireStrings(body, { displayName: { max: 200 }, email: { max: 320 }, password: { max: 1024 } });
+        IdentityService.validateSignUpInput(body);
         if (body.adultConfirmed !== true) throw new ValidationError('Adult eligibility confirmation is required.');
+        // Sized for a classroom registering together behind one NAT address.
+        identityService.consumeRequestRateLimit('sign-up-ip', getClientIp(req), 50, 60 * 60 * 1000);
         const result = identityService.signUp(body);
         const delivery = await emailDeliveryService.sendAccountLink({ recipientEmail: result.user.email,
           kind: 'verify', path: `/verify-email?token=${encodeURIComponent(result.verificationToken)}` });

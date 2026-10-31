@@ -133,10 +133,10 @@ export function renderAppearanceSettingsPage(opts: AppearanceSettingsPageOptions
             <div class="form-group">
               <label for="editorFontSize" class="form-label mb-1">Font size</label>
               <select id="editorFontSize" name="editorFontSize" class="form-select w-full">
-                <option value="12" ${fontSize === 12 ? 'selected' : ''}>12px — Compact</option>
-                <option value="14" ${fontSize === 14 ? 'selected' : ''}>14px — Standard</option>
-                <option value="16" ${fontSize === 16 ? 'selected' : ''}>16px — Large</option>
-                <option value="18" ${fontSize === 18 ? 'selected' : ''}>18px — Extra large</option>
+                <option value="12" ${fontSize === 12 ? 'selected' : ''}>12px, compact</option>
+                <option value="14" ${fontSize === 14 ? 'selected' : ''}>14px, standard</option>
+                <option value="16" ${fontSize === 16 ? 'selected' : ''}>16px, large</option>
+                <option value="18" ${fontSize === 18 ? 'selected' : ''}>18px, extra large</option>
               </select>
             </div>
 

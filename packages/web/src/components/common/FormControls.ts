@@ -83,7 +83,7 @@ export function renderSaveIndicator(props: SaveIndicatorProps): string {
     text = 'Saving…';
     icon = '↻';
   } else if (props.status === 'unsaved') {
-    text = 'Not saved — retrying';
+    text = 'Not saved, retrying';
     icon = '⚠';
   }
 

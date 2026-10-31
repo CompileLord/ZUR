@@ -104,7 +104,7 @@ export function renderEnrolledCoursePage(opts: EnrolledCoursePageOptions): strin
   if (opts.isArchived) {
     archivedNoticeHtml = `
       <div class="status-banner info" role="note">
-        <span>Archived — you can continue learning and practicing on your pinned version.</span>
+        <span>Archived. You can continue learning and practicing on your pinned version.</span>
       </div>
     `;
   }

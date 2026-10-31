@@ -19,10 +19,6 @@ export class CourseClient {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
-    const token = this.authClient.getToken();
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
     return headers;
   }
 

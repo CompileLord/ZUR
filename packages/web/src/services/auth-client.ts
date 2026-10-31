@@ -2,7 +2,8 @@ import type { User, UserPreferences, PrivacyRequest } from 'zur-shared';
 import { getSafeReturnDestination } from '../router/routes.ts';
 import { DraftManager } from './draft-manager.ts';
 
-const TOKEN_KEY = 'zur_session_token';
+// Legacy key from when the session token lived in browser storage; purged on startup.
+const LEGACY_TOKEN_KEY = 'zur_session_token';
 const USER_KEY = 'zur_current_user';
 
 export const SESSION_EXPIRED_EVENT = 'zur:session-expired';
@@ -30,10 +31,12 @@ export class ApiTimeoutError extends Error {
 export class AuthClient {
   private static instance: AuthClient;
   private currentUser: User | null = null;
-  private token: string | null = null;
+  /** Bumped on every sign-in/sign-out so stale 401s cannot expire a newer session. */
+  private sessionEpoch = 0;
 
+  // The session credential is the HttpOnly zur_session cookie; script never holds it.
   private constructor() {
-    this.token = localStorage.getItem(TOKEN_KEY);
+    localStorage.removeItem(LEGACY_TOKEN_KEY);
     const cachedUser = localStorage.getItem(USER_KEY);
     if (cachedUser) {
       try {
@@ -55,26 +58,20 @@ export class AuthClient {
     return this.currentUser;
   }
 
-  getToken(): string | null {
-    return this.token;
-  }
-
   isAuthenticated(): boolean {
-    return Boolean(this.currentUser && this.token);
+    return Boolean(this.currentUser);
   }
 
-  setSession(token: string, user: User): void {
-    this.token = token;
+  setSession(user: User): void {
+    this.sessionEpoch++;
     this.currentUser = user;
-    localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   }
 
   clearSession(): void {
     if (this.currentUser) DraftManager.clearAllUserLocalDrafts(this.currentUser.id);
-    this.token = null;
+    this.sessionEpoch++;
     this.currentUser = null;
-    localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
 
     // Purge account-scoped cache per POLICY-001 §6
@@ -97,15 +94,11 @@ export class AuthClient {
       ...((init.headers as Record<string, string>) || {}),
     };
 
-    // Never send an empty or malformed bearer credential.
-    const sentToken = this.token && this.token.trim() ? this.token : null;
-    if (sentToken) {
-      headers['Authorization'] = `Bearer ${sentToken}`;
-    } else {
-      for (const key of Object.keys(headers)) {
-        if (key.toLowerCase() === 'authorization' && !/^Bearer\s+\S+/.test(headers[key] || '')) delete headers[key];
-      }
+    // Never send an empty or malformed bearer credential; it would shadow the session cookie.
+    for (const key of Object.keys(headers)) {
+      if (key.toLowerCase() === 'authorization' && !/^Bearer\s+\S+/.test(headers[key] || '')) delete headers[key];
     }
+    const sentEpoch = this.currentUser ? this.sessionEpoch : null;
 
     const controller = new AbortController();
     let timedOut = false;
@@ -119,7 +112,7 @@ export class AuthClient {
     let res: Response;
     let data: any;
     try {
-      res = await fetch(endpoint, { ...init, headers, signal: controller.signal });
+      res = await fetch(endpoint, { credentials: 'same-origin', ...init, headers, signal: controller.signal });
       data = await res.json().catch(() => ({}));
     } catch (err) {
       if (timedOut) throw new ApiTimeoutError(endpoint, timeoutMs);
@@ -133,7 +126,7 @@ export class AuthClient {
       if (res.status === 401 && endpoint !== '/api/auth/sign-in') {
         // Only the request that carried the still-current session expires it, so a burst of
         // concurrent 401s (or a 401 for an already-replaced session) emits exactly one event.
-        if (sentToken && this.token === sentToken) {
+        if (sentEpoch !== null && this.currentUser && this.sessionEpoch === sentEpoch) {
           this.clearSession();
           this.emitSessionExpired(endpoint);
         }
@@ -164,7 +157,7 @@ export class AuthClient {
       body: JSON.stringify({ email, password }),
     });
 
-    this.setSession(data.token, data.user);
+    this.setSession(data.user);
     return data.user;
   }
 

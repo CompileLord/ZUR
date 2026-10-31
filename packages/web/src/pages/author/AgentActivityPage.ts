@@ -672,7 +672,7 @@ export function renderAgentActivityPage(opts: AgentActivityPageOptions): string 
           <header class="drawer-header mb-3" style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-default); padding-bottom: 1rem;">
             <div>
               <h2 id="diff-drawer-title" class="section-title" style="font-size: 1.25rem; margin: 0 0 0.25rem 0;">
-                Mutation Diff — ${escapeHtml(formatToolName(sel.toolName))}
+                Changes: ${escapeHtml(formatToolName(sel.toolName))}
               </h2>
               <p class="text-secondary" style="font-size: 0.8125rem; margin: 0;">
                 Applied by <strong>${escapeHtml(sel.tokenLabel)}</strong> · <time datetime="${escapeHtml(sel.createdAt)}" title="${escapeHtml(sel.createdAt)}">${escapeHtml(formatActivityDate(sel.createdAt))}</time>

@@ -523,7 +523,7 @@ test('P30: Course Analytics Page (design.md P30, PRD §14, T075)', async (t) => 
 
     assert.ok(html.includes('>All versions</option>'), 'Dropdown exposes an all-version enrollment summary option');
     assert.ok(html.includes('Enrollment summary version'), 'Accessible label identifies which metrics the version selector filters');
-    assert.ok(html.includes('Exercise insights — Version 2 (latest release)'), 'Table heading states latest release');
+    assert.ok(html.includes('Exercise insights: version 2 (latest release)'), 'Table heading states latest release');
     assert.ok(html.includes('Enrollment metrics follow the selected version scope'), 'Summary scope is explained separately from exercise scope');
     assert.ok(html.includes('Exercise results use one immutable release at a time'), 'Exercise filter semantics explain version pinning');
   });

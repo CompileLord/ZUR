@@ -151,7 +151,7 @@ test('Agent Activity and Builder Update UI (P45, T067)', async (t) => {
 
     assert.ok(html.includes('role="dialog"'));
     assert.ok(html.includes('aria-modal="true"'));
-    assert.ok(html.includes('Mutation Diff — Update step content'));
+    assert.ok(html.includes('Changes: Update step content'));
     assert.ok(html.includes('Applied by <strong>Exercise Fixer Bot</strong>'));
     assert.ok(html.includes('Revision bump:</strong> <code>r2 → r3</code>'));
     assert.ok(html.includes('Correlation ID:</strong> <code>corr-step-102</code>'));

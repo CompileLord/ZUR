@@ -34,7 +34,7 @@ test.afterEach(() => {
 });
 
 test('AuthClient.fetchApi', async (t) => {
-  await t.test('omits Authorization when there is no token', async () => {
+  await t.test('omits Authorization when signed out', async () => {
     const { client } = setup();
     let seen: Record<string, string> = {};
     globalThis.fetch = (async (_u: any, init: any) => { seen = init.headers; return json(200, { ok: true }); }) as any;
@@ -42,27 +42,36 @@ test('AuthClient.fetchApi', async (t) => {
     assert.equal('Authorization' in seen, false);
   });
 
-  await t.test('never sends an empty Bearer header (blank token, caller-supplied empty header)', async () => {
+  await t.test('never sends an empty Bearer header (caller-supplied empty header)', async () => {
     const { client } = setup();
-    client.token = '   ';
+    client.setSession(user);
     let seen: Record<string, string> = {};
     globalThis.fetch = (async (_u: any, init: any) => { seen = init.headers; return json(200); }) as any;
     await client.fetchApi('/api/x', { headers: { authorization: 'Bearer ' } });
     assert.equal(Object.keys(seen).some((k) => k.toLowerCase() === 'authorization'), false);
   });
 
-  await t.test('sends Bearer token when signed in', async () => {
+  await t.test('relies on the HttpOnly session cookie: no Authorization header, same-origin credentials', async () => {
     const { client } = setup();
-    client.setSession('tok123', user);
-    let seen: Record<string, string> = {};
-    globalThis.fetch = (async (_u: any, init: any) => { seen = init.headers; return json(200); }) as any;
+    client.setSession(user);
+    let seen: any = {};
+    globalThis.fetch = (async (_u: any, init: any) => { seen = init; return json(200); }) as any;
     await client.fetchApi('/api/x');
-    assert.equal(seen['Authorization'], 'Bearer tok123');
+    assert.equal('Authorization' in seen.headers, false);
+    assert.equal(seen.credentials, 'same-origin');
+  });
+
+  await t.test('sign-in never persists the session token in browser storage', async () => {
+    const { client } = setup();
+    globalThis.fetch = (async () => json(200, { token: 'secret-session-token', user })) as any;
+    await client.signIn('a@b.co', 'pw');
+    assert.equal(client.isAuthenticated(), true);
+    assert.equal([...store.values()].some((v) => v.includes('secret-session-token')), false);
   });
 
   await t.test('401 clears the session and emits exactly one zur:session-expired with the path', async () => {
     const { client, events } = setup();
-    client.setSession('tok123', user);
+    client.setSession(user);
     globalThis.fetch = (async () => json(401, { error: { code: 'UNAUTHENTICATED', message: 'nope' } })) as any;
     const results = await Promise.allSettled([client.fetchApi('/api/a'), client.fetchApi('/api/b'), client.fetchApi('/api/c')]);
     assert.ok(results.every((r) => r.status === 'rejected'));
@@ -91,7 +100,7 @@ test('AuthClient.fetchApi', async (t) => {
 
   await t.test('non-401 errors keep the session and carry code/status', async () => {
     const { client, events } = setup();
-    client.setSession('tok', user);
+    client.setSession(user);
     globalThis.fetch = (async () => json(403, { error: { code: 'FORBIDDEN', message: 'no' } })) as any;
     await assert.rejects(client.fetchApi('/api/x'), (e: any) => e.code === 'FORBIDDEN' && e.status === 403);
     assert.equal(client.isAuthenticated(), true);

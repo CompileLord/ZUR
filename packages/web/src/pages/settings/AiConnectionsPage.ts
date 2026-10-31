@@ -512,35 +512,35 @@ function renderCreateTokenModal(courses: AuthorCourseOption[], error?: string): 
             <div class="grid grid-cols-1 gap-1.5 mt-2 text-xs" id="scopes-checklist">
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="scopes" value="courses:read" checked />
-                <span><code>courses:read</code> — Read course metadata and drafts</span>
+                <span><code>courses:read</code>: Read course metadata and drafts</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="scopes" value="courses:create" checked />
-                <span><code>courses:create</code> — Create new course drafts</span>
+                <span><code>courses:create</code>: Create new course drafts</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="scopes" value="content:write" checked />
-                <span><code>content:write</code> — Create/edit modules, lessons, and steps</span>
+                <span><code>content:write</code>: Create/edit modules, lessons, and steps</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="scopes" value="media:write" checked />
-                <span><code>media:write</code> — Upload and attach course images</span>
+                <span><code>media:write</code>: Upload and attach course images</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="scopes" value="exercises:validate" checked />
-                <span><code>exercises:validate</code> — Run Python reference validation</span>
+                <span><code>exercises:validate</code>: Run Python reference validation</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="scopes" value="content:delete" />
-                <span><code>content:delete</code> — Delete draft steps and modules</span>
+                <span><code>content:delete</code>: Delete draft steps and modules</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="scopes" value="courses:publish" />
-                <span><code>courses:publish</code> — Publish validated draft revisions</span>
+                <span><code>courses:publish</code>: Publish validated draft revisions</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="scopes" value="courses:manage" />
-                <span><code>courses:manage</code> — Change access, archive, or restore</span>
+                <span><code>courses:manage</code>: Change access, archive, or restore</span>
               </label>
             </div>
           </details>
@@ -665,7 +665,7 @@ function renderTokenRevealModal(revealed: RevealedTokenData): string {
           <div class="flex items-center gap-2">
             <button type="button" class="btn btn-secondary" data-dialog-action="cancel" id="btn-close-reveal">Close</button>
             <a href="/settings/ai-connections/${encodeURIComponent(revealed.id)}/setup" class="btn btn-primary" id="btn-view-setup">
-              I've saved it — view setup
+              I've saved it, view setup
             </a>
           </div>
         </footer>

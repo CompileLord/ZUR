@@ -373,7 +373,7 @@ export function renderStudentsAndInvitationsPage(props: StudentsAndInvitationsPa
                     <td class="py-3 px-4">
                       ${statusBadge}
                     </td>
-                    <td class="py-3 px-4 text-xs text-secondary">${inv.type === 'email' ? escapeHtml(inv.emailDeliveryStatus || 'Not sent') : '—'}</td>
+                    <td class="py-3 px-4 text-xs text-secondary">${inv.type === 'email' ? escapeHtml(inv.emailDeliveryStatus || 'Not sent') : 'Not applicable'}</td>
                     <td class="py-3 px-4 text-right">
                       <div class="flex items-center justify-end gap-2">
                         ${inv.type === 'email' && !inv.isRevoked ? `

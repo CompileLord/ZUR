@@ -263,7 +263,7 @@ test('Author Pages & Shell Workspaces (P21–P26, P31)', async (t) => {
     assert.ok(pyHtml.includes('data-tab="code"'), 'Code tab nav button');
     assert.ok(pyHtml.includes('data-tab="tests"'), 'Tests tab nav button');
     assert.ok(pyHtml.includes('data-tab="validation"'), 'Validation tab nav button');
-    assert.ok(pyHtml.includes('Private — Never sent to students'), 'Reference solution privacy badge');
+    assert.ok(pyHtml.includes('Private: never sent to students'), 'Reference solution privacy badge');
     assert.ok(pyHtml.includes('Public test cases (1)'), 'Public test count');
     assert.ok(pyHtml.includes('Hidden test cases (1)'), 'Hidden test count');
     assert.ok(pyHtml.includes('Passed All Tests'), 'Validation pass badge');
@@ -282,7 +282,7 @@ test('Author Pages & Shell Workspaces (P21–P26, P31)', async (t) => {
     });
 
     assert.ok(theoryPreview.includes('STUDENT PREVIEW'), 'Preview tag rendered');
-    assert.ok(theoryPreview.includes("Preview — your actions won't affect student progress"), 'Preview banner notice');
+    assert.ok(theoryPreview.includes("Preview: your actions won't affect student progress"), 'Preview banner notice');
     assert.ok(theoryPreview.includes('← Back to editor'), 'Return link present');
     assert.ok(theoryPreview.includes('Study the mechanical gears'), 'Theory text rendered');
 

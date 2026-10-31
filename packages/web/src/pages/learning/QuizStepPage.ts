@@ -82,7 +82,7 @@ export function renderQuizWorkspaceContent(opts: QuizStepPageOptions): { workspa
   if (opts.isCompleted && !isEvaluated) {
     practiceBannerHtml = `
       <div class="practice-notice" role="note">
-        <span>Step completed — You can practice without affecting your completed status.</span>
+        <span>Step completed. You can practice without affecting your completed status.</span>
       </div>
     `;
   }

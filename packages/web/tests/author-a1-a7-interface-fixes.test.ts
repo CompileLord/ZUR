@@ -316,7 +316,7 @@ test('A4: Read-only learner Python preview mode replaces obsolete toolbar and ve
     returnEditorUrl: '/teach/course-1/content/quiz/step-qz',
   });
   assert.ok(quizHtml.includes('What is 2 + 2?'));
-  assert.ok(quizHtml.includes('Interaction preview only — grading disabled'));
+  assert.ok(quizHtml.includes('Interaction preview only. Grading is disabled.'));
   assert.ok(quizHtml.includes('href="/teach/course-1/content/quiz/step-qz"'));
 });
 
