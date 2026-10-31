@@ -1,15 +1,19 @@
 import type { TestContext } from 'node:test';
 import assert from 'node:assert/strict';
-import { StaleRevisionError, ValidationError, NotFoundError } from 'zur-shared';
+import { StaleRevisionError, ValidationError, NotFoundError, AuthorizationError } from 'zur-shared';
 import type { AuthoringFixture } from './fixture.ts';
 
 export async function draftAndStructureTests(t: TestContext, f: AuthoringFixture): Promise<void> {
   const { db, courseService, structureService, autosaveService, adaId, state } = f;
 
-  await t.test('T029: Creates title-only private draft and ensures author capability', () => {
+  await t.test('T029: Creates title-only private draft once an administrator granted author capability', () => {
     // Check Ada's initial capabilities: student only
     const userBefore = db.prepare('SELECT capabilities FROM users WHERE id = ?').get(adaId) as any;
     assert.ok(!userBefore.capabilities.includes('author'), 'Ada starts without author capability');
+    assert.throws(() => courseService.createCourseDraft(adaId, { title: 'Algorithmic Thinking in Python' }), AuthorizationError);
+
+    // PRD_V2: during the pilot an administrator grants author capability (additive to student).
+    db.prepare(`UPDATE users SET capabilities = '["student","author"]' WHERE id = ?`).run(adaId);
 
     // Create course draft with title only
     const draft = courseService.createCourseDraft(adaId, {
@@ -26,9 +30,9 @@ export async function draftAndStructureTests(t: TestContext, f: AuthoringFixture
 
     state.createdCourseId = draft.id;
 
-    // Verify Ada gained author capability additively
+    // Author capability is additive: Ada can still learn.
     const userAfter = db.prepare('SELECT capabilities FROM users WHERE id = ?').get(adaId) as any;
-    assert.ok(userAfter.capabilities.includes('author'), 'Author capability must be granted additively');
+    assert.ok(userAfter.capabilities.includes('student'), 'Student capability is kept');
   });
 
   await t.test('T029: Lists owned courses with status filter and search', () => {

@@ -56,7 +56,7 @@ export function renderAuthorCoursesPage(opts: AuthorCoursesPageOptions): string 
     return true;
   });
 
-  const isAuthor = opts.user.capabilities.includes('author') || opts.user.capabilities.includes('admin');
+  const isAuthor = opts.user.capabilities.includes('author');
 
   if (!isAuthor) {
     const deniedContent = `

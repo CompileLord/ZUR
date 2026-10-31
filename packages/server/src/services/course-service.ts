@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { ValidationError, NotFoundError, StaleRevisionError } from 'zur-shared';
+import { ValidationError, NotFoundError, StaleRevisionError, AuthorizationError } from 'zur-shared';
 import type { CourseVisibility, EnrollmentPolicy } from 'zur-shared';
 import { CourseEnrollmentAccess } from './course-enrollment-access.ts';
 import type { ListOwnedCoursesOptions, CourseSummary, CourseMetadataInput } from './course-types.ts';
@@ -8,22 +8,13 @@ export type { ListOwnedCoursesOptions, CourseSummary, CourseMetadataInput } from
 export { VERSION_COUNTS_CACHE_MAX, clearVersionCountsCache, versionCountsCacheSize, computeSnapshotCounts } from './course-public-catalog.ts';
 
 export class CourseService extends CourseEnrollmentAccess {
-  private ensureAuthorCapability(userId: string): void {
-    const userRow = this.db.prepare('SELECT capabilities FROM users WHERE id = ?').get(userId) as any;
-    if (!userRow) return;
-
-    let capabilities: string[] = [];
-    try {
-      capabilities = JSON.parse(userRow.capabilities || '[]');
-    } catch {
-      capabilities = ['student'];
-    }
-
-    if (!capabilities.includes('author')) {
-      capabilities.push('author');
-      this.db
-        .prepare("UPDATE users SET capabilities = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?")
-        .run(JSON.stringify(capabilities), userId);
+  // PRD_V2: during the pilot only administrators grant author capability; creating a course never does.
+  private requireAuthorCapability(userId: string): void {
+    const userRow = this.db.prepare('SELECT capabilities FROM users WHERE id = ?').get(userId) as { capabilities: string } | undefined;
+    let capabilities: unknown = [];
+    try { capabilities = JSON.parse(userRow?.capabilities || '[]'); } catch { /* treated as no capabilities */ }
+    if (!Array.isArray(capabilities) || !capabilities.includes('author')) {
+      throw new AuthorizationError('Author access is required to create courses. Ask an administrator to grant it.');
     }
   }
 
@@ -146,6 +137,7 @@ export class CourseService extends CourseEnrollmentAccess {
   }
 
   createCourseDraft(userId: string, data: { title: string }): CourseSummary {
+    this.requireAuthorCapability(userId);
     const title = (data.title || '').trim();
     if (!title) {
       throw new ValidationError('Course title is required');
@@ -153,8 +145,6 @@ export class CourseService extends CourseEnrollmentAccess {
     if (title.length > 200) {
       throw new ValidationError('Course title must be 200 characters or less');
     }
-
-    this.ensureAuthorCapability(userId);
 
     const courseId = crypto.randomUUID();
     const categoryId = this.getDefaultCategoryId();
