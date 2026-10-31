@@ -13,13 +13,14 @@ export function installAppDom(user: unknown): AppDomStub {
     key: (i: number) => [...store.keys()][i] ?? null,
     get length() { return store.size; },
   };
-  const appEl: any = {
+  const appEl: any = g.__zurTestAppEl ?? (g.__zurTestAppEl = {
     innerHTML: '',
     querySelector: () => null,
     querySelectorAll: () => [],
     classList: { add() {}, remove() {} },
     addEventListener() {},
-  };
+  });
+  appEl.innerHTML = '';
   g.document = {
     getElementById: () => appEl,
     addEventListener() {},
