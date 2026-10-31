@@ -256,14 +256,14 @@ export class AuthClient {
     return this.fetchApi('/api/settings/privacy/status');
   }
 
-  async requestDataExport(): Promise<any> {
-    return this.fetchApi('/api/settings/privacy/export', { method: 'POST' });
+  async requestDataExport(currentPassword: string): Promise<any> {
+    return this.fetchApi('/api/settings/privacy/export', { method: 'POST', body: JSON.stringify({ currentPassword }) });
   }
 
-  async requestAccountDeletion(consequenceAcknowledged: boolean): Promise<any> {
+  async requestAccountDeletion(consequenceAcknowledged: boolean, currentPassword: string): Promise<any> {
     const data = await this.fetchApi('/api/settings/privacy/delete', {
       method: 'POST',
-      body: JSON.stringify({ consequenceAcknowledged }),
+      body: JSON.stringify({ consequenceAcknowledged, currentPassword }),
     });
     this.clearSession();
     return data;

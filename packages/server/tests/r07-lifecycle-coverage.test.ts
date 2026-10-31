@@ -43,7 +43,7 @@ test('R07: Account deletion request, sole-owner course guard, session revocation
 
     // 1. Sole owner of active course cannot delete account (ConflictError)
     assert.throws(
-      () => identityService.requestAccountDeletion(authorId, true),
+      () => identityService.requestAccountDeletion(authorId, true, 'AuthorPass123!'),
       (err: any) => err instanceof ConflictError && err.message.includes('sole owner of course')
     );
 
@@ -54,7 +54,7 @@ test('R07: Account deletion request, sole-owner course guard, session revocation
     assert.equal(authedBefore.user.id, studentId);
 
     // 3. Student requests account deletion
-    const delResult = identityService.requestAccountDeletion(studentId, true);
+    const delResult = identityService.requestAccountDeletion(studentId, true, 'StudentPass123!');
     assert.equal(delResult.success, true);
     assert.ok(delResult.requestId);
 

@@ -197,7 +197,7 @@ test('Authentication Core & Identity Lifecycle (S1-M01, T013-T018)', async (t) =
 
     assert.throws(
       () => {
-        identityService.requestAccountDeletion(guido.id, true);
+        identityService.requestAccountDeletion(guido.id, true, 'AuthorPass123!');
       },
       (err: any) => {
         return err instanceof ConflictError && err.message.includes('sole owner of course(s)');
@@ -206,13 +206,13 @@ test('Authentication Core & Identity Lifecycle (S1-M01, T013-T018)', async (t) =
     );
 
     // 2. Data export intake packages learning evidence
-    const exportResult = identityService.requestDataExport(guido.id);
+    const exportResult = identityService.requestDataExport(guido.id, 'AuthorPass123!');
     assert.ok(exportResult.requestId);
     assert.equal(exportResult.exportPayload.user.email, 'guido@zur.internal');
 
     // 3. Non-owner student deletion succeeds and transitions account to pending_deletion
     const alan = db.prepare("SELECT id FROM users WHERE email = 'alan@zur.internal'").get() as any;
-    const deletionResult = identityService.requestAccountDeletion(alan.id, true);
+    const deletionResult = identityService.requestAccountDeletion(alan.id, true, 'BrandNewPassword123!');
     assert.equal(deletionResult.success, true);
 
     const alanAfter = db.prepare('SELECT account_status FROM users WHERE id = ?').get(alan.id) as any;
@@ -224,7 +224,7 @@ test('Authentication Core & Identity Lifecycle (S1-M01, T013-T018)', async (t) =
       displayName: 'Rollback Learner', password: 'SecurePassword123!' }).user;
     db.exec(`CREATE TRIGGER reject_deletion_intake BEFORE INSERT ON privacy_requests
       WHEN NEW.user_id='${user.id}' BEGIN SELECT RAISE(ABORT, 'simulated intake failure'); END`);
-    assert.throws(() => identityService.requestAccountDeletion(user.id, true), /simulated intake failure/);
+    assert.throws(() => identityService.requestAccountDeletion(user.id, true, 'SecurePassword123!'), /simulated intake failure/);
     db.exec('DROP TRIGGER reject_deletion_intake');
     assert.equal((db.prepare('SELECT account_status FROM users WHERE id=?').get(user.id) as any).account_status, 'active');
     assert.equal((db.prepare('SELECT COUNT(*) count FROM privacy_requests WHERE user_id=?').get(user.id) as any).count, 0);

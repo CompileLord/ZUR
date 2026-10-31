@@ -131,24 +131,15 @@ test('changePassword and reset (item 2)', async (t) => {
   });
 });
 
-test('privacy re-auth is optional and env-gated (item 7)', async (t) => {
+test('privacy re-auth: password required for export and deletion (item 7)', () => {
   const id = userId('ada@zur.internal');
-  await t.test('default off: no password needed', () => {
-    delete process.env.ZUR_REQUIRE_REAUTH_FOR_PRIVACY;
-    assert.ok(identity.requestDataExport(id).requestId);
-  });
-  await t.test('on: password required for export and deletion', () => {
-    process.env.ZUR_REQUIRE_REAUTH_FOR_PRIVACY = '1';
-    try {
-      assert.throws(() => identity.requestDataExport(id), ValidationError);
-      assert.throws(() => identity.requestDataExport(id, 'wrong'), ValidationError);
-      assert.ok(identity.requestDataExport(id, 'StudentPass123!').requestId);
-      assert.throws(() => identity.requestAccountDeletion(id, true), ValidationError);
-      assert.throws(() => identity.requestAccountDeletion(id, true, 'wrong'), ValidationError);
-      assert.equal(db.prepare('SELECT account_status s FROM users WHERE id=?').get(id)!.s, 'active');
-      assert.equal(identity.requestAccountDeletion(id, true, 'StudentPass123!').success, true);
-    } finally { delete process.env.ZUR_REQUIRE_REAUTH_FOR_PRIVACY; }
-  });
+  assert.throws(() => identity.requestDataExport(id), ValidationError);
+  assert.throws(() => identity.requestDataExport(id, 'wrong'), ValidationError);
+  assert.ok(identity.requestDataExport(id, 'StudentPass123!').requestId);
+  assert.throws(() => identity.requestAccountDeletion(id, true), ValidationError);
+  assert.throws(() => identity.requestAccountDeletion(id, true, 'wrong'), ValidationError);
+  assert.equal(db.prepare('SELECT account_status s FROM users WHERE id=?').get(id)!.s, 'active');
+  assert.equal(identity.requestAccountDeletion(id, true, 'StudentPass123!').success, true);
 });
 
 test('catalog counts cache (item 4)', async (t) => {

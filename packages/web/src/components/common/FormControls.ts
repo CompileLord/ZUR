@@ -10,6 +10,7 @@ export interface TextInputProps {
   disabled?: boolean;
   hint?: string;
   error?: string;
+  autocomplete?: string;
 }
 
 export function renderTextInput(props: TextInputProps): string {
@@ -33,6 +34,7 @@ export function renderTextInput(props: TextInputProps): string {
         class="form-input ${props.error ? 'has-error' : ''}"
         value="${escapeHtml(props.value || '')}"
         ${props.placeholder ? `placeholder="${escapeHtml(props.placeholder)}"` : ''}
+        ${props.autocomplete ? `autocomplete="${escapeHtml(props.autocomplete)}"` : ''}
         ${props.required ? 'required' : ''}
         ${props.disabled ? 'disabled' : ''}
         ${ariaDescribedBy ? `aria-describedby="${escapeHtml(ariaDescribedBy)}"` : ''}

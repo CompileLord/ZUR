@@ -123,12 +123,8 @@ export abstract class IdentityAccountData extends IdentityRateLimits {
 
   // --- T017: Privacy Request Intake & Sole-Owner Course Check ---
 
-  /**
-   * When ZUR_REQUIRE_REAUTH_FOR_PRIVACY=1, export/deletion need the caller's current password
-   * (rate limited via verifyCurrentPassword). Default off so the current web client keeps working.
-   */
+  /** Export and deletion need the caller's current password (rate limited via verifyCurrentPassword). */
   private requirePrivacyReauth(userId: string, currentPassword?: string): void {
-    if (process.env.ZUR_REQUIRE_REAUTH_FOR_PRIVACY !== '1') return;
     if (!currentPassword) throw new ValidationError('Current password is required for this action.');
     this.verifyCurrentPassword(userId, currentPassword);
   }

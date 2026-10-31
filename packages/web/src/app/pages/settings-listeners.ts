@@ -344,10 +344,13 @@ export function attachPrivacyListeners(): void {
   const btnConfirmDelete = document.getElementById('btn-confirm-deletion') as HTMLButtonElement | null;
   const ackCheckbox = document.getElementById('acknowledge-deletion-consequences') as HTMLInputElement | null;
 
+  const deletePassword = document.getElementById('delete-current-password') as HTMLInputElement | null;
+  const deleteError = document.getElementById('delete-error');
+  const canConfirmDelete = () => Boolean(ackCheckbox?.checked && deletePassword?.value);
   if (ackCheckbox && btnConfirmDelete) {
-    ackCheckbox.addEventListener('change', () => {
-      btnConfirmDelete.disabled = !ackCheckbox.checked;
-    });
+    const sync = () => { btnConfirmDelete.disabled = !canConfirmDelete(); };
+    ackCheckbox.addEventListener('change', sync);
+    deletePassword?.addEventListener('input', sync);
   }
 
   let releaseFocusTrap: (() => void) | null = null;
@@ -379,19 +382,16 @@ export function attachPrivacyListeners(): void {
       btnConfirmDelete.textContent = 'Deleting account…';
 
       try {
-        await authClient.requestAccountDeletion(true);
+        await authClient.requestAccountDeletion(true, deletePassword?.value || '');
         navigateTo('/sign-in');
       } catch (err: any) {
-        const errorEl = document.getElementById('privacy-error');
-        closeDeleteModal();
-        if (btnConfirmDelete) {
-          btnConfirmDelete.disabled = !ackCheckbox?.checked;
-          btnConfirmDelete.textContent = 'Confirm deletion';
+        btnConfirmDelete.textContent = 'Submit deletion request';
+        btnConfirmDelete.disabled = !canConfirmDelete();
+        if (deleteError) {
+          deleteError.textContent = err.message || 'Deletion request blocked.';
+          deleteError.hidden = false;
         }
-        if (errorEl) {
-          errorEl.className = 'form-error mb-6 p-3 border border-danger rounded';
-          errorEl.innerHTML = `<span aria-hidden="true">⚠</span> <span>${escapeHtml(err.message || 'Deletion request blocked.')}</span>`;
-        }
+        deletePassword?.focus();
       }
     });
   }
@@ -406,7 +406,7 @@ export function attachPrivacyListeners(): void {
       }
 
       try {
-        const result = await authClient.requestDataExport();
+        const result = await authClient.requestDataExport((document.getElementById('export-current-password') as HTMLInputElement | null)?.value || '');
         const user = authClient.getUser()!;
         appEl.innerHTML = renderAppShell({
           activePath: '/settings/privacy',

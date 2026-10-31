@@ -1,6 +1,6 @@
 import { escapeHtml } from '../../utils/escape-html.ts';
 import { renderSettingsNav } from './SettingsNav.ts';
-import { renderButton } from '../../components/common/index.ts';
+import { renderButton, renderTextInput } from '../../components/common/index.ts';
 import type { PrivacyRequest } from 'zur-shared';
 
 export interface PrivacySettingsPageOptions {
@@ -81,7 +81,8 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
                 <div class="settings-row-title">Learning records export</div>
                 <div class="settings-row-desc">JSON archive containing completed exercises, code attempts, and progress.</div>
               </div>
-              <form id="export-data-form">
+              <form id="export-data-form" class="space-y-3">
+                ${renderTextInput({ id: 'export-current-password', name: 'currentPassword', label: 'Current password', type: 'password', required: true, autocomplete: 'current-password' })}
                 ${renderButton({
                   id: 'btn-export-data',
                   label: opts.isLoading ? 'Exporting…' : 'Export my data',
@@ -216,6 +217,8 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
               <input type="checkbox" id="acknowledge-deletion-consequences" class="form-checkbox mt-1" />
               <span class="text-xs text-primary font-medium">I understand that my account will be permanently closed and access revoked immediately.</span>
             </label>
+            ${renderTextInput({ id: 'delete-current-password', name: 'currentPassword', label: 'Current password', type: 'password', required: true, autocomplete: 'current-password' })}
+            <p id="delete-error" class="form-error" role="alert" hidden></p>
           </div>
 
           <footer class="dialog-footer flex justify-end gap-3 mt-4">
