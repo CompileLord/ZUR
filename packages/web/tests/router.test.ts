@@ -6,6 +6,7 @@ import {
   sanitizeQueryParams,
   getSafeReturnDestination,
   getPostSignInDestination,
+  getSignedInAccountRedirect,
 } from '../src/router/routes.ts';
 
 test('P01–P45 Route Contracts and URL Safety (design.md §9, §14, T012)', async (t) => {
@@ -81,4 +82,15 @@ test('Post sign-in landing is role-aware and explicit returnTo wins', () => {
   assert.strictEqual(getPostSignInDestination(undefined, { capabilities: ['student', 'author'] }), '/teach');
   assert.strictEqual(getPostSignInDestination('/courses', { capabilities: ['admin'] }), '/courses');
   assert.strictEqual(getPostSignInDestination('//evil.com', { capabilities: ['author'] }), '/teach');
+});
+
+test('Signed-in users are sent away from sign-in, sign-up and forgot-password', () => {
+  const user = { capabilities: ['student'] };
+  for (const path of ['/sign-in', '/sign-up', '/forgot-password', '/sign-in?returnTo=%2Flearn']) {
+    assert.strictEqual(getSignedInAccountRedirect(path, user), '/learn', path);
+    assert.strictEqual(getSignedInAccountRedirect(path, null), null, path + ' stays for signed-out users');
+  }
+  for (const path of ['/verify-email', '/reset-password?token=abc', '/join/tok', '/learn']) {
+    assert.strictEqual(getSignedInAccountRedirect(path, user), null, path);
+  }
 });

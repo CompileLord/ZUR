@@ -1,4 +1,4 @@
-import { matchRoute, getSafeReturnDestination } from '../router/routes.ts';
+import { matchRoute, getSafeReturnDestination, getSignedInAccountRedirect } from '../router/routes.ts';
 import { renderSafeDenialPage } from '../pages/status/SafeDenialPage.ts';
 import { type RouteContext } from './context.ts';
 import { cleanupActiveModals } from './helpers.ts';
@@ -86,6 +86,13 @@ export function renderAppNow(path: string = window.location.pathname + window.lo
     ? new URL(path, window.location.origin).searchParams
     : new URLSearchParams(window.location.search);
   const currentUser = authClient.getUser();
+
+  const signedInRedirect = getSignedInAccountRedirect(path, currentUser);
+  if (signedInRedirect) {
+    window.history.replaceState({}, '', signedInRedirect);
+    renderAppNow(signedInRedirect);
+    return;
+  }
 
   // Authentication guards for S3 (settings/learning), S4, S5, S6
   if (route.requiredCapability && !currentUser) {
