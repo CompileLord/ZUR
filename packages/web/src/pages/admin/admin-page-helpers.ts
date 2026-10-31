@@ -94,7 +94,8 @@ export const table = (headers: (string | TableCol)[], rows: string[], empty: str
     const alignClass = typeof h === 'object' && h.align === 'right' ? ' class="text-right"' : '';
     return `<th scope="col"${alignClass}>${escapeAdmin(label)}</th>`;
   }).join('');
-  return `<div class="data-table-wrapper"><table class="data-table admin-table"><thead><tr>${headerCells}</tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td colspan="${headers.length}" class="empty-state"><span class="admin-empty"><span class="admin-empty-icon" aria-hidden="true">${renderIcon('list', { size: 20 })}</span><span class="admin-empty-title">${escapeAdmin(empty)}</span>${nextStep ? `<span class="admin-empty-next">${nextStep}</span>` : ''}</span></td></tr>`}</tbody></table></div>`;
+  const regionLabel = `Table with columns ${headers.slice(0, 3).map((h) => (typeof h === 'string' ? h : h.label)).join(', ')}`;
+  return `<div class="data-table-wrapper" role="region" tabindex="0" aria-label="${escapeAdmin(regionLabel)}"><table class="data-table admin-table"><thead><tr>${headerCells}</tr></thead><tbody>${rows.length ? rows.join('') : `<tr><td colspan="${headers.length}" class="empty-state"><span class="admin-empty"><span class="admin-empty-icon" aria-hidden="true">${renderIcon('list', { size: 20 })}</span><span class="admin-empty-title">${escapeAdmin(empty)}</span>${nextStep ? `<span class="admin-empty-next">${nextStep}</span>` : ''}</span></td></tr>`}</tbody></table></div>`;
 };
 
 export const pill = (text: string, kind = 'info') =>

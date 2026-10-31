@@ -11,8 +11,38 @@ export const adminStyles = `
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   background-color: var(--bg-surface);
+  background-image:
+    linear-gradient(to right, var(--bg-surface) 30%, transparent),
+    linear-gradient(to left, var(--bg-surface) 30%, transparent),
+    radial-gradient(farthest-side at 0 50%, color-mix(in srgb, var(--text-muted) 55%, transparent), transparent),
+    radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--text-muted) 55%, transparent), transparent);
+  background-position: left center, right center, left center, right center;
+  background-repeat: no-repeat;
+  background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+  background-attachment: local, local, scroll, scroll;
   margin-bottom: var(--space-4);
   max-height: calc(100vh - 280px);
+}
+
+.shell-admin .data-table-wrapper:focus-visible {
+  outline: 2px solid var(--focus-ring, var(--link));
+  outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+  .shell-admin .data-table {
+    min-width: 40rem;
+  }
+  .shell-admin .data-table td:first-child,
+  .shell-admin .data-table td:first-child strong,
+  .shell-admin .data-table td:first-child a.table-link {
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .shell-admin .data-table td.audit-reason-cell {
+    min-width: 12rem;
+  }
 }
 
 .shell-admin .data-table {
@@ -160,7 +190,7 @@ export const adminStyles = `
   max-height: calc(100vh - 48px);
   max-height: min(820px, calc(100vh - 48px));
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--text-muted) 55%, transparent);
   animation: adminModalEnter 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
