@@ -26,6 +26,8 @@ jobs:
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
       - run: npm run typecheck
+      - name: Code files stay under 20 KiB
+        run: npm run check:file-size
 
   test:
     runs-on: ubuntu-latest
