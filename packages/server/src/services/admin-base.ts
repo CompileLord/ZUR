@@ -37,7 +37,7 @@ export class AdminBase {
       return '[reason redacted because it contained code]';
     }
     clean = clean
-      .replace(/\b(?:api[-_ ]?token|password|passwd|secret|token|api[-_ ]?key|credential|authorization)\b\s*[:=]?\s*[^\s,;]+/gi, '[redacted credential]')
+      .replace(/\b(?:api[-_ ]?token|password|passwd|secret|token|api[-_ ]?key|credential|authorization)\b\s*(?:[:=]|\bis\b)\s*(?:bearer\s+)?[^\s,;]+/gi, '[redacted credential]')
       .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[redacted email]')
       .replace(/https?:\/\/[^\s]+/gi, '[redacted URL]')
       .replace(/\b(?:sk|pk|ghp|github_pat|xox[baprs])-[_A-Za-z0-9-]{8,}\b/gi, '[redacted token]');
@@ -53,6 +53,6 @@ export class AdminBase {
   protected audit(actorId: string, action: string, targetType: string, targetId: string, reason: string, metadata?: Record<string, unknown>) {
     this.db.prepare(`INSERT INTO audit_events (id, actor_id, action, target_type, target_id, reason, metadata, correlation_id, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(crypto.randomUUID(), actorId, action, targetType, targetId,
-      this.sanitizeReason(this.reason(reason)), metadata ? JSON.stringify(metadata) : null, crypto.randomUUID(), new Date().toISOString());
+      this.reason(reason), metadata ? JSON.stringify(metadata) : null, crypto.randomUUID(), new Date().toISOString());
   }
 }
