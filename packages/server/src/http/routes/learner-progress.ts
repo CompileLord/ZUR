@@ -200,25 +200,13 @@ export async function handleLearnerProgressRoutes(rc: RouteContext): Promise<boo
     const progress = learningProgressService.getCourseProgress(user.id, enrollmentId);
     const stepMeta = progress.steps.find((s) => s.id === stepId);
     if (!stepMeta) throw authService.safeNotFound();
-    const enrolledSnapshot = courseService.getEnrolledStepContent(user.id, enrollmentId, stepId, { revealAnswers: stepMeta.isCompleted });
+    const enrolledSnapshot = courseService.getEnrolledStepContent(user.id, enrollmentId, stepId);
 
     const stepIdx = progress.steps.findIndex((s) => s.id === stepId);
     const previousStepId = stepIdx > 0 ? progress.steps[stepIdx - 1].id : null;
     const nextStepId = stepIdx < progress.steps.length - 1 ? progress.steps[stepIdx + 1].id : null;
 
     learningProgressService.recordStepVisit(user.id, enrollmentId, stepId);
-
-    let studentContent = enrolledSnapshot.content;
-    if (stepMeta.type === 'quiz' && studentContent && !stepMeta.isCompleted) {
-      studentContent = {
-        ...studentContent,
-        options: (studentContent.options || []).map((o: any) => ({
-          id: o.id,
-          text: o.text,
-        })),
-        explanation: undefined,
-      };
-    }
 
     sendJson(res, 200, {
       step: {
@@ -228,7 +216,7 @@ export async function handleLearnerProgressRoutes(rc: RouteContext): Promise<boo
         position: enrolledSnapshot.step.position,
         isRequired: enrolledSnapshot.step.isRequired,
         estimatedDurationMinutes: enrolledSnapshot.step.estimatedDurationMinutes,
-        content: studentContent,
+        content: enrolledSnapshot.content,
       },
       stepMeta,
       progress,

@@ -42,6 +42,16 @@ export interface QuizStepPageOptions {
   taskSquares?: TaskSquareItem[];
 }
 
+/** The server sends answer keys only once the learner passed; reopening the step shows that result again. */
+export function passedQuizFeedback(
+  content: { explanation?: string; options?: Array<{ id: string; isCorrect?: boolean }> },
+  isCompleted: boolean,
+): QuizStepPageOptions['feedback'] {
+  const options = content.options || [];
+  if (!isCompleted || !options.some((o) => typeof o.isCorrect === 'boolean')) return null;
+  return { isPassed: true, verdict: 'PASSED', explanation: content.explanation, correctOptionIds: options.filter((o) => o.isCorrect).map((o) => o.id) };
+}
+
 export function renderQuizWorkspaceContent(opts: QuizStepPageOptions): { workspaceContent: string; taskActions: string } {
   const isMultiple = opts.quizType === 'multiple_choice';
   const inputType = isMultiple ? 'checkbox' : 'radio';
@@ -61,7 +71,7 @@ export function renderQuizWorkspaceContent(opts: QuizStepPageOptions): { workspa
           </div>
           ${
             opts.feedback.explanation
-              ? `<div class="feedback-explanation"><p>${escapeHtml(opts.feedback.explanation)}</p></div>`
+              ? `<div class="feedback-explanation">${renderMarkdownToHtml(opts.feedback.explanation)}</div>`
               : ''
           }
         </div>

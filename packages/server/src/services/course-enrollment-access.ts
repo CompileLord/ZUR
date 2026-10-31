@@ -92,7 +92,7 @@ export abstract class CourseEnrollmentAccess extends CourseReports {
     };
   }
 
-  getEnrolledStepContent(userId: string, enrollmentId: string, stepId: string, options: { revealAnswers?: boolean } = {}): any {
+  getEnrolledStepContent(userId: string, enrollmentId: string, stepId: string): any {
     const enrollment = this.db
       .prepare('SELECT * FROM enrollments WHERE id = ?')
       .get(enrollmentId) as any;
@@ -134,10 +134,14 @@ export abstract class CourseEnrollmentAccess extends CourseReports {
       throw new NotFoundError("This page isn't available.");
     }
 
+    // Answer keys and worked explanations are revealed only once the learner passed the step (PRD 11.2).
+    const revealAnswers = Boolean((this.db
+      .prepare('SELECT is_completed FROM step_progress WHERE enrollment_id = ? AND step_id = ?')
+      .get(enrollmentId, stepId) as { is_completed: number } | undefined)?.is_completed);
     const content = foundStep.content == null ? null : JSON.parse(JSON.stringify(foundStep.content));
     if (foundStep.type === 'python' && content) {
       delete content.referenceSolution;
-      if (!options.revealAnswers) delete content.solutionExplanation;
+      if (!revealAnswers) delete content.solutionExplanation;
       if (Array.isArray(content.testCases)) {
         content.testCases = content.testCases
           .filter((tc: any) => !tc.isHidden)
@@ -149,8 +153,7 @@ export abstract class CourseEnrollmentAccess extends CourseReports {
           }));
       }
     }
-    // Answer keys and worked explanations are revealed only once the learner passed the step (PRD 11.2).
-    if (foundStep.type === 'quiz' && content && !options.revealAnswers) {
+    if (foundStep.type === 'quiz' && content && !revealAnswers) {
       content.options = (content.options || []).map((o: any) => ({ id: o.id, text: o.text }));
       delete content.explanation;
     }

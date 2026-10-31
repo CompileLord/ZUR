@@ -1,7 +1,7 @@
 import { type LearningWorkspaceShellOptions, renderLearningWorkspaceShell } from '../../components/shells/index.ts';
 import { renderLessonRail } from '../../components/common/index.ts';
 import { renderSafeDenialPage } from '../../pages/status/SafeDenialPage.ts';
-import { type QuizStepPageOptions, renderQuizWorkspaceContent } from '../../pages/learning/QuizStepPage.ts';
+import { type QuizStepPageOptions, passedQuizFeedback, renderQuizWorkspaceContent } from '../../pages/learning/QuizStepPage.ts';
 import {
   recordLastVisitedStep,
   parseLearningNavigation,
@@ -70,6 +70,10 @@ function renderEnrolledQuiz(data: any, enrollmentId: string, stepId: string, req
   const isShellMounted = Boolean(appEl.querySelector('.shell-learning') && document.getElementById('course-sidebar') && appEl.querySelector('.learning-workspace-main'));
   const progressSteps = data.progress?.steps || [];
   const content = data.step.content || {};
+  if (!feedback) {
+    feedback = passedQuizFeedback(content, Boolean(data.stepMeta?.isCompleted));
+    if (feedback) selectedOptionIds = feedback.correctOptionIds || [];
+  }
   const user = authClient.getUser() || { id: 'user-guest', displayName: 'Guest' };
   const courseVersionId = data.courseVersionId || data.progress?.pinnedVersionId || data.progress?.courseVersionId || '';
   const currentLessonId = data.step?.lessonId || data.stepMeta?.lessonId || progressSteps.find((s: any) => s.id === stepId)?.lessonId || '';

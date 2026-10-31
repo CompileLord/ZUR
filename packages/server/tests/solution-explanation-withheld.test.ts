@@ -16,14 +16,18 @@ function withExplanation() {
     if (step.id === 'step-6-python-evenodd') step.content = { ...step.content, solutionExplanation: 'Read the number, then test n % 2.' };
   }
   db.prepare('UPDATE course_versions SET snapshot_data = ? WHERE id = ?').run(JSON.stringify(snapshot), versionId);
-  return new CourseService(db);
+  return { db, courses: new CourseService(db) };
 }
 
-// The worked explanation gives the answer away, so learners get it only after passing the step.
+// The worked explanation gives the answer away, so learners get it only after passing the step,
+// whichever learner route asks for the content.
 test('python solution explanation is withheld until the step is passed', () => {
-  const courses = withExplanation();
+  const { db, courses } = withExplanation();
+  db.prepare("DELETE FROM step_progress WHERE enrollment_id = 'enr-ada' AND step_id = 'step-6-python-evenodd'").run();
   const before = courses.getEnrolledStepContent('user-student-1', 'enr-ada', 'step-6-python-evenodd');
   assert.equal(before.content.solutionExplanation, undefined);
-  const after = courses.getEnrolledStepContent('user-student-1', 'enr-ada', 'step-6-python-evenodd', { revealAnswers: true });
+  db.prepare(`INSERT INTO step_progress (id, user_id, enrollment_id, step_id, is_completed, completed_at)
+    VALUES ('sp-pass', 'user-student-1', 'enr-ada', 'step-6-python-evenodd', 1, '2026-10-31T00:00:00Z')`).run();
+  const after = courses.getEnrolledStepContent('user-student-1', 'enr-ada', 'step-6-python-evenodd');
   assert.equal(after.content.solutionExplanation, 'Read the number, then test n % 2.');
 });
