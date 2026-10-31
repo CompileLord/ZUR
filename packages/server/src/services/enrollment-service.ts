@@ -72,6 +72,10 @@ export class EnrollmentService {
     courseId: string,
     options?: { isDirectOpen?: boolean }
   ): Enrollment {
+    const user = this.db.prepare('SELECT email_verified FROM users WHERE id = ?').get(userId) as { email_verified: number } | undefined;
+    if (!user?.email_verified) {
+      throw new ValidationError('Email verification is required before enrolling in courses');
+    }
     const course = this.db
       .prepare(
         'SELECT id, current_version_id, publication_status, enrollment_policy, is_suspended FROM courses WHERE id = ?'

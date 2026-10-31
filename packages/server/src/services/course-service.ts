@@ -9,12 +9,16 @@ export { VERSION_COUNTS_CACHE_MAX, clearVersionCountsCache, versionCountsCacheSi
 
 export class CourseService extends CourseEnrollmentAccess {
   // PRD_V2: during the pilot only administrators grant author capability; creating a course never does.
+  // Authoring also requires a verified email.
   private requireAuthorCapability(userId: string): void {
-    const userRow = this.db.prepare('SELECT capabilities FROM users WHERE id = ?').get(userId) as { capabilities: string } | undefined;
+    const userRow = this.db.prepare('SELECT capabilities, email_verified FROM users WHERE id = ?').get(userId) as { capabilities: string; email_verified: number } | undefined;
     let capabilities: unknown = [];
     try { capabilities = JSON.parse(userRow?.capabilities || '[]'); } catch { /* treated as no capabilities */ }
     if (!Array.isArray(capabilities) || !capabilities.includes('author')) {
       throw new AuthorizationError('Author access is required to create courses. Ask an administrator to grant it.');
+    }
+    if (!userRow?.email_verified) {
+      throw new AuthorizationError('Verify your email address before creating courses.');
     }
   }
 
