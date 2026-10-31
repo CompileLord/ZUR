@@ -1,7 +1,4 @@
 {
-  "packages/server/src/server.ts": 113420,
-  "packages/server/src/services/course-service.ts": 45804,
-  "packages/server/src/services/identity-service.ts": 35537,
   "packages/web/src/main.ts": 301049,
   "packages/web/tests/admin-pages.test.ts": 22057
 }
