@@ -293,12 +293,22 @@ export class CourseService extends CourseEnrollmentAccess {
       draftRevision: row.draft_revision,
       currentVersionId: row.current_version_id,
       currentVersionNumber: row.current_version_number ?? null,
+      versions: this.listPublishedVersions(courseId),
       studentCount: row.student_count || 0,
       hasUnpublishedChanges,
       lastEditTime: row.updated_at,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };
+  }
+
+  private listPublishedVersions(courseId: string): NonNullable<CourseSummary['versions']> {
+    const rows = this.db.prepare(
+      `SELECT cv.id, cv.version_number, cv.created_at,
+        (SELECT COUNT(*) FROM enrollments e WHERE e.pinned_version_id = cv.id AND e.status = 'active') AS active_learners
+       FROM course_versions cv WHERE cv.course_id = ? ORDER BY cv.version_number DESC`
+    ).all(courseId) as Array<{ id: string; version_number: number; created_at: string; active_learners: number }>;
+    return rows.map((r) => ({ id: r.id, versionNumber: r.version_number, publishedAt: r.created_at, activeLearnerCount: r.active_learners }));
   }
 
   updateCourseMetadata(

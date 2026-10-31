@@ -19,7 +19,7 @@ export interface CourseSettingsData {
   draftRevision: number;
   hasUnpublishedChanges?: boolean;
   currentVersionId?: string | null;
-  versions?: Array<{ id: string; versionNumber: number; publishedAt: string }>;
+  versions?: Array<{ id: string; versionNumber: number; publishedAt: string; activeLearnerCount?: number }>;
 }
 
 export interface CourseSettingsPageOptions {
@@ -265,8 +265,8 @@ export function renderCourseSettingsPage(opts: CourseSettingsPageOptions): strin
                     .map(
                       (v) => `
                       <li class="version-item flex items-center justify-between p-2.5 bg-surface border border-subtle rounded-md text-sm">
-                        <span class="version-badge font-mono text-xs font-semibold px-2 py-0.5 rounded bg-raised border border-subtle">Version ${v.versionNumber}</span>
-                        <span class="version-date text-xs text-muted">Published on ${new Date(v.publishedAt).toLocaleDateString()}</span>
+                        <span class="version-badge font-mono text-xs font-semibold px-2 py-0.5 rounded bg-raised border border-subtle">Version ${v.versionNumber}${v.id === c.currentVersionId ? ' <span class="version-current">Current</span>' : ''}</span>
+                        <span class="version-date text-xs text-muted">Published on ${new Date(v.publishedAt).toLocaleDateString()} · ${v.activeLearnerCount ?? 0} ${(v.activeLearnerCount ?? 0) === 1 ? 'learner' : 'learners'}</span>
                       </li>
                     `
                     )

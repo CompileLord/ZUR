@@ -255,3 +255,4 @@
 
 .tree-step:has(.tree-invalid-dot) .tree-label { flex: 0 1 auto; min-width: 0; }
 .tree-step .tree-invalid-dot { margin-left: 6px; }
+.version-current { margin-left: 0.375rem; font-family: var(--font-sans, inherit); font-weight: 600; color: var(--accent); }

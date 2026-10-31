@@ -27,6 +27,7 @@ export interface CourseSummary {
   draftRevision: number;
   currentVersionId?: string | null;
   currentVersionNumber?: number | null;
+  versions?: Array<{ id: string; versionNumber: number; publishedAt: string; activeLearnerCount: number }>;
   studentCount: number;
   hasUnpublishedChanges: boolean;
   lastEditTime: string;
