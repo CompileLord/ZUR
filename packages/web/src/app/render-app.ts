@@ -95,7 +95,7 @@ export function renderAppNow(path: string = window.location.pathname + window.lo
   }
   if (route.shell === 'S6' && !currentUser?.capabilities?.includes('admin')) {
     beginRouteSwap('Access denied', false, path.split('?')[0]);
-    appEl.innerHTML = renderSafeDenialPage({ type: 'access-denied' });
+    appEl.innerHTML = renderSafeDenialPage({ type: 'access-denied', user: currentUser });
     initTheme();
     return;
   }
