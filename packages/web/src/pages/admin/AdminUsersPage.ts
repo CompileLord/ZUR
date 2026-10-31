@@ -1,5 +1,6 @@
 import { renderIcon } from '../../components/common/icons.ts';
-import { formatDate, sentenceCase } from '../../utils/formatters.ts';
+import { formatDate } from '../../utils/formatters.ts';
+import { stateLabel } from './admin-labels.ts';
 import { formField, adminForm, table, pill, idChip, detailHeader, pageNav, escapeAdmin, renderActionDialog } from './admin-page-helpers.ts';
 
 export function renderAdminUsersContent(path: string, data: any): string {
@@ -14,8 +15,8 @@ export function renderAdminUsersContent(path: string, data: any): string {
           <td><a href="/admin/users/${encodeURIComponent(u.id)}" class="table-link font-medium">${escapeAdmin(u.displayName)}</a></td>
           <td><span class="text-secondary">${escapeAdmin(u.email)}</span></td>
           <td>${u.emailVerified ? pill('Verified', 'success') : pill('Unverified', 'neutral')}</td>
-          <td><div class="badge-cluster">${u.capabilities.map((c: string) => pill(sentenceCase(c), 'neutral')).join('')}</div></td>
-          <td>${pill(sentenceCase(u.accountStatus), u.accountStatus === 'active' ? 'success' : 'warning')}</td>
+          <td><div class="badge-cluster">${u.capabilities.map((c: string) => pill(stateLabel(c), 'neutral')).join('')}</div></td>
+          <td>${pill(stateLabel(u.accountStatus), u.accountStatus === 'active' ? 'success' : 'warning')}</td>
           <td><time datetime="${escapeAdmin(u.createdAt)}" title="${escapeAdmin(u.createdAt)}" class="text-secondary">${formatDate(u.createdAt)}</time></td>
         </tr>
       `
@@ -35,7 +36,7 @@ export function renderAdminUsersContent(path: string, data: any): string {
             <label for="user-status-select" class="sr-only">Account state</label>
             <select id="user-status-select" name="status" class="form-input form-select" aria-label="Filter by account state">
               <option value="">All account states</option>
-              ${['active', 'suspended', 'pending_deletion', 'purged'].map((s) => `<option value="${s}" ${statusVal === s ? 'selected' : ''}>${sentenceCase(s)}</option>`).join('')}
+              ${['active', 'suspended', 'pending_deletion', 'purged'].map((s) => `<option value="${s}" ${statusVal === s ? 'selected' : ''}>${stateLabel(s)}</option>`).join('')}
             </select>
           </div>
           <button type="submit" class="btn btn-secondary btn-compact">Search</button>
@@ -59,7 +60,7 @@ export function renderAdminUserDetailContent(data: any): string {
 
       return `
         <p class="mb-4"><a href="/admin/users" class="back-link">${renderIcon('arrow-left', { size: 14 })} Back to users</a></p>
-        ${detailHeader(escapeAdmin(u.displayName), pill(sentenceCase(u.accountStatus), isSuspended ? 'danger' : 'success'), idChip(u.id, 'User ID'))}
+        ${detailHeader(escapeAdmin(u.displayName), pill(stateLabel(u.accountStatus), isSuspended ? 'danger' : 'success'), idChip(u.id, 'User ID'))}
 
         <div class="admin-detail-layout">
           <div class="admin-detail-main">
@@ -71,11 +72,11 @@ export function renderAdminUserDetailContent(data: any): string {
             </div>
             <div class="admin-def-item">
               <span class="admin-def-label">Roles</span>
-              <span class="admin-def-value"><div class="badge-cluster">${u.capabilities.map((c: string) => pill(sentenceCase(c), 'neutral')).join('')}</div></span>
+              <span class="admin-def-value"><div class="badge-cluster">${u.capabilities.map((c: string) => pill(stateLabel(c), 'neutral')).join('')}</div></span>
             </div>
             <div class="admin-def-item">
               <span class="admin-def-label">Account state</span>
-              <span class="admin-def-value">${pill(sentenceCase(u.accountStatus), isSuspended ? 'danger' : 'success')}</span>
+              <span class="admin-def-value">${pill(stateLabel(u.accountStatus), isSuspended ? 'danger' : 'success')}</span>
             </div>
             <div class="admin-def-item">
               <span class="admin-def-label">Created</span>
@@ -125,7 +126,7 @@ export function renderAdminUserDetailContent(data: any): string {
           (data.privacyRequests || []).map((r: any) => `
             <tr>
               <td>${escapeAdmin(r.request_type)}</td>
-              <td>${pill(sentenceCase(r.status), r.status === 'completed' ? 'success' : 'neutral')}</td>
+              <td>${pill(stateLabel(r.status), r.status === 'completed' ? 'success' : 'neutral')}</td>
               <td>${escapeAdmin(r.blocker_reason || 'None')}</td>
               <td><time datetime="${escapeAdmin(r.created_at)}" title="${escapeAdmin(r.created_at)}">${formatDate(r.created_at)}</time></td>
               <td>

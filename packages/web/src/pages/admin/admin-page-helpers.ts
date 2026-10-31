@@ -123,14 +123,3 @@ export const pageNav = (data: any, path: string) => {
   };
   return `<nav class="admin-pagination" aria-label="Result pages"><span>Showing ${offset + 1}–${Math.min(offset + data.items.length, data.total)} of ${data.total}</span>${offset > 0 ? link(Math.max(0, offset - limit), 'Previous') : ''}${offset + limit < data.total ? link(offset + limit, 'Next') : ''}</nav>`;
 };
-
-export function formatAuditAction(action: string): string {
-  if (!action) return '';
-  const parts = action.split(':');
-  if (parts.length === 2) {
-    const scope = humanizeEnum(parts[0]);
-    const act = humanizeEnum(parts[1]);
-    return `${act} ${scope.toLowerCase()}`;
-  }
-  return humanizeEnum(action);
-}

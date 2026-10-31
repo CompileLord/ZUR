@@ -1,5 +1,6 @@
 import { renderIcon } from '../../components/common/icons.ts';
-import { formatDate, sentenceCase } from '../../utils/formatters.ts';
+import { formatDate } from '../../utils/formatters.ts';
+import { stateLabel } from './admin-labels.ts';
 import { formField, table, pill, idChip, detailHeader, pageNav, escapeAdmin, renderActionDialog } from './admin-page-helpers.ts';
 
 export function renderAdminCoursesContent(path: string, data: any): string {
@@ -11,8 +12,8 @@ export function renderAdminCoursesContent(path: string, data: any): string {
         <tr>
           <td class="course-title-cell"><a href="/admin/courses/${encodeURIComponent(c.id)}" class="table-link font-medium">${escapeAdmin(c.title)}</a></td>
           <td class="course-owner-cell"><span class="text-secondary">${escapeAdmin(c.owner_name)}</span></td>
-          <td class="admin-nowrap">${pill(sentenceCase(c.publication_status), c.publication_status === 'published' ? 'success' : 'neutral')}</td>
-          <td class="admin-nowrap">${pill(sentenceCase(c.visibility), 'neutral')}</td>
+          <td class="admin-nowrap">${pill(stateLabel(c.publication_status), c.publication_status === 'published' ? 'success' : 'neutral')}</td>
+          <td class="admin-nowrap">${pill(stateLabel(c.visibility), 'neutral')}</td>
           <td class="text-right admin-nowrap"><span class="font-mono text-secondary">${escapeAdmin(c.latest_version ?? 'None')}</span></td>
           <td class="admin-nowrap">${c.is_suspended ? pill('Suspended', 'danger') : pill('Available', 'success')}</td>
           <td class="text-right admin-nowrap">${c.open_reports > 0 ? `<a href="/admin/reports" class="status-badge warning" title="${c.open_reports} open reports">${c.open_reports}</a>` : `<span class="text-muted">0</span>`}</td>

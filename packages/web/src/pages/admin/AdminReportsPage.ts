@@ -1,5 +1,6 @@
 import { renderIcon } from '../../components/common/icons.ts';
-import { formatDate, sentenceCase, humanizeEnum } from '../../utils/formatters.ts';
+import { formatDate, humanizeEnum } from '../../utils/formatters.ts';
+import { stateLabel } from './admin-labels.ts';
 import { formField, table, pill, idChip, reportTone, detailHeader, pageNav, escapeAdmin } from './admin-page-helpers.ts';
 
 export function renderAdminReportsContent(path: string, data: any): string {
@@ -12,7 +13,7 @@ export function renderAdminReportsContent(path: string, data: any): string {
           <td><a href="/admin/reports/${encodeURIComponent(r.id)}" class="table-link font-medium">${escapeAdmin(humanizeEnum(r.type))}</a></td>
           <td><span class="text-secondary">${escapeAdmin(r.courseTitle)}</span></td>
           <td><span class="text-secondary">${escapeAdmin(r.reporterName)}</span></td>
-          <td>${pill(sentenceCase(r.status), reportTone(r.status))}</td>
+          <td>${pill(stateLabel(r.status), reportTone(r.status))}</td>
           <td><time datetime="${escapeAdmin(r.createdAt)}" title="${escapeAdmin(r.createdAt)}" class="text-secondary">${formatDate(r.createdAt)}</time></td>
         </tr>
       `
@@ -63,7 +64,7 @@ export function renderAdminReportDetailContent(data: any): string {
 
       return `
         <p class="mb-4"><a href="/admin/reports" class="back-link">${renderIcon('arrow-left', { size: 14 })} Back to reports</a></p>
-        ${detailHeader(`${escapeAdmin(humanizeEnum(data.type))} · ${escapeAdmin(data.courseTitle)}`, pill(sentenceCase(data.status), reportTone(data.status)), idChip(data.id, 'Report ID'))}
+        ${detailHeader(`${escapeAdmin(humanizeEnum(data.type))} · ${escapeAdmin(data.courseTitle)}`, pill(stateLabel(data.status), reportTone(data.status)), idChip(data.id, 'Report ID'))}
 
         <div class="admin-detail-layout">
           <div class="admin-detail-main">

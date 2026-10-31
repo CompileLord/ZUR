@@ -1,5 +1,5 @@
 import { renderIcon, type IconName } from '../../components/common/icons.ts';
-import { sentenceCase } from '../../utils/formatters.ts';
+import { stateLabel } from './admin-labels.ts';
 import { formField, adminForm, table, pill, pageNav, escapeAdmin } from './admin-page-helpers.ts';
 
 export function renderAdminMediaContent(path: string, data: any): string {
@@ -22,7 +22,7 @@ export function renderAdminMediaContent(path: string, data: any): string {
           </td>
           <td><span class="text-secondary">${escapeAdmin(a.courseTitle)}</span></td>
           <td><span class="font-mono text-xs text-secondary">${escapeAdmin(a.mimeType)}</span> <span class="text-muted text-xs">· ${Math.ceil(a.fileSize / 1024)} KB</span></td>
-          <td>${pill(sentenceCase(a.processingStatus), a.processingStatus === 'ready' ? 'success' : a.processingStatus === 'quarantined' ? 'warning' : 'neutral')}</td>
+          <td>${pill(stateLabel(a.processingStatus), a.processingStatus === 'ready' ? 'success' : a.processingStatus === 'quarantined' ? 'warning' : 'neutral')}</td>
           <td class="text-right"><span class="font-mono text-secondary">${a.referenceCount}</span></td>
           <td>
             <button type="button" class="btn btn-secondary btn-compact" data-open-dialog="media-dialog-${escapeAdmin(a.id)}">Review</button>
