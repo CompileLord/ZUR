@@ -9,6 +9,7 @@ export interface AppearanceSettingsPageOptions {
   error?: string;
   successMessage?: string;
   isLoading?: boolean;
+  isAuthor?: boolean;
 }
 
 export function renderAppearanceSettingsPage(opts: AppearanceSettingsPageOptions): string {
@@ -21,7 +22,7 @@ export function renderAppearanceSettingsPage(opts: AppearanceSettingsPageOptions
     <div class="settings-container">
       <header class="settings-header">
         <h1 class="settings-title">Settings</h1>
-        ${renderSettingsNav('appearance')}
+        ${renderSettingsNav('appearance', opts.isAuthor)}
       </header>
       <h2 class="sr-only">Appearance settings</h2>
 

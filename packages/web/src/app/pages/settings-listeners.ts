@@ -416,6 +416,7 @@ export function attachPrivacyListeners(): void {
             exportData: result.exportPayload,
             exportDownloadUrl: result.downloadUrl,
             successMessage: 'Data export package generated.',
+            isAuthor: user.capabilities.includes('author'),
           }),
         });
         attachPrivacyListeners();

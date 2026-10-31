@@ -14,10 +14,11 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
 
   if (!isAuthor) {
     return `
-      <div class="settings-container max-w-2xl py-6">
-        <h1 class="h1 mb-2">AI connections</h1>
-        <p class="text-sm text-secondary mb-6">Let your tools create and edit courses with access you control.</p>
-        ${renderSettingsNav('ai-connections', false)}
+      <div class="settings-container">
+        <header class="settings-header">
+          <h1 class="settings-title">Settings</h1>
+          ${renderSettingsNav('ai-connections', false)}
+        </header>
         <div class="card p-6 bg-surface border border-subtle rounded-lg" role="region" aria-labelledby="author-required-title">
           <h2 id="author-required-title" class="text-base font-semibold mb-2">Author Access Required</h2>
           <p class="text-sm text-secondary mb-4">
@@ -41,9 +42,16 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
   const coursesMap = new Map((opts.courses || []).map((c) => [c.id, c.title]));
 
   return `
-    <div class="settings-connections-container py-6">
-      <div class="flex items-center justify-between flex-wrap gap-4 mb-2">
-        <h1 class="h1">AI connections</h1>
+    <div class="settings-container settings-connections-container">
+      <header class="settings-header">
+        <h1 class="settings-title">Settings</h1>
+        ${renderSettingsNav('ai-connections', true)}
+      </header>
+      <div class="connections-head">
+        <div>
+          <h2 class="connections-head-title">AI connections</h2>
+          <p class="text-sm text-secondary">Let your tools create and edit courses with access you control.</p>
+        </div>
         ${renderButton({
           id: 'btn-open-create-token',
           label: '+ Create access token',
@@ -51,9 +59,6 @@ export function renderAiConnectionsPage(opts: AiConnectionsPageOptions): string 
           type: 'button',
         })}
       </div>
-      <p class="text-sm text-secondary mb-6">Let your tools create and edit courses with access you control.</p>
-
-      ${renderSettingsNav('ai-connections', true)}
 
       ${
         opts.error && !opts.showCreateModal && !opts.replacingToken

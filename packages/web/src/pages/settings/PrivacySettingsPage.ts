@@ -11,6 +11,7 @@ export interface PrivacySettingsPageOptions {
   exportData?: any;
   exportDownloadUrl?: string;
   isLoading?: boolean;
+  isAuthor?: boolean;
 }
 
 const escapePrivacy = (value: unknown): string => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]!));
@@ -24,7 +25,7 @@ export function renderPrivacySettingsPage(opts: PrivacySettingsPageOptions = {})
     <div class="settings-container">
       <header class="settings-header">
         <h1 class="settings-title">Settings</h1>
-        ${renderSettingsNav('privacy')}
+        ${renderSettingsNav('privacy', opts.isAuthor)}
       </header>
       <h2 class="sr-only">Privacy and account requests</h2>
 

@@ -17,7 +17,7 @@ export function renderSecuritySettingsPage(opts: SecuritySettingsPageOptions): s
     <div class="settings-container">
       <header class="settings-header">
         <h1 class="settings-title">Settings</h1>
-        ${renderSettingsNav('security')}
+        ${renderSettingsNav('security', opts.user.capabilities.includes('author'))}
       </header>
       <h2 class="sr-only">Security settings</h2>
 

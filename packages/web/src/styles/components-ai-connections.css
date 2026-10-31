@@ -1,7 +1,13 @@
 /* P43 AI Connections & P44 MCP Client Setup (Semantic Design Tokens) */
-.settings-connections-container {
-  max-width: 960px;
+.connections-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
+.connections-head-title { margin: 0 0 var(--space-1); font-size: 1.125rem; font-weight: 600; }
 
 .settings-connections-container.setup-view,
 .settings-connections-container:has(.setup-content) {
@@ -179,14 +185,11 @@
     width: 100%;
     min-width: 0;
   }
-  .settings-connections-container > .flex:first-child > h1 {
+  .connections-head > div {
     flex: 1 1 100%;
     min-width: 0;
   }
-  .settings-connections-container > .flex:first-child {
-    flex-wrap: wrap;
-  }
-  .settings-connections-container > .flex:first-child > button {
+  .connections-head > button {
     flex: 1 1 100%;
     justify-content: center;
   }

@@ -62,6 +62,7 @@ export function renderSettingsRoute(ctx: RouteContext): void {
           },
           resolvedSystemTheme: resolvedSystem,
           error,
+          isAuthor: user.capabilities.includes('author'),
         }),
       });
       attachAppearanceListeners();
@@ -88,13 +89,13 @@ export function renderSettingsRoute(ctx: RouteContext): void {
       activePath: path,
       user,
       headerTitle: 'Settings',
-      content: renderPrivacySettingsPage({}),
+      content: renderPrivacySettingsPage({ isAuthor: user.capabilities.includes('author') }),
     });
     attachPrivacyListeners();
     const privacyPath=window.location.pathname+window.location.search;
     void authClient.getPrivacyStatus().then((status)=>{
       if(window.location.pathname+window.location.search!==privacyPath)return;
-      appEl.innerHTML=renderAppShell({activePath:path,user,headerTitle:'Settings',content:renderPrivacySettingsPage(status)});
+      appEl.innerHTML=renderAppShell({activePath:path,user,headerTitle:'Settings',content:renderPrivacySettingsPage({ ...status, isAuthor: user.capabilities.includes('author') })});
       attachPrivacyListeners();
     }).catch((error:any)=>{
       if(window.location.pathname+window.location.search!==privacyPath)return;

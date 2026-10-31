@@ -15,7 +15,7 @@ export function renderProfileSettingsPage(opts: ProfileSettingsPageOptions): str
     <div class="settings-container">
       <header class="settings-header">
         <h1 class="settings-title">Settings</h1>
-        ${renderSettingsNav('profile')}
+        ${renderSettingsNav('profile', opts.user.capabilities.includes('author'))}
       </header>
       <h2 class="sr-only">Profile settings</h2>
 
