@@ -24,7 +24,7 @@ export function renderPublicShell(opts: PublicShellOptions): string {
             <nav class="public-nav" aria-label="Main Navigation">
               <a href="/courses" class="nav-link ${opts.activePath === '/courses' ? 'active' : ''}">Courses</a>
               <a href="/#teaching" class="nav-link">For teachers</a>
-              <a href="/help" class="nav-link ${opts.activePath === '/help' ? 'active' : ''}">Help</a>
+              <a href="/help" class="nav-link nav-link-help ${opts.activePath === '/help' ? 'active' : ''}">Help</a>
             </nav>
           </div>
           <div class="header-right">

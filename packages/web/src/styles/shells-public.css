@@ -60,7 +60,18 @@
   text-decoration: none;
   font-size: var(--type-control-size);
   font-weight: 500;
+  white-space: nowrap;
   transition: color var(--transition-fast);
+}
+
+@media (max-width: 480px) {
+  .header-left,
+  .public-nav { gap: var(--space-4); }
+}
+
+@media (max-width: 420px) {
+  /* Help stays reachable from the footer; the header keeps the primary destinations. */
+  .public-nav .nav-link-help { display: none; }
 }
 
 .nav-link:hover,

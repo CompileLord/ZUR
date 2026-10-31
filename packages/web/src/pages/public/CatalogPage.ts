@@ -345,7 +345,7 @@ export function renderCatalogPage(props: CatalogPageProps): string {
             <div class="active-filter-chips flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-subtle" aria-label="Active filters">
               <span class="text-xs text-muted font-medium">${chips.length} active filter${chips.length === 1 ? '' : 's'}:</span>
               ${chips.map(chip => `<span class="filter-chip text-xs px-2 py-0.5 rounded bg-surface border border-subtle text-secondary font-medium">${chip}</span>`).join('')}
-              <button type="button" class="btn btn-ghost btn-compact text-xs text-primary underline" data-action="clear-filters">Clear all</button>
+              ${courses.length > 0 ? '<button type="button" class="btn btn-ghost btn-compact text-xs text-primary underline" data-action="clear-filters">Clear all</button>' : ''}
             </div>
           `;
         })()}
