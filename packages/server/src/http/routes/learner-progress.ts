@@ -200,7 +200,7 @@ export async function handleLearnerProgressRoutes(rc: RouteContext): Promise<boo
     const progress = learningProgressService.getCourseProgress(user.id, enrollmentId);
     const stepMeta = progress.steps.find((s) => s.id === stepId);
     if (!stepMeta) throw authService.safeNotFound();
-    const enrolledSnapshot = courseService.getEnrolledStepContent(user.id, enrollmentId, stepId, { includeQuizAnswers: stepMeta.isCompleted });
+    const enrolledSnapshot = courseService.getEnrolledStepContent(user.id, enrollmentId, stepId, { revealAnswers: stepMeta.isCompleted });
 
     const stepIdx = progress.steps.findIndex((s) => s.id === stepId);
     const previousStepId = stepIdx > 0 ? progress.steps[stepIdx - 1].id : null;

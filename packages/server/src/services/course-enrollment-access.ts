@@ -92,7 +92,7 @@ export abstract class CourseEnrollmentAccess extends CourseReports {
     };
   }
 
-  getEnrolledStepContent(userId: string, enrollmentId: string, stepId: string, options: { includeQuizAnswers?: boolean } = {}): any {
+  getEnrolledStepContent(userId: string, enrollmentId: string, stepId: string, options: { revealAnswers?: boolean } = {}): any {
     const enrollment = this.db
       .prepare('SELECT * FROM enrollments WHERE id = ?')
       .get(enrollmentId) as any;
@@ -137,6 +137,7 @@ export abstract class CourseEnrollmentAccess extends CourseReports {
     const content = foundStep.content == null ? null : JSON.parse(JSON.stringify(foundStep.content));
     if (foundStep.type === 'python' && content) {
       delete content.referenceSolution;
+      if (!options.revealAnswers) delete content.solutionExplanation;
       if (Array.isArray(content.testCases)) {
         content.testCases = content.testCases
           .filter((tc: any) => !tc.isHidden)
@@ -148,8 +149,8 @@ export abstract class CourseEnrollmentAccess extends CourseReports {
           }));
       }
     }
-    // Answer keys never leave through this generic content path (PRD 11.2).
-    if (foundStep.type === 'quiz' && content && !options.includeQuizAnswers) {
+    // Answer keys and worked explanations are revealed only once the learner passed the step (PRD 11.2).
+    if (foundStep.type === 'quiz' && content && !options.revealAnswers) {
       content.options = (content.options || []).map((o: any) => ({ id: o.id, text: o.text }));
       delete content.explanation;
     }
