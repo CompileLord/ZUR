@@ -87,7 +87,7 @@ export function renderAuthorTree(opts: RenderAuthorTreeOptions): string {
                 <li class="tree-add-step" role="none">
                   <button type="button" class="tree-add-step-btn" aria-expanded="false" data-lesson-id="${les.id}">+ Add step</button>
                   <form class="tree-add-step-form" data-add-step-lesson="${les.id}" hidden>
-                    <input type="text" name="title" class="text-input input-compact" placeholder="Step title" aria-label="New step title" data-no-persist required maxlength="200" />
+                    <input type="text" name="title" class="text-input input-compact" placeholder="Step title" aria-label="New step title" required maxlength="200" />
                     <div class="tree-type-picker" role="radiogroup" aria-label="Step type">
                       ${(['theory', 'video', 'quiz', 'python'] as const).map((t, i) => `<label class="tree-type-chip step-type-${t}"><input type="radio" name="type" value="${t}" ${i === 0 ? 'checked' : ''} /><span>${renderIcon(STEP_ICON[t], { size: 12 })}${STEP_LABEL[t]}</span></label>`).join('')}
                     </div>
@@ -141,7 +141,7 @@ export function renderAuthorTree(opts: RenderAuthorTreeOptions): string {
           <summary class="btn btn-secondary btn-compact w-full text-center cursor-pointer list-none">+ Add module</summary>
           <form method="POST" action="/teach/${cid}/modules" class="mt-2">
             <div class="input-with-button flex gap-1">
-              <input type="text" name="title" class="text-input input-compact flex-1 text-xs" placeholder="Module title..." aria-label="New module title" data-no-persist required />
+              <input type="text" name="title" class="text-input input-compact flex-1 text-xs" placeholder="Module title..." aria-label="New module title" required />
               <button type="submit" class="btn btn-primary btn-compact text-xs">Save</button>
             </div>
           </form>

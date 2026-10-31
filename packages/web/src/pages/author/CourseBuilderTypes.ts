@@ -29,7 +29,6 @@ export interface RemoteUpdateInfo {
   agentName: string;
   timestampText?: string;
   newRevision: number;
-  hasLocalEdits?: boolean;
 }
 
 export interface CourseBuilderPageOptions {

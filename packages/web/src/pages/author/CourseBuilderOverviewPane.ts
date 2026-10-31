@@ -57,7 +57,7 @@ export function renderCourseOverviewPane(opts: CourseBuilderPageOptions, grip: s
           <details class="add-module-disclosure overview-add-module">
             <summary class="btn btn-primary btn-compact cursor-pointer list-none">+ Add module</summary>
             <form method="POST" action="/teach/${opts.courseId}/modules" class="overview-add-module-form">
-              <input type="text" name="title" class="text-input" placeholder="Module title" aria-label="New module title" data-no-persist required />
+              <input type="text" name="title" class="text-input" placeholder="Module title" aria-label="New module title" required />
               <button type="submit" class="btn btn-primary btn-compact">Create</button>
             </form>
           </details>

@@ -339,7 +339,6 @@ test('Agent Activity and Builder Update UI (P45, T067)', async (t) => {
         agentName: 'Claude Builder Agent',
         timestampText: '2 minutes ago',
         newRevision: 4,
-        hasLocalEdits: false,
       },
     });
 
@@ -348,25 +347,6 @@ test('Agent Activity and Builder Update UI (P45, T067)', async (t) => {
     assert.ok(html.includes('(Revision 4)'));
     assert.ok(html.includes('View changes'));
     assert.ok(html.includes('id="load-update-btn"'));
-  });
-
-  await t.test('P22: CourseBuilderPage preserves local edits notice during remote update', () => {
-    const html = renderCourseBuilderPage({
-      courseId,
-      courseTitle,
-      publicationState: 'draft',
-      hasUnpublishedChanges: true,
-      modules: sampleModules,
-      remoteUpdate: {
-        agentName: 'Claude Builder Agent',
-        timestampText: 'just now',
-        newRevision: 5,
-        hasLocalEdits: true,
-      },
-    });
-
-    assert.ok(html.includes('Unsaved local changes preserved. Review differences before replacing.'));
-    assert.ok(html.includes('id="resolve-conflict-btn"'));
   });
 
   await t.test('P22: CourseBuilderPage safely handles remotely deleted selected nodes', () => {

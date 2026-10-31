@@ -14,13 +14,12 @@ export async function loadCourseBuilderPage(path: string, courseId: string, cour
     const actRes = await s2Request(`/api/author/courses/${courseId}/activity?limit=1`);
     const latest = actRes?.items?.[0];
     const createdAt = latest?.createdAt || latest?.created_at;
-    if (latest && createdAt && (Date.now() - new Date(createdAt).getTime() < 3600 * 1000)) {
-      const hasLocalEdits = Boolean(sessionStorage.getItem(`zur_builder_unsaved_${courseId}`) || query.get('hasLocalEdits') === 'true');
+    const minutesAgo = createdAt ? Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000) : Infinity;
+    if (latest && minutesAgo < 60) {
       remoteUpdate = {
         agentName: latest.tokenLabel || latest.client_label || 'AI agent',
-        timestampText: 'just now',
+        timestampText: minutesAgo < 1 ? 'just now' : `${minutesAgo} min ago`,
         newRevision: latest.newRevision ?? latest.new_revision,
-        hasLocalEdits,
       };
     }
   } catch { /* activity optional */ }
@@ -31,31 +30,8 @@ export async function loadCourseBuilderPage(path: string, courseId: string, cour
   { const { initRowOverflowMenus } = await import('../../pages/author/CourseBuilderPage.ts'); initRowOverflowMenus(appEl); }
   {  void fetchInvalidStepIds(s2Request, courseId).then((ids) => { if (s2Current(path)) applyInvalidStepDots(appEl, ids); }); }
 
-  if (sessionStorage.getItem(`zur_builder_unsaved_${courseId}`)) {
-    appEl.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input:not([data-no-persist]), textarea').forEach(input => {
-      const key = `zur_builder_unsaved_val_${courseId}_${input.name || input.id}`;
-      const val = sessionStorage.getItem(key);
-      if (val !== null && val !== undefined) {
-        input.value = val;
-      }
-    });
-  }
-  appEl.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input:not([data-no-persist]), textarea').forEach(input => {
-    input.addEventListener('input', () => {
-      sessionStorage.setItem(`zur_builder_unsaved_${courseId}`, 'true');
-      sessionStorage.setItem(`zur_builder_unsaved_val_${courseId}_${input.name || input.id}`, input.value);
-    });
-  });
   document.getElementById('load-update-btn')?.addEventListener('click', () => {
-    sessionStorage.removeItem(`zur_builder_unsaved_${courseId}`);
-    Object.keys(sessionStorage).forEach(k => {
-      if (k.startsWith(`zur_builder_unsaved_val_${courseId}_`)) sessionStorage.removeItem(k);
-    });
     renderApp(path);
-  });
-  document.getElementById('resolve-conflict-btn')?.addEventListener('click', () => {
-    window.history.pushState({}, '', `/teach/${courseId}/activity`);
-    renderApp();
   });
   appEl.querySelectorAll('form[action^="/teach/"]').forEach(form => form.addEventListener('submit', async event => {
     event.preventDefault();
