@@ -8,8 +8,8 @@
 # Load env from /etc/zur/caddy.env (see docs/DEPLOYMENT.md) or `Environment=` in the caddy unit.
 # Validate:  caddy validate --config deploy/Caddyfile --adapter caddyfile
 #
-# IMPORTANT: the inline-script hash in the CSP below must match packages/web/dist/index.html.
-# After every `npm run build`, run `node deploy/csp-hash.mjs --check`.
+# The CSP below allows no inline scripts. If one is ever added to index.html, its hash must be
+# added to script-src: after every `npm run build`, run `node deploy/csp-hash.mjs --check`.
 
 {
 	email {$ZUR_ACME_EMAIL}
@@ -30,8 +30,7 @@
 		Cross-Origin-Opener-Policy "same-origin"
 		-Server
 		# Content-Security-Policy, derived from the CURRENT code (see docs/DEPLOYMENT.md "CSP"):
-		#  - script-src: bundled modules are same-origin; index.html has ONE inline first-paint
-		#    theme script, allowed by hash (no 'unsafe-inline' for scripts).
+		#  - script-src 'self': bundled modules and /theme-init.js; no inline scripts or handlers.
 		#  - style-src 'unsafe-inline': required today. The app injects <style> elements
 		#    (AdminShell/AuthorWorkspaceShell/AuthorPreviewPage), CodeMirror injects <style>,
 		#    and ~250 inline style="" attributes / el.style writes exist. Tightening needs code changes.
@@ -41,11 +40,9 @@
 		#  - connect-src 'self': all fetches are same-origin (/api, /mcp); no websockets/SSE.
 		#  - frame-ancestors 'none' replaces X-Frame-Options in modern browsers.
 		#
-		# Phase 1 (default): REPORT-ONLY. Watch the browser console / your report endpoint, then
-		# switch to the enforced header below.
-		Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'sha256-lk9yYgG74sJZGnK7nAVJ+E5qGQs5Q6wm0ZjeTg0d/pg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com https://www.loom.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
-		# Phase 2: comment out the Report-Only line above and uncomment this one.
-		# Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-lk9yYgG74sJZGnK7nAVJ+E5qGQs5Q6wm0ZjeTg0d/pg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com https://www.loom.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		# Enforced: verified with no violations across public, learner (all step types), author and
+		# admin pages on the production build.
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com https://www.loom.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 	}
 
 	# ---- Backend: API, MCP, health ----

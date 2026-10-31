@@ -60,14 +60,14 @@ sudo systemctl reload caddy
 Caddyfile behavior tested in a caddy:2-alpine container [tested]: SPA fallback to index.html (`no-cache`), `/assets/*` immutable 1-year cache, missing asset is 404 (not HTML, not cached), `/media` and favicon 1 day, `/healthz` and `/api/*` proxied with `no-store`, gzip, HSTS/XFO/nosniff/Referrer-Policy/Permissions-Policy present. Automatic ACME issuance is [untested] (no internet here).
 
 ### CSP (derived from current code)
-Shipped as `Content-Security-Policy-Report-Only`; the enforced header is in the Caddyfile commented. Real dependencies found:
-- One inline `<script>` in `index.html` (first-paint theme) -> allowed by sha256 hash. **Re-run `node deploy/csp-hash.mjs` and update the Caddyfile whenever that script changes.**
+Shipped enforced (`Content-Security-Policy`). Verified on the production build with no violations across public, learner (theory, video, quiz, Python with CodeMirror), author and admin pages. Real dependencies found:
+- No inline scripts or inline event handlers: the first-paint theme script is `/theme-init.js`. If an inline `<script>` is ever added to `index.html`, `node deploy/csp-hash.mjs --check` (run after `npm run build`) fails until its hash is in script-src.
 - `style-src 'unsafe-inline'` is required: the shells inject `<style>` blocks (AdminShell, AuthorWorkspaceShell, AuthorPreviewPage), CodeMirror injects styles, and ~250 inline `style=` attributes/`el.style` writes exist (heaviest: AgentActivityPage.ts 133). Removing it needs code changes.
 - Google Fonts: `fonts.googleapis.com` (css) + `fonts.gstatic.com` (font files); consider self-hosting to drop both and the privacy leak.
 - `img-src data: blob:` (select chevron data-URI in components.css; admin media preview blob); `media-src 'self' blob:`.
 - `frame-src` YouTube-nocookie, Vimeo, Loom (author video embeds).
 - `connect-src 'self'` (only same-origin fetch; no websockets/EventSource/workers/eval found).
-Procedure: run Report-Only for a week of real traffic, fix violations, then switch to enforced.
+If a future change needs a looser policy, ship it as `Content-Security-Policy-Report-Only` first, watch for violations, then enforce.
 
 ## 6. Backups [tested locally with node-based snapshot; timer untested]
 ```
@@ -83,7 +83,7 @@ Rollback: migrations are forward-only, so rollback = checkout previous tag **and
 
 ## 8. Smoke checklist
 - `curl -fsS https://DOMAIN/healthz` 200; `/readyz` 200 (once implemented).
-- `curl -sI https://DOMAIN/` shows HSTS, CSP(-Report-Only), `Cache-Control: no-cache`; `/assets/<hash>.js` immutable.
+- `curl -sI https://DOMAIN/` shows HSTS, CSP, `Cache-Control: no-cache`; `/assets/<hash>.js` immutable.
 - Deep link (`/courses/x`) loads the SPA; sign-up/sign-in works, cookie has `Secure; HttpOnly`.
 - A verification/reset email arrives (Postmark). `/mcp` reachable with an MCP token from the public hostname.
 - Run a Python exercise end-to-end (worker + podman); `journalctl -u zur-worker` clean.
