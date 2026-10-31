@@ -219,10 +219,11 @@ export class QuizService {
     userId: string,
     enrollmentId: string | null,
     stepId: string,
-    selectedOptionIds: string[],
+    selection: unknown,
     isPreview: boolean = false
   ): QuizGradeResult {
     const { quiz } = this.authorizedQuiz(userId, enrollmentId, stepId, isPreview);
+    const selectedOptionIds = parseSelection(selection, (quiz.options || []).map((o) => o.id));
     const correctIds = (quiz.options || []).filter((o) => o.isCorrect).map((o) => o.id);
 
     // Exact set equality
@@ -304,4 +305,14 @@ export class QuizService {
 
     return result;
   }
+}
+
+/** A selection is a list of distinct ids taken from the quiz's own options; anything else is rejected before grading. */
+function parseSelection(selection: unknown, optionIds: string[]): string[] {
+  const valid = Array.isArray(selection)
+    && selection.length <= optionIds.length
+    && selection.every((id) => typeof id === 'string' && optionIds.includes(id))
+    && new Set(selection).size === selection.length;
+  if (!valid) throw new ValidationError('Choose answers from the listed options.');
+  return selection as string[];
 }
