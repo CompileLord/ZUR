@@ -235,6 +235,8 @@
 
 .previous-course-row {
   display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
   justify-content: space-between;
   align-items: center;
   padding: var(--space-3) 0;
@@ -245,6 +247,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  flex: 1 1 240px;
+  min-width: 0;
 }
 
 /* P11: Enrolled Overview */

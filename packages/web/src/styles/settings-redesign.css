@@ -30,6 +30,27 @@
   max-width: none;
 }
 
+@media (max-width: 768px) {
+  .settings-section {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-4);
+  }
+  .settings-section:first-of-type { padding-top: var(--space-5); }
+  .settings-section-header { max-width: none; }
+  .settings-container .tabs-nav { gap: var(--space-4); }
+}
+
+.settings-action-row,
+.settings-danger-row {
+  flex-wrap: wrap;
+}
+
+.settings-row-text {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
 .settings-section-content .form-input,
 .settings-section-content .form-select,
 .settings-section-content .form-group {
