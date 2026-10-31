@@ -38,7 +38,7 @@ export function renderAdminExecutionContent(path: string, data: any): string {
           </div>
         </div>
 
-        <h2 class="section-title">Queue and worker health</h2>
+        <h2 class="section-title">Queue</h2>
         <div class="admin-stats-grid mb-6">
           <div class="stat-tile">
             <span class="stat-label">Queued jobs</span>
@@ -54,11 +54,6 @@ export function renderAdminExecutionContent(path: string, data: any): string {
             <span class="stat-label">Oldest queued</span>
             <span class="stat-value stat-value-text">${escapeAdmin(data.overview.queue.oldestQueuedAt ? formatDate(data.overview.queue.oldestQueuedAt) : 'None')}</span>
             <span class="stat-hint text-xs text-muted">${escapeAdmin(data.overview.queue.oldestQueuedAt || 'No queued jobs')}</span>
-          </div>
-          <div class="stat-tile">
-            <span class="stat-label">Worker health</span>
-            <div class="mt-1">${pill(data.overview.workers.lastObservedAt ? 'Heartbeat active' : 'Unavailable', data.overview.workers.lastObservedAt ? 'success' : 'neutral')}</div>
-            <span class="stat-hint text-xs text-muted" title="${escapeAdmin(data.overview.workers.health)}">${escapeAdmin(data.overview.workers.lastObservedAt ? data.overview.workers.health || 'Heartbeat telemetry' : 'Heartbeat telemetry')}</span>
           </div>
         </div>
 

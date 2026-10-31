@@ -1,6 +1,7 @@
 import { renderIcon, type IconName } from '../../components/common/icons.ts';
 import { formatDate } from '../../utils/formatters.ts';
 import { table, healthDot, escapeAdmin } from './admin-page-helpers.ts';
+import { alertLabel, isCardAlert } from './admin-labels.ts';
 
 export function renderAdminOverviewContent(data: any): string {
       const errRate = data.internalErrorRate;
@@ -61,9 +62,7 @@ export function renderAdminOverviewContent(data: any): string {
         attention.push({
           tone: 'warning',
           icon: 'info',
-          html: `<strong>${data.emailDeliveryIssues} email delivery issue(s)</strong> detected`,
-          href: '/admin/users',
-          cta: 'Review accounts',
+          html: `<strong>${data.emailDeliveryIssues} email delivery issue${data.emailDeliveryIssues === 1 ? '' : 's'}</strong> detected`,
         });
       }
       const suspended = data.suspendedCourses;
@@ -81,12 +80,12 @@ export function renderAdminOverviewContent(data: any): string {
           cta: 'Review courses',
         });
       }
-      for (const alert of data.operational?.alerts || []) {
+      for (const alert of (data.operational?.alerts || []).filter((a: any) => !isCardAlert(a.code))) {
         const critical = alert.severity === 'critical';
         attention.push({
           tone: critical ? 'critical' : 'warning',
           icon: 'alert-triangle',
-          html: `<strong>${escapeAdmin(alert.code)}</strong> ${escapeAdmin(alert.message)}`,
+          html: `<strong>${escapeAdmin(alertLabel(alert.code))}</strong> ${escapeAdmin(alert.message)}`,
           role: critical ? 'alert' : 'status',
         });
       }
@@ -106,7 +105,7 @@ export function renderAdminOverviewContent(data: any): string {
       const errAvailable = errRateDisplay !== 'Unavailable';
       const errObserved = Boolean(errRate && errRate.numerator > 0);
 
-      const notConfigured = (text = 'Not configured') => `<span class="admin-chip-quiet">${text}</span>`;
+      const notConfigured = (text: string) => `<span class="admin-chip-quiet">${text}</span>`;
 
       return `
         <div class="admin-page-header">
@@ -126,7 +125,7 @@ export function renderAdminOverviewContent(data: any): string {
               <summary aria-label="About this telemetry">${renderIcon('info', { size: 15 })}<span>About telemetry</span></summary>
               <div class="admin-info-popover-panel">
                 <p>Request samples are in memory and reset on process restart. p95 values use the last five minutes; no request payloads or user identifiers are retained.</p>
-                <p>Telemetry status: queue ${escapeAdmin(data.telemetry.queue)}, worker heartbeat ${escapeAdmin(data.telemetry.workerHeartbeat)}, email ${escapeAdmin(data.telemetry.email)}, internal errors ${escapeAdmin(data.telemetry.internalErrorRate || 'unavailable')}.</p>
+                <p>Telemetry status: queue ${escapeAdmin(data.telemetry.queue)}, email ${escapeAdmin(data.telemetry.email)}, internal errors ${escapeAdmin(data.telemetry.internalErrorRate || 'unavailable')}.</p>
               </div>
             </details>
           </div>
@@ -140,17 +139,15 @@ export function renderAdminOverviewContent(data: any): string {
               <span class="health-label">${healthDot(data.queue.queued > 0 ? 'warn' : 'ok')} Queue</span>
               <strong class="health-value">${data.queue.queued} queued · ${data.queue.running} running</strong>
               <span class="health-hint">Oldest queued: ${escapeAdmin(data.queue.oldestQueuedAt ? formatDate(data.queue.oldestQueuedAt) : 'No queued jobs')}</span>
-              <span class="health-hint">Runner heartbeat: ${data.workers.lastObservedAt ? `last observed ${escapeAdmin(formatDate(data.workers.lastObservedAt))}` : `${notConfigured()} <span class="sr-only">No separate worker heartbeat configured</span>`}</span>
             </div>
             <div class="health-item">
               <span class="health-label">${healthDot(!errAvailable ? 'idle' : errObserved ? 'warn' : 'ok')} Internal-error rate</span>
               <strong class="health-value">${errAvailable ? errRateDisplay : notConfigured('Unavailable')}</strong>
               <span class="health-hint">${errRateSub}</span>
-              ${data.operational ? '<a href="#recent-request-metrics">Recent request metrics</a>' : ''}
             </div>
             <div class="health-item">
               <span class="health-label">${healthDot(data.emailDeliveryIssues > 0 ? 'warn' : hasEmailData ? 'ok' : 'idle')} Email delivery</span>
-              <strong class="health-value">${data.emailDeliveryIssues > 0 ? `${data.emailDeliveryIssues} issue(s)` : hasEmailData ? 'Normal' : notConfigured('No telemetry')}</strong>
+              <strong class="health-value">${data.emailDeliveryIssues > 0 ? `${data.emailDeliveryIssues} issue${data.emailDeliveryIssues === 1 ? '' : 's'}` : hasEmailData ? 'Normal' : notConfigured('No telemetry')}</strong>
               <span class="health-hint">${escapeAdmin(data.email?.lastSentAt ? `Last sent ${formatDate(data.email.lastSentAt)}` : 'No delivery events recorded')}</span>
             </div>
           </div>
@@ -163,9 +160,9 @@ export function renderAdminOverviewContent(data: any): string {
                 <div class="disclosure-body">
                   ${table(
                     ['Service', { label: 'Requests', align: 'right' }, { label: 'Failures', align: 'right' }, { label: 'p95 latency', align: 'right' }],
-                    Object.entries(data.operational.requestMetrics.recentByFamily).map(
+                    Object.entries(data.operational.requestMetrics.recentByFamily).filter(([, metric]: any) => metric.requests > 0).map(
                       ([name, metric]: any) =>
-                        `<tr><th scope="row">${escapeAdmin(name)}</th><td class="text-right">${metric.requests}</td><td class="text-right">${metric.failures}</td><td class="text-right">${metric.p95LatencyMs === null ? 'Unavailable' : `${metric.p95LatencyMs} ms`}</td></tr>`
+                        `<tr><th scope="row">${escapeAdmin(name)}</th><td class="text-right">${metric.requests}</td><td class="text-right">${metric.failures}</td><td class="text-right">${Math.round(metric.p95LatencyMs)} ms</td></tr>`
                     ),
                     'No requests observed in the current window.'
                   )}
