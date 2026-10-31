@@ -6,7 +6,7 @@ import { renderVerifyEmailPage } from '../src/pages/account/VerifyEmailPage.ts';
 
 test('Help Page P40 (T072)', async (t) => {
   await t.test('renders table of contents, honest support status, and contextual report modal', () => {
-    const html = renderHelpPage({ courseId: 'course-py-101' });
+    const html = renderHelpPage({ courseId: 'course-py-101', isSignedIn: true, courses: [{ id: 'course-py-101', title: 'Python 101' }] });
 
     // Table of contents anchors
     assert.ok(html.includes('Help and support'));
@@ -27,7 +27,7 @@ test('Help Page P40 (T072)', async (t) => {
     assert.ok(html.includes('id="report-issue-modal"'));
     assert.ok(html.includes('role="dialog"'));
     assert.ok(html.includes('id="report-course-id"'));
-    assert.ok(html.includes('value="course-py-101"'));
+    assert.ok(html.includes('<option value="course-py-101" selected>Python 101</option>'));
     assert.ok(html.includes('Broken exercise or test case'));
     assert.ok(html.includes('Inappropriate or abusive content'));
   });
@@ -45,6 +45,8 @@ test('Help Page P40 (T072)', async (t) => {
   await t.test('escapes untrusted values in help page and report modal', () => {
     // 1. Error state in active report form
     const htmlError = renderHelpPage({
+      isSignedIn: true,
+      courses: [{ id: 'c-1', title: '<b>Evil</b> course' }],
       courseId: 'course-101" autofocus onfocus="alert(1)"',
       courseVersionId: 'ver-101" autofocus onfocus="alert(2)"',
       stepId: 'step-101" autofocus onfocus="alert(3)"',
@@ -55,6 +57,7 @@ test('Help Page P40 (T072)', async (t) => {
     assert.ok(!htmlError.includes('course-101" autofocus'));
     assert.ok(htmlError.includes('&lt;script&gt;alert(&quot;error-xss&quot;)&lt;/script&gt;'));
     assert.ok(htmlError.includes('course-101&quot; autofocus'));
+    assert.ok(htmlError.includes('&lt;b&gt;Evil&lt;/b&gt; course'));
 
     // 2. Success reference state
     const htmlSuccess = renderHelpPage({
@@ -67,6 +70,8 @@ test('Help Page P40 (T072)', async (t) => {
 
   await t.test('preserves user input description and type on failed report submit', () => {
     const html = renderHelpPage({
+      isSignedIn: true,
+      courses: [{ id: 'course-py-101', title: 'Python 101' }],
       courseId: 'course-py-101',
       type: 'inappropriate_content',
       description: 'The course contains abusive text in lesson 2.',

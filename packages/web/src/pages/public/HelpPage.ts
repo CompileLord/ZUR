@@ -1,5 +1,13 @@
 import { renderIcon } from '../../components/common/icons.ts';
+export interface ReportCourse {
+  id: string;
+  title: string;
+}
+
 export interface HelpPageProps {
+  isSignedIn?: boolean;
+  courses?: ReportCourse[] | null;
+  returnTo?: string;
   courseId?: string;
   courseVersionId?: string;
   stepId?: string;
@@ -13,6 +21,9 @@ export interface HelpPageProps {
 
 export function renderHelpPage(props: HelpPageProps = {}): string {
   const {
+    isSignedIn = false,
+    courses = [],
+    returnTo = '/help',
     courseId = '',
     courseVersionId = '',
     stepId = '',
@@ -23,6 +34,26 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
     reportSuccessReference = null,
     reportError = null,
   } = props;
+
+  const courseOptions = [...(courses ?? [])];
+  if (courseId && !courseOptions.some((c) => c.id === courseId)) courseOptions.push({ id: courseId, title: 'The course you were viewing' });
+  const needsCoursePick = courseOptions.length > 1 && !courseOptions.some((c) => c.id === courseId);
+
+  const reportUnavailableHtml = !isSignedIn
+    ? `
+              <div class="report-signin-prompt py-4 text-sm">
+                <p class="text-secondary mb-3">Sign in to report an issue. Reports are linked to your account so the team can follow up with you.</p>
+                <a id="report-signin" class="btn btn-primary btn-compact" href="/sign-in?returnTo=${encodeURIComponent(returnTo)}">Sign in to report</a>
+              </div>
+            `
+    : courseOptions.length === 0
+      ? `
+              <div class="report-no-courses py-4 text-sm">
+                <p class="text-secondary mb-3">${courses === null ? 'We could not load your courses. Reload the page to try again.' : 'Reports are about a course you are enrolled in. Enroll in a course first, then report an issue from there.'}</p>
+                ${courses === null ? '' : '<a class="btn btn-secondary btn-compact" href="/courses">Browse courses</a>'}
+              </div>
+            `
+      : '';
 
   const reportModalHtml = `
     <dialog
@@ -53,7 +84,7 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
                 <button type="button" class="btn btn-secondary btn-compact" data-action="close-report">Close</button>
               </div>
             `
-            : `
+            : reportUnavailableHtml || `
               <form id="report-issue-form" class="flex flex-col gap-3 py-3">
                 ${
                   reportError
@@ -62,16 +93,12 @@ export function renderHelpPage(props: HelpPageProps = {}): string {
                 }
 
                 <div class="form-group">
-                  <label for="report-course-id" class="form-label">Course ID <span class="text-danger">*</span></label>
-                  <input
-                    id="report-course-id"
-                    type="text"
-                    class="form-input"
-                    value="${escapeHtml(courseId)}"
-                    placeholder="e.g. course-python-foundations"
-                    required
-                  />
-                  <span class="form-hint">Contextual course identifier.</span>
+                  <label for="report-course-id" class="form-label">Course <span class="text-danger">*</span></label>
+                  <select id="report-course-id" class="form-input" required>
+                    ${needsCoursePick ? '<option value="">Choose a course</option>' : ''}
+                    ${courseOptions.map((c) => `<option value="${escapeHtml(c.id)}"${c.id === courseId || courseOptions.length === 1 ? ' selected' : ''}>${escapeHtml(c.title)}</option>`).join('')}
+                  </select>
+                  <span class="form-hint">The course this report is about.</span>
                 </div>
 
                 <div class="form-group">
