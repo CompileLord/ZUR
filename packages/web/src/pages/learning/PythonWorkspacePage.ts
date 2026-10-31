@@ -242,10 +242,6 @@ export function renderPythonWorkspaceContent(opts: PythonWorkspacePageOptions): 
               <div id="toolbar-more-menu" class="toolbar-menu-list" role="menu" aria-label="More actions" hidden>
                 <button type="button" role="menuitem" id="run-samples-btn">Test samples</button>
                 <button type="button" role="menuitem" id="reset-code-btn">Reset code</button>
-                <div class="toolbar-menu-row" role="group" aria-label="Font size">
-                  <span>Font size</span>
-                  <span><button type="button" data-font-step="-1" aria-label="Decrease font size">−</button><button type="button" data-font-step="1" aria-label="Increase font size">+</button></span>
-                </div>
                 <a role="menuitem" href="${attemptsUrl}" id="attempts-link">Attempts</a>
               </div>
             </div>

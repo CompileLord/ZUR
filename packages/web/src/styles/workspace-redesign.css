@@ -17,18 +17,13 @@
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3); display: flex; flex-direction: column; gap: 2px;
 }
 .toolbar-menu-list[hidden] { display: none; }
-.toolbar-menu-list > button, .toolbar-menu-list > a, .toolbar-menu-row {
+.toolbar-menu-list > button, .toolbar-menu-list > a {
   display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
   padding: 8px 10px; border: 0; border-radius: 6px; background: transparent; color: var(--text-primary);
   font: inherit; font-size: 14px; text-align: left; text-decoration: none; cursor: pointer;
 }
 .toolbar-menu-list > button:hover, .toolbar-menu-list > a:hover { background: var(--bg-hover); }
 .toolbar-menu-list button:focus-visible, .toolbar-menu-list a:focus-visible { outline: 2px solid var(--border-focus, var(--accent)); outline-offset: -2px; }
-.toolbar-menu-row { cursor: default; }
-.toolbar-menu-row button {
-  width: 28px; height: 28px; margin-left: 4px; border: 1px solid var(--border-control); border-radius: 6px;
-  background: var(--bg-surface); color: var(--text-primary); cursor: pointer;
-}
 
 /* task panel */
 .paired-workspace .problem-pane { padding: var(--space-5); gap: var(--space-4); }

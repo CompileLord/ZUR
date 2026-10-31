@@ -49,3 +49,15 @@ test('a workspace opened on the custom input tab renders its drawer open', () =>
   assert.match(renderPythonWorkspacePage(base), /data-drawer="open"/);
   assert.match(renderPythonWorkspacePage({ ...base, activeTab: 'results' }), /data-drawer="closed"/);
 });
+
+test('the editor offers one font size control, in the footer next to the current size', () => {
+  const html = renderPythonWorkspacePage({
+    courseTitle: 'Python Foundations', courseOverviewUrl: '/courses/c-1', lessonTitle: 'Conditions', stepTitle: 'Check',
+    stepOrdinalText: 'Step 3 of 5', enrollmentId: 'enr-1', stepId: 'step-6', problemStatement: 'Read an integer.',
+    inputFormat: 'A single integer.', outputFormat: 'Even or Odd.', constraints: 'none', starterCode: '# write code\n',
+    currentCode: 'print(1)\n', hints: [], solutionExplanation: 'x', examples: [], editorFontSize: 16,
+  } as any);
+  assert.equal(html.match(/data-font-step="-1"/g)?.length, 1);
+  assert.equal(html.match(/data-font-step="1"/g)?.length, 1);
+  assert.match(html, /id="editor-font-size-label"[^>]*>16px</);
+});
