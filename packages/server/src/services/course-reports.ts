@@ -178,6 +178,11 @@ export abstract class CourseReports extends CoursePublicCatalog {
       authorizedCode = null;
     }
 
+    const duplicate = this.db.prepare(
+      `SELECT id FROM reports WHERE reporter_id = ? AND course_id = ? AND step_id IS ? AND type = ? AND description = ? AND status = 'open'`
+    ).get(reporterId, data.courseId, validatedStepId, data.type, description) as { id: string } | undefined;
+    if (duplicate) return { id: duplicate.id, reference: duplicate.id, status: 'open' };
+
     const reportId = `rep-${crypto.randomUUID()}`;
     const now = new Date().toISOString();
     this.db

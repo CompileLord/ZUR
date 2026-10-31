@@ -48,6 +48,7 @@ export async function handleCatalogRoutes(rc: RouteContext): Promise<boolean> {
     if (!token) throw new AuthenticationError();
     const { user } = identityService.authenticateSession(token);
     const body = await parseJsonBody(req);
+    identityService.consumeRequestRateLimit('report', user.id, 20, 60 * 60 * 1000);
     const report = courseService.createReport(user.id, body);
     sendJson(res, 201, report);
     return true;
