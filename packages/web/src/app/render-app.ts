@@ -33,10 +33,12 @@ function beginRouteSwap(routeTitle: string, preferHeading: boolean, pathname: st
   lastSwapPathname = pathname;
   if (isNewPage) window.scrollTo(0, 0);
   let applied: HTMLElement | null = null;
+  // Some routes keep the previous page on screen while they fetch; its heading is not this page's.
+  const previousHeading = isNewPage ? appEl.querySelector<HTMLElement>('h1') : null;
 
   const apply = () => {
     const heading = appEl.querySelector<HTMLElement>('h1');
-    if (!heading || heading.closest('[aria-busy="true"]')) return;
+    if (!heading || heading === previousHeading || heading.closest('[aria-busy="true"]')) return;
     if (applied === heading) return;
     const refocus = applied !== null && !applied.isConnected;
     applied = heading;
