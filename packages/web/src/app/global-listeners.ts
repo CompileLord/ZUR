@@ -1,4 +1,5 @@
 import { SESSION_EXPIRED_EVENT } from '../services/auth-client.ts';
+import { markAuthorShellDirty } from '../services/author-dirty.ts';
 import { installDelegatedActions } from '../services/delegated-actions.ts';
 import { confirmLeaveDialog } from '../components/common/Dialog.ts';
 import { navigationHistory } from '../utils/navigation-history.ts';
@@ -11,6 +12,7 @@ import { app, authClient } from './state.ts';
 export function installNavigationListeners(): void {
   window.addEventListener(SESSION_EXPIRED_EVENT, (event) => handleSessionExpired((event as CustomEvent).detail));
   installDelegatedActions();
+  for (const type of ['input', 'change']) document.addEventListener(type, (event) => { markAuthorShellDirty(event.target); });
 
   window.addEventListener('popstate', async (event: PopStateEvent) => {
     if (navigationHistory.checkAndClearReverting()) {

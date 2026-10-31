@@ -47,7 +47,6 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
             class="text-input step-title-input"
             value="${opts.stepTitle}"
             placeholder="Step title..."
-            oninput="this.closest('.shell-author')?.classList.add('is-dirty')"
             required
           />
         </div>
@@ -84,7 +83,6 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
             rows="18"
             placeholder="Write explanation in Markdown..."
             aria-describedby="markdown-help"
-            oninput="this.closest('.shell-author')?.classList.add('is-dirty')"
           >${opts.markdown}</textarea>
           <div class="flex items-center justify-between text-xs text-muted mt-1.5" id="markdown-help">
             <span>Supports standard Markdown, tables, and callouts</span>
@@ -116,7 +114,6 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
               max="120"
               class="text-input input-compact"
               value="${opts.estimatedDurationMinutes}"
-              oninput="this.closest('.shell-author')?.classList.add('is-dirty')"
             />
             <span class="unit-text">min</span>
           </div>
@@ -129,7 +126,6 @@ export function renderTheoryEditorPage(opts: TheoryEditorPageOptions): string {
               type="checkbox"
               class="switch-input"
               ${opts.isRequired ? 'checked' : ''}
-              onchange="this.closest('.shell-author')?.classList.add('is-dirty')"
             />
             <span class="switch-track" aria-hidden="true"></span>
             <span>Required step for course completion</span>

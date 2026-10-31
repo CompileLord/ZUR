@@ -48,7 +48,7 @@ export function renderAuthorWorkspaceShell(opts: AuthorWorkspaceShellOptions): s
 
   return `
     <style id="author-workspace-styles">${authorStyles}</style>
-    <div class="shell-author" oninput="this.classList.add('is-dirty'); const btn = this.querySelector('.author-header-right > button.btn-primary'); if (btn && btn.textContent === 'Saved') btn.textContent = 'Save changes';">
+    <div class="shell-author">
       <div class="author-chrome">
         <header class="author-header" role="banner">
           <div class="author-header-left">
