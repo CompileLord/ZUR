@@ -24,7 +24,8 @@ let lastSwapPathname: string | null = null;
  * Runs once the new content (not the loading skeleton) has rendered; same-path updates
  * (filters, retries) only refresh the title so scroll position and typing focus survive.
  */
-function beginRouteSwap(routeTitle: string, preferHeading: boolean, pathname: string): void {
+function beginRouteSwap(routeTitle: string, preferHeading: boolean, path: string): void {
+  const pathname = path.split('?')[0];
   routeSwapObserver?.disconnect();
   if (routeSwapTimer) clearTimeout(routeSwapTimer);
   const baseTitle = `${routeTitle} · ZUR`;
@@ -35,6 +36,8 @@ function beginRouteSwap(routeTitle: string, preferHeading: boolean, pathname: st
   let applied: HTMLElement | null = null;
   // Some routes keep the previous page on screen while they fetch; its heading is not this page's.
   const previousHeading = isNewPage ? appEl.querySelector<HTMLElement>('h1') : null;
+  // A filter link re-renders its own page; keep keyboard focus on that filter.
+  const refocusFilter = !isNewPage && document.activeElement?.getAttribute('href') === path;
 
   const apply = () => {
     const heading = appEl.querySelector<HTMLElement>('h1');
@@ -46,7 +49,10 @@ function beginRouteSwap(routeTitle: string, preferHeading: boolean, pathname: st
       const headingText = heading.textContent?.trim();
       document.title = `${preferHeading && headingText ? headingText : routeTitle} · ZUR`;
     }
-    if (!isNewPage) return;
+    if (!isNewPage) {
+      if (refocusFilter && document.activeElement === document.body) appEl.querySelector<HTMLElement>(`a[href="${CSS.escape(path)}"]`)?.focus({ preventScroll: true });
+      return;
+    }
     heading.setAttribute('tabindex', '-1');
     heading.classList.add('route-heading-focus');
     const active = document.activeElement;
@@ -77,7 +83,7 @@ export function renderAppNow(path: string = window.location.pathname + window.lo
   const match = matchRoute(path);
 
   if (!match) {
-    beginRouteSwap('Page not found', false, path.split('?')[0]);
+    beginRouteSwap('Page not found', false, path);
     appEl.innerHTML = renderSafeDenialPage({ type: 'not-found' });
     initTheme();
     return;
@@ -103,14 +109,14 @@ export function renderAppNow(path: string = window.location.pathname + window.lo
     return;
   }
   if (route.shell === 'S6' && !currentUser?.capabilities?.includes('admin')) {
-    beginRouteSwap('Access denied', false, path.split('?')[0]);
+    beginRouteSwap('Access denied', false, path);
     appEl.innerHTML = renderSafeDenialPage({ type: 'access-denied', user: currentUser });
     initTheme();
     return;
   }
 
   cancelRouteLoading();
-  beginRouteSwap(route.title, route.paramNames.length > 0, path.split('?')[0]);
+  beginRouteSwap(route.title, route.paramNames.length > 0, path);
 
   const ctx: RouteContext = { route, params, searchParams, currentUser, path };
   switch (route.shell) {
