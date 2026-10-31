@@ -1,101 +1,9 @@
 import { renderAuthorWorkspaceShell } from '../../components/shells/AuthorWorkspaceShell.ts';
+import { escapeHtml, formatDate } from './StudentDetailFormat.ts';
+import { renderStudentAccessModals } from './StudentDetailModals.ts';
+import type { StudentDetailPageProps } from './StudentDetailTypes.ts';
 
-export interface StudentDetailPageProps {
-  courseId: string;
-  courseTitle: string;
-  publicationState: 'draft' | 'published' | 'archived';
-  hasUnpublishedChanges: boolean;
-  data: {
-    enrollment: {
-      id: string;
-      courseId: string;
-      courseTitle: string;
-      courseVersionId: string;
-      versionNumber: number | null;
-      status: 'active' | 'revoked' | 'left';
-      enrolledAt: string;
-      revokedAt: string | null;
-      revocationReason: string | null;
-      completedAt: string | null;
-    };
-    student: {
-      id: string;
-      displayName: string;
-      email?: string | null;
-    };
-    overallProgress: {
-      requiredStepsCompleted: number;
-      totalRequiredSteps: number;
-      percentage: number;
-      lastLearningActivityAt: string | null;
-    };
-    curriculum: Array<{
-      id: string;
-      title: string;
-      ordinal: number;
-      lessons: Array<{
-        id: string;
-        title: string;
-        ordinal: number;
-        steps: Array<{
-          id: string;
-          title: string;
-          type: 'theory' | 'video' | 'quiz' | 'python';
-          ordinal: number;
-          isRequired: boolean;
-        }>;
-      }>;
-    }>;
-    stepProgress: Record<string, {
-      satisfied: boolean;
-      completedAt: string | null;
-      submissionCount: number;
-      bestScore: number | null;
-      isWaived: boolean;
-      waivedAt?: string | null;
-    }>;
-    attempts: Record<string, Array<{
-      id: string;
-      attemptNumber: number;
-      verdict: string;
-      score: number | null;
-      submittedAt: string;
-      submittedCode?: string | null;
-      isLatest: boolean;
-    }>>;
-    waivers: Record<string, { waivedAt: string; reason: string }>;
-  };
-  selectedStepId?: string;
-  selectedAttemptId?: string;
-  attemptPagination?: { offset: number; limit: number; total: number };
-  actionMessage?: { type: 'success' | 'error'; text: string };
-}
-
-function escapeHtml(str: string | null | undefined): string {
-  if (!str) return '';
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function formatDate(iso: string | null | undefined): string {
-  if (!iso) return 'No activity yet';
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch {
-    return iso;
-  }
-}
+export type { StudentDetailPageProps } from './StudentDetailTypes.ts';
 
 export function renderStudentDetailPage(props: StudentDetailPageProps): string {
   const { data } = props;
@@ -413,45 +321,7 @@ export function renderStudentDetailPage(props: StudentDetailPageProps): string {
       </div>
     </div>
 
-    <!-- Revoke Student Confirmation Modal Dialog -->
-    <div id="revoke-student-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="revoke-modal-title">
-      <div class="modal-dialog confirm max-w-md p-6 bg-raised border border-danger rounded-xl shadow-lg">
-        <h2 id="revoke-modal-title" class="text-lg font-semibold text-danger mb-2">Revoke Course Access</h2>
-        <p class="text-sm text-secondary mb-4 leading-relaxed">
-          Revoke course access for <strong id="revoke-student-display-name" class="text-primary font-semibold">${escapeHtml(student.displayName)}</strong>?
-        </p>
-        <div class="p-3 bg-danger-bg text-danger border border-danger rounded text-xs mb-4 leading-relaxed">
-          <strong>Important:</strong> Revoking access restricts this student from viewing or continuing the course. It <strong>explicitly does not delete their account</strong>. All verified progress, step completion timestamps, and submitted attempts are retained.
-        </div>
-        <div class="form-group mb-4">
-          <label for="revoke-reason-input" class="form-label block text-xs font-semibold uppercase text-secondary mb-1">Reason for revocation (optional)</label>
-          <input type="text" id="revoke-reason-input" class="form-input w-full text-sm" placeholder="e.g. End of term, duplicate enrollment" />
-        </div>
-        <input type="hidden" id="revoke-enrollment-id-input" value="${escapeHtml(enr.id)}" />
-        <div class="flex justify-end gap-3 pt-3 border-t border-subtle">
-          <button type="button" class="btn btn-secondary" data-action="close-modal">Cancel</button>
-          <button type="button" id="btn-confirm-revoke" class="btn btn-destructive">Revoke access</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Reinstate Student Confirmation Modal Dialog -->
-    <div id="reinstate-student-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="reinstate-modal-title">
-      <div class="modal-dialog confirm max-w-md p-6 bg-raised border border-subtle rounded-xl shadow-lg">
-        <h2 id="reinstate-modal-title" class="text-lg font-semibold text-primary mb-2">Reinstate Course Access</h2>
-        <p class="text-sm text-secondary mb-4 leading-relaxed">
-          Reinstate access for <strong id="reinstate-student-display-name" class="text-primary font-semibold">${escapeHtml(student.displayName)}</strong>?
-        </p>
-        <p class="text-xs text-muted mb-4">
-          The student will immediately regain access to resume their course where they left off, on their previously pinned version.
-        </p>
-        <input type="hidden" id="reinstate-enrollment-id-input" value="${escapeHtml(enr.id)}" />
-        <div class="flex justify-end gap-3 pt-3 border-t border-subtle">
-          <button type="button" class="btn btn-secondary" data-action="close-modal">Cancel</button>
-          <button type="button" id="btn-confirm-reinstate" class="btn btn-primary">Reinstate access</button>
-        </div>
-      </div>
-    </div>
+    ${renderStudentAccessModals(student.displayName, enr.id)}
   `;
 
   return renderAuthorWorkspaceShell({
