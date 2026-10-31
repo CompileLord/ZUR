@@ -508,3 +508,14 @@
   color: var(--text-muted);
 }
 
+
+/* Phones: the strip wraps so step controls stay on screen; squares scroll on their own row. */
+@media (max-width: 640px) {
+  .learning-task-strip { height: auto; flex-wrap: wrap; padding: var(--space-2) var(--space-3); gap: var(--space-2); }
+  .task-strip-left { flex: 1 1 auto; }
+  .task-strip-lesson-title { max-width: none; flex: 1 1 auto; min-width: 0; }
+  .task-strip-right, .task-strip-right .editor-toolbar-actions { flex-wrap: wrap; }
+  .task-strip-right { flex: 1 1 100%; justify-content: flex-end; }
+  .task-strip-right .kbd-hint { display: none; }
+  .task-strip-center { order: 3; flex: 1 1 100%; }
+}
