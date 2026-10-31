@@ -2,6 +2,7 @@ import { renderPublicShell } from '../../components/shells/index.ts';
 import { type CatalogPageProps } from '../../pages/public/CatalogPage.ts';
 import { navigateTo, renderApp } from '../navigation.ts';
 import { courseClient, authClient, appEl } from '../state.ts';
+import { alertDialog } from '../../components/common/Dialog.ts';
 
 export function attachCatalogListeners(catalogState: CatalogPageProps): void {
   // Search form submit & debounced search input
@@ -217,7 +218,7 @@ export function attachCourseOverviewListeners(courseId: string): void {
           b.disabled = false;
           b.textContent = 'Enroll in course';
         });
-        alert(err.message || 'Failed to enroll in course. Please try again.');
+        void alertDialog(err.message || 'Failed to enroll in course. Please try again.');
       }
     });
   });

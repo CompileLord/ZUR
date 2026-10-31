@@ -1,4 +1,5 @@
 import { stepEditHref } from './AuthorTreeModel.ts';
+import { alertDialog } from '../../components/common/Dialog.ts';
 
 export interface AuthorTreeInitOptions {
   courseId: string;
@@ -234,7 +235,7 @@ export function initAuthorTree(root: ParentNode, opts: AuthorTreeInitOptions): v
         else opts.refresh();
       } catch (err: any) {
         if (submit) submit.disabled = false;
-        window.alert(err?.message || 'Could not add step');
+        void alertDialog(err?.message || 'Could not add step');
       }
     });
   });

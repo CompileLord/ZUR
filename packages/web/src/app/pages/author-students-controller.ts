@@ -4,6 +4,7 @@ import { escapeHtml } from '../helpers.ts';
 import { navigateTo, renderApp } from '../navigation.ts';
 import { attachRosterListeners } from './author-roster-listeners.ts';
 import { appEl, courseClient } from '../state.ts';
+import { alertDialog } from '../../components/common/Dialog.ts';
 
 export function renderRosterRoute(ctx: RouteContext): void {
   const { params, searchParams, path } = ctx;
@@ -261,7 +262,7 @@ function attachStudentDetailListeners(courseId: string, enrollmentId: string, de
       closeAllModals();
       renderApp();
     } catch (err: any) {
-      alert(err.message || 'Failed to revoke access.');
+      void alertDialog(err.message || 'Failed to revoke access.');
       btnConfirmRevoke.disabled = false;
       btnConfirmRevoke.textContent = 'Revoke access';
     }
@@ -284,7 +285,7 @@ function attachStudentDetailListeners(courseId: string, enrollmentId: string, de
       closeAllModals();
       renderApp();
     } catch (err: any) {
-      alert(err.message || 'Failed to reinstate access.');
+      void alertDialog(err.message || 'Failed to reinstate access.');
       btnConfirmReinstate.disabled = false;
       btnConfirmReinstate.textContent = 'Reinstate access';
     }

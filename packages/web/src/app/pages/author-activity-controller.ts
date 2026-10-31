@@ -4,6 +4,7 @@ import { type RouteContext } from '../context.ts';
 import { escapeHtml } from '../helpers.ts';
 import { renderApp } from '../navigation.ts';
 import { appEl } from '../state.ts';
+import { alertDialog } from '../../components/common/Dialog.ts';
 
 export function renderAgentActivityRoute(ctx: RouteContext): void {
   const { params, searchParams, path } = ctx;
@@ -157,7 +158,7 @@ export function renderAgentActivityRoute(ctx: RouteContext): void {
             }
           }
           if (confirmBtn) confirmBtn.disabled = false;
-          alert(err.message);
+          void alertDialog(err.message);
         }
       });
     }).catch((err: any) => {

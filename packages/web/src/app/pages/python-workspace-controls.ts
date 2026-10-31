@@ -1,6 +1,7 @@
 import { DraftManager } from '../../services/draft-manager.ts';
 import { type PythonWorkspaceContext } from './python-workspace-context.ts';
 import { app, courseClient, authClient } from '../state.ts';
+import { confirmActionDialog } from '../../components/common/Dialog.ts';
 
 export function attachWorkspaceControls(ctx: PythonWorkspaceContext): void {
   const { initial, userId, textarea, saveQueue, pendingJobKey, runShortcutText, runAriaShortcut, getSelectedRunMode, setSaveState, setDraftNotice, setResults, selectTab, setEditorCode, execute, waitForJob } = ctx;
@@ -145,7 +146,7 @@ export function attachWorkspaceControls(ctx: PythonWorkspaceContext): void {
     }
   });
   document.getElementById('reset-code-btn')?.addEventListener('click', async () => {
-    if (!window.confirm('Reset your code to the starter version? Your current editor contents will be replaced.')) return;
+    if (!await confirmActionDialog({ title: 'Reset code?', message: 'Reset your code to the starter version? Your current editor contents will be replaced.', confirmLabel: 'Reset code', cancelLabel: 'Keep my code', isDestructive: true })) return;
     const resetButton = document.getElementById('reset-code-btn') as HTMLButtonElement | null;
     if (resetButton) resetButton.disabled = true;
     try {
