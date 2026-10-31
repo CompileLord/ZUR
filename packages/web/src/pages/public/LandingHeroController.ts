@@ -45,7 +45,8 @@ export function initLandingHero(root: HTMLElement): () => void {
     });
   }
 
-  // WebGL backdrop is loaded lazily so three.js never blocks the first paint.
+  // WebGL backdrop starts after the hero entrance, when the browser is idle: initialising three.js
+  // blocks the main thread and otherwise delays the hero text (LCP).
   let scene: LandingScene | null = null;
   const sceneCanvas = root.querySelector<HTMLCanvasElement>('[data-hero-scene]')!;
   const loadScene = () => {
@@ -56,7 +57,11 @@ export function initLandingHero(root: HTMLElement): () => void {
       scene?.setPaused(paused);
     });
   };
-  loadScene();
+  const sceneTimer = setTimeout(() => {
+    if ('requestIdleCallback' in window) requestIdleCallback(loadScene, { timeout: 1500 });
+    else loadScene();
+  }, 500);
+  signal.addEventListener('abort', () => clearTimeout(sceneTimer));
 
   // 3D tilt with a cursor-following sheen on cards below the hero.
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
