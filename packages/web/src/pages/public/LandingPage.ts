@@ -21,7 +21,6 @@ export function renderLandingPage(props: LandingPageProps = {}): string {
 
   return `
     <div class="landing-page">
-      <canvas class="landing-ambient" aria-hidden="true" data-landing-ambient></canvas>
       ${renderLandingHero(Boolean(props.isSignedIn))}
 
       <section class="container-landing landing-workspace" aria-label="Example Python workspace">

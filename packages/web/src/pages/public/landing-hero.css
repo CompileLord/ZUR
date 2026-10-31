@@ -149,24 +149,14 @@
   position: absolute; inset: -20%;
   background: radial-gradient(40% 50% at 72% 45%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%);
   filter: blur(40px);
-  animation: hero-glow 9s ease-in-out infinite alternate;
 }
-@keyframes hero-glow { to { transform: translate3d(-6%, 4%, 0) scale(1.1); } }
 .zur-hero .hero-container { position: relative; z-index: 1; }
-@media (prefers-reduced-motion: reduce) {
-  .zur-hero .hero-scene-glow { animation: none; }
-}
 .zur-hero .hero-stage .hero-motion-control {
   backdrop-filter: blur(10px);
   background: color-mix(in oklab, var(--bg-canvas) 60%, transparent);
 }
 
-/* Page-wide 3D layer behind the sections below the hero */
 .landing-page { position: relative; }
-.landing-page > .landing-ambient {
-  position: fixed; inset: 0; width: 100vw; height: 100vh;
-  z-index: 0; pointer-events: none; opacity: 0;
-}
 .landing-page > section, .landing-page > .zur-hero { position: relative; z-index: 1; }
 
 /* Glass cards with pointer tilt and a following sheen */
@@ -192,37 +182,11 @@
 }
 .landing-page [data-tilt][data-tilt-active]::after { opacity: 1; }
 
-/* Step visuals: gentle float, staggered per card */
-.landing-page .landing-step-visual svg { animation: landing-float 5s ease-in-out infinite; }
-.landing-page .landing-step-card:nth-child(2) .landing-step-visual svg { animation-delay: -1.6s; }
-.landing-page .landing-step-card:nth-child(3) .landing-step-visual svg { animation-delay: -3.2s; }
-@keyframes landing-float { 50% { transform: translateY(-5px) rotate(-.6deg); } }
 
-/* Teaching step numbers pulse in sequence */
-.landing-page .teaching-step-num { position: relative; }
-.landing-page .teaching-step-num::before {
-  content: ''; position: absolute; inset: -6px; border-radius: 999px;
-  border: 1px solid var(--accent); opacity: 0;
-  animation: landing-ping 4.8s ease-out infinite;
-}
-.landing-page .teaching-step:nth-child(2) .teaching-step-num::before { animation-delay: 1.2s; }
-.landing-page .teaching-step:nth-child(3) .teaching-step-num::before { animation-delay: 2.4s; }
-.landing-page .teaching-step:nth-child(4) .teaching-step-num::before { animation-delay: 3.6s; }
-@keyframes landing-ping { 0% { opacity: .8; transform: scale(.6); } 30%, 100% { opacity: 0; transform: scale(1.5); } }
-
-/* Final CTA: slow sweeping glow */
 .landing-page .landing-final-cta { position: relative; overflow: hidden; border-radius: var(--radius-lg); padding: 24px; }
-.landing-page .landing-final-cta::before {
-  content: ''; position: absolute; inset: -50%; z-index: -1;
-  background: conic-gradient(from 0deg, transparent, color-mix(in oklab, var(--accent) 18%, transparent), transparent 40%);
-  animation: landing-spin 10s linear infinite;
-}
-@keyframes landing-spin { to { transform: rotate(1turn); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .landing-page > .landing-ambient { display: none; }
   .landing-page [data-tilt] { transform: none; }
-  .landing-page .landing-step-visual svg, .landing-page .teaching-step-num::before, .landing-page .landing-final-cta::before { animation: none; }
 }
 
 /* Headline typing overlay: the sizer reserves the finished layout, the typed copy sits on top of it */

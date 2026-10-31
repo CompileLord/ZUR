@@ -1,6 +1,5 @@
 import { animate, inView, stagger, type AnimationPlaybackControls } from 'motion';
 import type { LandingScene } from './LandingScene.ts';
-import type { LandingAmbient } from './LandingAmbient.ts';
 import { LANDING_HEADLINE, renderHeroIcon } from './LandingHero.ts';
 import { renderIcon } from '../../components/common/icons.ts';
 import './landing-hero.css';
@@ -57,19 +56,7 @@ export function initLandingHero(root: HTMLElement): () => void {
       scene?.setPaused(paused);
     });
   };
-  let ambient: LandingAmbient | null = null;
-  const ambientCanvas = document.querySelector<HTMLCanvasElement>('[data-landing-ambient]');
-  const loadAmbient = () => {
-    if (ambient || disposed || reducedMotion.matches || !ambientCanvas) return;
-    void import('./LandingAmbient.ts').then(({ initLandingAmbient }) => {
-      if (disposed || ambient || reducedMotion.matches) return;
-      ambient = initLandingAmbient(ambientCanvas, root);
-      ambient?.setPaused(paused);
-    });
-  };
   loadScene();
-  // The page-wide layer waits for idle time so it never competes with the hero for the first frames.
-  const ambientIdle = setTimeout(loadAmbient, 900);
 
   // 3D tilt with a cursor-following sheen on cards below the hero.
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -120,22 +107,22 @@ export function initLandingHero(root: HTMLElement): () => void {
     motionButton.setAttribute('aria-pressed', String(paused));
     motionButton.innerHTML = `${paused ? renderIcon('play', { size: 14 }) : renderHeroIcon('pause')}<span>${paused ? 'Resume motion' : 'Pause motion'}</span>`;
   }
-  motionButton.addEventListener('click', () => { paused = !paused; scene?.setPaused(paused); ambient?.setPaused(paused); finishTyping(); updateMotionButton(); }, { signal });
+  motionButton.addEventListener('click', () => { paused = !paused; scene?.setPaused(paused); finishTyping(); updateMotionButton(); }, { signal });
   updateMotionButton();
   reducedMotion.addEventListener('change', () => {
     if (reducedMotion.matches) {
-      scene?.dispose(); scene = null; ambient?.dispose(); ambient = null;
+      scene?.dispose(); scene = null;
       finishTyping(); for (const animation of animations) animation.complete();
     }
     updateMotionButton();
-    loadScene(); loadAmbient();
+    loadScene();
   }, { signal });
   root.dataset.heroReady = 'true';
   return () => {
     disposed = true; controller.abort();
     finishTyping();
     for (const animation of animations) animation.cancel();
-    clearTimeout(ambientIdle); scene?.dispose(); ambient?.dispose(); stopReveals.forEach(stop => stop());
+    scene?.dispose(); stopReveals.forEach(stop => stop());
     document.querySelectorAll<HTMLElement>('.landing-page > section *').forEach(item => { item.style.opacity = ''; item.style.transform = ''; item.style.filter = ''; });
   };
 }

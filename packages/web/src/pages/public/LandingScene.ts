@@ -30,7 +30,7 @@ float snoise(vec3 v){
 /** Morphing iridescent core, orbit rings and a drifting particle field behind the landing hero. */
 export function initLandingScene(canvas: HTMLCanvasElement, host: HTMLElement): LandingScene | null {
   let renderer: WebGLRenderer;
-  try { renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' }); }
+  try { renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power', failIfMajorPerformanceCaveat: true }); }
   catch { return null; }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
