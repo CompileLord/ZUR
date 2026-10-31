@@ -4,6 +4,7 @@ import { renderProfileSettingsPage } from '../../pages/settings/ProfileSettingsP
 import { renderSecuritySettingsPage } from '../../pages/settings/SecuritySettingsPage.ts';
 import { renderPrivacySettingsPage } from '../../pages/settings/PrivacySettingsPage.ts';
 import { AppearanceSaveQueue } from '../../services/appearance-save-queue.ts';
+import { trapDialogFocus } from '../../services/dialog-focus.ts';
 import { ProfileGuard } from '../../services/profile-guard.ts';
 import {
   safeSessionStorageGet,
@@ -349,16 +350,27 @@ export function attachPrivacyListeners(): void {
     });
   }
 
+  let releaseFocusTrap: (() => void) | null = null;
+  const closeDeleteModal = () => {
+    deleteModal?.classList.add('hidden');
+    releaseFocusTrap?.();
+    releaseFocusTrap = null;
+  };
+
   if (btnOpenDeleteModal && deleteModal) {
     btnOpenDeleteModal.addEventListener('click', () => {
       deleteModal.classList.remove('hidden');
+      releaseFocusTrap?.();
+      releaseFocusTrap = trapDialogFocus(deleteModal, {
+        onEscape: () => { if (!btnConfirmDelete?.textContent?.startsWith('Deleting')) closeDeleteModal(); },
+      });
+      app.activeModalCleanup = () => releaseFocusTrap?.();
+      btnCancelDelete?.focus();
     });
   }
 
   if (btnCancelDelete && deleteModal) {
-    btnCancelDelete.addEventListener('click', () => {
-      deleteModal.classList.add('hidden');
-    });
+    btnCancelDelete.addEventListener('click', closeDeleteModal);
   }
 
   if (btnConfirmDelete) {
@@ -371,7 +383,7 @@ export function attachPrivacyListeners(): void {
         navigateTo('/sign-in');
       } catch (err: any) {
         const errorEl = document.getElementById('privacy-error');
-        if (deleteModal) deleteModal.classList.add('hidden');
+        closeDeleteModal();
         if (btnConfirmDelete) {
           btnConfirmDelete.disabled = !ackCheckbox?.checked;
           btnConfirmDelete.textContent = 'Confirm deletion';
