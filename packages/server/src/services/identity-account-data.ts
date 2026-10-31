@@ -39,8 +39,8 @@ export abstract class IdentityAccountData extends IdentityRateLimits {
 
   // --- T016: Profile & Appearance Settings ---
 
-  updateProfile(userId: string, data: { displayName: string }): User {
-    const displayName = data.displayName?.trim();
+  updateProfile(userId: string, data: { displayName: unknown }): User {
+    const displayName = typeof data?.displayName === 'string' ? data.displayName.trim() : '';
     if (!displayName || displayName.length < 2 || displayName.length > 50) {
       throw new ValidationError('Display name must be between 2 and 50 characters.');
     }
