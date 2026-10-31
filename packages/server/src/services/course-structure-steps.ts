@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { defaultStepContent } from './step-defaults.ts';
 import { ValidationError } from 'zur-shared';
 import type { StepTreeSummary } from './course-structure-types.ts';
 import type { StepType } from 'zur-shared';
@@ -61,50 +62,7 @@ export class CourseStepOperations extends CourseOutlineOperations {
       )
       .run(stepId, lessonId, stepData.type, cleanTitle, pos, isRequired, duration, now, now);
 
-    // Initialize content payload based on step type
-    let defaultPayload = '';
-    if (stepData.type === 'theory') {
-      defaultPayload = JSON.stringify({
-        kind: 'theory',
-        markdown: `# ${cleanTitle}\n\nEnter your theory lesson here.`,
-      });
-    } else if (stepData.type === 'video') {
-      defaultPayload = JSON.stringify({
-        kind: 'video',
-        videoUrl: '',
-        provider: 'youtube',
-        transcript: '',
-        captionVerified: false,
-      });
-    } else if (stepData.type === 'quiz') {
-      defaultPayload = JSON.stringify({
-        kind: 'quiz',
-        quizType: 'single_choice',
-        prompt: cleanTitle,
-        options: [
-          { id: crypto.randomUUID(), text: 'Option 1', isCorrect: true },
-          { id: crypto.randomUUID(), text: 'Option 2', isCorrect: false },
-        ],
-        explanation: '',
-      });
-    } else if (stepData.type === 'python') {
-      defaultPayload = JSON.stringify({
-        kind: 'python',
-        problemStatement: cleanTitle,
-        inputFormat: 'Standard input format',
-        outputFormat: 'Standard output format',
-        constraints: 'Time limit: 5 seconds, Memory limit: 128 MiB',
-        starterCode: '# Write your solution here\n',
-        referenceSolution: '# Reference solution\n',
-        hints: [],
-        solutionExplanation: '',
-        runtimeLimits: {
-          cpuTimeoutSeconds: 5,
-          wallTimeoutSeconds: 10,
-          memoryLimitMib: 128,
-        },
-      });
-    }
+    const defaultPayload = JSON.stringify(defaultStepContent(stepData.type));
 
     this.db
       .prepare(

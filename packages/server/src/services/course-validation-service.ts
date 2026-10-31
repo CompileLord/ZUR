@@ -346,6 +346,17 @@ export class CourseValidationService {
             }
           } else if (step.type === 'python') {
             const exercise = payload as PythonExerciseContent;
+            if (typeof exercise.problemStatement !== 'string' || !exercise.problemStatement.trim()) {
+              errors.push({
+                moduleId: mod.id,
+                lessonId: lesson.id,
+                stepId: step.id,
+                field: 'problemStatement',
+                message: `Python exercise "${step.title}" needs a problem statement`,
+                blocking: true,
+              });
+            }
+
             if (typeof exercise.starterCode !== 'string') {
               errors.push({
                 moduleId: mod.id,

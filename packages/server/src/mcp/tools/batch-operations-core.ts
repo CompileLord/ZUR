@@ -1,4 +1,5 @@
 import { DatabaseSync } from 'node:sqlite';
+import { defaultStepContent } from '../../services/step-defaults.ts';
 import crypto from 'node:crypto';
 import { ValidationError, NotFoundError, ConflictError, StaleRevisionError } from 'zur-shared';
 import type { ValidatedMcpToken } from '../../services/mcp-token-service.ts';
@@ -257,29 +258,8 @@ export async function executeBatchOperationsCore(params: {
           let payload = '';
           if (op.content) {
             payload = JSON.stringify(op.content);
-          } else if (stepType === 'theory') {
-            payload = JSON.stringify({ kind: 'theory', markdown: `# ${title}\n` });
-          } else if (stepType === 'video') {
-            payload = JSON.stringify({ kind: 'video', videoUrl: '', provider: 'youtube', transcript: '', captionVerified: false });
-          } else if (stepType === 'quiz') {
-            payload = JSON.stringify({
-              kind: 'quiz',
-              quizType: 'single_choice',
-              prompt: title,
-              options: [
-                { id: crypto.randomUUID(), text: 'Option 1', isCorrect: true },
-                { id: crypto.randomUUID(), text: 'Option 2', isCorrect: false },
-              ],
-              explanation: '',
-            });
-          } else if (stepType === 'python') {
-            payload = JSON.stringify({
-              kind: 'python',
-              problemStatement: title,
-              starterCode: '# Starter code\n',
-              referenceSolution: '# Reference\n',
-              hints: [],
-            });
+          } else {
+            payload = JSON.stringify(defaultStepContent(stepType));
           }
 
           db.prepare(
