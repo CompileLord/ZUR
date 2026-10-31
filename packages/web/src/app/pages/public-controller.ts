@@ -2,6 +2,7 @@ import { matchRoute } from '../../router/routes.ts';
 import { renderPublicShell, renderAppShell } from '../../components/shells/index.ts';
 import { renderSafeDenialPage } from '../../pages/status/SafeDenialPage.ts';
 import { renderLandingPage } from '../../pages/public/LandingPage.ts';
+import { startHeroTyping } from '../../pages/public/LandingHero.ts';
 import { type CatalogPageProps, renderCatalogPage } from '../../pages/public/CatalogPage.ts';
 import { renderCourseOverviewPage } from '../../pages/public/CourseOverviewPage.ts';
 import { type ReportCourse, renderHelpPage } from '../../pages/public/HelpPage.ts';
@@ -35,9 +36,14 @@ export function renderPublicRoute(ctx: RouteContext): void {
       content,
     });
     const hero = appEl.querySelector<HTMLElement>('[data-landing-hero]');
-    if (hero) void import('../../pages/public/LandingHeroController.ts').then(({ initLandingHero }) => {
-      if (hero.isConnected) app.cleanupLandingHero = initLandingHero(hero);
-    }).catch(error => console.error('Landing interactions could not load', error));
+    if (hero) {
+      const finishTyping = startHeroTyping(hero.querySelector('[data-hero-typewriter]')!, hero.querySelector<HTMLElement>('.hero-cursor')!,
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      app.cleanupLandingHero = finishTyping;
+      void import('../../pages/public/LandingHeroController.ts').then(({ initLandingHero }) => {
+        if (hero.isConnected) app.cleanupLandingHero = initLandingHero(hero, finishTyping);
+      }).catch(error => { finishTyping(); console.error('Landing interactions could not load', error); });
+    }
     return;
   }
 

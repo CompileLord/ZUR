@@ -1,5 +1,29 @@
 export const LANDING_HEADLINE = 'Understand it.\nThen write it.';
 
+/**
+ * Types the headline once. Runs right after render (not from the lazy hero controller) so the
+ * full headline is never painted and then cleared. Returns a function that shows it in full.
+ */
+export function startHeroTyping(text: { textContent: string | null }, cursor: { hidden: boolean }, reducedMotion: boolean): () => void {
+  let typingTimer: ReturnType<typeof setInterval> | undefined;
+  let typingDelay: ReturnType<typeof setTimeout> | undefined;
+  const finish = () => {
+    clearTimeout(typingDelay); clearInterval(typingTimer);
+    text.textContent = LANDING_HEADLINE; cursor.hidden = true;
+  };
+  if (reducedMotion) { finish(); return finish; }
+  let index = 0;
+  text.textContent = '';
+  cursor.hidden = false;
+  typingTimer = setInterval(() => {
+    text.textContent = LANDING_HEADLINE.slice(0, ++index);
+    if (index < LANDING_HEADLINE.length) return;
+    clearInterval(typingTimer);
+    typingDelay = setTimeout(finish, 600);
+  }, 45);
+  return finish;
+}
+
 export function renderHeroIcon(name: 'x' | 'pause' | 'arrow-right'): string {
   const paths = {
     x: '<path d="m6 6 12 12M6 18 18 6"/>',

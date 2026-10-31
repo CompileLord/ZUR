@@ -1,11 +1,11 @@
 import { animate, inView, stagger, type AnimationPlaybackControls } from 'motion';
 import type { LandingScene } from './LandingScene.ts';
-import { LANDING_HEADLINE, renderHeroIcon } from './LandingHero.ts';
+import { renderHeroIcon } from './LandingHero.ts';
 import { renderIcon } from '../../components/common/icons.ts';
 import './landing-hero.css';
 
 /** Enhance the server-style HTML; every listener, timer and animation belongs to this route. */
-export function initLandingHero(root: HTMLElement): () => void {
+export function initLandingHero(root: HTMLElement, finishTyping: () => void): () => void {
   const controller = new AbortController();
   const { signal } = controller;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -16,30 +16,7 @@ export function initLandingHero(root: HTMLElement): () => void {
     return animation;
   };
   let disposed = false;
-  let typingTimer: ReturnType<typeof setInterval> | undefined;
-  let typingDelay: ReturnType<typeof setTimeout> | undefined;
-  const text = root.querySelector<HTMLElement>('[data-hero-typewriter]')!;
-  const cursor = root.querySelector<HTMLElement>('.hero-cursor')!;
-  const finishTyping = () => {
-    clearTimeout(typingDelay); clearInterval(typingTimer);
-    text.textContent = LANDING_HEADLINE; cursor.hidden = true;
-  };
-  // Type the headline once; it then stays readable.
-  const startTyping = () => {
-    finishTyping();
-    if (disposed || reducedMotion.matches) return;
-    cursor.hidden = false;
-    let index = 0;
-    text.textContent = '';
-    typingTimer = setInterval(() => {
-      text.textContent = LANDING_HEADLINE.slice(0, ++index);
-      if (index < LANDING_HEADLINE.length) return;
-      clearInterval(typingTimer);
-      typingDelay = setTimeout(finishTyping, 600);
-    }, 45);
-  };
   if (!reducedMotion.matches) {
-    startTyping();
     root.querySelectorAll<HTMLElement>('[data-hero-entrance]').forEach(element => {
       track(animate(element, { opacity: [0, 1], y: [20, 0] }, { duration: .3, delay: Number(element.dataset.heroEntrance), ease: [.2, 0, 0, 1] }));
     });
