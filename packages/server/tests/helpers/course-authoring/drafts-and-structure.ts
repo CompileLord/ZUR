@@ -2,6 +2,7 @@ import type { TestContext } from 'node:test';
 import assert from 'node:assert/strict';
 import { StaleRevisionError, ValidationError, NotFoundError, AuthorizationError } from 'zur-shared';
 import type { AuthoringFixture } from './fixture.ts';
+import { writeStarterStep } from '../starter-step.ts';
 
 export async function draftAndStructureTests(t: TestContext, f: AuthoringFixture): Promise<void> {
   const { db, courseService, structureService, autosaveService, adaId, state } = f;
@@ -19,6 +20,7 @@ export async function draftAndStructureTests(t: TestContext, f: AuthoringFixture
     const draft = courseService.createCourseDraft(adaId, {
       title: 'Algorithmic Thinking in Python',
     });
+    writeStarterStep(db, draft.id);
 
     assert.ok(draft.id, 'Must return course ID');
     assert.equal(draft.title, 'Algorithmic Thinking in Python');

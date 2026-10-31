@@ -7,6 +7,7 @@ import { createServer } from '../src/server.ts';
 import { CourseService } from '../src/services/course-service.ts';
 import { CoursePublicationService } from '../src/services/course-publication-service.ts';
 import type { AddressInfo } from 'node:net';
+import { writeStarterStep } from './helpers/starter-step.ts';
 
 test('Enrollment, Invitation, and Progress HTTP Endpoints (T045-T048)', async (t) => {
   const db = getDatabase(':memory:');
@@ -58,6 +59,7 @@ test('Enrollment, Invitation, and Progress HTTP Endpoints (T045-T048)', async (t
   const course = courseService.createCourseDraft(authorId, {
     title: 'Python REST API Learning',
   });
+  writeStarterStep(db, course.id);
   courseService.updateCourseMetadata(authorId, course.id, 1, {
     description: 'Learn REST APIs with Python.',
     difficulty: 'beginner',

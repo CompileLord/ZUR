@@ -8,6 +8,7 @@ import { CoursePublicationService } from '../src/services/course-publication-ser
 import { EnrollmentService } from '../src/services/enrollment-service.ts';
 import { InvitationService } from '../src/services/invitation-service.ts';
 import { AuthorizationError } from 'zur-shared';
+import { writeStarterStep } from './helpers/starter-step.ts';
 
 // PRD_V2: verify email before enrollment, invitation acceptance, or authoring.
 async function setup() {
@@ -16,6 +17,7 @@ async function setup() {
   seedDatabase(':memory:');
   const courses = new CourseService(db);
   const course = courses.createCourseDraft('user-author-1', { title: 'Invite only' });
+  writeStarterStep(db, course.id);
   courses.updateCourseMetadata('user-author-1', course.id, 1, {
     description: 'Invitation test.', difficulty: 'beginner', language: 'en', learningOutcomes: ['x'], estimatedDurationMinutes: 10,
   });

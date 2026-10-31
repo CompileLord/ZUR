@@ -13,6 +13,7 @@ import {
   ConflictError,
   NotFoundError,
 } from 'zur-shared';
+import { writeStarterStep } from './helpers/starter-step.ts';
 
 test('Module S2-M03: Email and Link Invitations (T046, P08, P28)', async (t) => {
   const db = getDatabase(':memory:');
@@ -33,6 +34,7 @@ test('Module S2-M03: Email and Link Invitations (T046, P08, P28)', async (t) => 
   const course = courseService.createCourseDraft(authorId, {
     title: 'Algorithms with Python',
   });
+  writeStarterStep(db, course.id);
   const courseId = course.id;
 
   courseService.updateCourseMetadata(authorId, courseId, 1, {

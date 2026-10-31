@@ -3,6 +3,7 @@ import { ValidationError, NotFoundError, StaleRevisionError, AuthorizationError 
 import type { CourseVisibility, EnrollmentPolicy } from 'zur-shared';
 import { CourseEnrollmentAccess } from './course-enrollment-access.ts';
 import type { ListOwnedCoursesOptions, CourseSummary, CourseMetadataInput } from './course-types.ts';
+import { defaultStepContent } from './step-defaults.ts';
 
 export type { ListOwnedCoursesOptions, CourseSummary, CourseMetadataInput } from './course-types.ts';
 export { VERSION_COUNTS_CACHE_MAX, clearVersionCountsCache, versionCountsCacheSize, computeSnapshotCounts } from './course-public-catalog.ts';
@@ -195,10 +196,7 @@ export class CourseService extends CourseEnrollmentAccess {
       )
       .run(stepId, lessonId, now, now);
 
-    const initialContent = JSON.stringify({
-      kind: 'theory',
-      markdown: `# Welcome to ${title}\n\nStart writing your lesson content here.`,
-    });
+    const initialContent = JSON.stringify(defaultStepContent('theory'));
 
     this.db
       .prepare(

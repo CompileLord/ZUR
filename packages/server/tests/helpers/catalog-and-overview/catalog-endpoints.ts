@@ -1,6 +1,7 @@
 import type { TestContext } from 'node:test';
 import assert from 'node:assert/strict';
 import type { CatalogFixture } from './fixture.ts';
+import { writeStarterStep } from '../starter-step.ts';
 
 export async function catalogAndOverviewTests(t: TestContext, f: CatalogFixture): Promise<void> {
   const { db, courseService, baseUrl, authorId, studentId, now, authorToken, studentToken, courseA, courseB, courseC, courseD, courseE, courseF, courseG } = f;
@@ -207,6 +208,7 @@ export async function catalogAndOverviewTests(t: TestContext, f: CatalogFixture)
     const courseArchived = courseService.createCourseDraft(authorId, {
       title: 'Archived Python History',
     });
+    writeStarterStep(db, courseArchived.id);
     courseService.updateCourseAccessSettings(authorId, courseArchived.id, {
       visibility: 'public',
       enrollmentPolicy: 'open',

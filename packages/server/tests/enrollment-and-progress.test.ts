@@ -14,6 +14,7 @@ import {
   AuthorizationError,
   NotFoundError,
 } from 'zur-shared';
+import { writeStarterStep } from './helpers/starter-step.ts';
 
 test('Module S2-M03: Enrollment Lifecycle & Learning Progress (T045, T047)', async (t) => {
   const db = getDatabase(':memory:');
@@ -36,6 +37,7 @@ test('Module S2-M03: Enrollment Lifecycle & Learning Progress (T045, T047)', asy
   const course = courseService.createCourseDraft(authorId, {
     title: 'Functional Python Course',
   });
+  writeStarterStep(db, course.id);
   const courseId = course.id;
 
   courseService.updateCourseMetadata(authorId, courseId, 1, {

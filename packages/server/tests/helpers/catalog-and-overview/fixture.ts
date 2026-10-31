@@ -7,6 +7,7 @@ import { createServer } from '../../../src/server.ts';
 import { CourseService } from '../../../src/services/course-service.ts';
 import { CoursePublicationService } from '../../../src/services/course-publication-service.ts';
 import type { AddressInfo } from 'node:net';
+import { writeStarterStep } from '../starter-step.ts';
 
 export async function setupCatalogFixture(t: TestContext) {
   const db = getDatabase(':memory:');
@@ -64,6 +65,7 @@ export async function setupCatalogFixture(t: TestContext) {
   const courseA = courseService.createCourseDraft(authorId, {
     title: 'Python Foundations For Beginners',
   });
+  writeStarterStep(db, courseA.id);
   courseService.updateCourseMetadata(authorId, courseA.id, 1, {
     description: 'Learn syntax, loops, and basic constructs.',
     difficulty: 'beginner',
@@ -87,6 +89,7 @@ export async function setupCatalogFixture(t: TestContext) {
   const courseB = courseService.createCourseDraft(authorId, {
     title: 'Advanced Async IO Systems',
   });
+  writeStarterStep(db, courseB.id);
   courseService.updateCourseMetadata(authorId, courseB.id, 1, {
     description: 'Master coroutines and concurrent event loops.',
     difficulty: 'advanced',
@@ -109,6 +112,7 @@ export async function setupCatalogFixture(t: TestContext) {
   const courseC = courseService.createCourseDraft(authorId, {
     title: 'Unlisted Corporate Pilot',
   });
+  writeStarterStep(db, courseC.id);
   courseService.updateCourseMetadata(authorId, courseC.id, 1, {
     description: 'Special cohort course.',
     difficulty: 'intermediate',
@@ -131,6 +135,7 @@ export async function setupCatalogFixture(t: TestContext) {
   const courseD = courseService.createCourseDraft(authorId, {
     title: 'Private Teacher Notes',
   });
+  writeStarterStep(db, courseD.id);
   courseService.updateCourseMetadata(authorId, courseD.id, 1, {
     description: 'Internal private notes.',
     difficulty: 'beginner',
@@ -153,11 +158,13 @@ export async function setupCatalogFixture(t: TestContext) {
   const courseE = courseService.createCourseDraft(authorId, {
     title: 'Work In Progress Draft Course',
   });
+  writeStarterStep(db, courseE.id);
 
   // Course F: Public, published, but suspended
   const courseF = courseService.createCourseDraft(authorId, {
     title: 'Suspended Course Investigation',
   });
+  writeStarterStep(db, courseF.id);
   courseService.updateCourseMetadata(authorId, courseF.id, 1, {
     description: 'Investigative flagged course.',
     difficulty: 'beginner',
@@ -181,6 +188,7 @@ export async function setupCatalogFixture(t: TestContext) {
   const courseG = courseService.createCourseDraft(authorId, {
     title: 'Fundamentos de Python en Español',
   });
+  writeStarterStep(db, courseG.id);
   courseService.updateCourseMetadata(authorId, courseG.id, 1, {
     description: 'Aprende los conceptos fundamentales de Python en español.',
     difficulty: 'beginner',

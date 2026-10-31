@@ -2,6 +2,7 @@ import type { TestContext } from 'node:test';
 import assert from 'node:assert/strict';
 import { ValidationError, NotFoundError } from 'zur-shared';
 import type { QuizMediaFixture } from './fixture.ts';
+import { writeStarterStep } from '../starter-step.ts';
 
 export async function mediaAssetTests(t: TestContext, f: QuizMediaFixture) {
   const { db, courseService, structureService, mediaService, quizService, authorId, studentId } = f;
@@ -26,6 +27,7 @@ export async function mediaAssetTests(t: TestContext, f: QuizMediaFixture) {
   const course = courseService.createCourseDraft(authorId, {
     title: 'Computer Architecture Fundamentals',
   });
+  writeStarterStep(db, course.id);
   const courseTree = structureService.getCourseTree(authorId, course.id);
   const lessonId = courseTree.modules[0].lessons[0].id;
 

@@ -6,6 +6,7 @@ import { createServer } from '../../../src/server.ts';
 import type { AddressInfo } from 'node:net';
 import { IdentityService } from '../../../src/services/identity-service.ts';
 import type { AuthoringFixture } from './fixture.ts';
+import { writeStarterStep } from '../starter-step.ts';
 
 export async function previewPublicationSecurityTests(t: TestContext, f: AuthoringFixture): Promise<void> {
   const { db, courseService, structureService, adaId, authorId, state } = f;
@@ -25,6 +26,7 @@ export async function previewPublicationSecurityTests(t: TestContext, f: Authori
 
       // Author Babbage owns another course
       const babbageCourse = courseService.createCourseDraft(authorId, { title: 'Babbage Engine Basics' });
+      writeStarterStep(db, babbageCourse.id);
       const babbageMod = structureService.addModule(authorId, babbageCourse.id, 'Intro', 0);
       const babbageLesson = structureService.addLesson(authorId, babbageCourse.id, babbageMod.id, 'Lesson 1', 'Desc', 0);
       const babbageStep = structureService.addStep(authorId, babbageCourse.id, babbageLesson.id, {
@@ -70,6 +72,7 @@ export async function previewPublicationSecurityTests(t: TestContext, f: Authori
   await t.test('T041: Durable publication idempotency persists across instances and rejects key reuse conflicts', async () => {
     // Create and setup a publishable course for Charles Babbage (theory + quiz steps)
     const pubCourse = courseService.createCourseDraft(authorId, { title: 'Idempotency Lifecycle Course' });
+    writeStarterStep(db, pubCourse.id);
     courseService.updateCourseMetadata(authorId, pubCourse.id, 1, {
       description: 'A course for testing publication idempotency',
       difficulty: 'beginner',
@@ -138,6 +141,7 @@ export async function previewPublicationSecurityTests(t: TestContext, f: Authori
 
     // 3. Conflict rejection: same idempotency key used on a different course owned by the same author
     const secondCourse = courseService.createCourseDraft(authorId, { title: 'Second Babbage Course' });
+    writeStarterStep(db, secondCourse.id);
     await assert.rejects(
       async () => {
         await pubService2.publishCourse(authorId, secondCourse.id, {
@@ -168,6 +172,7 @@ export async function previewPublicationSecurityTests(t: TestContext, f: Authori
     // Author A: Ada Lovelace (owns state.createdCourseId)
     // Author B: Charles Babbage (authorId) creates a separate course
     const babbageCourse = courseService.createCourseDraft(authorId, { title: 'Babbage Separate Course' });
+    writeStarterStep(db, babbageCourse.id);
     const babbageMod = structureService.addModule(authorId, babbageCourse.id, 'Babbage Module');
     const babbageLesson = structureService.addLesson(authorId, babbageCourse.id, babbageMod.id, 'Babbage Lesson');
     const babbageStep = structureService.addStep(authorId, babbageCourse.id, babbageLesson.id, {

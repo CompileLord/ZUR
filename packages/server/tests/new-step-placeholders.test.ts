@@ -28,3 +28,15 @@ test('newly added steps start empty and block publishing until written', async (
   const quiz = JSON.parse((db.prepare('SELECT content_payload FROM step_contents WHERE step_id = ?').get(steps[1].id) as any).content_payload);
   assert.equal(JSON.stringify(quiz).includes('Option 1'), false);
 });
+
+test('the starter step of a new course is empty and blocks publishing until written', async () => {
+  const db = getDatabase(':memory:');
+  runMigrations(':memory:');
+  seedDatabase(':memory:');
+  const course = new CourseService(db).createCourseDraft('user-author-1', { title: 'Fresh course' });
+  const starter = db.prepare(`SELECT s.id, c.content_payload FROM steps s JOIN step_contents c ON c.step_id = s.id
+    JOIN lessons l ON l.id = s.lesson_id JOIN modules m ON m.id = l.module_id WHERE m.course_id = ?`).get(course.id) as { id: string; content_payload: string };
+  assert.equal(JSON.parse(starter.content_payload).markdown, '');
+  const result = await new CourseValidationService(db).validateCourseDraft('user-author-1', course.id);
+  assert.ok(result.errors.some((e: any) => e.stepId === starter.id && e.field === 'markdown'));
+});

@@ -4,6 +4,7 @@ import { Client } from '@modelcontextprotocol/client';
 import { TOKEN_SCOPE_PRESETS } from 'zur-shared';
 import { renderMcpClientSetupContent } from '../../../../web/src/pages/settings/McpClientSetupDialog.ts';
 import type { McpE2eFixture } from './fixture.ts';
+import { writeStarterStep } from '../starter-step.ts';
 
 export async function hardeningAndRecoveryTests(t: TestContext, f: McpE2eFixture): Promise<void> {
   const { db, guidoCourseId, fullTokenId, fullClient, unrestrictedClient, requestApi, authorSessionBearer } = f;
@@ -95,6 +96,7 @@ export async function hardeningAndRecoveryTests(t: TestContext, f: McpE2eFixture
     });
     assert.strictEqual(crRes.isError, undefined);
     const crCourse = JSON.parse((crRes.content[0] as { text: string }).text);
+    writeStarterStep(db, crCourse.id);
 
     await unrestrictedClient.callTool({
       name: 'update_course_metadata',

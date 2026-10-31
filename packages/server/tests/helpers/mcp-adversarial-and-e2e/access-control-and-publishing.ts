@@ -2,6 +2,7 @@ import type { TestContext } from 'node:test';
 import assert from 'node:assert/strict';
 import { Client } from '@modelcontextprotocol/client';
 import type { McpE2eFixture } from './fixture.ts';
+import { writeStarterStep } from '../starter-step.ts';
 
 export async function accessControlAndPublishingTests(t: TestContext, f: McpE2eFixture): Promise<void> {
   const { db, author1Id, guidoCourseId, server, fullClient, unrestrictedClient, draftOnlyClient, requestApi, authorSessionBearer } = f;
@@ -73,6 +74,7 @@ export async function accessControlAndPublishingTests(t: TestContext, f: McpE2eF
     });
     assert.strictEqual(createCourseRes.isError, undefined);
     const course = JSON.parse((createCourseRes.content[0] as { text: string }).text);
+    writeStarterStep(db, course.id);
 
     // Update metadata with required publication fields
     const metaRes = await unrestrictedClient.callTool({

@@ -14,6 +14,7 @@ import {
   StaleRevisionError,
   AuthorizationError,
 } from 'zur-shared';
+import { writeStarterStep } from './helpers/starter-step.ts';
 
 test('Module S2-M02: Validation, Immutable Publication & Lifecycle (T040–T044)', async (t) => {
   const db = getDatabase(':memory:');
@@ -35,6 +36,7 @@ test('Module S2-M02: Validation, Immutable Publication & Lifecycle (T040–T044)
   const course = courseService.createCourseDraft(authorId, {
     title: 'Python Foundations',
   });
+  writeStarterStep(db, course.id);
   const courseId = course.id;
 
   // Setup basic metadata
@@ -374,6 +376,7 @@ test('Module S2-M02: Validation, Immutable Publication & Lifecycle (T040–T044)
     const freshDraft = courseService.createCourseDraft(authorId, {
       title: 'Draft Never Published',
     });
+    writeStarterStep(db, freshDraft.id);
     const deleteResult = lifecycleService.deleteCourseDraft(authorId, freshDraft.id);
     assert.equal(deleteResult.success, true);
     assert.throws(

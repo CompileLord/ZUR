@@ -1,3 +1,4 @@
+import { writeStarterStep } from './helpers/starter-step.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getDatabase } from '../src/db/database.ts';
@@ -35,6 +36,7 @@ test('Task T052: Mixed-lesson vertical slice verification (Phase B exit)', async
   const course = courseService.createCourseDraft(authorId, {
     title: 'Python Mastery: Functions & Data',
   });
+  writeStarterStep(db, course.id);
   const courseId = course.id;
 
   courseService.updateCourseMetadata(authorId, courseId, 1, {
