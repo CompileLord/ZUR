@@ -8,6 +8,7 @@ import { renderAdminMediaContent } from './AdminMediaPage.ts';
 import { renderAdminExecutionContent } from './AdminExecutionPage.ts';
 import { renderAdminAuditContent, renderAdminAuditDetailContent } from './AdminAuditPage.ts';
 
+import { renderIcon } from '../../components/common/icons.ts';
 import { escapeAdmin } from './admin-page-helpers.ts';
 export { escapeAdmin, renderActionDialog } from './admin-page-helpers.ts';
 export type { ActionDialogOptions, TableCol } from './admin-page-helpers.ts';
@@ -38,7 +39,8 @@ export function renderAdminPageContent(
   path: string,
   data: any,
   error?: string | AdminLoadError,
-  adminUser?: { displayName: string; email: string; capabilities?: ('student' | 'author' | 'admin')[] }
+  adminUser?: { displayName: string; email: string; capabilities?: ('student' | 'author' | 'admin')[] },
+  notice?: string
 ): { title: string; content: string } {
   const route = path.split('?')[0];
   const title =
@@ -98,7 +100,7 @@ export function renderAdminPageContent(
 
   return {
     title,
-    content: `<div class="admin-page-content">${err}${content}</div>`,
+    content: `<div class="admin-page-content">${notice ? `<p class="admin-flash" role="status">${renderIcon('check', { size: 16 })} ${escapeAdmin(notice)}</p>` : ''}${err}${content}</div>`,
   };
 }
 
@@ -106,9 +108,10 @@ export function renderAdminPage(
   path: string,
   data: any,
   error?: string | AdminLoadError,
-  adminUser: { displayName: string; email: string; capabilities?: ('student' | 'author' | 'admin')[] } = { displayName: 'Administrator', email: '' }
+  adminUser: { displayName: string; email: string; capabilities?: ('student' | 'author' | 'admin')[] } = { displayName: 'Administrator', email: '' },
+  notice?: string
 ): string {
-  const { title, content } = renderAdminPageContent(path, data, error, adminUser);
+  const { title, content } = renderAdminPageContent(path, data, error, adminUser, notice);
   return renderAdminShell({
     activePath: path.split('?')[0],
     adminUser,

@@ -2,6 +2,7 @@ import { getSafeReturnDestination } from '../../router/routes.ts';
 import { navigateTo } from '../navigation.ts';
 import { authClient, appEl } from '../state.ts';
 import { initTheme } from '../theme.ts';
+import { takeAdminFlash } from './admin-flash.ts';
 import { sanitizeAdminPath } from './admin-query.ts';
 
 export async function loadAdminPage(requestedPath: string, displayName: string, email: string): Promise<void> {
@@ -70,15 +71,17 @@ export async function loadAdminPage(requestedPath: string, displayName: string, 
 
 async function showAdminPage(path: string, data: any, error: { message: string; status?: number } | undefined, adminActor: { displayName: string; email: string; capabilities?: any }): Promise<void> {
   const { renderAdminPage, renderAdminPageContent } = await import('../../pages/admin/AdminPages.ts');
-  const { title, content } = renderAdminPageContent(path, data, error, adminActor);
+  const notice = takeAdminFlash();
+  const { title, content } = renderAdminPageContent(path, data, error, adminActor, notice);
   if (appEl.querySelector('.shell-admin')) {
     const adminMain = appEl.querySelector('.admin-main') || appEl.querySelector('.admin-content-body');
     if (adminMain) adminMain.innerHTML = content;
     const topbarTitle = appEl.querySelector('.admin-location-current');
     if (topbarTitle) topbarTitle.textContent = title;
   } else {
-    appEl.innerHTML = renderAdminPage(path, data, error, adminActor);
+    appEl.innerHTML = renderAdminPage(path, data, error, adminActor, notice);
     initTheme();
   }
   document.title = `${title} · ZUR`;
+  if (notice) setTimeout(() => appEl.querySelector('.admin-flash')?.remove(), 8000);
 }

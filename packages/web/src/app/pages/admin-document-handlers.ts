@@ -1,5 +1,7 @@
 import { navigateTo, renderApp } from '../navigation.ts';
 import { app } from '../state.ts';
+import { setAdminFlash, adminSuccessMessage } from './admin-flash.ts';
+import { clearFormErrors, showFormError } from './admin-form-feedback.ts';
 
 export function clearAdminDialogState(dialog: HTMLDialogElement): void {
   if (!dialog.classList.contains('admin-modal-dialog')) return;
@@ -9,10 +11,7 @@ export function clearAdminDialogState(dialog: HTMLDialogElement): void {
   dialog.querySelectorAll<HTMLInputElement>('input[name="reason"]').forEach((input) => {
     input.value = '';
   });
-  dialog.querySelectorAll<HTMLElement>('.form-error').forEach((err) => {
-    err.textContent = '';
-    err.classList.add('hidden');
-  });
+  dialog.querySelectorAll<HTMLFormElement>('form').forEach(clearFormErrors);
   const replaceSelect = dialog.querySelector<HTMLSelectElement>('#edit-category-replacement-select, [name="replacementId"]');
   if (replaceSelect) {
     replaceSelect.value = '';
@@ -65,7 +64,7 @@ export function installAdminDocumentHandlers(): void {
     if(exportForm){
       event.preventDefault();const feedback=exportForm.querySelector('.form-error') as HTMLElement|null;const button=exportForm.querySelector('button[type="submit"]') as HTMLButtonElement|null;if(button){button.disabled=true;button.textContent='Preparing export…';}
       try{const response=await fetch(exportForm.getAttribute('action')||'',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(exportForm).entries()))});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error?.message||'The export could not be prepared.');if(feedback){feedback.classList.remove('hidden');feedback.classList.add('text-success');feedback.setAttribute('role','status');feedback.textContent=`Export is ready for the account owner in Privacy settings until ${new Date(result.expiresAt).toLocaleString()}.`;}if(button)button.textContent='Export prepared';}
-      catch(error:any){if(feedback){feedback.textContent=error.message;feedback.classList.remove('hidden');}if(button){button.disabled=false;button.textContent='Prepare export for user';}}
+      catch(error:any){showFormError(exportForm,error.message);if(button){button.disabled=false;button.textContent='Prepare export for user';}}
       return;
     }
     const form = (event.target as HTMLElement).closest('form[data-admin-mutation]') as HTMLFormElement | null;
@@ -76,18 +75,18 @@ export function installAdminDocumentHandlers(): void {
     const values=Object.fromEntries(new FormData(form).entries()) as Record<string,string>;
     if(values.suspended!==undefined) values.suspended=String(values.suspended==='true');
     if(values.versionStep){ const [versionId,stepId]=values.versionStep.split('|');values.versionId=versionId;values.stepId=stepId;delete values.versionStep; }
-    const feedback=form.querySelector('.form-error') as HTMLElement|null;
     const button=form.querySelector('button[type="submit"]') as HTMLButtonElement|null;
     if(button){button.disabled=true;button.dataset.label=button.textContent||'';button.textContent='Confirming…';}
-    if(feedback){feedback.textContent='';feedback.classList.add('hidden');}
+    clearFormErrors(form);
     try{
       const res=await fetch(action,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(values)});
       const body=await res.json().catch(()=>({}));
       if(!res.ok)throw new Error(body.error?.message||'The administrator action could not be completed.');
       if(action==='/api/admin/support-access') { navigateTo(`/admin/users/${encodeURIComponent(body.userId)}?supportAccess=${encodeURIComponent(body.id)}`);return; }
+      setAdminFlash(adminSuccessMessage(method,action,values));
       renderApp(window.location.pathname+window.location.search);
     }catch(error:any){
-      if(feedback){feedback.textContent=error.message;feedback.classList.remove('hidden');}
+      showFormError(form,error.message);
       if(button){button.disabled=false;button.textContent=button.dataset.label||'Retry';}
     }
   });

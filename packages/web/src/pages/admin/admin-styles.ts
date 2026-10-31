@@ -400,4 +400,20 @@ export const adminStyles = `
 .admin-modal-dialog .form-error.hidden {
   display: none;
 }
+.admin-modal-dialog .form-input[aria-invalid="true"],
+.shell-admin .form-input[aria-invalid="true"] {
+  border-color: var(--danger, #ef4444);
+}
+.shell-admin .admin-flash {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--success);
+  background-color: var(--success-bg);
+  color: var(--success);
+  font-weight: 500;
+}
 `;
