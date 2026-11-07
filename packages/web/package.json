@@ -9,22 +9,22 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "^6.20.3",
+    "@codemirror/autocomplete": "^6.20.4",
     "@codemirror/commands": "^6.11.1",
     "@codemirror/lang-python": "^6.2.1",
-    "@codemirror/language": "^6.12.4",
+    "@codemirror/language": "^6.13.1",
     "@codemirror/search": "^6.7.2",
     "@codemirror/state": "^6.7.6",
-    "@codemirror/view": "^6.43.13",
-    "@lezer/highlight": "^1.2.4",
-    "@types/three": "^0.186.0",
-    "motion": "^14.0.0",
-    "three": "^0.186.1",
+    "@codemirror/view": "^6.43.15",
+    "@lezer/highlight": "^1.2.5",
+    "@types/three": "^0.187.0",
+    "motion": "^14.9.1",
+    "three": "^0.187.0",
     "zur-shared": "*"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.3",
-    "postcss": "^8.5.28",
+    "@tailwindcss/postcss": "^4.3.4",
+    "postcss": "^8.5.32",
     "tailwindcss": "^4.3.3",
     "vite": "^5.4.0"
   }
